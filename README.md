@@ -283,11 +283,11 @@ __ External network __ External Interface (e.g. en0)
                             VM Host
                                |
                                |
-                        Host-only Interface (e.g. vmnet1) __   Host-only network
-                        e.g. 192.168.52.1                      e.g. 192.168.52.0
-                                                                     |
-                                                                     |
-                                _____________________________________|
+                        Host-only Interface (e.g. vmnet1) __  Host-only network
+                        e.g. 192.168.52.1                     e.g. 192.168.52.0
+                                                                    |
+                                                                    |
+                                ____________________________________|
                                 |
             ____________________|____________________
             |                   |                   |
@@ -329,11 +329,11 @@ __ External network __ External Interface (e.g. en0)
                             VM Host
                                |
                                |
-                        Host-only Interface (e.g. vboxnet0) __ Host-only network
-                        e.g. 192.168.122.1                     e.g. 192.168.122.0
-                                                                     |
-                                                                     |
-                                _____________________________________|
+                        Host-only Interface (e.g. virbr0) __ Host-only network
+                        e.g. 192.168.122.1                   e.g. 192.168.122.0
+                                                                   |
+                                                                   |
+                                ___________________________________|
                                 |
             ____________________|____________________
             |                   |                   |
