@@ -11,10 +11,11 @@ WARNING: This is a somewhat significant clean up of the previous tool (mode) - i
 Known to be working:
 - Packer (Windows, CentOS, RHEL, Ubuntu, ESXi, SLES 12.x, Solaris 11 x86)
 - PXE Server (vSphere/ESXi, Ubuntu, etc)
-- VMware / VirtualBox VM creation
+- VMware Fusion/Workstation and VirtualBox VM creation
 - Solaris 11 AI
+- Solaris 10 Jumpstart
 
-This tools is designed to greatly simplify the creation of VMs for testing purposes.
+This tool is designed to greatly simplify the creation of VMs for testing purposes.
 
 With a single command line command you can create and manage VMware Fusion and VirtualBox VMs.
 
@@ -316,6 +317,29 @@ __ External network __ External Interface (e.g. en0)
             |                   |                   |
   Deployment Server        Test Server 1
   e.g. 192.168.56.100      e.g 192.168.56.101                                     
+```
+
+An example of host-only network for KVM is as follows:
+
+```
+__ External network __ External Interface (e.g. en0)
+   e.g. 192.168.1.0    e.g. 192.168.1.100
+                               |
+                               |
+                            VM Host
+                               |
+                               |
+                        Host-only Interface (e.g. vboxnet0) __ Host-only network
+                        e.g. 192.168.122.1                     e.g. 192.168.122.0
+                                                                     |
+                                                                     |
+                                _____________________________________|
+                                |
+            ____________________|____________________
+            |                   |                   |
+            |                   |                   |
+  Deployment Server        Test Server 1
+  e.g. 192.168.122.100     e.g 192.168.122.101                                     
 ```
 
 Requirements
