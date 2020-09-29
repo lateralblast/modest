@@ -1,0 +1,29 @@
+<html>
+  <head>
+    <title>mode Webserver Usage Information</title>
+  </head>
+  <body>
+    <a href="/help">HELP</a>
+    <a href="/list">LIST</a>
+    <a href="/upload">UPLOAD</a>
+    <p>
+    <table border="1">
+      <tr>
+        <th>Example Packer Options</th>
+        <th>URL</th>
+      </tr>
+      <tr>
+        <td>List all Packer clients</td>
+        <td><a href="/?action=list&type=packer">/?action=list&type=packer</a></td>
+      </tr>
+      <tr>
+        <td>List all Packer VirtualBox clients</td>
+        <td><a href="/?action=list&type=packer&vm=vbox">/?action=list&type=packer&vm=vbox</a></td>
+      </tr>
+      <tr>
+        <td>List all Packer VMware Fusion clients</td>
+        <td><a href="/?action=list&type=packer&vm=fusion">/?action=list&type=packer&vm=fusion</a></td>
+      </tr>
+    </table>
+  </body>
+</html>

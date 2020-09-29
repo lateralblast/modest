@@ -1,0 +1,8 @@
+# 0.0.1: Wed 17 Aug 2016 04:13:53 AEST
+# Initial working webserver
+# 0.0.2: Wed 17 Aug 2016 10:02:52 AEST
+# Added initial webserver functionality
+# 0.0.3: Thu 18 Aug 2016 22:11:11 AEST
+# Added parseconfig gem to webserver
+# 0.0.4: Mon 22 Aug 2016 11:11:29 AEST
+# More fixes and webserver plumbing

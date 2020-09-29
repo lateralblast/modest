@@ -1,0 +1,1255 @@
+# Changes
+# 0.0.1: Tue 17 Dec 2013 12:25:55 EST
+# Fixed Dir.* usage to be compatible on ruby 1.8
+# 0.0.2: Tue 17 Dec 2013 12:33:32 EST
+# Fixed AI publisher typo
+# 0.0.3: Tue 17 Dec 2013 13:36:13 EST
+# Fixed system command output
+# 0.0.4: Tue 17 Dec 2013 16:44:33 EST
+# Fixed processing of questions
+# 0.0.5: Wed 18 Dec 2013 07:10:32 EST
+# Added code to delete AI client and service
+# 0.0.6: Wed 18 Dec 2013 07:50:35 EST
+# Added code to be able to create only one AI architecture service
+# 0.0.7: Wed 18 Dec 2013 14:27:02 EST
+# Added AI service manifest creation code
+# 0.0.8: Wed 18 Dec 2013 18:42:33 EST
+# Improved verbose output
+# 0.0.9: Wed 18 Dec 2013 19:06:36 EST
+# Fixed ISO file determination
+# 0.1.0: Wed 18 Dec 2013 22:15:55 EST
+# Added to delete service
+# 0.1.1: Thu 19 Dec 2013 10:20:38 EST
+# Cleaned up server configuration code
+# 0.1.2: Thu 19 Dec 2013 10:51:20 EST
+# Fixed service creation
+# 0.1.3: Thu 19 Dec 2013 12:20:31 EST
+# Fixed auto_install directory to include release information
+# 0.1.4: Thu 19 Dec 2013 14:37:25 EST
+# Fixed issue with XML
+# 0.1.5: Thu 19 Dec 2013 15:57:03 EST
+# Fixed order of questions
+# 0.1.6: Thu 19 Dec 2013 16:21:00 EST
+# Fixed pkg url in manifest
+# 0.1.7: Thu 19 Dec 2013 20:04:44 EST
+# Cleaned up deletion code
+# 0.1.8: Thu 19 Dec 2013 22:26:47 EST
+# Fixed bugs with AI manifest creation
+# 0.1.9: Fri 20 Dec 2013 19:30:28 EST
+# Added additional questions to profile
+# 0.2.0: Fri 20 Dec 2013 20:03:01 EST
+# Fixed bugs with error handling and XML creation
+# 0.2.1: Fri 20 Dec 2013 21:10:40 EST
+# Added code to change timeout and default menu item in netboot grub.cfg
+# 0.2.2: Fri 20 Dec 2013 21:26:36 EST
+# Fixed XML output bugs
+# 0.2.3: Sun 22 Dec 2013 15:40:34 EST
+# Added code to use local file based repository if it exists
+# 0.2.4: Sun 22 Dec 2013 16:25:34 EST
+# Added code to extract release version from repository
+# 0.2.5: Mon 23 Dec 2013 18:15:04 EST
+# Added code to remove range entry from dhcpd config
+# 0.2.6: Mon 23 Dec 2013 19:14:37 EST
+# Added code to restart dhcp service
+# 0.2.7: Mon 23 Dec 2013 19:24:20 EST
+# Fixed bug with backing up dhcp config
+# 0.2.8: Tue 24 Dec 2013 04:01:06 EST
+# Fixed bug with editing grub.cfg
+# 0.2.9: Thu 26 Dec 2013 14:33:14 EST
+# Added code for alternate package repository to deploy puppet packages
+# 0.3.0: Thu 26 Dec 2013 15:06:17 EST
+# Added more value checking
+# 0.3.1: Thu 26 Dec 2013 15:08:48 EST
+# Updated usage information
+# 0.3.2: Thu 26 Dec 2013 18:11:35 EST
+# Fixed alternate repository creation and deletion
+# 0.3.3: Thu 26 Dec 2013 18:59:44 EST
+# Fixed alternate repository prefix
+# 0.3.4: Thu 26 Dec 2013 19:39:51 EST
+# Fixed package repository check
+# 0.3.5: Thu 26 Dec 2013 20:37:30 EST
+# Added code to install and uninstall packages
+# 0.3.6: Fri 27 Dec 2013 08:59:43 EST
+# Fixed package creation
+# 0.3.7: Fri 27 Dec 2013 10:09:58 EST
+# Fixed package version check
+# 0.3.8: Fri 27 Dec 2013 12:55:37 EST
+# Fixed package dependency handling
+# 0.3.9: Fri 27 Dec 2013 14:49:38 EST
+# Fixed grub.cfg update code
+# 0.4.0: Fri 27 Dec 2013 15:37:09 EST
+# Added ruby to base installation
+# 0.4.1: Sat 28 Dec 2013 13:54:14 EST
+# Fixed multiline output
+# 0.4.2: Sat 28 Dec 2013 15:37:35 EST
+# Added Linux ISO mount and copy code
+# 0.4.3: Sat 28 Dec 2013 17:59:49 EST
+# Added code to add and remove apache alias for kickstart directory
+# 0.4.4: Sat 28 Dec 2013 19:42:06 EST
+# Added code to list AI services
+# 0.4.5: Sat 28 Dec 2013 20:24:49 EST
+# Added code to list AI clients
+# 0.4.6: Sat 28 Dec 2013 20:46:53 EST
+# Added code to list Kickstart services
+# 0.4.7: Sat 28 Dec 2013 20:53:20 EST
+# Added code to list Kickstart clients
+# 0.4.8: Sun 29 Dec 2013 08:19:26 EST
+# Initial Kickstart client support
+# 0.4.9: Sun 29 Dec 2013 09:44:18 EST
+# Fixed question processing
+# 0.5.0: Sun 29 Dec 2013 10:48:45 EST
+# Added capability to change question structure
+# 0.5.1: Sun 29 Dec 2013 12:05:10 EST
+# Added initial kistart file output code
+# 0.5.2: Sun 29 Dec 2013 12:34:55 EST
+# Fixed bugs with kickstart file creation
+# 0.5.3: Sun 29 Dec 2013 16:49:16 EST
+# Added code to copy Linux PXE boot files from RPM file
+# 0.5.4: Sun 29 Dec 2013 21:40:59 EST
+# Fixed Linux ISO copy
+# 0.5.5: Sun 29 Dec 2013 22:30:45 EST
+# Added code to copy boot images to tftpboot directory
+# 0.5.6: Mon 30 Dec 2013 00:13:55 EST
+# Added code to create PXE boot files of kickstart client
+# 0.5.7: Mon 30 Dec 2013 00:29:55 EST
+# Fixed Linux PXE boot image copy code
+# 0.5.8: Mon 30 Dec 2013 07:45:31 EST
+# Added code to unonfigure Linux client PXE boot
+# 0.5.9: Mon 30 Dec 2013 09:17:20 EST
+# Fixed KS dhcp code
+# 0.6.0: Mon 30 Dec 2013 13:03:53 EST
+# Added code to add admin user to kickstart file
+# 0.6.1: Mon 30 Dec 2013 15:19:13 EST
+# Updated kickstart alternate packages
+# 0.6.2: Mon 30 Dec 2013 17:15:34 EST
+# Fixed kickstart post
+# 0.6.3: Mon 30 Dec 2013 19:34:31 EST
+# Fixed post package install
+# 0.6.4: Tue 31 Dec 2013 14:44:05 EST
+# Cleaned up main routine and made code more modular
+# 0.6.5: Tue 31 Dec 2013 16:41:31 EST
+# Cleaned up code
+# 0.6.6: Wed  1 Jan 2014 05:50:33 EST
+# Added initial Jumpstart server code
+# 0.6.7: Wed  1 Jan 2014 10:52:42 EST
+# Added code to enable NFS and TFTP server for Jumpstart
+# 0.6.8: Wed  1 Jan 2014 12:10:26 EST
+# Added code to fix rm_options['name'] and check scripts
+# 0.6.9: Thu  2 Jan 2014 06:33:57 EST
+# Initial code for Jumpstart questions
+# 0.7.0: Thu  2 Jan 2014 11:50:42 EST
+# Initial code for Jumpstart clients
+# 0.7.1: Thu  2 Jan 2014 13:15:37 EST
+# Fixed model handling for Jumpstart
+# 0.7.2: Thu  2 Jan 2014 13:34:03 EST
+# Fixed Solaris update checking
+# 0.7.3: Thu  2 Jan 2014 14:32:16 EST
+# Fixed jumpstart file system list
+# 0.7.4: Thu  2 Jan 2014 20:48:05 EST
+# Fixed question processing
+# 0.7.5: Thu  2 Jan 2014 21:21:32 EST
+# Code cleanup and initial Jumpstart client configuration file support
+# 0.7.6: Fri  3 Jan 2014 04:17:02 EST
+# Added code check rules and create rules.ok file for jumpstart client
+# 0.7.7: Fri  3 Jan 2014 04:54:18 EST
+# Added code to unconfigure jumpstart client
+# 0.7.8: Fri  3 Jan 2014 05:23:24 EST
+# Fixed jumpstart sysidcfg
+# 0.7.9: Fri  3 Jan 2014 07:55:58 EST
+# Updated usage information
+# 0.8.0: Fri  3 Jan 2014 13:34:58 EST
+# Added PXE and DHCP config creating for jumpstart
+# 0.8.1: Fri  3 Jan 2014 14:37:07 EST
+# Fixed default answer code
+# 0.8.2: Fri  3 Jan 2014 15:28:15 EST
+# Added code for creating rules.ok file
+# 0.8.3: Fri  3 Jan 2014 17:31:16 EST
+# Cleaned up jumpstart server configuration code
+# 0.8.4: Sat  4 Jan 2014 11:57:25 EST
+# Fix bugs with Jumpstart client code
+# 0.8.5: Sat  4 Jan 2014 13:27:58 EST
+# Cleaned up PXE and DHCP code
+# 0.8.6: Sat  4 Jan 2014 14:16:04 EST
+# Bug fixes, and initial Jumpstart support complete (need to add alternate package support)
+# 0.8.7: Sun  5 Jan 2014 12:01:37 EST
+# Fixed directory check for RHEL ISOs
+# 0.8.8: Sun  5 Jan 2014 13:32:45 EST
+# Added handling for lzma rpms
+# 0.8.9: Sun  5 Jan 2014 14:53:56 EST
+# Added x86_64 and i386 support to Kickstart
+# 0.9.0: Sun  5 Jan 2014 17:40:55 EST
+# Added service check to client creation
+# 0.9.1: Mon  6 Jan 2014 10:22:02 EST
+# Fixed ruby warning messages
+# 0.9.2: Mon  6 Jan 2014 16:26:19 EST
+# Added code to create and manage Virtual Box VMs
+# 0.9.3: Tue  7 Jan 2014 09:57:26 EST
+# Improved help and VirtualBox handling
+# 0.9.4: Tue  7 Jan 2014 14:57:29 EST
+# Fixed VirtualBox VM creation and deletion
+# 0.9.5: Wed  8 Jan 2014 14:25:56 EST
+# Added inital ESX server support
+# 0.9.6: Thu  9 Jan 2014 10:41:07 EST
+# Fixed ESXi boot.cfg creation
+# 0.9.7: Thu  9 Jan 2014 12:23:00 EST
+# Cleaned up ESXi kickstart script
+# 0.9.8: Thu  9 Jan 2014 13:00:45 EST
+# Minor fixes
+# 0.9.9: Sat 11 Jan 2014 22:19:35 EST
+# Added basic Ubuntu preseed support
+# 1.0.0: Tue 14 Jan 2014 13:21:29 EST
+# Added SLES server support
+# 1.0.1: Fri 17 Jan 2014 16:31:13 EST
+# Added SLES AutoYast client support
+# 1.0.2: Sat 18 Jan 2014 16:42:01 EST
+# Added initial support for OS X as a server
+# 1.0.3: Sun 19 Jan 2014 08:55:27 EST
+# Added intial support for Linux as a server
+# 1.0.4: Sun 19 Jan 2014 16:44:27 EST
+# Fixed ISO mounting on OS X
+# 1.0.5: Sun 19 Jan 2014 19:19:03 EST
+# Fixed apache configuration on OS X
+# 1.0.6: Mon 20 Jan 2014 15:29:30 EST
+# Fixed various bugs with questions and AI clients
+# 1.0.7: Mon 20 Jan 2014 16:49:11 EST
+# Added check to make sure AI profile doesn't already exist
+# 1.0.8: Tue 21 Jan 2014 09:12:51 EST
+# Initial Solaris Zones support
+# 1.0.9: Tue 21 Jan 2014 11:31:23 EST
+# Minor updates
+# 1.1.0: Tue 21 Jan 2014 15:58:50 EST
+# Initial LDom primary domain setup code
+# 1.1.1: Tue 21 Jan 2014 17:35:27 EST
+# Fixed bugs with DHCP config check and Solaris ISO processing for jumpstart
+# 1.1.2: Wed 22 Jan 2014 10:34:38 EST
+# Various fixes
+# 1.1.3: Wed 22 Jan 2014 17:16:53 EST
+# Added initial Guest domain support
+# 1.1.4: Wed 22 Jan 2014 21:24:32 EST
+# Minor updates
+# 1.1.5: Thu 23 Jan 2014 14:13:30 EST
+# Fixed Kickstart and Preseed configuration file creation bugs
+# 1.1.6: Thu 23 Jan 2014 15:47:48 EST
+# Started to add LXC support
+# 1.1.7: Fri 24 Jan 2014 21:16:26 EST
+# Initial working LXC support
+# 1.1.8: Sat 25 Jan 2014 14:42:57 EST
+# Ubuntu LXC support
+# 1.1.9: Sat 25 Jan 2014 15:24:53 EST
+# LXC bug fixes
+# 1.2.0: Sat 25 Jan 2014 17:43:43 EST
+# Added code to use local mirror for apt sources
+# 1.2.1: Sun 26 Jan 2014 17:12:29 EST
+# Numerous bug fixes
+# 1.2.2: Sun 26 Jan 2014 22:02:27 EST
+# Added support for Scientific Linux
+# 1.2.3: Mon 27 Jan 2014 15:16:54 EST
+# Bug fixes for kickstart postinstall script
+# 1.2.4: Tue 28 Jan 2014 10:49:00 EST
+# Cleaned up output code
+# 1.2.5: Tue 28 Jan 2014 12:09:07 EST
+# Initial OEL support
+# 1.2.6: Tue 28 Jan 2014 17:55:35 EST
+# Fixed OEL support
+# 1.2.7: Tue 28 Jan 2014 18:19:05 EST
+# Update epel.repo to use local mirror
+# 1.2.8: Tue 28 Jan 2014 18:31:45 EST
+# Increased default /boot size
+# 1.2.9: Tue 28 Jan 2014 22:35:45 EST
+# Added dtrace install to OEL 6.5 Kickstart
+# 1.3.0: Thu 30 Jan 2014 21:16:01 EST
+# Cleaned up Solaris Zone code
+# 1.3.1: Fri 31 Jan 2014 12:01:37 EST
+# Fixed warnings
+# 1.3.2: Fri 31 Jan 2014 15:59:34 EST
+# Cleaned up OS X support
+# 1.3.3: Fri 31 Jan 2014 20:40:36 EST
+# Fixed password crypt on OS X
+# 1.3.4: Sat  1 Feb 2014 13:37:33 EST
+# Added initial OS X Jumpstart server support
+# 1.3.5: Sat Feb  1 17:48:41 EST 2014
+# Initial Jumpstart client creation support on OS X
+# 1.3.6: Mon  3 Feb 2014 09:04:46 EST
+# Cleaned up jumpstart client support
+# 1.3.7: Mon  3 Feb 2014 16:10:05 EST
+# Added flar based installs for Jumpstart
+# 1.3.8: Thu  6 Feb 2014 12:46:54 EST
+# Added code to check DHCPd plist on OS X
+# 1.3.9: Fri  7 Feb 2014 11:28:17 EST
+# Added initial puppet master configuration
+# 1.4.0: Sat  8 Feb 2014 07:22:26 EST
+# Added OS X dnsmasq and puppet configuration to Ubuntu Preseed
+# 1.4.1: Sat  8 Feb 2014 12:19:41 EST
+# Added code to fetch puppet RPMs
+# 1.4.2:
+# Cleaned up puppet support and added second DVD import capability for CentOS
+# 1.4.3: Wed 12 Feb 2014 12:53:31 EST
+# Added Puppet master support for Solaris 11
+# 1.4.4: Sat 24 May 2014 11:28:02 EST
+# Fix bugs with set up on Solaris
+# 1.4.5: Sun 25 May 2014 14:32:19 EST
+# Bug fixes
+# 1.4.6: Tue 27 May 2014 08:33:16 EST
+# Improved ISO file name processing and added initial RHEL 7.0 RC ISO copy support
+# 1.4.7: Wed 28 May 2014 13:01:24 EST
+# RHEL 7.0 RC support and bug fixes
+# 1.4.8: Thu 29 May 2014 07:59:18 EST
+# Fixed bug with listing Solaris 11 ISOs and improved help
+# 1.4.9: Thu 29 May 2014 09:22:45 EST
+# Fixed bugs with ESXi configuration (5.5.0u1 test OK)
+# 1.5.0: Thu  5 Jun 2014 15:16:57 EST
+# Fixed bugs with Solaris 11 AI server configuration
+# 1.5.1: Fri  6 Jun 2014 08:31:50 EST
+# Fixed more bugs with AI server installation and de-installation
+# 1.5.2: Fri  6 Jun 2014 10:25:13 EST
+# Added option to set server size (e.g. small or large) for AI clients
+# 1.5.3: Sat  7 Jun 2014 11:07:35 EST
+# Added code to check listening interface is set up for DHCP on Solaris 11
+# 1.5.4: Sat  7 Jun 2014 11:26:34 EST
+# Added code to set default manifest to another manifest rather than updating the default
+# 1.5.5: Sat  7 Jun 2014 11:30:51 EST
+# Added code to set architecture for VMware Fusion VMs if not given for Solaris
+# 1.5.6: Sat  7 Jun 2014 20:46:20 EST
+# Fixed bugs with VirtualBox VM creation
+# 1.5.7: Sat  7 Jun 2014 20:59:13 EST
+# Improved handling of options with VMware Fusion and VirtualBox functions
+# 1.5.8: Sun  8 Jun 2014 03:19:52 EST
+# Fixed bugs with AI client creation
+# 1.5.9: Sun  8 Jun 2014 05:09:06 EST
+# Added support for SAS controller to VirtualBox VMs and made it default
+# 1.6.0: Sun  8 Jun 2014 09:45:28 EST
+# Added code to automatically create hostonly network if not present on VirtualBox and attach Guest Additions ISO
+# 1.6.1: Tue 10 Jun 2014 22:48:14 EST
+# Various bug fixes
+# 1.6.2: Wed 11 Jun 2014 07:13:29 EST
+# Cleaned up code to check hostonly networking
+# 1.6.3: Friday, 13 June 2014 05:19:16 AM EST
+# Cleaned up server setup code
+# 1.6.4: Fri 13 Jun 2014 08:38:02 EST
+# Added code to setup a local package repository if it doesn't exist
+# 1.6.5: Sat 14 Jun 2014 12:33:10 EST
+# Numerous bug fixes and RHEL 7 support
+# 1.6.6: Sat 14 Jun 2014 17:28:40 EST
+# Added code to set up BSD server
+# 1.6.7: Sun 15 Jun 2014 09:23:34 EST
+# Inital OpenBSD support
+# 1.6.8: Sun 15 Jun 2014 09:54:12 EST
+# Initial Fedora support
+# 1.6.9: Sun 15 Jun 2014 13:18:38 EST
+# Fedora 20 client support
+# 1.7.0: Sun 15 Jun 2014 15:25:54 EST
+# Fedora 20 fixes and Fedora 19 support
+# 1.7.1: Mon 16 Jun 2014 22:25:55 EST
+# Added initial CoreOS PXE boot support
+# 1.7.2: Thu 19 Jun 2014 13:39:03 EST
+# Fixed bugs with processing questions
+# 1.7.3: Thu 19 Jun 2014 13:57:09 EST
+# Fixed bug with mounting CDs for AI
+# 1.7.4: Wed 16 Jul 2014 12:29:39 EST
+# Fixed bugs with local config check on OS X
+# 1.7.5: Wed 16 Jul 2014 14:07:39 EST
+# Fixed bug with IP forwarding check
+# 1.7.6: Wed 16 Jul 2014 16:20:33 EST
+# Added support for Centos 7
+# 1.7.7: Thu 17 Jul 2014 03:54:44 EST
+# Added support for OEL 7
+# 1.7.8: Thu 17 Jul 2014 08:02:27 EST
+# Added support for Scientific Linux 7
+# 1.7.9: Sat  2 Aug 2014 05:35:40 EST
+# Fixed -j switch
+# 1.8.0: Sat  2 Aug 2014 05:54:16 EST
+# Cleaned up local config output
+# 1.8.1: Sat  2 Aug 2014 09:48:34 EST
+# Updated code for Solaris 11.2
+# 1.8.2: Sat  2 Aug 2014 13:29:46 EST
+# Removed/added packages for RHEL 7 based releases
+# 1.8.3: Mon  4 Aug 2014 07:34:41 EST
+# Cleaned up puppet mirror and kickstart code
+# 1.8.4: Tue 26 Aug 2014 16:36:25 EST
+# Fixed plumbing of vboxnet interface
+# 1.8.5: Wed 27 Aug 2014 10:22:01 EST
+# Improved addition and removal of hosts
+# 1.8.6: Wed 27 Aug 2014 17:39:03 EST
+# Improved VirtualBox serial connectivity
+# 1.8.7: Thu 28 Aug 2014 12:47:27 EST
+# Fixed ESXi serial support
+# 1.8.8: Fri 29 Aug 2014 08:33:05 EST
+# Added VirtualBox import and clone code
+# 1.8.9: Fri 29 Aug 2014 13:33:59 EST
+# Added IP, hostname and MAC address handling to VirtualBox import
+# 1.9.0: Fri 29 Aug 2014 13:44:21 EST
+# Added IP and MAC address handling to VirtualBox cloning
+# 1.9.1: Fri 29 Aug 2014 15:12:29 EST
+# Added code to add DHCP and hosts entries for standard clients
+# 1.9.2: Sun 31 Aug 2014 20:49:39 EST
+# Added additional support for running ESX and vCenter under Virtual box
+# 1.9.3: Sun 31 Aug 2014 21:11:01 EST
+# Added function to connect to serial port of VM
+# 1.9.4: Sun 31 Aug 2014 23:00:24 EST
+# Added code to list running VMs
+# 1.9.5: Tue  2 Sep 2014 08:31:51 EST
+# Added import for VMware Fusion VMs
+# 1.9.6: Tue  2 Sep 2014 09:37:37 EST
+# Added export for VirtualBox VMs
+# 1.9.7: Wed  3 Sep 2014 07:28:30 EST
+# Cleaned up OVA code
+# 1.9.8: Thu  4 Sep 2014 14:42:59 AEST
+# Fixed bugs with preseed
+# 1.9.9: Wed 29 Oct 2014 14:40:33 AEDT
+# Added code to delete repository directory if not deleted as part of zfs destroy
+# 2.0.0: Wed 29 Oct 2014 15:50:00 AEDT
+# Added initial server support for SLES 12
+# 2.0.1: Mon  1 Dec 2014 16:58:40 AEDT
+# Added directory permissions checks for work directory
+# 2.0.2: Mon  1 Dec 2014 17:54:47 AEDT
+# Added initial client support for SLES 12
+# 2.0.3: Tue  2 Dec 2014 13:05:24 AEDT
+# Added workaround for Ubuntu 14.10 PXE boot bug
+# 2.0.4: Thu  5 Feb 2015 17:56:13 AEDT
+# Migrated help, list and VirtualBox code to new format
+# 2.0.5: Fri  6 Feb 2015 07:08:57 AEDT
+# Migrated create and delete code to new format for VirtualBox and fixed error with deleting VMs
+# 2.0.6: Fri  6 Feb 2015 09:31:23 AEDT
+# Migrated create and delete code to new format for VMware Fusion
+# 2.0.7: Fri  6 Feb 2015 17:20:47 AEDT
+# Cleaned up and migrated more code to new format
+# 2.0.8: Sat  7 Feb 2015 10:55:40 AEDT
+# Migrated LDom calls to new format
+# 2.0.9: Sun  8 Feb 2015 09:24:05 AEDT
+# Improved info action and examples
+# 2.1.0: Sun  8 Feb 2015 10:12:02 AEDT
+# Added code to list all VirtualBox VMs
+# 2.1.1: Sun  8 Feb 2015 11:11:55 AEDT
+# Migrate list services code to new method
+# 2.1.2: Sun  8 Feb 2015 18:01:52 AEDT
+# Fixed adding hosts to host file
+# 2.1.3: Wed 11 Feb 2015 07:33:53 AEDT
+# Added initial support for parallels
+# 2.1.4: Wed 11 Feb 2015 11:58:33 AEDT
+# Added code to stop/start Parallels VMs
+# 2.1.5: Wed 11 Feb 2015 13:13:45 AEDT
+# Updated VM code to allow image file to be attached to VM as part of creation
+# 2.1.6: Wed 11 Feb 2015 13:59:14 AEDT
+# Added initial memory and cpu handling for vm creation
+# 2.1.7: Wed 11 Feb 2015 16:23:42 AEDT
+# Added initial code to attach and detach ISOs
+# 2.1.8: Wed 11 Feb 2015 18:51:02 AEDT
+# Added code to generate MAC address
+# 2.1.9: Sat 14 Feb 2015 11:33:37 AEDT
+# Numerous code cleanups, including NAT configuration
+# 2.2.0: Sun 15 Feb 2015 10:39:16 AEDT
+# Fixed CDROM attach/detach for Fusion VMs
+# 2.2.1: Sun 15 Feb 2015 12:40:55 AEDT
+# Added shared folder support for Fusion VMs
+# 2.2.2: Sun 15 Feb 2015 14:16:45 AEDT
+# Fixed UID check on directories
+# 2.2.3: Sun 15 Feb 2015 14:30:01 AEDT
+# Fixed network NAT/pfctl configuration
+# 2.2.4: Sun 15 Feb 2015 18:05:22 AEDT
+# Improved VMware Fusion network test
+# 2.2.5: Sun 15 Feb 2015 18:38:51 AEDT
+# More improvements to VMware Fusion network test
+# 2.2.6: Mon 16 Feb 2015 18:38:01 AEDT
+# Initial snapshot code
+# 2.2.7: Tue 17 Feb 2015 16:26:09 AEDT
+# Cleaned up list code for VMs
+# 2.2.8: Tue 17 Feb 2015 17:39:13 AEDT
+# Cleaned up snapshot code for Fusion VMs
+# 2.2.9: Tue 17 Feb 2015 18:14:33 AEDT
+# Added code to delete Fusion VM snapshots
+# 2.3.0: Wed 18 Feb 2015 10:20:34 AEDT
+# Cleaned up VirtualBox list code
+# 2.3.1: Wed 18 Feb 2015 11:06:31 AEDT
+# Added snapshot creation and deletion code for VirtualBox
+# 2.3.2: Sat  2 May 2015 12:10:21 AEST
+# Improved command line handling and added handling for unreadable VMware Fusion config file
+# 2.3.3: Sun  3 May 2015 08:53:28 AEST
+# Cleaned up ISO list code and commandline handling
+# 2.3.4: Sun  3 May 2015 10:25:09 AEST
+# Updated puppet install for Solaris 11.2
+# 2.3.5: Sun  3 May 2015 10:37:53 AEST
+# Improved ISO list code
+# 2.3.6: Sun  3 May 2015 10:58:31 AEST
+# Improved service list code
+# 2.3.7: Sun  3 May 2015 13:10:07 AEST
+# Improved service deletion code
+# 2.3.8: Mon  4 May 2015 12:50:30 AEST
+# Added code to restart VM and code cleanups
+# 2.3.9: Tue  5 May 2015 05:24:54 AEST
+# Added support for vSphere 6 and cleaned up some of the client code
+# 2.4.0: Tue  5 May 2015 06:15:09 AEST
+# Added support for license key in post install for vSphere
+# 2.4.1: Tue  5 May 2015 13:36:51 AEST
+# Cleaned up client creation code
+# 2.4.1: Tue  5 May 2015 22:46:17 AEST
+# Added check to make sure syslinux/pxelinux files are copied to tftpboot directory if not present when creating client
+# 2.4.2: Thu  7 May 2015 20:06:08 AEST
+# Cleaned up preseed code
+# 2.4.3: Fri  8 May 2015 11:53:32 AEST
+# Added code to display client config and mirror switch
+# 2.4.4: Sun 10 May 2015 09:08:37 AEST
+# Updates and bug fixes
+# 2.4.5: Thu 14 May 2015 13:04:18 AEST
+# Fixed import of OVA files for VMware Fusion
+# 2.4.6: Thu 23 Jul 2015 22:56:35 AEST
+# Bug fixes and added option to set boot device when attaching CDROM
+# 2.4.7: Fri 24 Jul 2015 09:21:02 AEST
+# Added code to dettach VirtualBox CDROM
+# 2.4.8: Fri 24 Jul 2015 11:34:01 AEST
+# Minor updates
+# 2.4.9: Fri 24 Jul 2015 14:02:00 AEST
+# Added initial support for remote command execution
+# 2.5.0: Fri 24 Jul 2015 14:59:43 AEST
+# Cleaned up ISO list functions
+# 2.5.1: Fri 24 Jul 2015 17:33:36 AEST
+# Added check for /etc/netboot and /tftpboot on Solaris
+# 2.5.2: Sat 25 Jul 2015 07:05:34 AEST
+# Fixed creation of dhcpd config and various bugs
+# 2.5.3: Sat 25 Jul 2015 08:39:52 AEST
+# Cleaned up services list output
+# 2.5.4: Sat 25 Jul 2015 10:42:10 AEST
+# Fixed creation of non default VirtualBox VMs
+# 2.5.5: Sat 25 Jul 2015 13:56:46 AEST
+# Fixed creation of ESX VirtualBox VMs
+# 2.5.6: Sat 25 Jul 2015 14:57:08 AEST
+# Fixed client list code
+# 2.5.7: Sat 25 Jul 2015 16:27:54 AEST
+# Fixed method determination for RHEL for install service creation from ISO
+# 2.5.8: Sat 25 Jul 2015 18:35:43 AEST
+# Fixed bug with puppet package directory creation
+# 2.5.9: Sun 26 Jul 2015 05:57:24 AEST
+# Fixed bugs and improved install method detection
+# 2.6.0: Sun 26 Jul 2015 08:24:33 AEST
+# Fixed bug with turning off VirtualBox warning messages
+# 2.6.1: Sun 26 Jul 2015 09:17:06 AEST
+# Added disk to boot method for VirtualBox
+# 2.6.2: Mon 27 Jul 2015 09:46:08 AEST
+# Removed need for fileutils gem
+# 2.6.3: Mon 27 Jul 2015 10:07:34 AEST
+# Added several packages to default kickstart package list
+# 2.6.4: Mon 27 Jul 2015 12:09:50 AEST
+# Documentation and code fixes
+# 2.6.5: Tue Jul 28 10:28:25 AEST 2015
+# Added support for distribution server on RHEL 7
+# 2.6.6: Tue Jul 28 16:12:55 AEST 2015
+# Fixed issues with RHEL 7 as a distribution server
+# 2.6.7: Tue Jul 28 17:45:03 AEST 2015
+# Linux OS version detection improvements
+# 2.6.8: Tue Jul 28 18:36:21 AEST 2015
+# Improved host IP detection on Linux
+# 2.6.9: Tue Jul 28 20:41:40 AEST 2015
+# Bug fixes for Linux Deployment Server support
+# 2.7.0: Fri 11 Sep 2015 11:54:05 AEST
+# Fixed error with listing VMware Fusion VMs
+# 2.7.1: Sat 12 Sep 2015 16:22:35 AEST
+# Added initial support for Packer and building Linux Kickstart VirtualBox VMs
+# 2.7.2: Sat 12 Sep 2015 18:39:05 AEST
+# Added code to delete Packer images
+# 2.7.3: Sun 13 Sep 2015 06:46:57 AEST
+# Added code to print changelog
+# 2.7.4: Sun 13 Sep 2015 07:54:29 AEST
+# Added inital support for AutoYast and Preseed and Packer
+# 2.7.5: Sun 13 Sep 2015 14:56:58 AEST
+# Fixed issue with Packer JSON creation
+# 2.7.6: Sun 13 Sep 2015 15:46:18 AEST
+# Added Packer VMware Fusion support
+# 2.7.7: Sun 13 Sep 2015 16:04:39 AEST
+# Added SSH timeout for Packer
+# 2.7.8: Sun 13 Sep 2015 16:38:30 AEST
+# Added support for vSphere for Packer
+# 2.7.9: Sun 13 Sep 2015 16:51:35 AEST
+# Fixed vSphere support for Packer
+# 2.8.0: Fri 16 Oct 2015 10:08:40 AEDT
+# Fixed netboot directory determination on Solaris
+# 2.8.1: Fri 16 Oct 2015 19:23:22 AEDT
+# More fixes for Solaris
+# 2.8.2: Sat 17 Oct 2015 08:40:06 AEDT
+# Minor bug fix
+# 2.8.3: Fri  6 Nov 2015 12:24:34 AEDT
+# Fixed typo
+# 2.8.4: Fri  6 Nov 2015 13:16:12 AEDT
+# Updated support for VMware Fusion 8
+# 2.8.5: Fri  6 Nov 2015 13:43:44 AEDT
+# Added MAC address check for VMware Fusion
+# 2.8.6: Sat  7 Nov 2015 10:11:27 AEDT
+# Fixed support for Solaris 11.3 and RedHat 6.7
+# 2.8.7: Sun  8 Nov 2015 06:46:03 AEDT
+# Added support for RedHat 6.7 changes to apache and SELinux
+# 2.8.8: Mon  9 Nov 2015 13:23:38 AEDT
+# Fixed MAC address check
+# 2.8.9: Tue 24 Nov 2015 18:40:29 AEDT
+# Added support for VCSA deployment
+# 2.9.0: Thu 26 Nov 2015 10:35:04 AEDT
+# Improved VCSA deployment
+# 2.9.1: Thu 26 Nov 2015 11:56:32 AEDT
+# More VCSA deployment improvements
+# 2.9.2: Tue  8 Dec 2015 13:31:24 AEDT
+# Added build capability to packer support
+# 2.9.3: Tue  8 Dec 2015 15:59:10 AEDT
+# Improved packer support
+# 2.9.4: Wed  9 Dec 2015 12:39:30 AEDT
+# Added code to import VMware Fusion Packer VM image
+# 2.9.5: Wed  9 Dec 2015 13:03:54 AEDT
+# Improved VirtualBox VM old config file cleanup
+# 2.9.6: Wed  9 Dec 2015 13:39:26 AEDT
+# Added code to import VirtualBox Packer VM image
+# 2.9.7: Wed  9 Dec 2015 15:25:01 AEDT
+# Cleaned up verbose information output
+# 2.9.8: Wed 16 Dec 2015 18:48:27 AEDT
+# Fixed up Packer deletion code
+# 2.9.9: Fri 18 Dec 2015 14:12:47 AEDT
+# Multiple fixes to Packer support code
+# 3.0.0: Mon 21 Dec 2015 10:26:26 AEDT
+# Added Fedora support for Packer
+# 3.0.1: Mon 21 Dec 2015 11:18:10 AEDT
+# Improved ESXi support for Packer
+# 3.0.2: Mon 21 Dec 2015 11:59:39 AEDT
+# More fixes for ESXi support for Packer
+# 3.0.3: Wed 23 Dec 2015 10:29:20 AEDT
+# Fixes for Ubuntu including intial Ubuntu support for Packer
+# 3.0.4: Thu 24 Dec 2015 19:51:40 AEDT
+# Fixes for Ubuntu and OEL and initial OEL support for Packer
+# 3.0.5: Fri 25 Dec 2015 08:31:25 AEDT
+# Added initial SUSE support for Packer
+# 3.0.6: Sat 27 Feb 2016 16:19:26 AEDT
+# Moved Windows related development files from .rb to .xx so they are not imported until they are ready
+# 3.0.7: Sat 27 Feb 2016 16:34:24 AEDT
+# Fixed bug with list all services
+# 3.0.8: Sun 28 Feb 2016 12:34:41 AEDT
+# More listing bug fixes
+# 3.0.9: Sun 28 Feb 2016 14:45:30 AEDT
+# Improved client listing code to show IP and MAC Address
+# 3.1.0: Sun 28 Feb 2016 17:44:03 AEDT
+# Added VM type detection for boot/stop like commands
+# 3.1.1: Sun 28 Feb 2016 20:46:39 AEDT
+# Fixed error with kickstart file creation and install server repo
+# 3.1.2: Sun 28 Feb 2016 21:28:46 AEDT
+# Added VM type detection for delete action and fixed kickstart packages on RHEL 6.x
+# 3.1.3: Mon 29 Feb 2016 11:55:52 AEDT
+# Minor updates
+# 3.1.4: Mon 29 Feb 2016 15:35:22 AEDT
+# Improved listing of clients
+# 3.1.5: Mon 29 Feb 2016 19:46:35 AEDT
+# Fixed listing Fusion VMs
+# 3.1.6: Tue  1 Mar 2016 14:40:30 AEDT
+# Fixed default route configuration for RHEL 6.x
+# 3.1.7: Tue  1 Mar 2016 15:21:39 AEDT
+# Fixed bug with listing ISOs
+# 3.1.8: Tue  1 Mar 2016 16:19:14 AEDT
+# Fixed bug with packer methods file and re-enabled it
+# 3.1.9: Tue  1 Mar 2016 16:20:22 AEDT
+# Fixed bug with ZFS fs creation for repo directories
+# 3.2.0: Tue  1 Mar 2016 16:44:56 AEDT
+# Fixed ISO copy for RHEL 5.x repo creation
+# 3.2.1: Wed  2 Mar 2016 11:39:21 AEDT
+# Fixed reboot action for VMware Fusion VMs
+# 3.2.2: Wed  2 Mar 2016 12:32:31 AEDT
+# Fixed bugs with RHEL 5.x kickstart config creation
+# 3.2.3: Wed  2 Mar 2016 12:39:38 AEDT
+# Fixed default route configuration in RHEL 5 and 6 postinstall
+# 3.2.4: Thu  3 Mar 2016 09:17:18 AEDT
+# Minor updates
+# 3.2.5: Mon  7 Mar 2016 14:50:55 AEDT
+# More minor updates
+# 3.2.6: Thu 10 Mar 2016 09:57:04 AEDT
+# Fixed issue with installing SLES 12.0
+# 3.2.7: Thu 10 Mar 2016 11:08:08 AEDT
+# Updated unconfigure service routine to deal with filesystems rather than symlinks in tftpboot directory (e.g. /etc/netboot)
+# 3.2.8: Thu 10 Mar 2016 11:50:37 AEDT
+# Fixed bug with Preseed client creation
+# 3.2.9: Sat 12 Mar 2016 13:30:51 AEDT
+# Fixed Solaris 10 Jumpstart on x86
+# 3.3.0: Sun 13 Mar 2016 09:08:07 AEDT
+# Added support for SLES 12 SP 1
+# 3.3.1: Sun 13 Mar 2016 14:56:31 AEDT
+# Fixed bugs with AutoYast
+# 3.3.2: Sun 13 Mar 2016 16:40:21 AEDT
+# Fixed deletion of ZFS filesystems
+# 3.3.3: Sun 13 Mar 2016 18:59:40 AEDT
+# Initial support for Solaris 9 Jumpstart Server
+# 3.3.4: Sun 13 Mar 2016 21:55:31 AEDT
+# Solaris client disksuite config fixes
+# 3.3.5: Mon 14 Mar 2016 14:18:18 AEDT
+# Added initial Solaris 9 ISO UFS copy code
+# 3.3.6: Mon 14 Mar 2016 17:34:46 AEDT
+# Several bug fixes
+# 3.3.7: Fri  1 Apr 2016 14:48:55 AEDT
+# Fixed several Packer bugs
+# 3.3.8: Sat  2 Apr 2016 14:02:25 AEDT
+# Added code to start VMware Fusion if not started so network can be plumbed
+# 3.3.9: Sat  2 Apr 2016 16:08:57 AEDT
+# Fixed packer installation
+# 3.4.0: Sat  2 Apr 2016 21:10:50 AEDT
+# Added code to determine Windows version from ISO
+# 3.4.1: Sun  3 Apr 2016 06:54:17 AEST
+# Initial support for Packer Windows VMs - Unattend.xml needs fixing
+# 3.4.2: Wed  6 Apr 2016 11:43:03 AEST
+# Working support for Windows 2008 R2 with Packer
+# 3.4.3: Sun 10 Apr 2016 11:45:00 AEST
+# Working support for Windows 2012 R2 with Packer
+# 3.4.4: Mon 11 Apr 2016 14:58:29 AEST
+# Initial Packer support for Windows with VirtualBox
+# 3.4.5: Tue 12 Apr 2016 11:25:11 AEST
+# Added Packer support for Windows with VirtualBox in NAT mode (hostonly or bridged does not appear to work currently with winrm)
+# 3.4.6: Tue 12 Apr 2016 15:57:10 AEST
+# Fixed Packer support for Windows with VMware Fusion in NAT mode
+# 3.4.7: Tue 12 Apr 2016 16:22:33 AEST
+# Fixed Packer support for Linux with VMware Fusion in NAT mode
+# 3.4.8: Tue 12 Apr 2016 17:23:03 AEST
+# Added Packer check for Linux with VirtualBox in NAT mode (hostonly or bridged does not appear to work currently with ssh)
+# 3.4.9: Sun  1 May 2016 08:10:02 AEST
+# Added initial support for Windows 2016 and fixed packer image import
+# 3.5.0: Thu  5 May 2016 20:29:09 AEST
+# Added support for Ubuntu 16.04 and fixed a number of bugs
+# 3.5.1: Wed 11 May 2016 12:12:31 AEST
+# Various bug fixed for Packer and Ubuntu
+# 3.5.2: Thu May 12 14:26:39 AEST 2016
+# Various bug fixes for Ubuntu
+# 3.5.3: Sun 10 Jul 2016 16:42:19 AEST
+# Added initial support for Fedora 24
+# 3.5.4: Sun 10 Jul 2016 20:09:36 AEST
+# Added support for OEL 6.8
+# 3.5.5: Fri 15 Jul 2016 09:49:02 AEST
+# Added initial support for Packer Solaris 11 x86 builds
+# 3.5.6: Fri 15 Jul 2016 20:54:14 AEST
+# Added code to determine VM type for Packer builds if not specified
+# 3.5.7: Fri 15 Jul 2016 21:58:02 AEST
+# Added support for Packer Solaris 11.1, 11.2, and 11.3 builds
+# 3.5.8: Fri 15 Jul 2016 22:51:00 AEST
+# Added support for Packer Solaris 11.0 builds
+# 3.5.9: Sat 16 Jul 2016 07:44:40 AEST
+# Added initial support for Packer Solaris 10 builds
+# 3.6.0: Sun 17 Jul 2016 17:29:29 AEST
+# Working Packer Solaris 10 builds for VMware Fusion
+# 3.6.1: Mon 18 Jul 2016 08:08:30 AEST
+# Added sudo configuration to Packer Solaris 11 post install
+# 3.6.2: Mon 18 Jul 2016 11:46:26 AEST
+# Added code to attempt install gems if they are not installed
+# 3.6.3: Mon 18 Jul 2016 16:24:08 AEST
+# Various Packer tweaks
+# 3.6.4: Thu 21 Jul 2016 02:01:14 AEST
+# Fixed bugs with ESXi support
+# 3.6.5: Fri 22 Jul 2016 07:57:03 AEST
+# Bug fixes
+# 3.6.6: Sun 24 Jul 2016 13:34:04 AEST
+# More bug fixes
+# 3.6.7: Sun 24 Jul 2016 14:17:09 AEST
+# Fixed a bug with multiple vcpu entries being put in vmx file
+# 3.6.8: Sun 24 Jul 2016 18:20:58 AEST
+# Initial support for building ESXi under Packer
+# 3.6.9: Mon 25 Jul 2016 11:35:32 AEST
+# VirtualBox bug fixes
+# 3.7.0: Mon 25 Jul 2016 19:54:29 AEST
+# Packer VirtualBox improvements
+# 3.7.1: Thu 11 Aug 2016 15:43:44 AEST
+# Fixed bugs with Solaris 11 AI Server code
+# 3.7.2: Fri 12 Aug 2016 14:14:40 AEST
+# Fixed bugs with Control Domain creation and Solaris 11 package/gem install scripts
+# 3.7.3: Fri 12 Aug 2016 15:03:44 AEST
+# More Control Domain code fixes
+# 3.7.4: Fri 12 Aug 2016 16:18:35 AEST
+# Guest LDom code fixes
+# 3.7.5: Fri 12 Aug 2016 16:57:09 AEST
+# Fixed code to stop/start Guest Domains
+# 3.7.6: Fri 12 Aug 2016 20:23:41 AEST
+# Added initial code to set values of parameters
+# 3.7.7: Fri 12 Aug 2016 23:00:01 AEST
+# Added code to show VM configuration and get parameters
+# 3.7.8: Mon 15 Aug 2016 08:38:09 AEST
+# Fixed issues with Ubuntu 16.04 and Packer
+# 3.7.9: Tue 16 Aug 2016 15:58:06 AEST
+# Minor bug fixes
+# 3.8.0: Tue 16 Aug 2016 18:01:42 AEST
+# Added check for platform when listing LDom services
+# 3.8.1: Tue 16 Aug 2016 20:10:42 AEST
+# Migrated common code in modest.rb into common.rb
+# 3.8.2: Wed 17 Aug 2016 10:02:52 AEST
+# Added initial webserver functionality
+# 3.8.3: Wed 17 Aug 2016 14:37:46 AEST
+# Output code migrated to new method
+# 3.8.4: Wed 17 Aug 2016 19:55:29 AEST
+# Added HTML output capability to AI list commands
+# 3.8.5: Thu 18 Aug 2016 10:37:15 AEST
+# Added some initial plumbing for webserver
+# 3.8.6: Thu 18 Aug 2016 12:46:50 AEST
+# Code cleanup for listing ISOs
+# 3.8.7: Thu 18 Aug 2016 14:10:14 AEST
+# More code cleanup for listing ISOs
+# 3.8.8: Thu 18 Aug 2016 20:02:41 AEST
+# Code cleanup for listing VMs
+# 3.8.9: Thu 18 Aug 2016 22:06:17 AEST
+# Fixed OS check for VMware Fusion VMs
+# 3.9.0: Fri 19 Aug 2016 06:20:26 AEST
+# More HTML output fixes
+# 3.9.1: Fri 19 Aug 2016 06:55:35 AEST
+# Added initial VNC code
+# 3.9.2: Mon 22 Aug 2016 11:11:29 AEST
+# More fixes and webserver plumbing
+# 3.9.3: Sat 24 Sep 2016 12:59:10 AEST
+# Initial cleanup of command line option handling
+# 3.9.4: Sat 24 Sep 2016 13:58:33 AEST
+# Fixed bugs with determining windows service name from ISO
+# 3.9.5: Sat 24 Sep 2016 15:08:27 AEST
+# Fixed some command line handling bugs
+# 3.9.6: Sun 25 Sep 2016 10:48:32 AEST
+# Added initial docker support
+# 3.9.7: Sun 25 Sep 2016 13:17:16 AEST
+# Added code to execute docker command on host
+# 3.9.8: Fri  7 Oct 2016 16:26:59 AEDT
+# Fixed bugs with Autounattend.xml creation
+# 3.9.9: Sat  8 Oct 2016 08:33:45 AEDT
+# Added support of Windows 2016 PR5
+# 4.0.0: Mon  7 Nov 2016 19:05:30 AEDT
+# Improved automatic gem installation and added support for Ubuntu 16.10
+# 4.0.1: Mon  5 Dec 2016 15:44:40 AEDT
+# Added check for Packer version 0.12.0 or above to deal with VMware Fusion stalling
+# 4.0.2: Tue  6 Dec 2016 05:42:26 AEDT
+# Added vSphere and VCSA 6.5 support
+# 4.0.3: Wed  7 Dec 2016 16:08:10 AEDT
+# Initial Packer AWS support
+# 4.0.4: Thu  8 Dec 2016 08:30:25 AEDT
+# Updated AWS credential code
+# 4.0.5: Thu  8 Dec 2016 17:24:48 AEDT
+# Added code to list and delete AMIs
+# 4.0.6: Thu  8 Dec 2016 17:53:43 AEDT
+# Added code to list Packer AWS cliGents
+# 4.0.7: Fri  9 Dec 2016 17:33:44 AEDT
+# Added code to list, stop and starto AWS instances
+# 4.0.8: Fri  9 Dec 2016 19:27:55 AEDT
+# Added code to delete AWS instances
+# 4.0.9: Fri  9 Dec 2016 19:56:27 AEDT
+# Added code to restart AWS instances
+# 4.1.1: Sun 11 Dec 2016 18:47:03 AEDT
+# Added code to create and terminate AWS instances
+# 4.1.2: Mon 12 Dec 2016 09:32:10 AEDT
+# Added code to create an AMI from an Instance
+# 4.1.3: Mon 12 Dec 2016 14:38:05 AEDT
+# Added code to list AWS buckets
+# 4.1.4: Mon 12 Dec 2016 19:14:48 AEDT
+# Added code to get ACLs on AWS bucket
+# 4.1.5: Wed 14 Dec 2016 07:49:28 AEDT
+# Added code to list and delete AWS snapshots
+# 4.1.6: Thu 15 Dec 2016 09:18:34 AEDT
+# Fixed Packer AWS code and general code cleanup
+# 4.1.7: Thu 15 Dec 2016 14:32:49 AEDT
+# Improved AWS Instance creation code and add AWS connect code
+# 4.1.8: Fri 16 Dec 2016 08:03:05 AEDT
+# Added code to list key pairs
+# 4.1.9: Fri 16 Dec 2016 10:58:28 AEDT
+# Added code to create and delete AWS key pairs
+# 4.2.0: Sat 17 Dec 2016 20:55:49 AEDT
+# Added stop/start all AWS instance capability
+# 4.2.1: Mon 19 Dec 2016 14:17:08 AEDT
+# Added code to create ssh config aliases/entries
+# 4.2.2: Mon 19 Dec 2016 17:25:34 AEDT
+# Fixed bug with listing terminated instances
+# 4.2.3: Mon 19 Dec 2016 19:39:28 AEDT
+# Fixed bugs with AWS instance creation
+# 4.2.4: Tue 20 Dec 2016 11:17:28 AEDT
+# Added code to upload file to S3 bucket
+# 4.2.5: Tue 20 Dec 2016 13:30:18 AEDT
+# Added code to download from S3 bucket
+# 4.2.6: Tue 20 Dec 2016 18:18:24 AEDT
+# Added code to list AWS CF stacks
+# 4.2.7: Wed 21 Dec 2016 07:53:40 AEDT
+# Added code to list AWS S3 bucket objects and upload contents of a URL to a bucket
+# 4.2.8: Wed 21 Dec 2016 16:26:24 AEDT
+# Added initial code to create and delete AWS CF stacks
+# 4.2.9: Wed 21 Dec 2016 18:35:47 AEDT
+# Fixed AWS EC2 SSH connection code
+# 4.3.0: Wed 21 Dec 2016 18:47:06 AEDT
+# Added Stack Status to AWS CF list output
+# 4.3.1: Thu 22 Dec 2016 09:16:32 AEDT
+# Added code to generate private and public URLs for AWS S3 bucket objects
+# 4.3.2: Thu 22 Dec 2016 10:58:35 AEDT
+# Improved command line processing for AWS functions
+# 4.3.3: Thu 22 Dec 2016 12:27:51 AEDT
+# Fixed handling of types and objects for AWS
+# 4.3.4: Fri 23 Dec 2016 06:47:44 AEDT
+# Added code to list EC2 security groups
+# 4.3.5: Fri 23 Dec 2016 08:37:47 AEDT
+# Added code to create and delete EC2 security groups
+# 4.3.6: Fri 23 Dec 2016 22:11:02 AEDT
+# Added code to add and delete EC2 security group rules
+# 4.3.7: Sun 25 Dec 2016 20:59:07 AEDT
+# Initial rewrite of command line argument handling
+# 4.3.8: Mon 26 Dec 2016 10:56:52 AEDT
+# Further cleanup of command line argument handling
+# 4.3.9: Mon 26 Dec 2016 11:05:07 AEDT
+# Minor bug fixes
+# 4.4.0: Mon 26 Dec 2016 12:27:22 AEDT
+# Updated Packer version and minor fixes
+# 4.4.1: Mon 26 Dec 2016 14:07:35 AEDT
+# Bug fixes
+# 4.4.2: Mon 26 Dec 2016 18:13:55 AEDT
+# Fixed AWS listing routines
+# 4.4.3: Mon 26 Dec 2016 21:34:59 AEDT
+# Fixed and improved AWS Packer client creation
+# 4.4.4: Mon 26 Dec 2016 22:47:45 AEDT
+# Bug fixes
+# 4.4.5: Tue 27 Dec 2016 10:36:02 AEDT
+# Various bug fixes and improvements for AWS instance creation
+# 4.4.6: Tue 27 Dec 2016 10:49:27 AEDT
+# Improved AWS instance SSH connection code
+# 4.4.7: Tue 27 Dec 2016 11:43:15 AEDT
+# AWS IP rule handling improvement
+# 4.4.8: Tue 27 Dec 2016 12:26:01 AEDT
+# More AWS IP rule handling improvements
+# 4.4.9: Tue 27 Dec 2016 20:49:36 AEDT
+# Fixed bug with packer import
+# 4.5.0: Tue 27 Dec 2016 21:45:53 AEDT
+# Fixed code to determine VM type for client if not given
+# 4.5.1: Wed 28 Dec 2016 09:17:57 AEDT
+# Fixed network determination for Packer and Ubuntu
+# 4.5.2: Thu 29 Dec 2016 09:15:14 AEDT
+# Minor improvements to docker support
+# 4.5.3: Thu 29 Dec 2016 13:14:19 AEDT
+# Added headless mode for Packer config and fixed bugs
+# 4.5.4: Sat 31 Dec 2016 16:12:14 AEDT
+# Added code to create simple Ansible based AWS instances
+# 4.5.5: Sun  1 Jan 2017 11:47:29 AEDT
+# Added code to mask secret and access keys in verbose output for AWS
+# 4.5.6: Sun  1 Jan 2017 19:03:22 AEDT
+# Fixes for Packer ESXi builds
+# 4.5.7: Mon  2 Jan 2017 14:34:57 AEDT
+# Disabled VMware Tools install on Windows as part of Packer due to failed installation (looks like Packer issue)
+# 4.5.8: Wed  4 Jan 2017 10:56:46 AEDT
+# Fixes and improvements for Solaris 11 Packer Builds
+# 4.5.9: Sat 14 Jan 2017 13:22:01 AEDT
+# Minor AWS fixes
+# 4.6.0: Tue  7 Feb 2017 09:05:18 AEDT
+# Minor AWS fixes
+# 4.6.1: Fri 30 Jun 2017 22:28:51 PDT
+# Various VMware Fusion fixes
+# 4.6.2: Sun  7 Jan 2018 19:39:18 AEDT
+# Improved Packer Fedora support
+# 4.6.3: Sun  7 Jan 2018 19:53:15 AEDT
+# Fixed Packer Fedora support
+# 4.6.4: Sun  7 Jan 2018 21:01:14 AEDT
+# Improved service name detection for SLES 12
+# 4.6.5: Mon  8 Jan 2018 08:49:45 AEDT
+# Fixed Packer support for SLES 12
+# 4.6.6: Mon  8 Jan 2018 20:57:35 AEDT
+# More fixes for Packer support for SLES 12
+# 4.6.7: Tue  9 Jan 2018 06:23:21 AEDT
+# More fixes for Packer support for SLES
+# 4.6.8: Wed 10 Jan 2018 22:38:43 AEDT
+# Added Packer support for Ubuntu 17.10
+# 4.6.9: Sat 19 May 2018 13:44:29 AEST
+# Added Packer support for Ubuntu 18.04
+# 4.7.0: Sun 20 May 2018 11:33:08 AEST
+# Added some Packer support for Solaris 11.4
+# 4.7.1: Sun  8 Jul 2018 16:55:45 AEST
+# Added filedir switch and fixed rpm2cpio and syslinux URLs
+# 4.7.2: Sat 15 Dec 2018 14:22:35 AEDT
+# Fixed netmask calculation
+# 4.7.3: Sat 15 Dec 2018 14:57:43 AEDT
+# Fixed bug with domainname in preseed creation
+# 4.7.4: Mon 31 Dec 2018 13:16:13 AEDT
+# Various packer config file creation updates
+# 4.7.5: Mon 31 Dec 2018 18:05:34 AEDT
+# Added initial support for QEMU via packer and improved install method detection
+# 4.7.6: Mon 31 Dec 2018 20:13:30 AEDT
+# More initial support for QEMU and KVM
+# 4.7.7: Thu Jan  3 14:49:11 AEDT 2019
+# More initial support for QEMU and KVM and bug fixes
+# 4.7.8: Thu Jan  3 17:14:57 AEDT 2019
+# Several fixes for VirtualBox on Linux
+# 4.7.9: Fri Jan  4 10:01:27 AEDT 2019
+# Some code cleanup and improved VM gateway determination
+# 4.8.0: Fri Jan  4 12:41:07 AEDT 2019
+# Various bug fixes
+# 4.8.1: Sat Jan  5 10:14:00 AEDT 2019
+# More bug fixes
+# 4.8.1: Mon Jan  7 14:18:15 AEDT 2019
+# More bug fixes
+# 4.8.2: Tue Jan  8 10:12:58 AEDT 2019
+# Code cleanup
+# 4.8.3: Thu 10 Jan 2019 19:12:00 AEDT
+# Bug fixes to get Packer working with VirtualBox in hostonly mode
+# 4.8.4: Fri 11 Jan 2019 17:38:55 AEDT
+# Fixed VirtualBox image import for packer VMs
+# 4.8.5: Fri 11 Jan 2019 18:45:04 AEDT
+# Improved packet forwarding check for OS X for hostonly networking
+# 4.8.6: Wed, Jan 16, 2019  3:01:06 PM
+# Updated gem auto installation to only install aws-sdk gem if needed
+# 4.8.7: Mon, Jan 21, 2019 10:33:40 PM
+# Initial Windows host support
+# 4.8.8: Tue, Jan 29, 2019  8:13:36 PM
+# Initial Windows VMware Workstation support
+# 4.8.9: Wed  6 Feb 2019 21:05:58 AEDT
+# Improved CentOS 7.x ISO name determination
+# 4.9.0: Sat  9 Feb 2019 14:24:31 AEDT
+# Various fixes for CentOS and packer
+# 4.9.1: Sun 21 Apr 2019 14:25:26 AEST
+# Fixed Kickstart creation for Packer
+# 4.9.2: Sun 21 Apr 2019 14:47:38 AEST
+# Added VM type detection for import
+# 4.9.3: Mon 22 Apr 2019 22:14:08 AEST
+# Added support for Red Hat 8.0 beta to Packer
+# 4.9.4: Tue 23 Apr 2019 11:33:43 AEST
+# Added support for Ubuntu 19.04
+# 4.9.5: Mon  3 Jun 2019 15:44:27 AEST
+# Minor update to stop exit after checking for VirtualBox
+# 4.9.6: Sat 22 Jun 2019 19:18:39 AEST
+# Added packer support for RHEL 8 release
+# 4.9.7: Sun 23 Jun 2019 14:13:38 AEST
+# Bug fixes for ESXi TFTP boot config
+# 4.9.8: Sun 23 Jun 2019 20:36:06 AEST
+# Updated VCSA deployment support for vSphere 6.7
+# 4.9.9: Sat  2 Nov 2019 17:50:24 AEDT
+# Fixes for VirtualBox and Packer
+# 5.0.0: Sat  2 Nov 2019 18:31:22 AEDT
+# Updated hostonly network to VirtualBox/Fusion defaults
+# 5.0.1: Sun Nov  3 15:17:12 AEDT 2019
+# Added Linux firewall check
+# 5.0.2: Sun Nov  3 16:26:46 AEDT 2019
+# Added install check for KVM
+# 5.0.3: Sun  3 Nov 17:32:35 AEDT 2019
+# Fixes for KVM
+# 5.0.4: Sun  3 Nov 21:21:38 AEDT 2019
+# Improvements for KVM including import
+# 5.0.5: Mon  4 Nov 21:23:28 AEDT 2019
+# Improved KVM support
+# 5.0.6: Wed  6 Nov 10:29:41 AEDT 2019
+# Bug fixes
+# 5.0.7: Wed  6 Nov 12:04:51 AEDT 2019
+# Improved ufw and iptables check
+# 5.0.8: Wed  6 Nov 20:33:54 AEDT 2019
+# Bug fixes
+# 5.0.9: Thu Nov  7 14:47:57 AEDT 2019
+# Added check for apache2 2.4 config file differences
+# 5.1.0: Sat  9 Nov 2019 19:28:10 AEDT
+# Bug fixes and improved LVM support in preseed config
+# 5.1.1: Sun 10 Nov 2019 16:51:36 AEDT
+# Bug fixes and improved handling for VirtualBox, Packer and Windows configuration
+# 5.1.2: Mon 11 Nov 2019 12:46:08 AEDT
+# Additional fixes for Packer and Windows
+# 5.1.3: Wed 13 Nov 2019 18:44:01 AEDT
+# Code cleanup
+# 5.1.4: Thu 14 Nov 2019 15:34:53 AEDT
+# Fixed listing of ISO files with + in file name
+# 5.1.5: Thu 14 Nov 2019 16:36:14 AEDT
+# Improved default value handing
+# 5.1.6: Fri 15 Nov 2019 11:07:32 AEDT
+# Bug fixes
+# 5.1.7: Fri 15 Nov 2019 18:04:06 AEDT
+# Updated VMware machine version determination
+# 5.1.8: Fri 15 Nov 2019 19:29:43 AEDT
+# Packer JSON fixes
+# 5.1.9: Sat 16 Nov 2019 22:04:59 AEDT
+# More Packer JSON fixes
+# 5.2.0: Tue Nov 19 09:24:27 AEDT 2019
+# Added root device switch
+# 5.2.1: Tue 19 Nov 19:34:22 AEDT 2019
+# Improved preseed post install 
+# 5.2.2: Thu 21 Nov 20:04:02 AEDT 2019
+# Fixed bug with Ubuntu sources.list creation
+# 5.2.3: Thu 28 Nov 2019 11:44:13 AEDT
+# Fixes for MacOS Catalina support
+# 5.2.4: Thu 28 Nov 2019 14:49:35 AEDT
+# Added code to check for orphaned packer VirtualBox VDIs
+# 5.2.5: Fri 29 Nov 2019 12:40:20 AEDT
+# Bug fixes
+# 5.2.6: Mon  9 Dec 2019 13:10:16 AEDT
+# Added handing for host and hostonly subnet being the same
+# 5.2.7: Wed 11 Dec 07:47:45 AEDT 2019
+# Some fixes for headless mode
+# 5.2.8: Mon 16 Dec 21:37:34 AEDT 2019
+# Added KVM import support for OVAs
+# 5.2.9: Wed 18 Dec 2019 08:11:13 AEDT
+# Various fixes
+# 5.3.0: Sat 21 Dec 2019 16:09:15 AEDT
+# Added code to add/delete VMware Fusion network interfaces
+# 5.3.1: Wed  1 Jan 16:15:05 AEDT 2020
+# Added check for uifw allow rule for packer based installs on Ubuntu Linux and other fixes 
+# 5.3.2: Wed  1 Jan 18:58:48 AEDT 2020
+# Fixes for KVM packer builds
+# 5.3.3: Fri 17 Jan 2020 11:22:24 AEDT
+# Bug fixes
+# 5.3.4: Sun 26 Jan 2020 19:55:21 AEDT
+# Fix for RHEL 8.x
+# 5.3.5: Sun 26 Jan 2020 20:37:05 AEDT
+# Bug fixes
+# 5.3.6: Mon 27 Jan 2020 12:49:22 AEDT
+# Bug fixes
+# 5.3.7: Mon 27 Jan 15:22:53 AEDT 2020
+# Added support for Oracle Linux 8.x
+# 5.3.8: Mon 27 Jan 2020 15:43:34 AEDT
+# Bug fixes
+# 5.3.9: Tue 28 Jan 14:13:23 AEDT 2020
+# Improved support for VMware Workstation for Linux
+# 5.4.0: Wed 29 Jan 2020 12:51:32 AEDT
+# Added initial capability to input multiple IPs to configure additional interfaces
+# 5.4.1: Wed 29 Jan 2020 19:49:10 AEDT
+# Bug fixes
+# 5.4.2: Wed 29 Jan 2020 20:26:04 AEDT
+# Improved multiple ethernet interface support
+# 5.4.3: Thu 30 Jan 2020 13:42:35 AEDT
+# Fixes for Windows 2016
+# 5.4.4: Thu 30 Jan 2020 16:06:51 AEDT
+# Add support for Windows 2019 and other fixes
+# 5.4.5: Fri 31 Jan 2020 19:10:59 AEDT
+# Added support for CentOS 8.x
+# 5.4.6: Fri 31 Jan 2020 20:29:05 AEDT
+# Fixes for SLES 12.x
+# 5.4.7: Fri 31 Jan 2020 21:34:02 AEDT
+# Initial support for SLES 15.x
+# 5.4.8: Thu 20 Feb 2020 12:33:17 AEDT
+# Start of major rewrite (packer working for RHEL/CentOS Linux and Windows)
+# 5.4.9: Thu 20 Feb 2020 13:42:16 AEDT
+# Fixed Packer Ubuntu builds
+# 5.5.0: Fri 21 Feb 2020 09:25:37 AEDT
+# Fixed ESXi Packer builds
+# 5.5.1: Fri 21 Feb 2020 10:09:10 AEDT
+# More fixes for Packer ESXi builds
+# 5.5.2: Sat 22 Feb 2020 08:48:30 AEDT
+# Fixed Packer SLES 12 builds
+# 5.5.3: Sat 21 Mar 2020 15:25:34 AEDT
+# Numerous bug fixes
+# 5.5.4: Sat 21 Mar 2020 16:05:13 AEDT
+# Fixed VMware Fusion VM directory determination
+# 5.5.5: Sat 21 Mar 2020 20:15:54 AEDT
+# Bug fixes
+# 5.5.6: Mon 23 Mar 2020 07:33:10 AEDT
+# More bug fixes
+# 5.5.7: Tue Mar 24 19:39:30 AEDT 2020
+# More bug fixes
+# 5.5.8: Wed 25 Mar 2020 10:17:23 AEDT
+# More bug fixes
+# 5.5.9: Wed 25 Mar 2020 13:25:22 AEDT
+# Fixed Fusion VM creation
+# 5.6.0: Thu Mar 26 01:58:39 AEDT 2020
+# Fixed DHCP config creations
+# 5.6.1: Thu Mar 26 13:02:40 AEDT 2020
+# More TFTP fixes
+# 5.6.2: Fri 27 Mar 2020 11:54:34 AEDT
+# More bug fixes
+# 5.6.3: Fri Mar 27 14:26:13 AEDT 2020
+# Moved to tftpd-hpa due to issues with default tftpd under Linux
+# 5.6.4: Fri Mar 27 16:05:30 AEDT 2020
+# More bug fixes
+# 5.6.5: Sat Mar 28 07:42:40 AEDT 2020
+# Started migrating global question struct to options
+# 5.6.6: Sat 28 Mar 2020 10:22:52 AEDT
+# Fixed SSH copy keys
+# 5.6.7: Sat 28 Mar 2020 11:37:43 AEDT
+# More bug fixes
+# 5.6.8: Sat Mar 28 16:01:37 AEDT 2020
+# Increased default memory of VM to deal with issues PXE booting
+# 5.6.9: Sat 28 Mar 2020 16:12:33 AEDT
+# Fixed cdrom copy command to deal with dotfiles not being copied
+# 5.7.0: Sat 28 Mar 2020 20:19:23 AEDT
+# Fixed AutoYast PXE boot for SLES 12 SP3
+# 5.7.1: Tue 31 Mar 2020 10:42:31 AEDT
+# More code cleanup
+# 5.7.2: Fri Apr  3 11:15:59 AEDT 2020
+# Added check to ensure service name is set
+# 5.7.3: Sun  5 Apr 2020 12:23:17 AEST
+# Bug fixes for Solaris 11 and Packer
+# 5.7.4: Sun  5 Apr 2020 18:37:56 AEST
+# More bug fixes for Solaris 11 Packer builds
+# 5.7.5: Mon  6 Apr 2020 07:30:06 AEST
+# Updates for Solaris 11 Update 4 and Packer
+# 5.7.6: Mon Apr 13 16:29:57 UTC 2020
+# Fixed host IP determination on Solaris
+# 5.7.7: Tue 14 Apr 2020 14:16:43 AEST
+# Several fixes for Solaris 11 AI install server config
+# 5.7.8: Wed 15 Apr 2020 07:40:17 AEST
+# Added package list array for MacOS to reduce package checks
+# 5.7.9: Wed 15 Apr 2020 17:30:17 AEST
+# More Solaris 11 AI install server fixes
+# 5.8.0: Thu 16 Apr 2020 08:49:24 AEST
+# Added check to make sure DHCP server is not in maintenance mode before running installadm
+# 5.8.1: Thu 16 Apr 2020 20:35:20 AEST
+# More fixes for Solaris 11
+# 5.8.2: Fri 17 Apr 2020 16:53:24 AEST
+# More fixes for Solaris 11
+# 5.8.3: Sat 18 Apr 2020 13:11:37 AEST
+# Fixes for Jumpstart server setup
+# 5.8.4: Sat 18 Apr 2020 14:06:11 AEST
+# Fixes for Jumpstart client setup
+# 5.8.5: Mon 20 Apr 2020 17:05:09 AEST
+# Bug fixes
+# 5.8.6: Thu 23 Apr 2020 12:23:10 AEST
+# Added support for Ubuntu 20.04 beta
+# 5.8.7: Sat 25 Apr 2020 17:36:00 AEST
+# Added code to split out LVM volumes for Ubuntu
+# 5.8.8: Sat 25 Apr 2020 18:19:29 AEST
+# Set partition format to GPT for Ubuntu
+# 5.8.9: Sun 26 Apr 2020 12:19:32 AEST
+# Bug fixes for listing ISO information
+# 5.9.0: Sun 26 Apr 2020 13:50:21 AEST
+# Fixed bugs in preseed PXE boot client configuration
+# 5.9.1: Sun 26 Apr 2020 14:46:38 AEST
+# Improved gateway determination for preseed PXE
+# 5.9.2: Mon 27 Apr 2020 11:04:54 AEST
+# Bug fixes for preseed PXE post install script execution
+# 5.9.3: Mon 27 Apr 2020 18:39:56 AEST
+# Added linux-generic-hwe-18.04 to Ubuntu 18.04 package list
+# 5.9.4: Wed 29 Apr 2020 19:36:05 AEST
+# Fixes for preseed grub config creation
+# 5.9.5: Thu 30 Apr 2020 09:01:26 AEST
+# More updates for grub config
+# 5.9.6: Thu 30 Apr 2020 19:44:27 AEST
+# More tweaks for splitvols switch for LVM layout
+# 5.9.7: Fri  5 Jun 2020 11:11:09 AEST
+# Bug fixes
+# 5.9.8: Tue  9 Jun 2020 17:37:35 AEST
+# Fixed bug with Solaris 11 installation manifest
+# 5.9.9: Wed 10 Jun 2020 14:54:03 AEST
+# Bug fixes
+# 6.0.0: Wed 10 Jun 2020 16:41:58 AEST
+# Bug fixes
+# 6.0.1: Wed 10 Jun 2020 17:25:23 AEST
+# Added gateway switch
+# 6.0.2: Wed 10 Jun 2020 17:44:33 AEST
+# Bug fixes
+# 6.0.3: Thu 11 Jun 2020 15:56:04 AEST
+# Improved rootdisk and mirrordisk option handling
+# 6.0.4: Fri 12 Jun 2020 16:43:57 AEST
+# Improved tftp and bootparams processing on Solaris
+# 6.0.5: Mon 15 Jun 2020 17:41:34 AEST
+# Fixed rules.ok and machine file generation for Solaris 10
+# 6.0.6: Tue 16 Jun 2020 12:00:22 AEST
+# Fixes for calculation mirror disk id
+# 6.0.7: Wed 08 Jul 2020 17:28:41 AEST
+# Bug fixes
+# 6.0.8: Wed  8 Jul 2020 18:39:17 AEST
+# Bug fixes
+# 6.0.9: Sat 11 Jul 2020 15:52:02 AEST
+# Added initial UEFI PXE boot support
+# 6.1.0: Wed 15 Jul 2020 21:23:00 AEST
+# Added handling for preseed language setting in Ubuntu 20
+# 6.1.1: Tue 28 Jul 2020 09:30:21 AEST
+# Bug fixes and more KVM support
+# 6.1.2: Tue 28 Jul 2020 11:54:14 AEST
+# Bug fixes
+# 6.1.3: Wed 29 Jul 2020 19:56:02 AEST
+# Improved KVM support and option checking
+# 6.1.4: Mon 03 Aug 2020 12:23:24 AEST
+# Bug fixes
+# 6.1.5: Mon 10 Aug 2020 14:11:49 AEST
+# Improved UEFI grub PXE boot config file creation
+# 6.1.6: Mon  7 Sep 2020 16:01:26 AEST
+# Cleaned up gem module load testing
+# 6.1.7: Mon  7 Sep 2020 16:39:51 AEST
+# Fixes for Packer install test
+# 6.1.8: Mon  7 Sep 2020 17:32:28 AEST
+# Fixes for create VMware Fusion promiscuous networking file
+# 6.1.9: Mon  7 Sep 2020 19:06:34 AEST
+# Bug fixes
+# 6.2.0: Tue 15 Sep 2020 21:18:24 AEST
+# Initial support for VMware Fusion 12 and fixes for Packer
+# 6.2.1: Thu 24 Sep 2020 10:14:23 AEST
+# Fixed issue with defaults for packer
+# 6.2.2: Thu 24 Sep 2020 16:41:49 AEST
+# Various bug fixes for KVM client creation checks
+# 6.2.3: Mon 28 Sep 2020 10:24:51 AEST
+# Various bug fixes for packer and VMware Workstation on Linux
+# 6.2.4: Mon 28 Sep 2020 13:59:24 AEST
+# Added bridge check to KVM installation check
+# 6.2.5: Mon 28 Sep 2020 14:28:11 AEST
+# Fixed packer KVM bridge and disk values
+# 6.2.6: Tue 29 Sep 2020 09:40:52 AEST
+# Updated Packer Ubuntu Preseed post install script and other bug fixes
