@@ -975,7 +975,7 @@ def create_packer_json(options)
               :net_device           => net_device,
               :net_bridge           => net_bridge,
               :qemuargs             => [
-                [ "-nograpic" ],
+                [ "-nographic" ],
                 [ "-serial", "stdio" ],
                 [ "-m", options['memory'] ],
                 [ "-smp", "cpus="+options['vcpus'] ]
@@ -1074,7 +1074,7 @@ def create_packer_json(options)
               :disk_interface       => disk_interface,
               :net_device           => net_device,
               :qemuargs             => [
-                [ "-nograpic" ],
+                [ "-nographic" ],
                 [ "-serial", "stdio" ],
                 [ "-m", options['memory']+"M" ],
                 [ "-smp", "cpus="+options['vcpus'] ]
@@ -1431,7 +1431,7 @@ def create_packer_json(options)
               :net_device           => net_device,
               :net_bridge           => net_bridge,
               :qemuargs             => [
-                [ "-nograpic" ],
+                [ "-nographic" ],
                 [ "-serial", "stdio" ],
                 [ "-m", options['memory'] ],
                 [ "-smp", "cpus="+options['vcpus'] ]
@@ -1524,7 +1524,7 @@ def create_packer_json(options)
               :disk_interface       => disk_interface,
               :net_device           => net_device,
               :qemuargs             => [
-                [ "-nograpic" ],
+                [ "-nographic" ],
                 [ "-serial", "stdio" ],
                 [ "-m", options['memory']+"M" ],
                 [ "-smp", "cpus="+options['vcpus'] ]
@@ -1764,7 +1764,7 @@ def create_packer_json(options)
               :net_device           => net_device,
               :net_bridge           => net_bridge,
               :qemuargs             => [
-                [ "-nograpic" ],
+                [ "-nographic" ],
                 [ "-serial", "stdio" ],
                 [ "-m", options['memory'] ],
                 [ "-smp", "cpus="+options['vcpus'] ]
@@ -1849,7 +1849,7 @@ def create_packer_json(options)
               :disk_interface       => disk_interface,
               :net_device           => net_device,
               :qemuargs             => [
-                [ "-nograpic" ],
+                [ "-nographic" ],
                 [ "-serial", "stdio" ],
                 [ "-m", options['memory']+"M" ],
                 [ "-smp", "cpus="+options['vcpus'] ]
