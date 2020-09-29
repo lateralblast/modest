@@ -624,7 +624,7 @@ def create_packer_json(options)
                    " netcfg/get_nameservers="+$q_struct['nameserver'].value+
                    " netcfg/get_domain="+$q_struct['domain'].value+
                    " preseed/url="+ks_url+
-                   " initrd=/install/initrd.gz net.ifnames=0 biosdevnames=0 -- <wait><enter><wait>"
+                   " initrd=/install/initrd.gz net.ifnames=0 biosdevnames=0 console=tty0 console=ttyS0 -- <wait><enter><wait>"
     shutdown_command = "echo 'shutdown -P now' > /tmp/shutdown.sh ; echo '#{$q_struct['admin_password'].value}'|sudo -S sh '/tmp/shutdown.sh'"
   when /vsphere|esx|vmware/
     hwvirtex          = "on"
@@ -1728,7 +1728,7 @@ def create_packer_json(options)
       }
     when /qemu|kvm|xen/
       if options['vmnetwork'].to_s.match(/hostonly|bridged/)
-        if option['headless'] == true
+        if options['headless'] == true
           json_data = {
             :variables => {
               :hostname => options['name'],
@@ -1764,6 +1764,7 @@ def create_packer_json(options)
               :net_device           => net_device,
               :net_bridge           => net_bridge,
               :qemuargs             => [
+                [ "-nograpic" ],
                 [ "-serial", "stdio" ],
                 [ "-m", options['memory'] ],
                 [ "-smp", "cpus="+options['vcpus'] ]
@@ -1806,7 +1807,6 @@ def create_packer_json(options)
               :net_device           => net_device,
               :net_bridge           => net_bridge,
               :qemuargs             => [
-                [ "-nograpic" ],
                 [ "-serial", "stdio" ],
                 [ "-m", options['memory'] ],
                 [ "-smp", "cpus="+options['vcpus'] ]
