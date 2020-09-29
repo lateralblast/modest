@@ -1253,3 +1253,5 @@
 # Fixed packer KVM bridge and disk values
 # 6.2.6: Tue 29 Sep 2020 09:40:52 AEST
 # Updated Packer Ubuntu Preseed post install script and other bug fixes
+# 6.2.7: Tue 29 Sep 2020 16:07:37 AEST
+# Added headless mode for KVM Packer JSON

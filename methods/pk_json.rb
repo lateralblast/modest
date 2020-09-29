@@ -939,100 +939,203 @@ def create_packer_json(options)
       end
     when /kvm|qemu|xen/
       if options['vmnetwork'].to_s.match(/hostonly|bridged/)
-        json_data = {
-          :variables => {
-            :hostname => options['name'],
-            :net_config => net_config
-          },
-          :builders => [
-            :name                 => options['name'],
-            :vm_name              => options['name'],
-            :type                 => options['type'],
-            :headless             => headless_mode,
-            :output_directory     => image_dir,
-            :disk_size            => options['size'],
-            :iso_url              => iso_url,
-            :ssh_host             => options['ip'],
-            :ssh_port             => ssh_port,
-            :ssh_host_port_min    => ssh_host_port_min,
-            :ssh_host_port_max    => ssh_host_port_max,
-            :ssh_username         => ssh_username,
-            :ssh_password         => ssh_password,
-            :ssh_timeout          => ssh_timeout,
-            :shutdown_command     => shutdown_command,
-            :shutdown_timeout     => shutdown_timeout,
-            :ssh_pty              => ssh_pty,
-            :iso_checksum         => install_checksum,
-            :http_directory       => packer_dir,
-            :http_port_min        => options['httpport'],
-            :http_port_max        => options['httpport'],
-            :boot_wait            => boot_wait,
-            :boot_command         => boot_command,
-            :format               => format,
-            :accelerator          => accelerator,
-            :disk_interface       => disk_interface,
-            :net_device           => net_device,
-            :net_bridge           => net_bridge,
-            :qemuargs             => [
-              [ "-m", options['memory'] ],
-              [ "-smp", "cpus="+options['vcpus'] ]
-            ],
-            :floppy_files         => [
-              sysidcfg,
-              rules,
-              rules_ok,
-              profile,
-              finish
+        if options['headless'] == true
+          json_data = {
+            :variables => {
+              :hostname => options['name'],
+              :net_config => net_config
+            },
+            :builders => [
+              :name                 => options['name'],
+              :vm_name              => options['name'],
+              :type                 => options['type'],
+              :headless             => headless_mode,
+              :output_directory     => image_dir,
+              :disk_size            => options['size'],
+              :iso_url              => iso_url,
+              :ssh_host             => options['ip'],
+              :ssh_port             => ssh_port,
+              :ssh_host_port_min    => ssh_host_port_min,
+              :ssh_host_port_max    => ssh_host_port_max,
+              :ssh_username         => ssh_username,
+              :ssh_password         => ssh_password,
+              :ssh_timeout          => ssh_timeout,
+              :shutdown_command     => shutdown_command,
+              :shutdown_timeout     => shutdown_timeout,
+              :ssh_pty              => ssh_pty,
+              :iso_checksum         => install_checksum,
+              :http_directory       => packer_dir,
+              :http_port_min        => options['httpport'],
+              :http_port_max        => options['httpport'],
+              :boot_wait            => boot_wait,
+              :boot_command         => boot_command,
+              :format               => format,
+              :accelerator          => accelerator,
+              :disk_interface       => disk_interface,
+              :net_device           => net_device,
+              :net_bridge           => net_bridge,
+              :qemuargs             => [
+                [ "-nograpic" ],
+                [ "-serial", "stdio" ],
+                [ "-m", options['memory'] ],
+                [ "-smp", "cpus="+options['vcpus'] ]
+              ],
+              :floppy_files         => [
+                sysidcfg,
+                rules,
+                rules_ok,
+                profile,
+                finish
+              ]
             ]
-          ]
-        }
+          }
+        else
+          json_data = {
+            :variables => {
+              :hostname => options['name'],
+              :net_config => net_config
+            },
+            :builders => [
+              :name                 => options['name'],
+              :vm_name              => options['name'],
+              :type                 => options['type'],
+              :headless             => headless_mode,
+              :output_directory     => image_dir,
+              :disk_size            => options['size'],
+              :iso_url              => iso_url,
+              :ssh_host             => options['ip'],
+              :ssh_port             => ssh_port,
+              :ssh_host_port_min    => ssh_host_port_min,
+              :ssh_host_port_max    => ssh_host_port_max,
+              :ssh_username         => ssh_username,
+              :ssh_password         => ssh_password,
+              :ssh_timeout          => ssh_timeout,
+              :shutdown_command     => shutdown_command,
+              :shutdown_timeout     => shutdown_timeout,
+              :ssh_pty              => ssh_pty,
+              :iso_checksum         => install_checksum,
+              :http_directory       => packer_dir,
+              :http_port_min        => options['httpport'],
+              :http_port_max        => options['httpport'],
+              :boot_wait            => boot_wait,
+              :boot_command         => boot_command,
+              :format               => format,
+              :accelerator          => accelerator,
+              :disk_interface       => disk_interface,
+              :net_device           => net_device,
+              :net_bridge           => net_bridge,
+              :qemuargs             => [
+                [ "-serial", "stdio" ],
+                [ "-m", options['memory'] ],
+                [ "-smp", "cpus="+options['vcpus'] ]
+              ],
+              :floppy_files         => [
+                sysidcfg,
+                rules,
+                rules_ok,
+                profile,
+                finish
+              ]
+            ]
+          }
+        end
       else
-        json_data = {
-          :variables => {
-            :hostname => options['name'],
-            :net_config => net_config
-          },
-          :builders => [
-            :name                 => options['name'],
-            :vm_name              => options['name'],
-            :type                 => options['type'],
-            :headless             => headless_mode,
-            :output_directory     => image_dir,
-            :disk_size            => options['size'],
-            :iso_url              => iso_url,
-            :ssh_port             => ssh_port,
-            :ssh_host_port_min    => ssh_host_port_min,
-            :ssh_host_port_max    => ssh_host_port_max,
-            :ssh_username         => ssh_username,
-            :ssh_password         => ssh_password,
-            :ssh_timeout          => ssh_timeout,
-            :shutdown_command     => shutdown_command,
-            :shutdown_timeout     => shutdown_timeout,
-            :ssh_pty              => ssh_pty,
-            :iso_checksum         => install_checksum,
-            :http_directory       => packer_dir,
-            :http_port_min        => options['httpport'],
-            :http_port_max        => options['httpport'],
-            :boot_wait            => boot_wait,
-            :boot_command         => boot_command,
-            :format               => format,
-            :accelerator          => accelerator,
-            :disk_interface       => disk_interface,
-            :net_device           => net_device,
-            :net_bridge           => net_bridge,
-            :qemuargs             => [
-              [ "-m", options['memory']+"M" ],
-              [ "-smp", "cpus="+options['vcpus'] ]
-            ],
-            :floppy_files         => [
-              sysidcfg,
-              rules,
-              rules_ok,
-              profile,
-              finish
+        if options['headless'] == true
+          json_data = {
+            :variables => {
+              :hostname => options['name'],
+              :net_config => net_config
+            },
+            :builders => [
+              :name                 => options['name'],
+              :vm_name              => options['name'],
+              :type                 => options['type'],
+              :headless             => headless_mode,
+              :output_directory     => image_dir,
+              :disk_size            => options['size'],
+              :iso_url              => iso_url,
+              :ssh_port             => ssh_port,
+              :ssh_host_port_min    => ssh_host_port_min,
+              :ssh_host_port_max    => ssh_host_port_max,
+              :ssh_username         => ssh_username,
+              :ssh_password         => ssh_password,
+              :ssh_timeout          => ssh_timeout,
+              :shutdown_command     => shutdown_command,
+              :shutdown_timeout     => shutdown_timeout,
+              :ssh_pty              => ssh_pty,
+              :iso_checksum         => install_checksum,
+              :http_directory       => packer_dir,
+              :http_port_min        => options['httpport'],
+              :http_port_max        => options['httpport'],
+              :boot_wait            => boot_wait,
+              :boot_command         => boot_command,
+              :format               => format,
+              :accelerator          => accelerator,
+              :disk_interface       => disk_interface,
+              :net_device           => net_device,
+              :qemuargs             => [
+                [ "-nograpic" ],
+                [ "-serial", "stdio" ],
+                [ "-m", options['memory']+"M" ],
+                [ "-smp", "cpus="+options['vcpus'] ]
+              ],
+              :floppy_files         => [
+                sysidcfg,
+                rules,
+                rules_ok,
+                profile,
+                finish
+              ]
             ]
-          ]
-        }
+          }
+        else
+          json_data = {
+            :variables => {
+              :hostname => options['name'],
+              :net_config => net_config
+            },
+            :builders => [
+              :name                 => options['name'],
+              :vm_name              => options['name'],
+              :type                 => options['type'],
+              :headless             => headless_mode,
+              :output_directory     => image_dir,
+              :disk_size            => options['size'],
+              :iso_url              => iso_url,
+              :ssh_port             => ssh_port,
+              :ssh_host_port_min    => ssh_host_port_min,
+              :ssh_host_port_max    => ssh_host_port_max,
+              :ssh_username         => ssh_username,
+              :ssh_password         => ssh_password,
+              :ssh_timeout          => ssh_timeout,
+              :shutdown_command     => shutdown_command,
+              :shutdown_timeout     => shutdown_timeout,
+              :ssh_pty              => ssh_pty,
+              :iso_checksum         => install_checksum,
+              :http_directory       => packer_dir,
+              :http_port_min        => options['httpport'],
+              :http_port_max        => options['httpport'],
+              :boot_wait            => boot_wait,
+              :boot_command         => boot_command,
+              :format               => format,
+              :accelerator          => accelerator,
+              :disk_interface       => disk_interface,
+              :net_device           => net_device,
+              :qemuargs             => [
+                [ "-serial", "stdio" ],
+                [ "-m", options['memory']+"M" ],
+                [ "-smp", "cpus="+options['vcpus'] ]
+              ],
+              :floppy_files         => [
+                sysidcfg,
+                rules,
+                rules_ok,
+                profile,
+                finish
+              ]
+            ]
+          }
+        end
       end
     when /fusion/
       if options['vmnetwork'].to_s.match(/hostonly|bridged/)
@@ -1292,94 +1395,191 @@ def create_packer_json(options)
       }
     when /qemu|kvm|xen/
       if options['vmnetwork'].to_s.match(/hostonly|bridged/)
-        json_data = {
-          :variables => {
-            :hostname => options['name'],
-            :net_config => net_config
-          },
-          :builders => [
-            :name                 => options['name'],
-            :vm_name              => options['name'],
-            :type                 => options['type'],
-            :headless             => headless_mode,
-            :output_directory     => image_dir,
-            :disk_size            => options['size'],
-            :iso_url              => iso_url,
-            :ssh_host             => options['ip'],
-            :ssh_port             => ssh_port,
-            :ssh_host_port_min    => ssh_host_port_min,
-            :ssh_host_port_max    => ssh_host_port_max,
-            :ssh_username         => ssh_username,
-            :ssh_password         => ssh_password,
-            :ssh_timeout          => ssh_timeout,
-            :shutdown_command     => shutdown_command,
-            :shutdown_timeout     => shutdown_timeout,
-            :ssh_pty              => ssh_pty,
-            :iso_checksum         => install_checksum,
-            :http_directory       => packer_dir,
-            :http_port_min        => options['httpport'],
-            :http_port_max        => options['httpport'],
-            :boot_wait            => boot_wait,
-            :boot_command         => boot_command,
-            :format               => format,
-            :accelerator          => accelerator,
-            :disk_interface       => disk_interface,
-            :net_device           => net_device,
-            :net_bridge           => net_bridge,
-            :qemuargs             => [
-              [ "-m", options['memory'] ],
-              [ "-smp", "cpus="+options['vcpus'] ]
-            ],
-            :floppy_files         => [
-              unattended_xml,
-              post_install_psh
+        if options['headless'] == true
+          json_data = {
+            :variables => {
+              :hostname => options['name'],
+              :net_config => net_config
+            },
+            :builders => [
+              :name                 => options['name'],
+              :vm_name              => options['name'],
+              :type                 => options['type'],
+              :headless             => headless_mode,
+              :output_directory     => image_dir,
+              :disk_size            => options['size'],
+              :iso_url              => iso_url,
+              :ssh_host             => options['ip'],
+              :ssh_port             => ssh_port,
+              :ssh_host_port_min    => ssh_host_port_min,
+              :ssh_host_port_max    => ssh_host_port_max,
+              :ssh_username         => ssh_username,
+              :ssh_password         => ssh_password,
+              :ssh_timeout          => ssh_timeout,
+              :shutdown_command     => shutdown_command,
+              :shutdown_timeout     => shutdown_timeout,
+              :ssh_pty              => ssh_pty,
+              :iso_checksum         => install_checksum,
+              :http_directory       => packer_dir,
+              :http_port_min        => options['httpport'],
+              :http_port_max        => options['httpport'],
+              :boot_wait            => boot_wait,
+              :boot_command         => boot_command,
+              :format               => format,
+              :accelerator          => accelerator,
+              :disk_interface       => disk_interface,
+              :net_device           => net_device,
+              :net_bridge           => net_bridge,
+              :qemuargs             => [
+                [ "-nograpic" ],
+                [ "-serial", "stdio" ],
+                [ "-m", options['memory'] ],
+                [ "-smp", "cpus="+options['vcpus'] ]
+              ],
+              :floppy_files         => [
+                unattended_xml,
+                post_install_psh
+              ]
             ]
-          ]
-        }
+          }
+        else
+          json_data = {
+            :variables => {
+              :hostname => options['name'],
+              :net_config => net_config
+            },
+            :builders => [
+              :name                 => options['name'],
+              :vm_name              => options['name'],
+              :type                 => options['type'],
+              :headless             => headless_mode,
+              :output_directory     => image_dir,
+              :disk_size            => options['size'],
+              :iso_url              => iso_url,
+              :ssh_host             => options['ip'],
+              :ssh_port             => ssh_port,
+              :ssh_host_port_min    => ssh_host_port_min,
+              :ssh_host_port_max    => ssh_host_port_max,
+              :ssh_username         => ssh_username,
+              :ssh_password         => ssh_password,
+              :ssh_timeout          => ssh_timeout,
+              :shutdown_command     => shutdown_command,
+              :shutdown_timeout     => shutdown_timeout,
+              :ssh_pty              => ssh_pty,
+              :iso_checksum         => install_checksum,
+              :http_directory       => packer_dir,
+              :http_port_min        => options['httpport'],
+              :http_port_max        => options['httpport'],
+              :boot_wait            => boot_wait,
+              :boot_command         => boot_command,
+              :format               => format,
+              :accelerator          => accelerator,
+              :disk_interface       => disk_interface,
+              :net_device           => net_device,
+              :net_bridge           => net_bridge,
+              :qemuargs             => [
+                [ "-serial", "stdio" ],
+                [ "-m", options['memory'] ],
+                [ "-smp", "cpus="+options['vcpus'] ]
+              ],
+              :floppy_files         => [
+                unattended_xml,
+                post_install_psh
+              ]
+            ]
+          }
+        end
       else
-        json_data = {
-          :variables => {
-            :hostname => options['name'],
-            :net_config => net_config
-          },
-          :builders => [
-            :name                 => options['name'],
-            :vm_name              => options['name'],
-            :type                 => options['type'],
-            :headless             => headless_mode,
-            :output_directory     => image_dir,
-            :disk_size            => options['size'],
-            :iso_url              => iso_url,
-            :ssh_port             => ssh_port,
-            :ssh_host_port_min    => ssh_host_port_min,
-            :ssh_host_port_max    => ssh_host_port_max,
-            :ssh_username         => ssh_username,
-            :ssh_password         => ssh_password,
-            :ssh_timeout          => ssh_timeout,
-            :shutdown_command     => shutdown_command,
-            :shutdown_timeout     => shutdown_timeout,
-            :ssh_pty              => ssh_pty,
-            :iso_checksum         => install_checksum,
-            :http_directory       => packer_dir,
-            :http_port_min        => options['httpport'],
-            :http_port_max        => options['httpport'],
-            :boot_wait            => boot_wait,
-            :boot_command         => boot_command,
-            :format               => format,
-            :accelerator          => accelerator,
-            :disk_interface       => disk_interface,
-            :net_device           => net_device,
-            :net_bridge           => net_bridge,
-            :qemuargs             => [
-              [ "-m", options['memory']+"M" ],
-              [ "-smp", "cpus="+options['vcpus'] ]
-            ],
-            :floppy_files         => [
-              unattended_xml,
-              post_install_psh
+        if options['headless'] == true
+          json_data = {
+            :variables => {
+              :hostname => options['name'],
+              :net_config => net_config
+            },
+            :builders => [
+              :name                 => options['name'],
+              :vm_name              => options['name'],
+              :type                 => options['type'],
+              :headless             => headless_mode,
+              :output_directory     => image_dir,
+              :disk_size            => options['size'],
+              :iso_url              => iso_url,
+              :ssh_port             => ssh_port,
+              :ssh_host_port_min    => ssh_host_port_min,
+              :ssh_host_port_max    => ssh_host_port_max,
+              :ssh_username         => ssh_username,
+              :ssh_password         => ssh_password,
+              :ssh_timeout          => ssh_timeout,
+              :shutdown_command     => shutdown_command,
+              :shutdown_timeout     => shutdown_timeout,
+              :ssh_pty              => ssh_pty,
+              :iso_checksum         => install_checksum,
+              :http_directory       => packer_dir,
+              :http_port_min        => options['httpport'],
+              :http_port_max        => options['httpport'],
+              :boot_wait            => boot_wait,
+              :boot_command         => boot_command,
+              :format               => format,
+              :accelerator          => accelerator,
+              :disk_interface       => disk_interface,
+              :net_device           => net_device,
+              :qemuargs             => [
+                [ "-nograpic" ],
+                [ "-serial", "stdio" ],
+                [ "-m", options['memory']+"M" ],
+                [ "-smp", "cpus="+options['vcpus'] ]
+              ],
+              :floppy_files         => [
+                unattended_xml,
+                post_install_psh
+              ]
             ]
-          ]
-        }
+          }
+        else
+          json_data = {
+            :variables => {
+              :hostname => options['name'],
+              :net_config => net_config
+            },
+            :builders => [
+              :name                 => options['name'],
+              :vm_name              => options['name'],
+              :type                 => options['type'],
+              :headless             => headless_mode,
+              :output_directory     => image_dir,
+              :disk_size            => options['size'],
+              :iso_url              => iso_url,
+              :ssh_port             => ssh_port,
+              :ssh_host_port_min    => ssh_host_port_min,
+              :ssh_host_port_max    => ssh_host_port_max,
+              :ssh_username         => ssh_username,
+              :ssh_password         => ssh_password,
+              :ssh_timeout          => ssh_timeout,
+              :shutdown_command     => shutdown_command,
+              :shutdown_timeout     => shutdown_timeout,
+              :ssh_pty              => ssh_pty,
+              :iso_checksum         => install_checksum,
+              :http_directory       => packer_dir,
+              :http_port_min        => options['httpport'],
+              :http_port_max        => options['httpport'],
+              :boot_wait            => boot_wait,
+              :boot_command         => boot_command,
+              :format               => format,
+              :accelerator          => accelerator,
+              :disk_interface       => disk_interface,
+              :net_device           => net_device,
+              :qemuargs             => [
+                [ "-serial", "stdio" ],
+                [ "-m", options['memory']+"M" ],
+                [ "-smp", "cpus="+options['vcpus'] ]
+              ],
+              :floppy_files         => [
+                unattended_xml,
+                post_install_psh
+              ]
+            ]
+          }
+        end
       end
     end
   else
@@ -1528,86 +1728,175 @@ def create_packer_json(options)
       }
     when /qemu|kvm|xen/
       if options['vmnetwork'].to_s.match(/hostonly|bridged/)
-        json_data = {
-          :variables => {
-            :hostname => options['name'],
-            :net_config => net_config
-          },
-          :builders => [
-            :name                 => options['name'],
-            :vm_name              => options['name'],
-            :type                 => options['type'],
-            :headless             => headless_mode,
-            :output_directory     => image_dir,
-            :disk_size            => options['size'],
-            :iso_url              => iso_url,
-            :ssh_host             => options['ip'],
-            :ssh_port             => ssh_port,
-            :ssh_host_port_min    => ssh_host_port_min,
-            :ssh_host_port_max    => ssh_host_port_max,
-            :ssh_username         => ssh_username,
-            :ssh_password         => ssh_password,
-            :ssh_timeout          => ssh_timeout,
-            :shutdown_command     => shutdown_command,
-            :shutdown_timeout     => shutdown_timeout,
-            :ssh_pty              => ssh_pty,
-            :iso_checksum         => install_checksum,
-            :http_directory       => packer_dir,
-            :http_port_min        => options['httpport'],
-            :http_port_max        => options['httpport'],
-            :boot_wait            => boot_wait,
-            :boot_command         => boot_command,
-            :format               => format,
-            :accelerator          => accelerator,
-            :disk_interface       => disk_interface,
-            :net_device           => net_device,
-            :net_bridge           => net_bridge,
-            :qemuargs             => [
-              [ "-m", options['memory'] ],
-              [ "-smp", "cpus="+options['vcpus'] ]
+        if option['headless'] == true
+          json_data = {
+            :variables => {
+              :hostname => options['name'],
+              :net_config => net_config
+            },
+            :builders => [
+              :name                 => options['name'],
+              :vm_name              => options['name'],
+              :type                 => options['type'],
+              :headless             => headless_mode,
+              :output_directory     => image_dir,
+              :disk_size            => options['size'],
+              :iso_url              => iso_url,
+              :ssh_host             => options['ip'],
+              :ssh_port             => ssh_port,
+              :ssh_host_port_min    => ssh_host_port_min,
+              :ssh_host_port_max    => ssh_host_port_max,
+              :ssh_username         => ssh_username,
+              :ssh_password         => ssh_password,
+              :ssh_timeout          => ssh_timeout,
+              :shutdown_command     => shutdown_command,
+              :shutdown_timeout     => shutdown_timeout,
+              :ssh_pty              => ssh_pty,
+              :iso_checksum         => install_checksum,
+              :http_directory       => packer_dir,
+              :http_port_min        => options['httpport'],
+              :http_port_max        => options['httpport'],
+              :boot_wait            => boot_wait,
+              :boot_command         => boot_command,
+              :format               => format,
+              :accelerator          => accelerator,
+              :disk_interface       => disk_interface,
+              :net_device           => net_device,
+              :net_bridge           => net_bridge,
+              :qemuargs             => [
+                [ "-serial", "stdio" ],
+                [ "-m", options['memory'] ],
+                [ "-smp", "cpus="+options['vcpus'] ]
+              ]
             ]
-          ]
-        }
+          }
+        else
+          json_data = {
+            :variables => {
+              :hostname => options['name'],
+              :net_config => net_config
+            },
+            :builders => [
+              :name                 => options['name'],
+              :vm_name              => options['name'],
+              :type                 => options['type'],
+              :headless             => headless_mode,
+              :output_directory     => image_dir,
+              :disk_size            => options['size'],
+              :iso_url              => iso_url,
+              :ssh_host             => options['ip'],
+              :ssh_port             => ssh_port,
+              :ssh_host_port_min    => ssh_host_port_min,
+              :ssh_host_port_max    => ssh_host_port_max,
+              :ssh_username         => ssh_username,
+              :ssh_password         => ssh_password,
+              :ssh_timeout          => ssh_timeout,
+              :shutdown_command     => shutdown_command,
+              :shutdown_timeout     => shutdown_timeout,
+              :ssh_pty              => ssh_pty,
+              :iso_checksum         => install_checksum,
+              :http_directory       => packer_dir,
+              :http_port_min        => options['httpport'],
+              :http_port_max        => options['httpport'],
+              :boot_wait            => boot_wait,
+              :boot_command         => boot_command,
+              :format               => format,
+              :accelerator          => accelerator,
+              :disk_interface       => disk_interface,
+              :net_device           => net_device,
+              :net_bridge           => net_bridge,
+              :qemuargs             => [
+                [ "-nograpic" ],
+                [ "-serial", "stdio" ],
+                [ "-m", options['memory'] ],
+                [ "-smp", "cpus="+options['vcpus'] ]
+              ]
+            ]
+          }
+        end
       else
-        json_data = {
-          :variables => {
-            :hostname => options['name'],
-            :net_config => net_config
-          },
-          :builders => [
-            :name                 => options['name'],
-            :vm_name              => options['name'],
-            :type                 => options['type'],
-            :headless             => headless_mode,
-            :output_directory     => image_dir,
-            :disk_size            => options['size'],
-            :iso_url              => iso_url,
-            :ssh_port             => ssh_port,
-            :ssh_host_port_min    => ssh_host_port_min,
-            :ssh_host_port_max    => ssh_host_port_max,
-            :ssh_username         => ssh_username,
-            :ssh_password         => ssh_password,
-            :ssh_timeout          => ssh_timeout,
-            :shutdown_command     => shutdown_command,
-            :shutdown_timeout     => shutdown_timeout,
-            :ssh_pty              => ssh_pty,
-            :iso_checksum         => install_checksum,
-            :http_directory       => packer_dir,
-            :http_port_min        => options['httpport'],
-            :http_port_max        => options['httpport'],
-            :boot_wait            => boot_wait,
-            :boot_command         => boot_command,
-            :format               => format,
-            :accelerator          => accelerator,
-            :disk_interface       => disk_interface,
-            :net_device           => net_device,
-            :net_bridge           => net_bridge,
-            :qemuargs             => [
-              [ "-m", options['memory']+"M" ],
-              [ "-smp", "cpus="+options['vcpus'] ]
+        if options['headless'] == true
+          json_data = {
+            :variables => {
+              :hostname => options['name'],
+              :net_config => net_config
+            },
+            :builders => [
+              :name                 => options['name'],
+              :vm_name              => options['name'],
+              :type                 => options['type'],
+              :headless             => headless_mode,
+              :output_directory     => image_dir,
+              :disk_size            => options['size'],
+              :iso_url              => iso_url,
+              :ssh_port             => ssh_port,
+              :ssh_host_port_min    => ssh_host_port_min,
+              :ssh_host_port_max    => ssh_host_port_max,
+              :ssh_username         => ssh_username,
+              :ssh_password         => ssh_password,
+              :ssh_timeout          => ssh_timeout,
+              :shutdown_command     => shutdown_command,
+              :shutdown_timeout     => shutdown_timeout,
+              :ssh_pty              => ssh_pty,
+              :iso_checksum         => install_checksum,
+              :http_directory       => packer_dir,
+              :http_port_min        => options['httpport'],
+              :http_port_max        => options['httpport'],
+              :boot_wait            => boot_wait,
+              :boot_command         => boot_command,
+              :format               => format,
+              :accelerator          => accelerator,
+              :disk_interface       => disk_interface,
+              :net_device           => net_device,
+              :qemuargs             => [
+                [ "-nograpic" ],
+                [ "-serial", "stdio" ],
+                [ "-m", options['memory']+"M" ],
+                [ "-smp", "cpus="+options['vcpus'] ]
+              ]
             ]
-          ]
-        }
+          }
+        else
+          json_data = {
+            :variables => {
+              :hostname => options['name'],
+              :net_config => net_config
+            },
+            :builders => [
+              :name                 => options['name'],
+              :vm_name              => options['name'],
+              :type                 => options['type'],
+              :headless             => headless_mode,
+              :output_directory     => image_dir,
+              :disk_size            => options['size'],
+              :iso_url              => iso_url,
+              :ssh_port             => ssh_port,
+              :ssh_host_port_min    => ssh_host_port_min,
+              :ssh_host_port_max    => ssh_host_port_max,
+              :ssh_username         => ssh_username,
+              :ssh_password         => ssh_password,
+              :ssh_timeout          => ssh_timeout,
+              :shutdown_command     => shutdown_command,
+              :shutdown_timeout     => shutdown_timeout,
+              :ssh_pty              => ssh_pty,
+              :iso_checksum         => install_checksum,
+              :http_directory       => packer_dir,
+              :http_port_min        => options['httpport'],
+              :http_port_max        => options['httpport'],
+              :boot_wait            => boot_wait,
+              :boot_command         => boot_command,
+              :format               => format,
+              :accelerator          => accelerator,
+              :disk_interface       => disk_interface,
+              :net_device           => net_device,
+              :qemuargs             => [
+                [ "-serial", "stdio" ],
+                [ "-m", options['memory']+"M" ],
+                [ "-smp", "cpus="+options['vcpus'] ]
+              ]
+            ]
+          }
+        end
       end
     end
   end
