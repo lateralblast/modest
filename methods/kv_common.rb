@@ -74,9 +74,13 @@ end
 # Get KVM IP address
 
 def get_kvm_vm_ip(options)
-  options['mac'] = get_kvm_vm_mac(options)
-  options['ip']  = %x[arp -an |grep "#{options['mac']}" |awk '{print $2}' |tr -d '()'].chomp
-  return options['ip']
+  options = get_kvm_vm_mac(options)
+  if !options['mac'].to_s.match(/[0-9]|[A-Z]|[a-z]/)
+    optrions['mac'] = ""
+  else
+    options['ip']  = %x[arp -an |grep "#{options['mac']}" |awk '{print $2}' |tr -d '()'|head -1].chomp
+  end
+  return options
 end
 
 # Get KVM MAC address
@@ -86,7 +90,7 @@ def get_kvm_vm_mac(options)
   command = "virsh domiflist \"#{options['name']}\" |grep network"
   output  = execute_command(options,message,command)
   options['mac'] = output.chomp.split()[4]
-  return options['mac']
+  return options
 end
 
 # Boot KVM VM
@@ -116,7 +120,7 @@ def boot_kvm_vm(options)
       end
     end
   else
-    handle_output(options,"Warning:\tVMware Fusion VM #{options['name']} does not exist")
+    handle_output(options,"Warning:\tVMware KVM VM #{options['name']} does not exist")
   end
   return
 end
@@ -554,10 +558,6 @@ def list_kvm_vms(options)
   if !options['osname'].match(/Linux/)
     return
   end
-  options['ip']     = ""
-  options['mac']    = ""
-  options['name']   = ""
-  options['status'] = ""
   command   = "virsh list --all"
   message   = "Information:\tGetting list of KVM VMs"
   file_list = execute_command(options,message,command)
@@ -585,9 +585,9 @@ def list_kvm_vms(options)
     file_list.each do |entry|
       if not entry.match(/^---|^ Id/)
         (header,options['id'],options['name'],options['status']) = entry.split(/\s+/)
-        options['mac']    = get_kvm_vm_mac(options)
-        options['ip']     = get_kvm_vm_ip(options)
-        options['status'] = options['status'].gsub(/shut/,"shutdown")
+        options = get_kvm_vm_mac(options)
+        options = get_kvm_vm_ip(options)
+        options['status'] = options['status'].to_s.gsub(/shut/,"shutdown")
         if options['mac'] == nil
           options['mac'] = ""
         end
@@ -597,13 +597,13 @@ def list_kvm_vms(options)
         if options['search'] == "all" or options['search'] == "none" or entry.match(/#{options['search']}/)
           if options['output'].to_s.match(/html/)
             handle_output(options,"<tr>")
-            handle_output(options,"<td>#{options['name']}</td>")
-            handle_output(options,"<td>#{options['ip']}</td>")
-            handle_output(options,"<td>#{options['mac']}</td>")
-            handle_output(options,"<td>#{options['status']}</td>")
+            handle_output(options,"<td>#{options['name'].to_s}</td>")
+            handle_output(options,"<td>#{options['ip'].to_s}</td>")
+            handle_output(options,"<td>#{options['mac'].to_s}</td>")
+            handle_output(options,"<td>#{options['status'].to_s}</td>")
             handle_output(options,"</tr>")
           else
-            output = options['name']+" ip="+options['ip']+" mac="+options['mac']+" status="+options['status']
+            output = options['name'].to_s+" ip="+options['ip'].to_s+" mac="+options['mac'].to_s+" status="+options['status'].to_s
             handle_output(options,output)
           end
         end

@@ -1249,7 +1249,8 @@ end
 
 def set_local_config(options)
   if options['osname'].to_s.match(/Linux/)
-    options['tftpdir']   = "/var/lib/tftpboot"
+#    options['tftpdir']   = "/var/lib/tftpboot"
+    options['tftpdir']   = "/srv/tftp"
     options['dhcpdfile'] = "/etc/dhcp/dhcpd.conf"
   end
   if options['osname'].to_s.match(/Darwin/)
@@ -3233,6 +3234,10 @@ def check_tftpd_config(options)
   if options['osname'].to_s.match(/Linux/)
     tmp_file   = "/tmp/tftp"
     pxelinux_file = "/usr/lib/PXELINUX/pxelinux.0"
+    if !File.exist?(pxelinux_file)
+      options = install_package(options,"pxelinux")
+      options = install_package(options,"syslinux")
+    end
     syslinux_file = "/usr/lib/syslinux/modules/bios/ldlinux.c32"
     pxelinux_dir  = options['tftpdir']
     pxelinux_tftp = pxelinux_dir+"/pxelinux.0"
@@ -4089,6 +4094,9 @@ def add_apache_proxy(options,service_base_name)
   end
   if options['osname'].to_s.match(/Linux/)
     apache_config_file = options['apachedir']+"/conf/httpd.conf"
+    if !File.exist?(apache_config_file)
+      options = install_package(options,"apache2")
+    end
   end
   a_check = %x[cat #{apache_config_file} |grep #{service_base_name}]
   if not a_check.match(/#{service_base_name}/)

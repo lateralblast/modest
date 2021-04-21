@@ -1255,3 +1255,7 @@
 # Updated Packer Ubuntu Preseed post install script and other bug fixes
 # 6.2.7: Tue 29 Sep 2020 16:07:37 AEST
 # Added headless mode for KVM Packer JSON
+# 6.2.8: Fri 23 Oct 2020 16:28:42 AEDT
+# Added package checks for apache2, shim, and grubnet packages
+# 6.2.9: Wed 21 Apr 2021 09:06:53 AEST
+# Fixed bug with virtualbox network check

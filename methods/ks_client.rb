@@ -29,8 +29,14 @@ def configure_ks_pxe_client(options)
   execute_command(options,message,command)
   if options['pxetype'].to_s.match(/efi/)
     shim_efi_file  = "/usr/lib/shim/shimx64.efi"
+    if !File.exist?(shim_efi_file)
+      install_package(options,"shim")
+    end
     shim_grub_file = options['tftpdir']+"/shimx64.efi"
     net_efi_file   = "/usr/lib/grub/x86_64-efi/monolithic/grubnetx64.efi"
+    if !File.exist?(net_efi_file)
+      install_package(options,"grub-efi-amd64-bin")
+    end
     net_grub_file  = options['tftpdir']+"/grubx64.efi"
     check_dir_exists(options,options['tftpdir'])
     check_dir_owner(options,options['tftpdir'],options['uid'])

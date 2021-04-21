@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      6.2.7
+# Version:      6.2.9
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -1382,7 +1382,7 @@ if options['vm'] != options['empty']
     options = check_vbox_is_installed(options)
     handle_vm_install_status(options)
     options['vm']   = "vbox"
-    options['sudo']      = false
+    options['sudo'] = false
     options['size'] = options['size'].gsub(/G/,"000")
     options['hostonlyip'] = "192.168.56.1"
     options['vmgateway']  = "192.168.56.1"
@@ -1395,7 +1395,7 @@ if options['vm'] != options['empty']
     handle_vm_install_status(options)
     check_fusion_vm_promisc_mode(options)
     options['sudo']  = false
-    options['vm'] = "fusion"
+    options['vm']    = "fusion"
     options['hostonlyip'] = "192.168.52.1"
     options['vmgateway']  = "192.168.52.1"
   when /zone|container|lxc/
@@ -2317,6 +2317,9 @@ if options['action'] != options['empty']
       eval"[get_#{options['vm']}_value(options)]"
     end
   when /console|serial|connect|ssh/
+    if options['vm'].to_s.match(/kvm/)
+      connect_to_kvm_vm(options)
+    end
     if options['vm'].to_s.match(/aws/) || options['id'].to_s.match(/[0-9]/)
       connect_to_aws_vm(options)
       quit(options)

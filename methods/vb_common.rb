@@ -1122,8 +1122,12 @@ def get_vbox_hostonly_interface(options)
     command = "#{options['vboxmanage']} list hostonlyifs |grep '^Name' |head -1"
     if_name = execute_command(options,message,command)
     if_name = if_name.split(":")[1]
-    if_name = if_name.gsub(/^\s+/,"")
-    if_name = if_name.gsub(/'/,"")
+    if if_name
+      if_name = if_name.gsub(/^\s+/,"")
+      if_name = if_name.gsub(/'/,"")
+    else
+      if_name = "none"
+    end
   end
   return if_name
 end
