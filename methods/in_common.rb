@@ -531,6 +531,7 @@ def reset_defaults(options,defaults)
     defaults['adminuid']  = "1000"
     defaults['admingid']  = "1000"
     defaults['languge']   = "en"
+    defaults['locale']    = "en_US.UTF-8"
   when /centos/
     defaults['mirror'] = "mirror.centos.org"
   when /sl_/

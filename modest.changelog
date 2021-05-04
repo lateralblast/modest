@@ -1259,3 +1259,5 @@
 # Added package checks for apache2, shim, and grubnet packages
 # 6.2.9: Wed 21 Apr 2021 09:06:53 AEST
 # Fixed bug with virtualbox network check
+# 6.3.0: Tue  4 May 2021 20:42:34 AEST
+# Added a wait statement to packer boot command for Ubuntu

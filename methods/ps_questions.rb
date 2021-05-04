@@ -108,6 +108,19 @@ def populate_ps_questions(options)
     $q_struct[name] = config
     $q_order.push(name)
 
+    name = "locale"
+    config = Ks.new(
+      type      = "string",
+      question  = "Locale",
+      ask       = "yes",
+      parameter = "debian-installer/locale",
+      value     = options['locale'],
+      valid     = "",
+      eval      = "no"
+      )
+    $q_struct[name] = config
+    $q_order.push(name)
+
     name = "console"
     config = Ks.new(
       type      = "boolean",

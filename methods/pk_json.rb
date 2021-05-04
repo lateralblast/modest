@@ -611,8 +611,9 @@ def create_packer_json(options)
                   "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
                   "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><wait>"
     boot_command = boot_header+
-                   "<wait5>/install/vmlinuz debian-installer/language="+$q_struct['language'].value+
+                   "<wait5>/install/vmlinuz<wait> debian-installer/language="+$q_struct['language'].value+
                    " debian-installer/country="+$q_struct['country'].value+
+                   " debian-installer/locale="+$q_struct['locale'].value+
                    " keyboard-configuration/layoutcode="+$q_struct['layout'].value+
                    " interface="+$q_struct['nic'].value+
                    " netcfg/disable_autoconfig="+$q_struct['disable_autoconfig'].value+
