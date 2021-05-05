@@ -139,8 +139,13 @@ def set_defaults(options,defaults)
     end
     case defaults['osplatform']
     when /VMware/
-      defaults['vmgateway']  = "192.168.52.1"
-      defaults['hostonlyip'] = "192.168.52.1"
+      if defaults['osname'].to_s.match(/Darwin/) && defaults['osversion'].to_i > 10
+        defaults['vmgateway']  = "192.168.104.1"
+        defaults['hostonlyip'] = "192.168.104.1"
+      else
+        defaults['vmgateway']  = "192.168.52.1"
+        defaults['hostonlyip'] = "192.168.52.1"
+      end
       if defaults['osname'].to_s.match(/Linux/)
         defaults['nic'] = %x[netstat -rn |grep UG].chomp.split()[-1]
       end
@@ -453,7 +458,7 @@ def reset_defaults(options,defaults)
   case vm_type
   when /fusion/
     if defaults['osname'].to_s.match(/Darwin/) && defaults['osversion'].to_i > 10
-      defaults['vmnet'] = "bridge0"
+      defaults['vmnet'] = "bridge100"
     else
       defaults['vmnet'] = "vmnet1"
     end
@@ -714,7 +719,11 @@ def set_hostonly_info(options)
   install_subnet = options['ip'].split(".")[2] 
   case options['vm']
   when /vmware|vmx|fusion/
-    hostonly_subnet      = "52"
+    if defaults['osname'].to_s.match(/Darwin/) && defaults['osversion'].to_i > 10
+      hostonly_subnet      = "104"
+    else
+      hostonly_subnet      = "52"
+    end
   when /vbox|virtualbox/
     hostonly_subnet      = "56"
   when /parallels/
@@ -3987,7 +3996,7 @@ def check_iso_base_dir(options,search_string)
     if search_string.match(/sol_11/)
       if not iso_list.grep(/full/)
         handle_output(options,"Warning:\tNo full repository ISO images exist in #{options['isodir']}")
-        if options['test'] != 1
+        if options['test'] != true
           quit(options)
         end
       end
@@ -4346,7 +4355,7 @@ def mount_iso(options)
   if not File.directory?(iso_test_dir) and not File.exist?(iso_test_dir) and not options['file'].to_s.match(/DVD2\.iso|2of2\.iso|repo-full|VCSA/)
     handle_output(options,"Warning:\tISO did not mount, or this is not a repository ISO")
     handle_output(options,"Warning:\t#{iso_test_dir} does not exist")
-    if options['test'] != 1
+    if options['test'] != true
       umount_iso(options)
       quit(options)
     end
@@ -4399,7 +4408,7 @@ def copy_iso(options)
         iso_repo_dir = options['mountdir']
       else
         handle_output(options,"Warning:\tRepository source directory does not exist")
-        if options['test'] != 1
+        if options['test'] != true
           quit(options)
         end
       end
@@ -4426,7 +4435,7 @@ def copy_iso(options)
   end
   if not File.directory?(options['repodir']) and not File.symlink?(options['repodir']) and not options['file'].to_s.match(/\.iso/)
     handle_output(options,"Warning:\tRepository directory #{options['repodir']} does not exist")
-    if options['test'] != 1
+    if options['test'] != true
       quit(options)
     end
   end
@@ -4434,7 +4443,7 @@ def copy_iso(options)
     if options['file'].to_s.match(/sol/)
       if not File.directory?(iso_repo_dir)
         handle_output(options,"Warning:\tRepository source directory #{iso_repo_dir} does not exist")
-        if options['test'] != 1
+        if options['test'] != true
           quit(options)
         end
       end

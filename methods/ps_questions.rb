@@ -349,7 +349,7 @@ def populate_ps_questions(options)
     end
   end
 
-  if gateway.split(/\./)[2] != options['ip'].to_s.split(/\./)[2]
+  if gateway.to_s.split(/\./)[2] != options['ip'].to_s.split(/\./)[2]
     gateway = %x[netstat -rn |grep "^0" |awk '{print $2}'].chomp
   end
 

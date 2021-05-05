@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      6.3.0
+# Version:      6.3.2
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -570,8 +570,10 @@ if options['vm'] != options['empty']
       if options['file'] != options['empty']
         if options['type'] != "service"
           if options['ip'] == options['empty']
-            handle_output(options,"Warning:\tNo IP specified and DHCP not specified")
-            quit(options)
+            if !options['vmnetwork'].to_s.match(/nat/)
+              handle_output(options,"Warning:\tNo IP specified and DHCP not specified")
+              quit(options)
+            end
           end
         end
       end
@@ -858,7 +860,9 @@ if options['file'] != options['empty']
   if !options['action'].to_s.match(/download/)
     if !File.exist?(options['file']) && !options['file'].to_s.match(/^http/)
       handle_output(options,"Warning:\tFile #{options['file']} does not exist")
-      quit(options)
+      if !options['test'] == true
+        quit(options)
+      end
     end
   end
   if options['action'].to_s.match(/deploy/)
@@ -1169,7 +1173,6 @@ if options['service'] != options['empty']
         handle_output(options,"Information:\tNo IP Address specified, setting to #{options['ip']} ")
       else
         handle_output(options,"Warning:\tNo IP Address specified ")
-        quit(options)
       end
     end
     if !options['mac'].to_s.match(/[0-9]|[A-F]|[a-f]/) && !options['action'].to_s.match(/build|list|import|delete/)
@@ -1396,8 +1399,13 @@ if options['vm'] != options['empty']
     check_fusion_vm_promisc_mode(options)
     options['sudo']  = false
     options['vm']    = "fusion"
-    options['hostonlyip'] = "192.168.52.1"
-    options['vmgateway']  = "192.168.52.1"
+    if defaults['osname'].to_s.match(/Darwin/) && defaults['osversion'].to_i > 10
+      options['hostonlyip'] = "192.168.104.1"
+      options['vmgateway']  = "192.168.104.1"
+    else
+      options['hostonlyip'] = "192.168.52.1"
+      options['vmgateway']  = "192.168.52.1"
+    end
   when /zone|container|lxc/
     if options['osname'].to_s.match(/SunOS/)
       options['vm'] = "zone"

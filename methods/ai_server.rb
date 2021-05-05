@@ -59,7 +59,7 @@ def check_default_route(options)
   output  = execute_command(options,message,command)
   if !output.match(/[0-9]/)
     handle_output(options,"Warning:\tNo default route exists")
-    if options['test'] != 1
+    if options['test'] != true
       quit(options)
     end
   end
