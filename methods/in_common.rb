@@ -719,7 +719,7 @@ def set_hostonly_info(options)
   install_subnet = options['ip'].split(".")[2] 
   case options['vm']
   when /vmware|vmx|fusion/
-    if defaults['osname'].to_s.match(/Darwin/) && defaults['osversion'].to_i > 10
+    if options['osname'].to_s.match(/Darwin/) && options['osversion'].to_i > 10
       hostonly_subnet      = "104"
     else
       hostonly_subnet      = "52"
@@ -2631,9 +2631,7 @@ def print_contents_of_file(options,message,file_name)
         end
       end
     else
-      if options['verbose'] == true
-        handle_output(options,"Warning:\tFile #{file_name} does not exist")
-      end
+      handle_output(options,"Warning:\tFile #{file_name} does not exist")
     end
   end
   return
