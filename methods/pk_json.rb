@@ -611,21 +611,20 @@ def create_packer_json(options)
                   "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
                   "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><wait>"
     boot_command = boot_header+
-                   "<wait5>/install/vmlinuz<wait> debian-installer/language="+$q_struct['language'].value+
+                   "<wait>/install/vmlinuz<wait> debian-installer/language="+$q_struct['language'].value+
                    " debian-installer/country="+$q_struct['country'].value+
-                   " debian-installer/locale="+$q_struct['locale'].value+
                    " keyboard-configuration/layoutcode="+$q_struct['layout'].value+
-                   " interface="+$q_struct['nic'].value+
+                   " <wait>interface="+$q_struct['nic'].value+
                    " netcfg/disable_autoconfig="+$q_struct['disable_autoconfig'].value+
                    " netcfg/disable_dhcp="+$q_struct['disable_dhcp'].value+
                    " hostname="+options['name']+
-                   " netcfg/get_ipaddress="+options['ip']+
+                   " <wait>netcfg/get_ipaddress="+options['ip']+
                    " netcfg/get_netmask="+$q_struct['netmask'].value+
                    " netcfg/get_gateway="+$q_struct['gateway'].value+
                    " netcfg/get_nameservers="+$q_struct['nameserver'].value+
                    " netcfg/get_domain="+$q_struct['domain'].value+
-                   " preseed/url="+ks_url+
-                   " initrd=/install/initrd.gz net.ifnames=0 biosdevnames=0 console=tty0 console=ttyS0 -- <wait><enter><wait>"
+                   " <wait>preseed/url="+ks_url+
+                   " initrd=/install/initrd.gz net.ifnames=0 biosdevname=0 -- <wait><enter><wait>"
     shutdown_command = "echo 'shutdown -P now' > /tmp/shutdown.sh ; echo '#{$q_struct['admin_password'].value}'|sudo -S sh '/tmp/shutdown.sh'"
   when /vsphere|esx|vmware/
     hwvirtex          = "on"
