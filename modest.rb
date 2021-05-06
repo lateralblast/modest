@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      6.3.3
+# Version:      6.3.4
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -120,6 +120,15 @@ end
 if !ARGV[0]
   options['output'] = 'text'
   print_help(options)
+end
+
+# Check whether we have any single - options
+
+for option in ARGV
+  if option.match(/^-[a-z]/)
+    puts "Invalid option #{option} in command line"
+    exit
+  end
 end
 
 # Try to make sure we have valid long switches

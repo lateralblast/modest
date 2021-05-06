@@ -16,7 +16,6 @@ def create_packer_json(options)
   winrm_use_ssl     = "false"
   winrm_insecure    = "true"
   virtual_dev       = "lsilogic"
-  ethernet_type     = "static"
   ethernet_dev      = "e1000e"
   vnc_enabled       = "true"
   vhv_enabled       = "TRUE"
@@ -45,6 +44,11 @@ def create_packer_json(options)
   iso_url           = "file://"+options['file']
 	packer_dir        = options['clientdir']+"/packer"
   image_dir         = options['clientdir']+"/images"
+  if options['dhcp']
+    ethernet_type = "dhcp"
+  else
+    ethernet_type = "static"
+  end
   if Dir.exist?(image_dir)
     FileUtils.rm_rf(image_dir)
   end

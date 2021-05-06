@@ -1265,3 +1265,7 @@
 # Bug fixes
 # 6.3.2: Wed  5 May 2021 16:04:29 AEST
 # Bug fixes
+# 6.3.3: Wed  5 May 2021 21:10:20 AEST
+# Fixes to deal with boot command length
+# 6.3.4: Thu  6 May 2021 15:53:00 AEST
+# Added command line check for incorrect options
