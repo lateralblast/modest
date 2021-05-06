@@ -273,7 +273,7 @@ By default the script uses a hostonly network, 130.194.2.0 for VMware Fusion, an
 
 Hostonly networks and IP forwarding is used as it's far more reliable for consistent deployments.
 
-An example host-only network layout For VMware Fusion is as follows:
+An example host-only network layout For VMware Fusion with vmnet interfaces is as follows:
 
 ```
 __ External network __ External Interface (e.g. en0)
@@ -294,6 +294,29 @@ __ External network __ External Interface (e.g. en0)
             |                   |                   |
   Deployment Server        Test Server 1
   e.g. 192.168.52.100     e.g 192.168.52.101                                     
+```
+
+An example host-only network layout For VMware Fusion with bridge interfaces (MacOS BigSur) is as follows:
+
+```
+__ External network __ External Interface (e.g. en0)
+   e.g. 192.168.1.0    e.g. 192.168.1.100
+                               |
+                               |
+                            VM Host
+                               |
+                               |
+                    Host-only Interface (e.g. bridge100) __  Host-only network
+                    e.g. 192.168.104.1                        e.g. 192.168.104.0
+                                                                    |
+                                                                    |
+                                ____________________________________|
+                                |
+            ____________________|____________________
+            |                   |                   |
+            |                   |                   |
+  Deployment Server        Test Server 1
+  e.g. 192.168.104.100     e.g 192.168.104.101                                     
 ```
 
 An example host-only network for VirtualBox is as follows:
