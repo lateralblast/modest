@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      6.3.4
+# Version:      6.3.5
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -1408,13 +1408,6 @@ if options['vm'] != options['empty']
     check_fusion_vm_promisc_mode(options)
     options['sudo']  = false
     options['vm']    = "fusion"
-    if defaults['osname'].to_s.match(/Darwin/) && defaults['osversion'].to_i > 10
-      options['hostonlyip'] = "192.168.104.1"
-      options['vmgateway']  = "192.168.104.1"
-    else
-      options['hostonlyip'] = "192.168.52.1"
-      options['vmgateway']  = "192.168.52.1"
-    end
   when /zone|container|lxc/
     if options['osname'].to_s.match(/SunOS/)
       options['vm'] = "zone"

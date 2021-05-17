@@ -1341,7 +1341,11 @@ def populate_ps_questions(options)
   $q_order.push(name)
 
   if options['type'].to_s.match(/packer/)
-    script_url = "http://"+gateway+":"+options['httpport']+"/"+options['vm']+"/"+options['name']+"/"+options['name']+"_post.sh"
+    if options['vmnetwork'].to_s.match(/hostonly|bridged/)
+      script_url = "http://"+gateway+":"+options['httpport']+"/"+options['vm']+"/"+options['name']+"/"+options['name']+"_post.sh"
+    else
+      script_url = "http://"+options['hostonlyip'].to_s+":"+options['httpport']+"/"+options['vm']+"/"+options['name']+"/"+options['name']+"_post.sh"
+    end
   else
     if options['server'] == options['empty']
       script_url = "http://"+options['hostip']+"/"+options['name']+"/"+options['name']+"_post.sh"

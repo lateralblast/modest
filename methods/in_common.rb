@@ -140,8 +140,13 @@ def set_defaults(options,defaults)
     case defaults['osplatform']
     when /VMware/
       if defaults['osname'].to_s.match(/Darwin/) && defaults['osversion'].to_i > 10
-        defaults['vmgateway']  = "192.168.104.1"
-        defaults['hostonlyip'] = "192.168.104.1"
+        if options['vmnetwork'].to_s.match(/nat/)
+          defaults['vmgateway']  = "192.168.158.1"
+          defaults['hostonlyip'] = "192.168.158.1"
+        else
+          defaults['vmgateway']  = "192.168.104.1"
+          defaults['hostonlyip'] = "192.168.104.1"
+        end
       else
         defaults['vmgateway']  = "192.168.52.1"
         defaults['hostonlyip'] = "192.168.52.1"
@@ -458,6 +463,10 @@ def reset_defaults(options,defaults)
   case vm_type
   when /fusion/
     if defaults['osname'].to_s.match(/Darwin/) && defaults['osversion'].to_i > 10
+      if options['vmnetwork'].to_s.match(/nat/)
+        defaults['vmgateway']  = "192.168.158.1"
+        defaults['hostonlyip'] = "192.168.158.1"
+      end
       defaults['vmnet'] = "bridge100"
     else
       defaults['vmnet'] = "vmnet1"
@@ -720,7 +729,11 @@ def set_hostonly_info(options)
   case options['vm']
   when /vmware|vmx|fusion/
     if options['osname'].to_s.match(/Darwin/) && options['osversion'].to_i > 10
-      hostonly_subnet      = "104"
+      if options['vmnetwork'].to_s.match(/nat/)
+        hostonly_subnet      = "158"
+      else
+        hostonly_subnet      = "104"
+      end
     else
       hostonly_subnet      = "52"
     end

@@ -151,10 +151,14 @@ def populate_ps_first_boot_list(options)
     post_list.push("echo '  renderer: networkd' >> #{net_config}")
     post_list.push("echo '  ethernets:' >> #{net_config}")
     post_list.push("echo '    #{client_nic}:' >> #{net_config}")
-    post_list.push("echo '      addresses: [#{options['ip']}/24]' >> #{net_config}")
-    post_list.push("echo '      gateway4: #{client_gateway}' >> #{net_config}")
-    post_list.push("echo '      nameservers:' >> #{net_config}")
-    post_list.push("echo '        addresses: [#{client_nameserver}]' >> #{net_config}")
+    if options['vmnetwork'].to_s.match(/hostonly|bridged/)
+      post_list.push("echo '      addresses: [#{options['ip']}/24]' >> #{net_config}")
+      post_list.push("echo '      gateway4: #{client_gateway}' >> #{net_config}")
+      post_list.push("echo '      nameservers:' >> #{net_config}")
+      post_list.push("echo '        addresses: [#{client_nameserver}]' >> #{net_config}")
+    else
+      post_list.push("echo '      dhcp4: true' >> #{net_config}")
+    end
   else
     post_list.push("echo '# The primary network interface' >> #{net_config}")
     post_list.push("echo 'auto #{client_nic}' >> #{net_config}")
@@ -225,16 +229,18 @@ def populate_ps_first_boot_list(options)
     post_list.push("echo 'Port 2222' >> /etc/ssh/sshd_config")
     post_list.push("")
   end
-  resolv_conf = "/etc/resolv.conf"
-  post_list.push("# Configure hosts file")
-  post_list.push("")
-  if options['service'].to_s.match(/ubuntu_18|ubuntu_20/)
-    post_list.push("sudo systemctl disable systemd-resolved.service")
-    post_list.push("sudo systemctl stop systemd-resolved")
-    post_list.push("rm /etc/resolv.conf")
+  if options['vmnetwork'].to_s.match(/hostonly|bridged/)
+    resolv_conf = "/etc/resolv.conf"
+    post_list.push("# Configure hosts file")
+    post_list.push("")
+    if options['service'].to_s.match(/ubuntu_18|ubuntu_20/)
+      post_list.push("sudo systemctl disable systemd-resolved.service")
+      post_list.push("sudo systemctl stop systemd-resolved")
+      post_list.push("rm /etc/resolv.conf")
+    end
+    post_list.push("echo 'nameserver #{client_nameserver}' > #{resolv_conf}")
+    post_list.push("echo 'search local' >> #{resolv_conf}")
   end
-  post_list.push("echo 'nameserver #{client_nameserver}' > #{resolv_conf}")
-  post_list.push("echo 'search local' >> #{resolv_conf}")
   post_list.push("")
   post_list.push("")
   post_list.push("# Configure sources.list")
@@ -273,7 +279,11 @@ def populate_ps_post_list(options)
   post_list = []
   gateway   = $q_struct['gateway'].value
   if options['type'].to_s.match(/packer/)
-    script_url = "http://"+gateway+":"+options['httpport']+"/"+options['vm']+"/"+options['name']+"/"+options['name']+"_first_boot.sh"
+    if options['vmnetwork'].to_s.match(/hostonly|bridged/)
+      script_url = "http://"+gateway+":"+options['httpport']+"/"+options['vm']+"/"+options['name']+"/"+options['name']+"_first_boot.sh"
+    else
+      script_url = "http://"+options['hostonlyip'].to_s+":"+options['httpport']+"/"+options['vm']+"/"+options['name']+"/"+options['name']+"_first_boot.sh"
+    end
   else
     if options['server'] == options['empty']
       script_url = "http://"+options['hostip']+"/"+options['name']+"/"+options['name']+"_first_boot.sh"

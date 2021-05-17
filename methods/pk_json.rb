@@ -608,27 +608,38 @@ def create_packer_json(options)
     tools_upload_flavor = ""
     tools_upload_path   = ""
     ks_file = options['vm']+"/"+options['name']+"/"+options['name']+".cfg"
-    ks_url  = "http://#{ks_ip}:#{options['httpport']}/"+ks_file
     boot_header = "<enter><wait5><f6><esc><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
                   "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
                   "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
                   "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
                   "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><wait>"
-    boot_command = boot_header+
-                   "<wait>/install/vmlinuz<wait> debian-installer/language="+$q_struct['language'].value+
-                   " debian-installer/country="+$q_struct['country'].value+
-                   " keyboard-configuration/layoutcode="+$q_struct['layout'].value+
-                   " <wait>interface="+$q_struct['nic'].value+
-                   " netcfg/disable_autoconfig="+$q_struct['disable_autoconfig'].value+
-                   " netcfg/disable_dhcp="+$q_struct['disable_dhcp'].value+
-                   " hostname="+options['name']+
-                   " <wait>netcfg/get_ipaddress="+options['ip']+
-                   " netcfg/get_netmask="+$q_struct['netmask'].value+
-                   " netcfg/get_gateway="+$q_struct['gateway'].value+
-                   " netcfg/get_nameservers="+$q_struct['nameserver'].value+
-                   " netcfg/get_domain="+$q_struct['domain'].value+
-                   " <wait>preseed/url="+ks_url+
-                   " initrd=/install/initrd.gz net.ifnames=0 biosdevname=0 -- <wait><enter><wait>"
+    if options['vmnetwork'].to_s.match(/hostonly|bridged/)
+      ks_url = "http://#{ks_ip}:#{options['httpport']}/"+ks_file
+      boot_command = boot_header+
+                     "<wait>/install/vmlinuz<wait> debian-installer/language="+$q_struct['language'].value+
+                     " debian-installer/country="+$q_struct['country'].value+
+                     " keyboard-configuration/layoutcode="+$q_struct['layout'].value+
+                     " <wait>interface="+$q_struct['nic'].value+
+                     " netcfg/disable_autoconfig="+$q_struct['disable_autoconfig'].value+
+                     " netcfg/disable_dhcp="+$q_struct['disable_dhcp'].value+
+                     " hostname="+options['name']+
+                     " <wait>netcfg/get_ipaddress="+options['ip']+
+                     " netcfg/get_netmask="+$q_struct['netmask'].value+
+                     " netcfg/get_gateway="+$q_struct['gateway'].value+
+                     " netcfg/get_nameservers="+$q_struct['nameserver'].value+
+                     " netcfg/get_domain="+$q_struct['domain'].value+
+                     " <wait>preseed/url="+ks_url+
+                     " initrd=/install/initrd.gz net.ifnames=0 biosdevname=0 -- <wait><enter><wait>"
+    else
+      ks_ip  = options['hostonlyip'].to_s
+      ks_url = "http://#{ks_ip}:#{options['httpport']}/"+ks_file
+      boot_command = boot_header+
+                     "/install/vmlinuz<wait>"+
+                     " auto-install/enable=true"+
+                     " debconf/priority=critical"+
+                     " <wait>preseed/url="+ks_url+
+                     " initrd=/install/initrd.gz net.ifnames=0 biosdevname=0 -- <wait><enter><wait>"
+    end
     shutdown_command = "echo 'shutdown -P now' > /tmp/shutdown.sh ; echo '#{$q_struct['admin_password'].value}'|sudo -S sh '/tmp/shutdown.sh'"
   when /vsphere|esx|vmware/
     hwvirtex          = "on"
@@ -1157,7 +1168,6 @@ def create_packer_json(options)
             :output_directory     => image_dir,
             :disk_size            => options['size'],
             :iso_url              => iso_url,
-            :ssh_host             => options['ip'],
             :ssh_port             => ssh_port,
             :ssh_username         => ssh_username,
             :ssh_password         => ssh_password,
@@ -1685,51 +1695,98 @@ def create_packer_json(options)
         }
       end
     when /fusion/
-      json_data = {
-        :variables => {
-          :hostname => options['name'],
-          :net_config => net_config
-        },
-        :builders => [
-          :name                 => options['name'],
-          :vm_name              => options['name'],
-          :type                 => options['type'],
-          :headless             => headless_mode,
-          :guest_os_type        => options['guest'],
-          :output_directory     => image_dir,
-          :disk_size            => options['size'],
-          :iso_url              => iso_url,
-          :ssh_host             => options['ip'],
-          :ssh_port             => ssh_port,
-          :ssh_username         => ssh_username,
-          :ssh_password         => ssh_password,
-          :ssh_timeout          => ssh_timeout,
-          :shutdown_timeout     => shutdown_timeout,
-          :shutdown_command     => shutdown_command,
-          :ssh_pty              => ssh_pty,
-          :iso_checksum         => install_checksum,
-          :http_directory       => packer_dir,
-          :http_port_min        => options['httpport'],
-          :http_port_max        => options['httpport'],
-          :boot_wait            => boot_wait,
-          :boot_command         => boot_command,
-          :tools_upload_flavor  => tools_upload_flavor,
-          :tools_upload_path    => tools_upload_path,
-          :vmx_data => {
-            :"virtualHW.version"                => hw_version,
-            :"RemoteDisplay.vnc.enabled"        => vnc_enabled,
-            :memsize                            => options['memory'],
-            :numvcpus                           => options['vcpus'],
-            :"vhv.enable"                       => vhv_enabled,
-            :"ethernet0.present"                => ethernet_enabled,
-            :"ethernet0.connectionType"         => options['vmnetwork'],
-            :"ethernet0.virtualDev"             => ethernet_dev,
-            :"ethernet0.addressType"            => ethernet_type,
-            :"ethernet0.address"                => options['mac'],
-            :"scsi0.virtualDev"                 => virtual_dev
-          }
-        ]
-      }
+      if options['vmnetwork'].to_s.match(/hostonly|bridged/)
+        json_data = {
+          :variables => {
+            :hostname => options['name'],
+            :net_config => net_config
+          },
+          :builders => [
+            :name                 => options['name'],
+            :vm_name              => options['name'],
+            :type                 => options['type'],
+            :headless             => headless_mode,
+            :guest_os_type        => options['guest'],
+            :output_directory     => image_dir,
+            :disk_size            => options['size'],
+            :iso_url              => iso_url,
+            :ssh_host             => options['ip'],
+            :ssh_port             => ssh_port,
+            :ssh_username         => ssh_username,
+            :ssh_password         => ssh_password,
+            :ssh_timeout          => ssh_timeout,
+            :shutdown_timeout     => shutdown_timeout,
+            :shutdown_command     => shutdown_command,
+            :ssh_pty              => ssh_pty,
+            :iso_checksum         => install_checksum,
+            :http_directory       => packer_dir,
+            :http_port_min        => options['httpport'],
+            :http_port_max        => options['httpport'],
+            :boot_wait            => boot_wait,
+            :boot_command         => boot_command,
+            :tools_upload_flavor  => tools_upload_flavor,
+            :tools_upload_path    => tools_upload_path,
+            :vmx_data => {
+              :"virtualHW.version"                => hw_version,
+              :"RemoteDisplay.vnc.enabled"        => vnc_enabled,
+              :memsize                            => options['memory'],
+              :numvcpus                           => options['vcpus'],
+              :"vhv.enable"                       => vhv_enabled,
+              :"ethernet0.present"                => ethernet_enabled,
+              :"ethernet0.connectionType"         => options['vmnetwork'],
+              :"ethernet0.virtualDev"             => ethernet_dev,
+              :"ethernet0.addressType"            => ethernet_type,
+              :"ethernet0.address"                => options['mac'],
+              :"scsi0.virtualDev"                 => virtual_dev
+            }
+          ]
+        }
+      else
+        json_data = {
+          :variables => {
+            :hostname => options['name'],
+            :net_config => net_config
+          },
+          :builders => [
+            :name                 => options['name'],
+            :vm_name              => options['name'],
+            :type                 => options['type'],
+            :headless             => headless_mode,
+            :guest_os_type        => options['guest'],
+            :output_directory     => image_dir,
+            :disk_size            => options['size'],
+            :iso_url              => iso_url,
+            :ssh_port             => ssh_port,
+            :ssh_username         => ssh_username,
+            :ssh_password         => ssh_password,
+            :ssh_timeout          => ssh_timeout,
+            :shutdown_timeout     => shutdown_timeout,
+            :shutdown_command     => shutdown_command,
+            :ssh_pty              => ssh_pty,
+            :iso_checksum         => install_checksum,
+            :http_directory       => packer_dir,
+            :http_port_min        => options['httpport'],
+            :http_port_max        => options['httpport'],
+            :boot_wait            => boot_wait,
+            :boot_command         => boot_command,
+            :tools_upload_flavor  => tools_upload_flavor,
+            :tools_upload_path    => tools_upload_path,
+            :vmx_data => {
+              :"virtualHW.version"                => hw_version,
+              :"RemoteDisplay.vnc.enabled"        => vnc_enabled,
+              :memsize                            => options['memory'],
+              :numvcpus                           => options['vcpus'],
+              :"vhv.enable"                       => vhv_enabled,
+              :"ethernet0.present"                => ethernet_enabled,
+              :"ethernet0.connectionType"         => options['vmnetwork'],
+              :"ethernet0.virtualDev"             => ethernet_dev,
+              :"ethernet0.addressType"            => ethernet_type,
+              :"ethernet0.address"                => options['mac'],
+              :"scsi0.virtualDev"                 => virtual_dev
+            }
+          ]
+        }
+      end
     when /qemu|kvm|xen/
       if options['vmnetwork'].to_s.match(/hostonly|bridged/)
         if options['headless'] == true
