@@ -1270,4 +1270,6 @@
 # 6.3.4: Thu  6 May 2021 15:53:00 AEST
 # Added command line check for incorrect options
 # 6.3.5: Mon 17 May 2021 17:15:15 AEST
-# Initial packer NAT cleanup (Ubuntu)
+# Initial packer NAT cleanup (Ubuntu) for VMware Fusion
+# 6.3.6: Mon 17 May 2021 19:52:14 AEST
+# Initial packer NAT cleanup (Ubuntu) for VirtualBox

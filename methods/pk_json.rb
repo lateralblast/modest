@@ -1666,7 +1666,6 @@ def create_packer_json(options)
             :output_directory     => image_dir,
             :disk_size            => options['size'],
             :iso_url              => iso_url,
-            :ssh_host             => options['ip'],
             :ssh_port             => ssh_port,
             :ssh_username         => ssh_username,
             :ssh_password         => ssh_password,
