@@ -305,8 +305,8 @@ end
 # Get Fusion VM OS
 
 def get_fusion_vm_os(options)
-  options['search'] = "guestOS"
-  options['os-type']     = get_fusion_vm_vmx_file_value(options)
+  options['search']  = "guestOS"
+  options['os-type'] = get_fusion_vm_vmx_file_value(options)
   if not options['os-type']
     options['search'] = "guestos"
     options['os-type']     = get_fusion_vm_vmx_file_value(options)

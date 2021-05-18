@@ -241,7 +241,7 @@ def output_pe_client_profile(options,output_file)
         xml.component(:"xmlns:wcm" => "http://schemas.microsoft.com/WMIConfig/2002/State", :"xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance", :name => "Microsoft-Windows-Shell-Setup", :processorArchitecture => "#{cpu_arch}", :publicKeyToken => "31bf3856ad364e35", :language => "neutral", :versionScope => "nonSxS") {
           xml.UserAccounts {
             xml.AdministratorPassword {
-              xml.Value("#{admin_username}")
+              xml.Value("#{admin_password}")
               xml.PlainText("true")
             }
             xml.LocalAccounts {

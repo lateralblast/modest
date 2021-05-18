@@ -445,7 +445,9 @@ end
 # Set some parameter once we have more details
 
 def reset_defaults(options,defaults)
-  if options['os'].to_s.match(/win/)
+  if options['os-type'].to_s.match(/win/)
+    defaults['adminuser'] = "Administrator"
+    defaults['adminname'] = "Administrator"
   end
   if options['vm'].to_s.match(/kvm/)
     defaults['rootdisk'] = "/dev/vda"
