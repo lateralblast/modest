@@ -445,6 +445,8 @@ end
 # Set some parameter once we have more details
 
 def reset_defaults(options,defaults)
+  if options['os'].to_s.match(/win/)
+  end
   if options['vm'].to_s.match(/kvm/)
     defaults['rootdisk'] = "/dev/vda"
   end
@@ -466,6 +468,9 @@ def reset_defaults(options,defaults)
       if options['vmnetwork'].to_s.match(/nat/)
         defaults['vmgateway']  = "192.168.158.1"
         defaults['hostonlyip'] = "192.168.158.1"
+      else
+        defaults['vmgateway']  = "192.168.104.1"
+        defaults['hostonlyip'] = "192.168.104.1"
       end
       defaults['vmnet'] = "bridge100"
     else

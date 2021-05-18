@@ -1273,3 +1273,5 @@
 # Initial packer NAT cleanup (Ubuntu) for VMware Fusion
 # 6.3.6: Mon 17 May 2021 19:52:14 AEST
 # Initial packer NAT cleanup (Ubuntu) for VirtualBox
+# 6.3.7: Tue 18 May 2021 11:49:07 AEST
+# Fixed default hostonly IP calculation for VMware Fusion 12 on MacOS BigSur 
