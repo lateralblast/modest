@@ -1279,3 +1279,5 @@
 # Fixed some bugs with Packer Windows support
 # 6.3.9: Tue 18 May 2021 18:15:53 AEST
 # Updated Windows Eval keys
+# 6.4.0: Tue 18 May 2021 21:16:46 AEST
+# Fixed bug with Kikstart file creation

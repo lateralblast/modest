@@ -801,6 +801,7 @@ def output_ks_post_list(options,post_list,output_file)
   end
   file.close
   message = "Information:\tCreating post install script "+output_file
+  command = "cat #{tmp_file} >> #{output_file} ; rm #{tmp_file}"
   execute_command(options,message,command)
   print_contents_of_file(options,"",output_file)
   return
