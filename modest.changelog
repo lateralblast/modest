@@ -1277,3 +1277,5 @@
 # Fixed default hostonly IP calculation for VMware Fusion 12 on MacOS BigSur 
 # 6.3.8: Tue 18 May 2021 14:27:01 AEST
 # Fixed some bugs with Packer Windows support
+# 6.3.9: Tue 18 May 2021 18:15:53 AEST
+# Updated Windows Eval keys

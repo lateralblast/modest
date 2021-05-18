@@ -83,11 +83,19 @@ def output_pe_client_profile(options,output_file)
   end
   # Put in some Microsoft Eval Keys if no license specified
   if not options['license'].to_s.match(/[0-9]/)
-    case options['label']
+    case options['label'].to_s
     when /2008/
-      options['license'] = "YC6KT-GKW9T-YTKYR-T4X34-R7VHC"
+      if options['label'].to_s.match(/R2/)
+        options['license'] = "TM24T-X9RMF-VWXK6-X8JC9-BFGM2"
+      else
+        options['license'] = "YC6KT-GKW9T-YTKYR-T4X34-R7VHC"
+      end
     when /2012/
-      options['license'] = "D2N9P-3P6X9-2R39C-7RTCD-MDVJX"
+      if options['label'].to_s.match(/R2/)
+        options['license'] = "D2N9P-3P6X9-2R39C-7RTCD-MDVJX"
+      else
+        options['license'] = "BN3D2-R7TKB-3YPBD-8DRP2-27GG4"
+      end
     when /2016|2019/
       options['license'] = ""
     end
@@ -372,7 +380,7 @@ def output_pe_client_profile(options,output_file)
         xml.component(:"xmlns:wcm" => "http://schemas.microsoft.com/WMIConfig/2002/State", :"xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance", :name => "Microsoft-Windows-Shell-Setup", :processorArchitecture => "#{cpu_arch}", :publicKeyToken => "31bf3856ad364e35", :language => "neutral", :versionScope => "nonSxS") {
           xml.UserAccounts {
             xml.AdministratorPassword {
-              xml.Value("#{admin_username}")
+              xml.Value("#{admin_password}")
               xml.PlainText("true")
             }
             xml.LocalAccounts {
