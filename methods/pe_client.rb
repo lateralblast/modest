@@ -86,9 +86,9 @@ def output_pe_client_profile(options,output_file)
     case options['label'].to_s
     when /2008/
       if options['label'].to_s.match(/R2/)
-        options['license'] = "TM24T-X9RMF-VWXK6-X8JC9-BFGM2"
-      else
         options['license'] = "YC6KT-GKW9T-YTKYR-T4X34-R7VHC"
+      else
+        options['license'] = "TM24T-X9RMF-VWXK6-X8JC9-BFGM2"
       end
     when /2012/
       if options['label'].to_s.match(/R2/)
