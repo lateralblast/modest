@@ -116,7 +116,11 @@ def create_packer_json(options)
     nic_command1 = "--nic1"
     nic_config1  = "hostonly"
     nic_command2 = "--nictype1"
-    nic_config2  = "82545EM"
+    if options['service'].to_s.match(/vmware|esx|vsphere/)
+      nic_config2  = "virtio"
+    else
+      nic_config2  = "82545EM"
+    end
     nic_command3 = "--hostonlyadapter1"
     nic_config3  = "#{nic_name}"
     ks_ip        = options['vmgateway']
@@ -126,7 +130,11 @@ def create_packer_json(options)
     nic_command1 = "--nic1"
     nic_config1  = "bridged"
     nic_command2 = "--nictype1"
-    nic_config2  = "82545EM"
+    if options['service'].to_s.match(/vmware|esx|vsphere/)
+      nic_config2  = "virtio"
+    else
+      nic_config2  = "82545EM"
+    end
     nic_command3 = "--bridgeadapter1"
     nic_config3  = "#{nic_name}"
   end
@@ -642,10 +650,18 @@ def create_packer_json(options)
     end
     shutdown_command = "echo 'shutdown -P now' > /tmp/shutdown.sh ; echo '#{$q_struct['admin_password'].value}'|sudo -S sh '/tmp/shutdown.sh'"
   when /vsphere|esx|vmware/
+    if options['vm'].to_s.match(/fusion/)
+      virtual_dev       = "pvscsi"
+    end
     hwvirtex          = "on"
     ks_file           = options['vm']+"/"+options['name']+"/"+options['name']+".cfg"
     ks_url            = "http://#{ks_ip}:#{options['httpport']}/"+ks_file
-    boot_command      = "<enter><wait>O<wait> ks="+ks_url+" ksdevice=vmnic0 netdevice=vmnic0 ip="+options['ip']+" netmask="+options['netmask']+" gateway="+options['vmgateway']+"<wait><enter><wait>"
+    if options['vm'].to_s.match(/fusion/)
+      boot_command      = "<enter><wait>O<wait> ks="+ks_url+" ksdevice=vmnic0 netdevice=vmnic0 ip="+options['ip']+" netmask="+options['netmask']+" gateway="+options['vmgateway']+"<wait><enter><wait>"
+    else
+      boot_command      = "<enter><wait>O<wait> ks="+ks_url+" ksdevice=vmnic0 netdevice=vmnic0 ip="+options['ip']+" netmask="+options['netmask']+" gateway="+options['vmgateway']+"<wait><enter><wait>"
+#      boot_command      = "<enter><wait>O<wait> ks="+ks_url+" ksdevice=eth0 netdevice=eth0 ip="+options['ip']+" netmask="+options['netmask']+" gateway="+options['vmgateway']+"<wait><enter><wait>"
+    end
     ssh_username      = "root"
     shutdown_command  = ""
     ssh_host_port_min = "22"
@@ -721,6 +737,364 @@ def create_packer_json(options)
     end
   end
   case options['service']
+  when /vmware|vsphere|esxi/
+    case options['vm']
+    when /vbox/
+      if options['vmnetwork'].to_s.match(/hostonly|bridged/)
+        json_data = {
+        	:variables => {
+        		:hostname => options['name'],
+            :net_config => net_config
+        	},
+        	:builders => [
+            :name                 => options['name'],
+            :guest_additions_mode => guest_additions_mode,
+            :vm_name              => options['name'],
+            :type                 => options['type'],
+            :headless             => headless_mode,
+            :guest_os_type        => options['guest'],
+            :output_directory     => image_dir,
+            :disk_size            => options['size'],
+            :iso_url              => iso_url,
+            :ssh_host             => options['ip'],
+            :ssh_port             => ssh_port,
+            :ssh_username         => ssh_username,
+            :ssh_password         => ssh_password,
+            :ssh_timeout          => ssh_timeout,
+            :ssh_pty              => ssh_pty,
+            :shutdown_timeout     => shutdown_timeout,
+            :shutdown_command     => shutdown_command,
+            :iso_checksum         => install_checksum,
+            :http_directory       => packer_dir,
+            :http_port_min        => options['httpport'],
+            :http_port_max        => options['httpport'],
+            :boot_wait            => boot_wait,
+            :boot_command         => boot_command,
+            :format               => output_format,
+      			:vboxmanage => [
+      				[ "modifyvm", "{{.Name}}", "--memory", options['memory'] ],
+              [ "modifyvm", "{{.Name}}", "--audio", audio ],
+              [ "modifyvm", "{{.Name}}", "--mouse", mouse ],
+              [ "modifyvm", "{{.Name}}", "--hwvirtex", hwvirtex ],
+              [ "modifyvm", "{{.Name}}", "--rtcuseutc", rtcuseutc ],
+              [ "modifyvm", "{{.Name}}", "--vtxvpid", vtxvpid ],
+              [ "modifyvm", "{{.Name}}", "--vtxux", vtxux ],
+      				[ "modifyvm", "{{.Name}}", "--cpus", options['vcpus'] ],
+              [ "modifyvm", "{{.Name}}", nic_command1, nic_config1 ],
+              [ "modifyvm", "{{.Name}}", nic_command2, nic_config2 ],
+              [ "modifyvm", "{{.Name}}", nic_command3, nic_config3 ],
+              [ "modifyvm", "{{.Name}}", "--macaddress1", options['mac'] ],
+      			]
+      		]
+        }
+      else
+        json_data = {
+          :variables => {
+            :hostname => options['name'],
+            :net_config => net_config
+          },
+          :builders => [
+            :name                 => options['name'],
+            :guest_additions_mode => guest_additions_mode,
+            :vm_name              => options['name'],
+            :type                 => options['type'],
+            :headless             => headless_mode,
+            :guest_os_type        => options['guest'],
+            :hard_drive_interface => options['controller'],
+            :output_directory     => image_dir,
+            :disk_size            => options['size'],
+            :iso_url              => iso_url,
+            :ssh_port             => ssh_port,
+            :ssh_timeout          => ssh_timeout,
+            :shutdown_timeout     => shutdown_timeout,
+            :shutdown_command     => shutdown_command,
+            :ssh_pty              => ssh_pty,
+            :iso_checksum         => install_checksum,
+            :http_directory       => packer_dir,
+            :http_port_min        => options['httpport'],
+            :http_port_max        => options['httpport'],
+            :boot_wait            => boot_wait,
+            :boot_command         => boot_command,
+            :vboxmanage => [
+              [ "modifyvm", "{{.Name}}", "--memory", options['memory'] ],
+              [ "modifyvm", "{{.Name}}", "--audio", audio ],
+              [ "modifyvm", "{{.Name}}", "--mouse", mouse ],
+              [ "modifyvm", "{{.Name}}", "--hwvirtex", hwvirtex ],
+              [ "modifyvm", "{{.Name}}", "--rtcuseutc", rtcuseutc ],
+              [ "modifyvm", "{{.Name}}", "--vtxvpid", vtxvpid ],
+              [ "modifyvm", "{{.Name}}", "--vtxux", vtxux ],
+              [ "modifyvm", "{{.Name}}", "--cpus", options['vcpus'] ],
+              [ "modifyvm", "{{.Name}}", "--macaddress1", options['mac'] ],
+            ]
+          ]
+        }
+      end
+    when /fusion/
+      if options['vmnetwork'].to_s.match(/hostonly|bridged/)
+        json_data = {
+          :variables => {
+            :hostname => options['name'],
+            :net_config => net_config
+          },
+          :builders => [
+            :name                 => options['name'],
+            :vm_name              => options['name'],
+            :type                 => options['type'],
+            :headless             => headless_mode,
+            :guest_os_type        => options['guest'],
+            :output_directory     => image_dir,
+            :disk_size            => options['size'],
+            :iso_url              => iso_url,
+            :ssh_host             => options['ip'],
+            :ssh_port             => ssh_port,
+            :ssh_username         => ssh_username,
+            :ssh_password         => ssh_password,
+            :ssh_timeout          => ssh_timeout,
+            :shutdown_timeout     => shutdown_timeout,
+            :shutdown_command     => shutdown_command,
+            :ssh_pty              => ssh_pty,
+            :iso_checksum         => install_checksum,
+            :http_directory       => packer_dir,
+            :http_port_min        => options['httpport'],
+            :http_port_max        => options['httpport'],
+            :boot_wait            => boot_wait,
+            :boot_command         => boot_command,
+            :tools_upload_flavor  => tools_upload_flavor,
+            :tools_upload_path    => tools_upload_path,
+            :vmx_data => {
+              :"virtualHW.version"                => hw_version,
+              :"RemoteDisplay.vnc.enabled"        => vnc_enabled,
+              :memsize                            => options['memory'],
+              :numvcpus                           => options['vcpus'],
+              :"vhv.enable"                       => vhv_enabled,
+              :"ethernet0.present"                => ethernet_enabled,
+              :"ethernet0.connectionType"         => options['vmnetwork'],
+              :"ethernet0.virtualDev"             => ethernet_dev,
+              :"ethernet0.addressType"            => ethernet_type,
+              :"ethernet0.address"                => options['mac'],
+              :"scsi0.virtualDev"                 => virtual_dev
+            }
+          ]
+        }
+      else
+        json_data = {
+          :variables => {
+            :hostname => options['name'],
+            :net_config => net_config
+          },
+          :builders => [
+            :name                 => options['name'],
+            :vm_name              => options['name'],
+            :type                 => options['type'],
+            :headless             => headless_mode,
+            :guest_os_type        => options['guest'],
+            :output_directory     => image_dir,
+            :disk_size            => options['size'],
+            :iso_url              => iso_url,
+            :ssh_port             => ssh_port,
+            :ssh_username         => ssh_username,
+            :ssh_password         => ssh_password,
+            :ssh_timeout          => ssh_timeout,
+            :shutdown_timeout     => shutdown_timeout,
+            :shutdown_command     => shutdown_command,
+            :ssh_pty              => ssh_pty,
+            :iso_checksum         => install_checksum,
+            :http_directory       => packer_dir,
+            :http_port_min        => options['httpport'],
+            :http_port_max        => options['httpport'],
+            :boot_wait            => boot_wait,
+            :boot_command         => boot_command,
+            :tools_upload_flavor  => tools_upload_flavor,
+            :tools_upload_path    => tools_upload_path,
+            :vmx_data => {
+              :"virtualHW.version"                => hw_version,
+              :"RemoteDisplay.vnc.enabled"        => vnc_enabled,
+              :memsize                            => options['memory'],
+              :numvcpus                           => options['vcpus'],
+              :"vhv.enable"                       => vhv_enabled,
+              :"ethernet0.present"                => ethernet_enabled,
+              :"ethernet0.connectionType"         => options['vmnetwork'],
+              :"ethernet0.virtualDev"             => ethernet_dev,
+              :"ethernet0.addressType"            => ethernet_type,
+              :"ethernet0.address"                => options['mac'],
+              :"scsi0.virtualDev"                 => virtual_dev
+            }
+          ]
+        }
+      end
+    when /qemu|kvm|xen/
+      if options['vmnetwork'].to_s.match(/hostonly|bridged/)
+        if options['headless'] == true
+          json_data = {
+            :variables => {
+              :hostname => options['name'],
+              :net_config => net_config
+            },
+            :builders => [
+              :name                 => options['name'],
+              :vm_name              => options['name'],
+              :type                 => options['type'],
+              :headless             => headless_mode,
+              :output_directory     => image_dir,
+              :disk_size            => options['size'],
+              :iso_url              => iso_url,
+              :ssh_host             => options['ip'],
+              :ssh_port             => ssh_port,
+              :ssh_host_port_min    => ssh_host_port_min,
+              :ssh_host_port_max    => ssh_host_port_max,
+              :ssh_username         => ssh_username,
+              :ssh_password         => ssh_password,
+              :ssh_timeout          => ssh_timeout,
+              :shutdown_command     => shutdown_command,
+              :shutdown_timeout     => shutdown_timeout,
+              :ssh_pty              => ssh_pty,
+              :iso_checksum         => install_checksum,
+              :http_directory       => packer_dir,
+              :http_port_min        => options['httpport'],
+              :http_port_max        => options['httpport'],
+              :boot_wait            => boot_wait,
+              :boot_command         => boot_command,
+              :format               => format,
+              :accelerator          => accelerator,
+              :disk_interface       => disk_interface,
+              :net_device           => net_device,
+              :net_bridge           => net_bridge,
+              :qemuargs             => [
+                [ "-nographic" ],
+                [ "-serial", "stdio" ],
+                [ "-m", options['memory'] ],
+                [ "-smp", "cpus="+options['vcpus'] ]
+              ]
+            ]
+          }
+        else
+          json_data = {
+            :variables => {
+              :hostname => options['name'],
+              :net_config => net_config
+            },
+            :builders => [
+              :name                 => options['name'],
+              :vm_name              => options['name'],
+              :type                 => options['type'],
+              :headless             => headless_mode,
+              :output_directory     => image_dir,
+              :disk_size            => options['size'],
+              :iso_url              => iso_url,
+              :ssh_host             => options['ip'],
+              :ssh_port             => ssh_port,
+              :ssh_host_port_min    => ssh_host_port_min,
+              :ssh_host_port_max    => ssh_host_port_max,
+              :ssh_username         => ssh_username,
+              :ssh_password         => ssh_password,
+              :ssh_timeout          => ssh_timeout,
+              :shutdown_command     => shutdown_command,
+              :shutdown_timeout     => shutdown_timeout,
+              :ssh_pty              => ssh_pty,
+              :iso_checksum         => install_checksum,
+              :http_directory       => packer_dir,
+              :http_port_min        => options['httpport'],
+              :http_port_max        => options['httpport'],
+              :boot_wait            => boot_wait,
+              :boot_command         => boot_command,
+              :format               => format,
+              :accelerator          => accelerator,
+              :disk_interface       => disk_interface,
+              :net_device           => net_device,
+              :net_bridge           => net_bridge,
+              :qemuargs             => [
+                [ "-serial", "stdio" ],
+                [ "-m", options['memory'] ],
+                [ "-smp", "cpus="+options['vcpus'] ]
+              ]
+            ]
+          }
+        end
+      else
+        if options['headless'] == true
+          json_data = {
+            :variables => {
+              :hostname => options['name'],
+              :net_config => net_config
+            },
+            :builders => [
+              :name                 => options['name'],
+              :vm_name              => options['name'],
+              :type                 => options['type'],
+              :headless             => headless_mode,
+              :output_directory     => image_dir,
+              :disk_size            => options['size'],
+              :iso_url              => iso_url,
+              :ssh_port             => ssh_port,
+              :ssh_host_port_min    => ssh_host_port_min,
+              :ssh_host_port_max    => ssh_host_port_max,
+              :ssh_username         => ssh_username,
+              :ssh_password         => ssh_password,
+              :ssh_timeout          => ssh_timeout,
+              :shutdown_command     => shutdown_command,
+              :shutdown_timeout     => shutdown_timeout,
+              :ssh_pty              => ssh_pty,
+              :iso_checksum         => install_checksum,
+              :http_directory       => packer_dir,
+              :http_port_min        => options['httpport'],
+              :http_port_max        => options['httpport'],
+              :boot_wait            => boot_wait,
+              :boot_command         => boot_command,
+              :format               => format,
+              :accelerator          => accelerator,
+              :disk_interface       => disk_interface,
+              :net_device           => net_device,
+              :qemuargs             => [
+                [ "-nographic" ],
+                [ "-serial", "stdio" ],
+                [ "-m", options['memory']+"M" ],
+                [ "-smp", "cpus="+options['vcpus'] ]
+              ]
+            ]
+          }
+        else
+          json_data = {
+            :variables => {
+              :hostname => options['name'],
+              :net_config => net_config
+            },
+            :builders => [
+              :name                 => options['name'],
+              :vm_name              => options['name'],
+              :type                 => options['type'],
+              :headless             => headless_mode,
+              :output_directory     => image_dir,
+              :disk_size            => options['size'],
+              :iso_url              => iso_url,
+              :ssh_port             => ssh_port,
+              :ssh_host_port_min    => ssh_host_port_min,
+              :ssh_host_port_max    => ssh_host_port_max,
+              :ssh_username         => ssh_username,
+              :ssh_password         => ssh_password,
+              :ssh_timeout          => ssh_timeout,
+              :shutdown_command     => shutdown_command,
+              :shutdown_timeout     => shutdown_timeout,
+              :ssh_pty              => ssh_pty,
+              :iso_checksum         => install_checksum,
+              :http_directory       => packer_dir,
+              :http_port_min        => options['httpport'],
+              :http_port_max        => options['httpport'],
+              :boot_wait            => boot_wait,
+              :boot_command         => boot_command,
+              :format               => format,
+              :accelerator          => accelerator,
+              :disk_interface       => disk_interface,
+              :net_device           => net_device,
+              :qemuargs             => [
+                [ "-serial", "stdio" ],
+                [ "-m", options['memory']+"M" ],
+                [ "-smp", "cpus="+options['vcpus'] ]
+              ]
+            ]
+          }
+        end
+      end
+    end
   when /purity/
     case options['vm']
     when /vbox/
@@ -1650,6 +2024,9 @@ def create_packer_json(options)
         end
       end
     end
+  
+  
+  
   else
     case options['vm']
     when /vbox/
@@ -1698,7 +2075,6 @@ def create_packer_json(options)
               [ "modifyvm", "{{.Name}}", nic_command1, nic_config1 ],
               [ "modifyvm", "{{.Name}}", nic_command2, nic_config2 ],
               [ "modifyvm", "{{.Name}}", nic_command3, nic_config3 ],
-#              [ "modifyvm", "{{.Name}}", "--natpf1", natpf_ssh_rule ],
               [ "modifyvm", "{{.Name}}", "--macaddress1", options['mac'] ],
       			]
       		]

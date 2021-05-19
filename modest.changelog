@@ -1281,3 +1281,5 @@
 # Updated Windows Eval keys
 # 6.4.0: Tue 18 May 2021 21:16:46 AEST
 # Fixed bug with Kikstart file creation
+# 6.4.1: Wed 19 May 2021 15:06:35 AEST
+# Fixes for ESXi install under VMware Fusion
