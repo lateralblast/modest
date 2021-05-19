@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      6.4.1
+# Version:      6.4.2
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -630,7 +630,7 @@ if options['vm']
     begin
       require 'aws-sdk'
     rescue LoadError
-      install_gem("aws-sdk", "aws-sdk")
+      install_gem("aws-sdk")
     end
   end
 end
@@ -2177,8 +2177,8 @@ if options['action'] != options['empty']
           control_vm(options)
         end
       else
-        if option['name'] != option['empty']
-          for vm_type in option['validvm']
+        if options['name'] != options['empty']
+          for vm_type in options['validvm']
             options['vm'] = vm_type
             exists = check_vm_exists(options)
             if exists == "yes"
@@ -2211,8 +2211,8 @@ if options['action'] != options['empty']
           handle_output(options,"Warning:\tClient name not specified")
         end
       else
-        if option['name'] != option['empty']
-          for vm_type in option['validvm']
+        if options['name'] != options['empty']
+          for vm_type in options['validvm']
             options['vm'] = vm_type
             exists = check_vm_exists(options)
             if exists == "yes"

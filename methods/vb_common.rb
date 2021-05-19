@@ -626,7 +626,7 @@ def get_vbox_vm_dir(options)
   vbox_vm_base_dir = execute_command(options,message,command)
   vbox_vm_base_dir = vbox_vm_base_dir.chomp
   if not vbox_vm_base_dir.match(/[a-z,A-Z]/)
-    vbox_vm_base_dir=option['home']+"/VirtualBox VMs"
+    vbox_vm_base_dir = options['home']+"/VirtualBox VMs"
   end
   vm_dir = "#{vbox_vm_base_dir}/#{options['name']}"
   return vm_dir

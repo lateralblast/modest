@@ -1008,7 +1008,7 @@ def populate_ay_add_packages(options)
     add_packages.push("sudo")
     add_packages.push("wget")
   when /sles_12_[1-9]/
-    if !option['service'].to_s.match(/sles_12_3/)
+    if !options['service'].to_s.match(/sles_12_3/)
       add_packages.push("at-spi-32bit")
       add_packages.push("gdbm-32bit")
       add_packages.push("libcanberra-gtk-32bit")

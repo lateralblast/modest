@@ -490,7 +490,7 @@ def reset_defaults(options,defaults)
     defaults['vcpu']  = "8"
     defaults['size']  = "20G"
   when /aws/
-    if option['action'].to_s.match(/list/)
+    if options['action'].to_s.match(/list/)
       defaults['group']    = "all"
       defaults['secgroup'] = "all"
       defaults['key']      = "all"
@@ -1749,7 +1749,7 @@ end
 # Unconfigure a server
 
 def unconfigure_server(options)
-  if option['method'] == option['empty']
+  if options['method'] == options['empty']
     options['method'] = get_install_method(options)
   end
   if options['method'].to_s.match(/[a-z]/)
@@ -4530,7 +4530,7 @@ end
 # List services
 
 def list_services(options)
-  case option['method']
+  case options['method']
   when /ai/
     list_ai_services(options)
   when /ay/
