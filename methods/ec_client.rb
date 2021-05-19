@@ -15,7 +15,7 @@ end
 
 # Create Userdata yaml file
 
-def create_aws_user_data_file(output_file)
+def create_aws_user_data_file(options,output_file)
   yaml = populate_aws_user_data_yaml()
   file = File.open(output_file,"w")
   yaml.each do |item|
@@ -35,8 +35,8 @@ def build_aws_config(options)
     handle_output(options,"Warning:\tAWS image already exists for '#{options['name']}'")
     quit(options)
   end
-  options['clientdir'] = options['clientdir']+"/packer/aws/"+options['name']
-  json_file  = options['clientdir']+"/"+options['name']+".json"
+  client_dir = options['clientdir']+"/packer/aws/"+options['name']
+  json_file  = client_dir+"/"+options['name']+".json"
   message    = "Information:\tBuilding Packer AWS instance using AMI name '#{options['name']}' using '#{json_file}'"
   command    = "packer build #{json_file}"
   execute_command(options,message,command)
@@ -123,7 +123,7 @@ def stop_aws_vm(options)
       end
     end
   end
-  return
+  return options
 end
 
 # Start AWS instance
@@ -156,11 +156,11 @@ def boot_aws_vm(options)
       end
     else
       if not options['ami']== options['empty']
-        configure_aws_client(options)
+        options = configure_aws_client(options)
       end
     end
   end
-  return
+  return options
 end
 
 # Delete AWS instance
@@ -198,7 +198,7 @@ def delete_aws_vm(options)
       end
     end
   end
-  return
+  return options
 end
 
 # Delete AWS instance
@@ -216,7 +216,7 @@ def reboot_aws_vm(options)
       ec2.reboot_instances(instance_ids:[id])
     end
   end
-  return
+  return options
 end
 
 # Create AWS image from instance
@@ -283,7 +283,7 @@ def create_aws_instance(options)
     options['instance'] = id
     list_aws_instances(options)
   end
-  return
+  return options
 end
 
 # Export AWS instance
@@ -309,9 +309,9 @@ def configure_aws_client(options)
     handle_output(options,"Warning:\tIncorrect number of instances specified: '#{options['number']}'")
     quit(options)
   end
-  options['name'],options['key'],options['keyfile'],options['ports'] = handle_aws_values(options)
-  create_aws_install_files(options)
-  return
+  options = handle_aws_values(options)
+  options = create_aws_install_files(options)
+  return options
 end
 
 # Create AWS client
@@ -335,8 +335,8 @@ def create_aws_install_files(options)
       quit(options)
     end
   end
-  create_aws_instance(options)
-  return
+  options = create_aws_instance(options)
+  return options
 end
 
 # List AWS instances

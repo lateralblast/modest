@@ -130,7 +130,7 @@ def get_aws_ip_service_info(options)
       options['cidr'] = "0.0.0.0/0"
     end
   end
-  return options['proto'],options['to'],options['from'],options['cidr']
+  return options
 end
 
 # Handle AWS values
@@ -190,7 +190,7 @@ def handle_aws_values(options)
     create_aws_security_group(options)
   end
   add_ssh_to_aws_security_group(options)
-  return options['name'],options['key'],options['keyfile'],options['group'],options['ports']
+  return options
 end
 
 # Get Prefix List ID
@@ -424,7 +424,7 @@ end
 
 def remove_rule_from_aws_security_group(options)
   if not options['service'].to_s.match(/^#{empty_value}$/)
-    (options['proto'],options['to'],options['from'],options['cidr']) = get_aws_ip_service_info(options)
+    options = get_aws_ip_service_info(options)
   end
   if not options['group'].to_s.match(/^sg/)
     options['group'] = get_aws_security_group_id(options)
@@ -502,8 +502,8 @@ def add_ssh_to_aws_security_group(options)
   options['from']    = "22"
   options['to']      = "22"
   options['cidr']    = "0.0.0.0/0"
-  add_rule_to_aws_security_group(options)
-  return
+  options = add_rule_to_aws_security_group(options)
+  return options
 end
 
 # Add HTTP to AWS EC2 security group
@@ -515,8 +515,8 @@ def add_http_to_aws_security_group(options)
   options['from']    = "80"
   options['to']      = "80"
   options['cidr']    = "0.0.0.0/0"
-  add_rule_to_aws_security_group(options)
-  return
+  options = add_rule_to_aws_security_group(options)
+  return options
 end
 
 # Add HTTPS to AWS EC2 security group
@@ -528,8 +528,8 @@ def add_https_to_aws_security_group(options)
   options['from']    = "80"
   options['to']      = "80"
   options['cidr']    = "0.0.0.0/0"
-  add_rule_to_aws_security_group(options)
-  return
+  options = add_rule_to_aws_security_group(options)
+  return options
 end
 
 # Add HTTPS to AWS EC2 security group
@@ -541,15 +541,15 @@ def add_icmp_to_aws_security_group(options)
   options['from']    = "-1"
   options['to']      = "-1"
   options['cidr']    = "0.0.0.0/0"
-  add_rule_to_aws_security_group(options)
-  return
+  options = add_rule_to_aws_security_group(options)
+  return options
 end
 
 # Add rule to AWS EC2 security group
 
 def add_rule_to_aws_security_group(options)
   if not options['service']== options['empty']
-    (options['proto'],options['to'],options['from'],options['cidr']) = get_aws_ip_service_info(options)
+    options = get_aws_ip_service_info(options)
   end
   if not options['group'].to_s.match(/^sg/)
     options['group'] = get_aws_security_group_id(options)
@@ -559,7 +559,7 @@ def add_rule_to_aws_security_group(options)
   else
     add_ingress_rule_to_aws_security_group(options)
   end
-  return
+  return options
 end
 
 # Create AWS EC2 security group
@@ -594,7 +594,7 @@ def delete_aws_security_group(options)
   return
 end
 
-def handle_ip_perms(ip_perms,type,group_name)
+def handle_ip_perms(options,ip_perms,type,group_name)
   name_length = group_name.length
   name_spacer = ""
   name_length.times do
@@ -644,9 +644,9 @@ def list_aws_security_groups(options)
       description = group.description
       handle_output(options,"#{group_name} desc=\"#{description}\"")
       ip_perms = group.ip_permissions
-      handle_ip_perms(ip_perms,"Ingress",group_name)
+      handle_ip_perms(options,ip_perms,"Ingress",group_name)
       ip_perms = group.ip_permissions_egress
-      handle_ip_perms(ip_perms,"Egress",group_name)
+      handle_ip_perms(options,ip_perms,"Egress",group_name)
     end
   end
   return

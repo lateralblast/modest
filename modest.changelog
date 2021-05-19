@@ -1285,3 +1285,5 @@
 # Fixes for ESXi install under VMware Fusion
 # 6.4.2: Wed 19 May 2021 17:32:55 AEST
 # Bug fixes
+# 6.4.3: Wed 19 May 2021 19:07:03 AEST
+# Initial AWS code cleanup

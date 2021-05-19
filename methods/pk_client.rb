@@ -571,7 +571,7 @@ def create_packer_aws_install_files(options)
   options['service'] = "aws"
   process_questions(options)
   user_data_file = options['clientdir']+"/userdata.yml"
-  create_aws_user_data_file(user_data_file)
+  create_aws_user_data_file(options,user_data_file)
   create_packer_aws_json()
   file_name = script_dir+"/vagrant.sh"
   create_packer_vagrant_sh(options['name'],file_name)

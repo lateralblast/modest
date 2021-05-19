@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      6.4.2
+# Version:      6.4.3
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -1873,7 +1873,7 @@ if options['action'] != options['empty']
       if options['type'].to_s.match(/instance|snapshot|key|stack|cf|cloud|securitygroup|iprule|sg|ami|image/) || options['id'].to_s.match(/[0-9]|all/)
         case options['type']
         when /instance/
-          delete_aws_vm(options)
+          options = delete_aws_vm(options)
         when /ami|image/
           if options['vm'].to_s.match(/docker/)
             delete_docker_image(options)
@@ -2023,7 +2023,7 @@ if options['action'] != options['empty']
           handle_output(options,"Warning:\tNo Key Pair or Security Group specified")
           quit(options)
         else
-          configure_aws_client(options)
+          options = configure_aws_client(options)
         end
       end
       quit(options)
@@ -2161,7 +2161,7 @@ if options['action'] != options['empty']
     options['action'] = options['action'].gsub(/halt/,"stop")
     options['action'] = options['action'].gsub(/shutdown/,"stop")
     if options['vm'].to_s.match(/aws/)
-      boot_aws_vm(options)
+      options = boot_aws_vm(options)
       quit(options)
     end
     if options['name'] != options['empty'] && options['vm'] != options['empty'] && options['vm'] != options['empty']
@@ -2200,7 +2200,7 @@ if options['action'] != options['empty']
         options['vm'] = get_client_vm_type(options)
       end
       if options['vm'].to_s.match(/aws/)
-        reboot_aws_vm(options)
+        options = reboot_aws_vm(options)
         quit(options)
       end
       if options['vm'] != options['empty']

@@ -139,7 +139,7 @@ def create_ansible_aws_install_files(options)
     handle_output(options,"Warning:\tIncorrect number of instances specified: '#{options['number']}'")
     quit(options)
   end
-  options['name'],options['key'],options['keyfile'],options['group'],options['ports'] = handle_aws_values(options)
+  options = handle_aws_values(options)
   exists = check_aws_image_exists(options)
   if exists == "yes"
     handle_output(options,"Warning:\tAWS AMI already exists with name #{options['name']}")
