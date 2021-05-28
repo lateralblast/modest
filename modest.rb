@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      6.4.3
+# Version:      6.4.4
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -272,8 +272,10 @@ begin
     ['--keydir', REQUIRED],           # AWS Key Dir
     ['--keyfile', REQUIRED],          # AWS Keyfile
     ['--keymap', REQUIRED],           # Key map
+    ['--keyname', REQUIRED],          # AWS Key name (defaults to region)
     ['--launchSecurity', REQUIRED],   # Launch Security (KVM)
     ['--license', REQUIRED],          # License key (e.g. ESX)
+    ['--livecd', BOOLEAN],            # Specify Live CD (Changes install method)
     ['--locale', REQUIRED],           # Select language/language (e.g. en_US)
     ['--localfs', REQUIRED],          # Set local fs 
     ['--localsize', REQUIRED],        # Set local fs size
@@ -678,7 +680,20 @@ end
 if options['keyfile'] != options['empty']
   if !File.exist?(options['keyfile'])
     handle_output(options,"Warning:\tKey file #{options['keyfile']} does not exist")
-    quit(options)
+    if options['action'].to_s.match(/create/) and !option['type'].to_s.match(/key/)
+      quit(options)
+    end
+  end
+end
+
+# Handle sshkeyfile switch
+
+if options['sshkeyfile'] != options['empty']
+  if !File.exist?(options['sshkeyfile'])
+    handle_output(options,"Warning:\tKey file #{options['sshkeyfile']} does not exist")
+    if options['action'].to_s.match(/create/) and !option['type'].to_s.match(/key/)
+      quit(options)
+    end
   end
 end
 
@@ -1902,7 +1917,7 @@ if options['action'] != options['empty']
             end
           end
         when /key/
-          delete_aws_key_pair(options)
+          options = delete_aws_key_pair(options)
         when /stack|cf|cloud/
           delete_aws_cf_stack(options)
         when /securitygroup/
@@ -1984,7 +1999,7 @@ if options['action'] != options['empty']
       when /ami|image/
         create_aws_image(options)
       when /key/
-        create_aws_key_pair(options)
+        options = create_aws_key_pair(options)
       when /cf|cloud|stack/
         configure_aws_cf_stack(options)
       when /securitygroup/

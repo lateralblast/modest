@@ -133,6 +133,20 @@ def get_aws_ip_service_info(options)
   return options
 end
 
+# Set AWS keyfile
+
+def set_aws_key_file(options)
+  if options["keyfile"] == options["empty"]
+    if options['name'].to_s.match(/#{options['region'].to_s}/)
+      options['keyfile'] = options["home"]+"/.ssh/aws/"+options["name"]+".pem"
+    else
+      options['keyfile'] = options["home"]+"/.ssh/aws/"+options["name"]+options["region"]+".pem"
+    end
+    puts options['keyfile']
+  end
+  return options
+end
+
 # Handle AWS values
 
 def handle_aws_values(options)
@@ -149,7 +163,7 @@ def handle_aws_values(options)
   end
   if options['key'].to_s.match(/^#{options['empty']}$|^none$/)
     handle_output(options,"Warning:\tNo key pair specified")
-    if options['keyfile']== options['empty']
+    if options['keyfile'] == options['empty']
       if options['name'].to_s.match(/^#{options['empty']}/)
         if options['group'].to_s.match(/^#{}options['empty']/)
           handle_output(options,"Warning:\tCould not determine key pair")
@@ -175,11 +189,12 @@ def handle_aws_values(options)
     options['key']  = get_aws_uniq_name(options)
   end
   if options['keyfile'] == options['empty']
-    options['keyfile'] = options['keydir']+"/"+options['key']+".pem"
+    options = set_aws_key_file(options)
+    puts options['keyfile']
     handle_output(options,"Information:\tSetting key file to #{options['keyfile']}")
   end
   if not File.exist?(options['keyfile'])
-    create_aws_key_pair(options['access'],options['secret'],options['region'],options['key'])
+    options = create_aws_key_pair(options)
   end
   if not File.exist?(options['keyfile'])
     handle_output(options,"Warning:\tKey file '#{options['keyfile']}' does not exist")
@@ -263,8 +278,8 @@ def delete_aws_snapshot(options)
   snapshots = get_aws_snapshots(options)
   ec2       = initiate_aws_ec2_client(options)
   snapshots.each do |snapshot|
-    snapshot_id     = snapshot.snapshot_id
-    snapshot_owner  = snapshot.owner_id
+    snapshot_id    = snapshot.snapshot_id
+    snapshot_owner = snapshot.owner_id
     if snapshot_owner == owner_id
       if snapshot_id.match(/^#{options['snapshot']}$/) || options['snapshot'] == "all"
         handle_output(options,"Information:\tDeleting Snapshot ID #{snapshot_id}")
@@ -912,20 +927,22 @@ end
 
 def create_aws_key_pair(options)
   aws_ssh_dir = options['home']+"/.ssh/aws"
-  check_my_dir_exists(aws_ssh_dir)
+  check_my_dir_exists(options,aws_ssh_dir)
   if options['nosuffix'] == false
-    options['key'] = get_aws_uniq_name(options)
+    options['keyname'] = get_aws_uniq_name(options)
   end
   exists = check_aws_key_pair_exists(options)
   if exists == "yes"
-    handle_output(options,"Warning:\tKey Pair '#{options['key']}' already exists")
-    quit(options)
+    handle_output(options,"Warning:\tKey Pair '#{options['keyname']}' already exists")
+    if options['type'].to_s.match(/key/)
+      quit(options)
+    end
   else
-    handle_output(options,"Information:\tCreating Key Pair '#{options['key']}'")
+    handle_output(options,"Information:\tCreating Key Pair '#{options['keyname']}'")
     ec2      = initiate_aws_ec2_client(options)
-    key_pair = ec2.create_key_pair({ key_name: options['key'] }).key_material
-    key_file = aws_ssh_dir+"/"+options['key']+".pem"
-    handle_output(options,"Information:\tSaving Key Pair '#{options['key']}' to '#{key_file}'")
+    key_pair = ec2.create_key_pair({ key_name: options['keyname'] }).key_material
+    key_file = aws_ssh_dir+"/"+options['keyname']+".pem"
+    handle_output(options,"Information:\tSaving Key Pair '#{options['keyname']}' to '#{key_file}'")
     file = File.open(key_file,"w")
     file.write(key_pair)
     file.close
@@ -933,7 +950,7 @@ def create_aws_key_pair(options)
     command = "chmod 600 #{key_file}"
     execute_command(options,message,command)
   end
-  return
+  return options
 end
 
 # Delete AWS Key Pair
@@ -941,23 +958,23 @@ end
 def delete_aws_key_pair(options)
   aws_ssh_dir = options['home']+"/.ssh/aws"
   if options['nosuffix'] == false
-    options['key'] = get_aws_uniq_name(options)
+    options['keyname'] = get_aws_uniq_name(options)
   end
   exists = check_aws_key_pair_exists(options)
   if exists == "no"
-    handle_output(options,"Warning:\tAWS Key Pair '#{options['key']}' does not exist")
+    handle_output(options,"Warning:\tAWS Key Pair '#{options['keyname']}' does not exist")
     quit(options)
   else
-    handle_output(options,"Information:\tDeleting AWS Key Pair '#{options['key']}'")
+    handle_output(options,"Information:\tDeleting AWS Key Pair '#{options['keyname']}'")
     ec2      = initiate_aws_ec2_client(options)
-    key_pair = ec2.delete_key_pair({ key_name: options['key'] })
-    key_file = aws_ssh_dir+"/"+options['key']+".pem"
+    key_pair = ec2.delete_key_pair({ key_name: options['keyname'] })
+    key_file = aws_ssh_dir+"/"+options['keyname']+".pem"
     if File.exist?(key_file)
       handle_output(options,"Information:\tDeleting AWS Key Pair file '#{key_file}'")
       File.delete(key_file)
     end
   end
-  return
+  return options
 end
 
 # List AWS Key Pairs

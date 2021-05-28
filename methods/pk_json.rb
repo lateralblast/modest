@@ -44,15 +44,24 @@ def create_packer_json(options)
   iso_url           = "file://"+options['file']
 	packer_dir        = options['clientdir']+"/packer"
   image_dir         = options['clientdir']+"/images"
-  if options['dhcp']
-    ethernet_type = "dhcp"
+  install_password  = $q_struct['admin_password'].value
+  http_dir          = packer_dir
+  if options['livecd'] == true
+    http_dir = packer_dir+"/"+options['vm']+"/"+options['name']+"/subiquity/http"
+  end
+  if options['dhcp'] == true 
+    if options['vm'].to_s.match(/fusion/)
+      ethernet_type = "vpx"
+    else
+      ethernet_type = "dhcp"
+    end
   else
     ethernet_type = "static"
   end
   if Dir.exist?(image_dir)
     FileUtils.rm_rf(image_dir)
   end
-  json_file  = packer_dir+"/"+options['vm']+"/"+options['name']+"/"+options['name']+".json"
+  json_file = packer_dir+"/"+options['vm']+"/"+options['name']+"/"+options['name']+".json"
   check_dir_exists(options,options['clientdir'])
   if !options['service'].to_s.match(/purity/)
     headless_mode = $q_struct['headless_mode'].value
@@ -73,7 +82,11 @@ def create_packer_json(options)
     ks_ip = options['vmgateway']
     natpf_ssh_rule = "packerssh,tcp,"+options['ip']+",2222,"+options['ip']+",22"
   else
-    ks_ip = options['hostip']
+    if options['vm'].to_s.match(/fusion/) and options['dhcp'] == true
+      ks_ip = options['vmgateway']
+    else
+      ks_ip = options['hostip']
+    end
     natpf_ssh_rule = ""
   end
   if options['ip'].to_s.match(/[0-9]/)
@@ -615,40 +628,56 @@ def create_packer_json(options)
   when /debian|ubuntu/
     tools_upload_flavor = ""
     tools_upload_path   = ""
-    ks_ip   = options['hostonlyip'].to_s
-    ks_file = options['vm']+"/"+options['name']+"/"+options['name']+".cfg"
-    boot_header = "<enter><wait5><f6><esc><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
-                  "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
-                  "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
-                  "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
-                  "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><wait>"
-    if options['vmnetwork'].to_s.match(/hostonly|bridged/)
-      ks_url = "http://#{ks_ip}:#{options['httpport']}/"+ks_file
-      boot_command = boot_header+
-                     "<wait>/install/vmlinuz<wait> debian-installer/language="+$q_struct['language'].value+
-                     " debian-installer/country="+$q_struct['country'].value+
-                     " keyboard-configuration/layoutcode="+$q_struct['layout'].value+
-                     " <wait>interface="+$q_struct['nic'].value+
-                     " netcfg/disable_autoconfig="+$q_struct['disable_autoconfig'].value+
-                     " netcfg/disable_dhcp="+$q_struct['disable_dhcp'].value+
-                     " hostname="+options['name']+
-                     " <wait>netcfg/get_ipaddress="+options['ip']+
-                     " netcfg/get_netmask="+$q_struct['netmask'].value+
-                     " netcfg/get_gateway="+$q_struct['gateway'].value+
-                     " netcfg/get_nameservers="+$q_struct['nameserver'].value+
-                     " netcfg/get_domain="+$q_struct['domain'].value+
-                     " <wait>preseed/url="+ks_url+
-                     " initrd=/install/initrd.gz net.ifnames=0 biosdevname=0 -- <wait><enter><wait>"
+    if options['vmnetwork'].to_s.match(/nat/)
+      if options['dhcp'] == true
+        ks_ip = options['hostonlyip'].to_s
+      else
+        ks_ip = options['hostip'].to_s
+      end
     else
-      ks_url = "http://#{ks_ip}:#{options['httpport']}/"+ks_file
-      boot_command = boot_header+
-                     "/install/vmlinuz<wait>"+
-                     " auto-install/enable=true"+
-                     " debconf/priority=critical"+
-                     " <wait>preseed/url="+ks_url+
-                     " initrd=/install/initrd.gz net.ifnames=0 biosdevname=0 -- <wait><enter><wait>"
+      ks_ip = options['hostonlyip'].to_s
     end
-    shutdown_command = "echo 'shutdown -P now' > /tmp/shutdown.sh ; echo '#{$q_struct['admin_password'].value}'|sudo -S sh '/tmp/shutdown.sh'"
+    ks_file = options['vm']+"/"+options['name']+"/"+options['name']+".cfg"
+    if options['livecd'] == true
+      boot_wait    = "3s"
+      boot_header  = "<enter><enter><f6><esc><wait><bs><bs><bs><bs>net.ifnames=0 biosdevname=0 "
+      boot_command = boot_header+
+                     "autoinstall ds=nocloud-net;seedfrom=http://"+ks_ip+":#{options['httpport']}/ --- "+
+                     "<enter><wait>"
+    else
+      boot_header = "<enter><wait5><f6><esc><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
+                    "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
+                    "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
+                    "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
+                    "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><wait>"
+      if options['vmnetwork'].to_s.match(/hostonly|bridged/)
+        ks_url = "http://#{ks_ip}:#{options['httpport']}/"+ks_file
+        boot_command = boot_header+
+                       "<wait>/install/vmlinuz<wait> debian-installer/language="+$q_struct['language'].value+
+                       " debian-installer/country="+$q_struct['country'].value+
+                       " keyboard-configuration/layoutcode="+$q_struct['layout'].value+
+                       " <wait>interface="+$q_struct['nic'].value+
+                       " netcfg/disable_autoconfig="+$q_struct['disable_autoconfig'].value+
+                       " netcfg/disable_dhcp="+$q_struct['disable_dhcp'].value+
+                       " hostname="+options['name']+
+                       " <wait>netcfg/get_ipaddress="+options['ip']+
+                       " netcfg/get_netmask="+$q_struct['netmask'].value+
+                       " netcfg/get_gateway="+$q_struct['gateway'].value+
+                       " netcfg/get_nameservers="+$q_struct['nameserver'].value+
+                       " netcfg/get_domain="+$q_struct['domain'].value+
+                       " <wait>preseed/url="+ks_url+
+                       " initrd=/install/initrd.gz net.ifnames=0 biosdevname=0 -- <wait><enter><wait>"
+      else
+        ks_url = "http://#{ks_ip}:#{options['httpport']}/"+ks_file
+        boot_command = boot_header+
+                       "/install/vmlinuz<wait>"+
+                       " auto-install/enable=true"+
+                       " debconf/priority=critical"+
+                       " <wait>preseed/url="+ks_url+
+                       " initrd=/install/initrd.gz net.ifnames=0 biosdevname=0 -- <wait><enter><wait>"
+      end
+    end
+    shutdown_command = "echo 'shutdown -P now' > /tmp/shutdown.sh ; echo '#{install_password}'|sudo -S sh '/tmp/shutdown.sh'"
   when /vsphere|esx|vmware/
     if options['vm'].to_s.match(/fusion/)
       virtual_dev       = "pvscsi"
@@ -765,7 +794,7 @@ def create_packer_json(options)
             :shutdown_timeout     => shutdown_timeout,
             :shutdown_command     => shutdown_command,
             :iso_checksum         => install_checksum,
-            :http_directory       => packer_dir,
+            :http_directory       => http_dir,
             :http_port_min        => options['httpport'],
             :http_port_max        => options['httpport'],
             :boot_wait            => boot_wait,
@@ -810,7 +839,7 @@ def create_packer_json(options)
             :shutdown_command     => shutdown_command,
             :ssh_pty              => ssh_pty,
             :iso_checksum         => install_checksum,
-            :http_directory       => packer_dir,
+            :http_directory       => http_dir,
             :http_port_min        => options['httpport'],
             :http_port_max        => options['httpport'],
             :boot_wait            => boot_wait,
@@ -854,7 +883,7 @@ def create_packer_json(options)
             :shutdown_command     => shutdown_command,
             :ssh_pty              => ssh_pty,
             :iso_checksum         => install_checksum,
-            :http_directory       => packer_dir,
+            :http_directory       => http_dir,
             :http_port_min        => options['httpport'],
             :http_port_max        => options['httpport'],
             :boot_wait            => boot_wait,
@@ -899,7 +928,7 @@ def create_packer_json(options)
             :shutdown_command     => shutdown_command,
             :ssh_pty              => ssh_pty,
             :iso_checksum         => install_checksum,
-            :http_directory       => packer_dir,
+            :http_directory       => http_dir,
             :http_port_min        => options['httpport'],
             :http_port_max        => options['httpport'],
             :boot_wait            => boot_wait,
@@ -949,7 +978,7 @@ def create_packer_json(options)
               :shutdown_timeout     => shutdown_timeout,
               :ssh_pty              => ssh_pty,
               :iso_checksum         => install_checksum,
-              :http_directory       => packer_dir,
+              :http_directory       => http_dir,
               :http_port_min        => options['httpport'],
               :http_port_max        => options['httpport'],
               :boot_wait            => boot_wait,
@@ -992,7 +1021,7 @@ def create_packer_json(options)
               :shutdown_timeout     => shutdown_timeout,
               :ssh_pty              => ssh_pty,
               :iso_checksum         => install_checksum,
-              :http_directory       => packer_dir,
+              :http_directory       => http_dir,
               :http_port_min        => options['httpport'],
               :http_port_max        => options['httpport'],
               :boot_wait            => boot_wait,
@@ -1035,7 +1064,7 @@ def create_packer_json(options)
               :shutdown_timeout     => shutdown_timeout,
               :ssh_pty              => ssh_pty,
               :iso_checksum         => install_checksum,
-              :http_directory       => packer_dir,
+              :http_directory       => http_dir,
               :http_port_min        => options['httpport'],
               :http_port_max        => options['httpport'],
               :boot_wait            => boot_wait,
@@ -1076,7 +1105,7 @@ def create_packer_json(options)
               :shutdown_timeout     => shutdown_timeout,
               :ssh_pty              => ssh_pty,
               :iso_checksum         => install_checksum,
-              :http_directory       => packer_dir,
+              :http_directory       => http_dir,
               :http_port_min        => options['httpport'],
               :http_port_max        => options['httpport'],
               :boot_wait            => boot_wait,
@@ -1122,7 +1151,7 @@ def create_packer_json(options)
           :shutdown_timeout     => shutdown_timeout,
           :ssh_pty              => ssh_pty,
           :iso_checksum         => install_checksum,
-          :http_directory       => packer_dir,
+          :http_directory       => http_dir,
           :http_port_min        => options['httpport'],
           :http_port_max        => options['httpport'],
           :boot_wait            => boot_wait,
@@ -1169,7 +1198,7 @@ def create_packer_json(options)
           :shutdown_command     => shutdown_command,
           :ssh_pty              => ssh_pty,
           :iso_checksum         => install_checksum,
-          :http_directory       => packer_dir,
+          :http_directory       => http_dir,
           :http_port_min        => options['httpport'],
           :http_port_max        => options['httpport'],
           :boot_wait            => boot_wait,
@@ -1245,7 +1274,7 @@ def create_packer_json(options)
             :shutdown_timeout     => shutdown_timeout,
             :ssh_pty              => ssh_pty,
             :iso_checksum         => install_checksum,
-            :http_directory       => packer_dir,
+            :http_directory       => http_dir,
             :http_port_min        => options['httpport'],
             :http_port_max        => options['httpport'],
             :boot_wait            => boot_wait,
@@ -1300,7 +1329,7 @@ def create_packer_json(options)
             :shutdown_command     => shutdown_command,
             :shutdown_timeout     => shutdown_timeout,
             :iso_checksum         => install_checksum,
-            :http_directory       => packer_dir,
+            :http_directory       => http_dir,
             :http_port_min        => options['httpport'],
             :http_port_max        => options['httpport'],
             :boot_wait            => boot_wait,
@@ -1353,7 +1382,7 @@ def create_packer_json(options)
               :shutdown_timeout     => shutdown_timeout,
               :ssh_pty              => ssh_pty,
               :iso_checksum         => install_checksum,
-              :http_directory       => packer_dir,
+              :http_directory       => http_dir,
               :http_port_min        => options['httpport'],
               :http_port_max        => options['httpport'],
               :boot_wait            => boot_wait,
@@ -1403,7 +1432,7 @@ def create_packer_json(options)
               :shutdown_timeout     => shutdown_timeout,
               :ssh_pty              => ssh_pty,
               :iso_checksum         => install_checksum,
-              :http_directory       => packer_dir,
+              :http_directory       => http_dir,
               :http_port_min        => options['httpport'],
               :http_port_max        => options['httpport'],
               :boot_wait            => boot_wait,
@@ -1453,7 +1482,7 @@ def create_packer_json(options)
               :shutdown_timeout     => shutdown_timeout,
               :ssh_pty              => ssh_pty,
               :iso_checksum         => install_checksum,
-              :http_directory       => packer_dir,
+              :http_directory       => http_dir,
               :http_port_min        => options['httpport'],
               :http_port_max        => options['httpport'],
               :boot_wait            => boot_wait,
@@ -1501,7 +1530,7 @@ def create_packer_json(options)
               :shutdown_timeout     => shutdown_timeout,
               :ssh_pty              => ssh_pty,
               :iso_checksum         => install_checksum,
-              :http_directory       => packer_dir,
+              :http_directory       => http_dir,
               :http_port_min        => options['httpport'],
               :http_port_max        => options['httpport'],
               :boot_wait            => boot_wait,
@@ -1550,7 +1579,7 @@ def create_packer_json(options)
             :shutdown_timeout     => shutdown_timeout,
             :ssh_pty              => ssh_pty,
             :iso_checksum         => install_checksum,
-            :http_directory       => packer_dir,
+            :http_directory       => http_dir,
             :http_port_min        => options['httpport'],
             :http_port_max        => options['httpport'],
             :boot_wait            => boot_wait,
@@ -1601,7 +1630,7 @@ def create_packer_json(options)
             :shutdown_timeout     => shutdown_timeout,
             :ssh_pty              => ssh_pty,
             :iso_checksum         => install_checksum,
-            :http_directory       => packer_dir,
+            :http_directory       => http_dir,
             :http_port_min        => options['httpport'],
             :http_port_max        => options['httpport'],
             :boot_wait            => boot_wait,
@@ -1755,7 +1784,7 @@ def create_packer_json(options)
             :shutdown_timeout     => shutdown_timeout,
             :shutdown_command     => shutdown_command,
             :iso_checksum         => install_checksum,
-            :http_directory       => packer_dir,
+            :http_directory       => http_dir,
             :http_port_min        => options['httpport'],
             :http_port_max        => options['httpport'],
             :boot_wait            => boot_wait,
@@ -1807,7 +1836,7 @@ def create_packer_json(options)
             :shutdown_timeout     => shutdown_timeout,
             :shutdown_command     => shutdown_command,
             :iso_checksum         => install_checksum,
-            :http_directory       => packer_dir,
+            :http_directory       => http_dir,
             :http_port_min        => options['httpport'],
             :http_port_max        => options['httpport'],
             :boot_wait            => boot_wait,
@@ -1862,7 +1891,7 @@ def create_packer_json(options)
               :shutdown_timeout     => shutdown_timeout,
               :ssh_pty              => ssh_pty,
               :iso_checksum         => install_checksum,
-              :http_directory       => packer_dir,
+              :http_directory       => http_dir,
               :http_port_min        => options['httpport'],
               :http_port_max        => options['httpport'],
               :boot_wait            => boot_wait,
@@ -1909,7 +1938,7 @@ def create_packer_json(options)
               :shutdown_timeout     => shutdown_timeout,
               :ssh_pty              => ssh_pty,
               :iso_checksum         => install_checksum,
-              :http_directory       => packer_dir,
+              :http_directory       => http_dir,
               :http_port_min        => options['httpport'],
               :http_port_max        => options['httpport'],
               :boot_wait            => boot_wait,
@@ -1956,7 +1985,7 @@ def create_packer_json(options)
               :shutdown_timeout     => shutdown_timeout,
               :ssh_pty              => ssh_pty,
               :iso_checksum         => install_checksum,
-              :http_directory       => packer_dir,
+              :http_directory       => http_dir,
               :http_port_min        => options['httpport'],
               :http_port_max        => options['httpport'],
               :boot_wait            => boot_wait,
@@ -2001,7 +2030,7 @@ def create_packer_json(options)
               :shutdown_timeout     => shutdown_timeout,
               :ssh_pty              => ssh_pty,
               :iso_checksum         => install_checksum,
-              :http_directory       => packer_dir,
+              :http_directory       => http_dir,
               :http_port_min        => options['httpport'],
               :http_port_max        => options['httpport'],
               :boot_wait            => boot_wait,
@@ -2057,7 +2086,7 @@ def create_packer_json(options)
             :shutdown_timeout     => shutdown_timeout,
             :shutdown_command     => shutdown_command,
             :iso_checksum         => install_checksum,
-            :http_directory       => packer_dir,
+            :http_directory       => http_dir,
             :http_port_min        => options['httpport'],
             :http_port_max        => options['httpport'],
             :boot_wait            => boot_wait,
@@ -2104,7 +2133,7 @@ def create_packer_json(options)
             :shutdown_command     => shutdown_command,
             :ssh_pty              => ssh_pty,
             :iso_checksum         => install_checksum,
-            :http_directory       => packer_dir,
+            :http_directory       => http_dir,
             :http_port_min        => options['httpport'],
             :http_port_max        => options['httpport'],
             :boot_wait            => boot_wait,
@@ -2148,7 +2177,7 @@ def create_packer_json(options)
             :shutdown_command     => shutdown_command,
             :ssh_pty              => ssh_pty,
             :iso_checksum         => install_checksum,
-            :http_directory       => packer_dir,
+            :http_directory       => http_dir,
             :http_port_min        => options['httpport'],
             :http_port_max        => options['httpport'],
             :boot_wait            => boot_wait,
@@ -2193,7 +2222,7 @@ def create_packer_json(options)
             :shutdown_command     => shutdown_command,
             :ssh_pty              => ssh_pty,
             :iso_checksum         => install_checksum,
-            :http_directory       => packer_dir,
+            :http_directory       => http_dir,
             :http_port_min        => options['httpport'],
             :http_port_max        => options['httpport'],
             :boot_wait            => boot_wait,
@@ -2210,7 +2239,7 @@ def create_packer_json(options)
               :"ethernet0.connectionType"         => options['vmnetwork'],
               :"ethernet0.virtualDev"             => ethernet_dev,
               :"ethernet0.addressType"            => ethernet_type,
-              :"ethernet0.address"                => options['mac'],
+              :"ethernet0.GeneratedAddress"       => options['mac'],
               :"scsi0.virtualDev"                 => virtual_dev
             }
           ]
@@ -2243,7 +2272,7 @@ def create_packer_json(options)
               :shutdown_timeout     => shutdown_timeout,
               :ssh_pty              => ssh_pty,
               :iso_checksum         => install_checksum,
-              :http_directory       => packer_dir,
+              :http_directory       => http_dir,
               :http_port_min        => options['httpport'],
               :http_port_max        => options['httpport'],
               :boot_wait            => boot_wait,
@@ -2286,7 +2315,7 @@ def create_packer_json(options)
               :shutdown_timeout     => shutdown_timeout,
               :ssh_pty              => ssh_pty,
               :iso_checksum         => install_checksum,
-              :http_directory       => packer_dir,
+              :http_directory       => http_dir,
               :http_port_min        => options['httpport'],
               :http_port_max        => options['httpport'],
               :boot_wait            => boot_wait,
@@ -2329,7 +2358,7 @@ def create_packer_json(options)
               :shutdown_timeout     => shutdown_timeout,
               :ssh_pty              => ssh_pty,
               :iso_checksum         => install_checksum,
-              :http_directory       => packer_dir,
+              :http_directory       => http_dir,
               :http_port_min        => options['httpport'],
               :http_port_max        => options['httpport'],
               :boot_wait            => boot_wait,
@@ -2370,7 +2399,7 @@ def create_packer_json(options)
               :shutdown_timeout     => shutdown_timeout,
               :ssh_pty              => ssh_pty,
               :iso_checksum         => install_checksum,
-              :http_directory       => packer_dir,
+              :http_directory       => http_dir,
               :http_port_min        => options['httpport'],
               :http_port_max        => options['httpport'],
               :boot_wait            => boot_wait,
@@ -2399,7 +2428,7 @@ end
 
 # Create Packer JSON file for AWS
 
-def create_packer_aws_json()
+def create_packer_aws_json(options)
   options['service'] = $q_struct['type'].value
   options['access']  = $q_struct['access_key'].value
   options['secret']  = $q_struct['secret_key'].value
@@ -2456,5 +2485,5 @@ def create_packer_aws_json()
   File.write(json_file,json_output)
   set_file_perms(json_file,"600")
   print_contents_of_file(options,"",json_file)
-  return
+  return options
 end

@@ -1620,7 +1620,18 @@ def populate_fusion_vm_vmx_info(options)
   vmx_info.push("ethernet0.connectionType,#{options['vmnetwork']}")
   vmx_info.push("ethernet0.virtualDev,e1000")
   vmx_info.push("ethernet0.wakeOnPcktRcv,FALSE")
-  vmx_info.push("ethernet0.addressType,static")
+  if options['dhcp'] == false
+    vmx_info.push("ethernet0.addressType,static")
+  else
+    vmx_info.push("ethernet0.addressType,vpx")
+  end
+  if !options['mac'] == options['empty']
+    if options['dhcp'] == false
+      vmx_info.push("ethernet0.address,#{options['mac']}")
+    else
+      vmx_info.push("ethernet0.GeneratedAddress,#{options['mac']}")
+    end
+  end
   vmx_info.push("ethernet0.linkStatePropagation.enable,TRUE")
 #  vmx_info.push("usb.present,TRUE")
 #  vmx_info.push("ehci.present,TRUE")
@@ -1698,7 +1709,11 @@ def populate_fusion_vm_vmx_info(options)
 #  vmx_info.push("usb:0.deviceType,hid")
 #  vmx_info.push("usb:0.port,0")
 #  vmx_info.push("usb:0.parent,-1")
-  vmx_info.push("ethernet0.address,#{options['mac']}")
+  if options['dhcp'] == true
+    vmx_info.push("ethernet0.GeneratedAddress,#{options['mac']}")
+  else
+    vmx_info.push("ethernet0.address,#{options['mac']}")
+  end
   vmx_info.push("floppy0.present,FALSE")
   vmx_info.push("serial0.present,TRUE")
   vmx_info.push("serial0.fileType,pipe")

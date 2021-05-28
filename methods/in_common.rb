@@ -5,6 +5,7 @@
 
 def set_defaults(options,defaults)
   # Declare OS defaults
+  defaults['home']       = ENV['HOME']
   defaults['osname']     = %x[uname].chomp
   defaults['osarch']     = %x[uname -p].chomp
   defaults['osmachine']  = %x[uname -m].chomp
@@ -180,8 +181,10 @@ def set_defaults(options,defaults)
   defaults['dhcpdrange'] = defaults['hostonlyip'].split(".")[0..-2].join(".")+".200"+" "+defaults['hostonlyip'].split(".")[0..-2].join(".")+".250"
   # Declare other defaults
   if defaults['osname'].match(/Darwin/) && defaults['osmajor'].to_i > 18
-    defaults['basedir']  = "/System/Volumes/Data"
-    defaults['mountdir'] = '/System/Volumes/Data/cdrom'
+    #defaults['basedir']  = "/System/Volumes/Data"
+    #defaults['mountdir'] = '/System/Volumes/Data/cdrom'
+    defaults['basedir']  = defaults['home']+"/Documents/modest"
+    defaults['mountdir'] = defaults['home']+"/Documents/modest/cdrom"
   else
     if options['vm'].to_s.match(/kvm/)
       defaults['basedir'] = "/var/lib/libvirt/images"
@@ -216,7 +219,6 @@ def set_defaults(options,defaults)
   defaults['varfs']           = "ext4"
   defaults['varsize']         = "8192"
   # General defaults
-  defaults['home']            = ENV['HOME']
   defaults['acl']             = "private"
   defaults['action']          = "help"
   defaults['aibasedir']       = "/export/auto_install"
@@ -292,9 +294,10 @@ def set_defaults(options,defaults)
   defaults['instances']       = "1,1"
   defaults['ipfamily']        = "ipv4"
   defaults['isodir']          = defaults['basedir']+'/export/isos'
+  defaults['region']          = "ap-southeast-2"
   if options['vm']
     if options['vm'].to_s.match(/aws/)
-      defaults['keydir'] = ENV['HOME']+"/.ssh/aws"
+      defaults['keydir']  = ENV['HOME']+"/.ssh/aws"
     else
       defaults['keydir'] = ENV['HOME']+"/.ssh"
     end
@@ -312,8 +315,10 @@ def set_defaults(options,defaults)
     end
   end
   defaults['keyboard']        = "US"
+  defaults["keyfile"]         = "none"
   defaults['keymap']          = "US-English"
   defaults['language']        = "en_US"
+  defaults['livecd']          = false
   defaults['ldomdir']         = '/ldoms'
   defaults['local']           = "local"
   defaults['locale']          = "en_US"
@@ -356,7 +361,6 @@ def set_defaults(options,defaults)
   defaults['publisherport']   = "10081"
   defaults['pxetype']         = "bios"
   defaults['repodir']         = defaults['basedir']+'/export/repo'
-  defaults['region']          = "ap-southeast-2"
   defaults['rpoolname']       = 'rpool'
   defaults['rootdisk']        = "/dev/sda"
   defaults['rootpassword']    = "P455w0rd"
@@ -445,6 +449,11 @@ end
 # Set some parameter once we have more details
 
 def reset_defaults(options,defaults)
+  if options['vmnetwork'].to_s.match(/nat/)
+    if options['ip'] == options['empty']
+      defaults['dhcp'] = true
+    end
+  end
   if options['os-type'].to_s.match(/win/)
     defaults['adminuser'] = "Administrator"
     defaults['adminname'] = "Administrator"
@@ -490,6 +499,7 @@ def reset_defaults(options,defaults)
     defaults['vcpu']  = "8"
     defaults['size']  = "20G"
   when /aws/
+    defaults['type'] = "instance"
     if options['action'].to_s.match(/list/)
       defaults['group']    = "all"
       defaults['secgroup'] = "all"
@@ -574,6 +584,21 @@ def reset_defaults(options,defaults)
   else
     defaults['download'] = true
     defaults['test']     = false
+  end
+  if options['keyname'] == options['empty']
+    if options["name"] != options['empty']
+      if options['region'] != options['empty']
+        defaults['keyname'] = options['name']+"-"+options['region']
+      else
+        defaults['keyname'] = options['name']+"-"+defaults['region']
+      end
+    else
+      if options['region'] != options['empty']
+        defaults['keyname'] = options['region']
+      else
+        defaults['keyname'] = defaults['region']
+      end
+    end
   end
   return defaults
 end
@@ -1046,8 +1071,8 @@ def update_user_ssh_config(options)
       file = File.open(ssh_config,"a")
     end
     file.write(host_string+"\n")
-    if options['keyfile'].to_s.match(/[A-Z]|[a-z]|[0-9]/)
-      file.write("    IdentityFile "+options['keyfile']+"\n")
+    if options['sshkeyfile'].to_s.match(/[A-Z]|[a-z]|[0-9]/)
+      file.write("    IdentityFile "+options['sshkeyfile']+"\n")
     end
     if options['adminuser'].to_s.match(/[A-Z]|[a-z]|[0-9]/)
       file.write("    User "+options['adminuser']+"\n")
@@ -1876,6 +1901,9 @@ def get_install_service_from_file(options)
       service_version = service_version+"_"+options['arch']
       options['method']  = "ps"
       options['release'] = options['file'].to_s.split(/-/)[1]
+    end
+    if options['file'].to_s.match(/live/)
+      options['livecd'] = true
     end
   when /purity/
     options['service'] = "purity"
@@ -4383,7 +4411,7 @@ end
 
 # Check my directory exists
 
-def check_my_dir_exists(dir_name)
+def check_my_dir_exists(options,dir_name)
   if not File.directory?(dir_name) and not File.symlink?(dir_name)
     if options['verbose'] == true
       handle_output(options,"Information:\tCreating directory '#{dir_name}'")

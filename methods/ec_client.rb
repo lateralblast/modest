@@ -317,11 +317,11 @@ end
 # Create AWS client
 
 def create_aws_install_files(options)
-  options['keyfile'] = ""
   user_data_file     = ""
   if not options['ami'].to_s.match(/^ami/)
     ec2,options['ami'] = get_aws_image(options)
   end
+  options = set_aws_key_file(options)
   populate_aws_questions(options,user_data_file)
   options['service'] = "aws"
   process_questions(options)

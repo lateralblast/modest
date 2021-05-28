@@ -33,7 +33,7 @@ def populate_aws_questions(options,user_data_file)
       )
     $q_struct[name] = config
     $q_order.push(name)
-    
+
     if options['unmasked'] == true
 
       name   = "secret_key"
@@ -98,7 +98,7 @@ def populate_aws_questions(options,user_data_file)
       question  = "AWS Type",
       ask       = "yes",
       parameter = "",
-      value     = $default_aws_type,
+      value     = options['type'],
       valid     = "",
       eval      = "no"
       )

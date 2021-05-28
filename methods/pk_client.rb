@@ -455,6 +455,14 @@ def create_packer_ps_install_files(options)
     output_file = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/"+options['name']+"_first_boot.sh"
     post_list   = populate_ps_first_boot_list(options)
     output_ks_post_list(options,post_list,output_file)
+    if options['livecd'] == true
+      output_file = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/subiquity/http/user-data"
+      user_data   = populate_packer_ps_user_data(options)
+      delete_file(options,output_file)
+      output_packer_ps_user_data(options,user_data,output_file)
+      output_file = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/subiquity/http/meta-data"
+      FileUtils.touch(output_file)
+    end
   end
   return options
 end
@@ -544,21 +552,20 @@ def create_packer_aws_install_files(options)
     handle_output(options,"Warning:\tIncorrect number of instances specified: '#{options['number']}'")
     quit(options)
   end
-  options['name'],options['key'],options['keyfile'],options['group'],options['ports'] = handle_aws_values(options)
-  exists = check_aws_image_exists(options)
+  options = handle_aws_values(options)
+  exists  = check_aws_image_exists(options)
   if exists == "yes"
     handle_output(options,"Warning:\tAWS AMI already exists with name #{options['name']}")
     quit(options)
   end
   if not options['ami'].to_s.match(/^ami/)
-    old_options['ami'] = options['ami']
-    ec2,options['ami'] = get_aws_image(old_options['ami'],options['access'],options['secret'],options['region'])
+    old_ami = options['ami']
+    ec2,options['ami'] = get_aws_image(options)
     if options['ami'].to_s.match(/^none$/)
-      handle_output(options,"Warning:\tNo AWS AMI ID found for #{old_options['ami']}")
-      options['ami'] = options['ami']
+      handle_output(options,"Warning:\tNo AWS AMI ID found for #{old_ami}")
       handle_output(options,"Information:\tSetting AWS AMI ID to #{options['ami']}")
     else
-      handle_output(options,"Information:\tFound AWS AMI ID #{options['ami']} for #{old_options['ami']}")
+      handle_output(options,"Information:\tFound AWS AMI ID #{options['ami']} for #{old_ami}")
     end
   end
   script_dir     = options['clientdir']+"/scripts"
@@ -567,12 +574,13 @@ def create_packer_aws_install_files(options)
   check_dir_exists(options,options['clientdir'])
   check_dir_exists(options,script_dir)
   check_dir_exists(options,build_dir)
-  populate_aws_questions(options['name'],options['ami'],options['region'],options['size'],options['access'],options['secret'],user_data_file,options['type'],options['number'],options['key'],options['keyfile'],options['group'],options['ports'])
+  options = set_aws_key_file(options)
+  populate_aws_questions(options,user_data_file)
   options['service'] = "aws"
   process_questions(options)
   user_data_file = options['clientdir']+"/userdata.yml"
   create_aws_user_data_file(options,user_data_file)
-  create_packer_aws_json()
+  options = create_packer_aws_json(options)
   file_name = script_dir+"/vagrant.sh"
   create_packer_vagrant_sh(options['name'],file_name)
   key_file = options['clientdir']+"/"+options['name']+".key.pub"
@@ -602,6 +610,87 @@ def copy_pkg_to_packer_client(pkg_name,options)
     command  = "cp #{source_pkg} #{dest_pkg}"
     execute_command(options,message,command)
   end
+  return
+end
+
+# Populate Windows winrm powershell script
+
+def populate_packer_ps_user_data(options)
+  install_locale = $q_struct['locale'].value
+  if install_locale.match(/\./)
+    install_locale = install_locale.split(".")[0]
+  end
+  if options['livecd'] == true
+    install_target  = "/target"
+  else
+    install_target  = ""
+  end
+  install_layout  = install_locale.split("_")[0]
+  install_variant = install_locale.split("_")[1].downcase
+  install_name  = $q_struct['hostname'].value
+  install_admin = $q_struct['admin_username'].value
+  install_crypt = $q_struct['admin_crypt'].value
+  install_dhcp  = options['dhcp'].to_s.downcase
+  install_nic   = $q_struct['interface'].value
+  if options['vmnetwork'].to_s.match(/hostonly/)
+    ks_ip = options['hostonlyip']
+  else
+    if options['dhcp'] == true
+      ks_ip = options['hostonlyip']
+    else
+      ks_ip = options['hostip']
+    end
+  end
+  ks_port   = options['httpport']
+  user_data = []
+  user_data.push("#cloud-config")
+  user_data.push("autoinstall:")
+  user_data.push("  version: 1")
+  user_data.push("  locale: #{install_locale}")
+  user_data.push("  keyboard:")
+  user_data.push("    layout: #{install_layout}")
+  user_data.push("    variant: #{install_variant}")
+  user_data.push("  network:")
+  user_data.push("    network:")
+  user_data.push("      version: 2")
+  user_data.push("      ethernets:")
+  user_data.push("        #{install_nic}:")
+  user_data.push("          dhcp4: #{install_dhcp}")
+  user_data.push("  storage:")
+  user_data.push("    layout:")
+  user_data.push("      name: lvm")
+  user_data.push("  identity:")
+  user_data.push("    hostname: #{install_name}")
+  user_data.push("    username: #{install_admin}")
+  user_data.push("    password: #{install_crypt}")
+  user_data.push("  ssh:")
+  user_data.push("    install-server: yes")
+  user_data.push("    allow-pw: true")
+  user_data.push("  user-data:")
+  user_data.push("    disable-root: false")
+  user_data.push("  late-commands:")
+#  user_data.push("    - mkdir #{install_target}/tmp")
+  user_data.push("    - echo '#{install_admin} ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/#{install_admin}")
+#  user_data.push("    - wget -O #{install_target}/tmp/post_install.sh http://#{ks_ip}:#{ks_port}/fusion/#{install_name}/#{install_name}_post.sh ; in-target chmod 700 /tmp/post_install.sh ; in-target sh /tmp/post_install.sh")
+  return user_data
+end
+
+# Output the ks packages list
+
+def output_packer_ps_user_data(options,user_data,output_file)
+  check_dir = File.dirname(output_file)
+  check_dir_exists(options,check_dir)
+  tmp_file  = "/tmp/user_data_"+options['name']
+  file      = File.open(tmp_file, 'w')
+  user_data.each do |line|
+    output = line+"\n"
+    file.write(output)
+  end
+  file.close
+  message = "Creating:\tCloud user-data file "+output_file
+  command = "cat #{tmp_file} >> #{output_file} ; rm #{tmp_file}"
+  execute_command(options,message,command)
+  print_contents_of_file(options,"",output_file)
   return
 end
 

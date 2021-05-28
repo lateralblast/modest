@@ -159,6 +159,7 @@ def create_ansible_aws_install_files(options)
   user_data_file = ""
   options['clientdir']     = options['clientdir']+"/ansible/aws/"+options['name']
   check_dir_exists(options,options['clientdir'])
+  options = set_aws_key_file(options)
   populate_aws_questions(options,user_data_file)
   options['service'] = "aws"
   process_questions(options)
