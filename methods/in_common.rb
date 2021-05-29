@@ -354,7 +354,7 @@ def set_defaults(options,defaults)
   defaults['output']          = 'text'
   defaults['ovftarurl']       = "https://github.com/richardatlateralblast/ottar/blob/master/vmware-ovftools.tar.gz?raw=true"
   defaults['ovfdmgurl']       = "https://github.com/richardatlateralblast/ottar/blob/master/VMware-ovftool-4.1.0-2459827-mac.x64.dmg?raw=true"
-  defaults['packerversion']   = "1.6.2"
+  defaults['packerversion']   = "1.7.2"
   defaults['pkgdir']          = defaults['basedir']+'/export/pkgs'
   defaults['proto']           = "tcp"
   defaults['publisherhost']   = defaults['hostip']
@@ -791,14 +791,16 @@ def set_hostonly_info(options)
     options['force'] = true
   end
   if install_subnet == host_subnet
-    output = "Warning:\thost and client network are the same"
-    handle_output(options,output)
-    install_subnet = host_subnet.to_i+10
-    install_subnet = install_subnet.to_s
-    options['ip'] = options['ip'].split(".")[0]+"."+options['ip'].split(".")[1]+"."+install_subnet+"."+options['ip'].split(".")[3]
-    output = "Information:\tChanging Client IP to "+hostonly_base+"."+hostonly_subnet+".0"
-    handle_output(options,output)
-    options['force'] = true
+    if options['dhcp'] == false
+      output = "Warning:\tHost and client network are the same"
+      handle_output(options,output)
+      install_subnet = host_subnet.to_i+10
+      install_subnet = install_subnet.to_s
+      options['ip'] = options['ip'].split(".")[0]+"."+options['ip'].split(".")[1]+"."+install_subnet+"."+options['ip'].split(".")[3]
+      output = "Information:\tChanging Client IP to "+hostonly_base+"."+hostonly_subnet+".0"
+      handle_output(options,output)
+      options['force'] = true
+    end
   end
   options['vmgateway']  = hostonly_base+"."+hostonly_subnet+".1"
   options['hostonlyip'] = hostonly_base+"."+hostonly_subnet+".1"

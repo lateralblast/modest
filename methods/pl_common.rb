@@ -20,7 +20,7 @@ end
 
 # Get Parallels VM OS
 
-def get_parallels_os(vm_name)
+def get_parallels_os(options,vm_name)
 	message = "Information:\tDetermining OS for "+vm_name
 	command = "prlctl list --info \"#{vm_name}\" |grep '^OS' |cut -f2 -d:"
 	os_info = execute_command(options,message,command)
@@ -81,7 +81,7 @@ def list_running_parallels_vms(options)
   handle_output(options,"Running Parallels VMS:")
   handle_output(options,"")
   vm_list.each do |vm_name|
-    os_info = get_parallels_os(vm_name)
+    os_info = get_parallels_os(options,vm_name)
     handle_output(options,"#{vm_name}\t#{os_info}")
   end
   handle_output(options,"")
@@ -100,7 +100,7 @@ def list_stopped_parallels_vms(options)
   handle_output(options,"Stopped Parallels VMS:")
   handle_output(options,"")
   vm_list.each do |vm_name|
-    os_info = get_parallels_os(vm_name)
+    os_info = get_parallels_os(options,vm_name)
     handle_output(options,"#{vm_name}\t#{os_info}")
   end
   handle_output(options,"")

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      6.4.4
+# Version:      6.4.5
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -1399,7 +1399,7 @@ if options['vm'] != options['empty']
   options = check_local_config(options)
   case options['vm']
   when /parallels/
-    options['status'] = check_parallels_is_installed
+    options['status'] = check_parallels_is_installed(options)
     handle_vm_install_status(options)
     options['vm']  = "parallels"
     options['sudo'] = false

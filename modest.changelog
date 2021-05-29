@@ -1289,3 +1289,5 @@
 # Initial AWS code cleanup
 # 6.4.4: Fri 28 May 2021 12:09:16 AEST
 # Initial support for Ubuntu LiveCD installer
+# 6.4.5: Sat 29 May 2021 11:12:38 AEST
+# Bug fixes
