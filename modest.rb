@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      6.4.5
+# Version:      6.4.7
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -1049,7 +1049,7 @@ if options['action'].to_s.match(/build|import/)
     handle_output(options,"Warning:\tVM type not specified")
     quit(options)
   else
-    if !options['vm'].to_s.match(/vbox|fusion|aws|kvm/)
+    if !options['vm'].to_s.match(/vbox|fusion|aws|kvm|parallels/)
       handle_output(options,"Warning:\tInvalid VM type specified")
       quit(options)
     end

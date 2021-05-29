@@ -606,6 +606,9 @@ end
 # Clean up options
 
 def cleanup_options(options)
+  if options['vm'].to_s.match(/parallels/)
+    options['vmapp'] = "Parallels Desktop"
+  end
   if options['noreboot'] == true
     options['reboot'] = false
   end
@@ -4522,7 +4525,7 @@ end
 
 # List domains/zones/etc instances
 
-def list_doms(dom_type,dom_command)
+def list_doms(options,dom_type,dom_command)
   message = "Information:\nAvailable #{dom_type}(s)"
   command = dom_command
   output  = execute_command(options,message,command)
@@ -4547,7 +4550,7 @@ def list_doms(dom_type,dom_command)
         handle_output(options,"<td>#{line}</td>")
         handle_output(options,"</tr>")
       else
-        handle_output(line)
+        handle_output(options,line)
       end
     end
     if options['output'].to_s.match(/html/)

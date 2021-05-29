@@ -520,18 +520,22 @@ end
 def set_vmrun_bin(options)
   if options['osname'].to_s.match(/Darwin/)
     if options['techpreview'] == true
-      options['vmrun'] = "/Applications/VMware Fusion Tech Preview.app/Contents/Library/vmrun"
-      options['vmbin'] = "/Applications/VMware Fusion Tech Preview.app/Contents/MacOS/VMware Fusion"
-      options['vmapp'] = "VMware Fusion Tech Preview"
+      if File.directory?("/Applications/VMware Fusion Tech Preview.app")
+        options['vmrun'] = "/Applications/VMware Fusion Tech Preview.app/Contents/Library/vmrun"
+        options['vmbin'] = "/Applications/VMware Fusion Tech Preview.app/Contents/MacOS/VMware Fusion"
+        options['vmapp'] = "VMware Fusion Tech Preview"
+      end
     else
-      if !File.directory?("/Applications/VMware Fusion.app")
+      if File.directory?("/Applications/VMware Fusion Tech Preview.app")
         options['vmrun'] = "/Applications/VMware Fusion Tech Preview.app/Contents/Library/vmrun"
         options['vmbin'] = "/Applications/VMware Fusion Tech Preview.app/Contents/MacOS/VMware Fusion"
         options['vmapp'] = "VMware Fusion Tech Preview"
       else
-        options['vmrun'] = "/Applications/VMware Fusion.app/Contents/Library/vmrun"
-        options['vmbin'] = "/Applications/VMware Fusion.app/Contents/MacOS/VMware Fusion"
-        options['vmapp'] = "VMware Fusion"
+        if File.directory?("/Applications/VMware Fusion.app")
+          options['vmrun'] = "/Applications/VMware Fusion.app/Contents/Library/vmrun"
+          options['vmbin'] = "/Applications/VMware Fusion.app/Contents/MacOS/VMware Fusion"
+          options['vmapp'] = "VMware Fusion"
+        end
       end
     end
   else
@@ -539,9 +543,11 @@ def set_vmrun_bin(options)
     options['vmbin'] = "vmware"
     options['vmapp'] = "VMware Workstation"
   end
-  if not File.exist?(options['vmrun'])
-    if options['verbose'] == true
-      handle_output(options,"Warning:\tCould not find vmrun")
+  if options['vmrun']
+    if not File.exist?(options['vmrun'])
+      if options['verbose'] == true
+        handle_output(options,"Warning:\tCould not find vmrun")
+      end
     end
   end
   return options

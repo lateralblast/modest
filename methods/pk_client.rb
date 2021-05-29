@@ -47,7 +47,7 @@ end
 def list_packer_clients(options)
   packer_dir = options['clientdir']+"/packer"
   if not options['vm'].to_s.match(/[a-z,A-Z]/) or options['vm'] == options['empty']
-    vm_types = [ 'fusion', 'vbox', 'aws' ]
+    vm_types = [ 'fusion', 'vbox', 'aws', 'parallels' ]
   else
     vm_types = []
     vm_types.push(options['vm'])
@@ -61,8 +61,14 @@ def list_packer_clients(options)
         vm_title = "VirtualBox"
       when /aws/
         vm_title = "AWS"
+      when /parallels/
+        vm_title = "Parallels"
       else
-        vm_title = "VMware Fusion"
+        if options['osname'].to_s.match(/Darwin/)
+          vm_title = "VMware Fusion"
+        else
+          vm_title = "VMware Workstation"
+        end
       end
       vm_list = Dir.entries(vm_dir)
       if vm_list.length > 0
@@ -257,20 +263,12 @@ def configure_packer_client(options)
   check_dir_owner(options,options['clientdir'],options['uid'])
   exists = check_vm_exists(options)
 	if exists == "yes"
-    if options['vm'].to_s.match(/vbox/)
-  		handle_output(options,"Warning:\tVirtualBox VM #{options['name']} already exists")
-    else
-      handle_output(options,"Warning:\tVMware Fusion VM #{options['name']} already exists")
-    end
+  	handle_output(options,"Warning:\t#{options['vmapp']} VM #{options['name']} already exists")
 		quit(options)
 	end
 	exists = check_packer_image_exists(options)
 	if exists == "yes"
-    if options['vm'].to_s.match(/vbox/)
-  		handle_output(options,"Warning:\tPacker image for VirtualBox VM #{options['name']} already exists")
-    else
-      handle_output(options,"Warning:\tPacker image for VMware Fusion VM #{options['name']} already exists")
-    end
+    handle_output(options,"Warning:\tPacker image for #{options['vmapp']} VM #{options['name']} already exists")
 		quit(options)
   end
   if options['vm'] == options['empty'] && options['service'] == options['empty'] && options['method'] == options['empty'] && options['type'] == options['empty'] && options['mode'] == options['empty']

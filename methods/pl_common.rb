@@ -109,10 +109,19 @@ end
 
 # List Parallels VMs
 
-def list_parallels_vms(search_string)
+def list_parallels_vms(options)
   dom_type    = "Parallels VM"
-  dom_command = "prlctl list --all |grep -v UUID |awk '{print $4}'"
-  list_doms(dom_type,dom_command)
+  if options['search']
+    if options['search'] == options['empty'] or options['search'].to_s.match(/all/)
+      dom_command = "prlctl list --all |grep -v UUID |awk '{print $4}'"
+    else
+      search_string = options['search'].to_s
+      dom_command   = "prlctl list --all |grep -v UUID |awk '{print $4}' |grep '#{search_string}'"
+    end
+  else
+    dom_command = "prlctl list --all |grep -v UUID |awk '{print $4}'"
+  end
+  list_doms(options,dom_type,dom_command)
   return
 end
 
@@ -220,14 +229,16 @@ end
 # Stop Parallels VM
 
 def stop_parallels_vm(options)
-  control_parallels_vm(options['name'],"stop")
+  options['status'] = "stop"
+  control_parallels_vm(options)
   return
 end
 
 # Stop Parallels VM
 
 def restart_parallels_vm(options)
-  control_parallels_vm(options['name'],"stop")
+  options['status'] = "stop"
+  control_parallels_vm(options)
   boot_parallels_vm(options)
   return
 end
@@ -361,6 +372,7 @@ def check_parallels_is_installed(options)
   app_dir = "/Applications/Parallels Desktop.app"
   if File.directory?(app_dir)
     options['status'] = "yes"
+    install_brew_pkg(options,"parallels-virtualization-sdk")
   end
   return options['status']
 end
@@ -445,47 +457,47 @@ end
 # List Linux KS Parallels VMs
 
 def list_ks_parallels_vms(options)
-  search_string = "rhel|fedora|fc|centos|redhat|mandriva"
-  list_parallels_vms(search_string)
+  options['search'] = "rhel|fedora|fc|centos|redhat|mandriva"
+  list_parallels_vms(options)
   return
 end
 
 # List Linux Preseed Parallels VMs
 
 def list_ps_parallels_vms(options)
-  search_string = "ubuntu|debian"
-  list_parallels_vms(search_string)
+  options['search'] = "ubuntu|debian"
+  list_parallels_vms(options)
 end
 
 # List Solaris Kickstart Parallels VMs
 
 def list_js_parallels_vms(options)
-  search_string = "solaris-10"
-  list_parallels_vms(search_string)
+  options['search'] = "solaris-10"
+  list_parallels_vms(options)
   return
 end
 
 # List Solaris AI Parallels VMs
 
 def list_ai_parallels_vms(options)
-  search_string = "solaris-11"
-  list_parallels_vms(search_string)
+  options['search'] = "solaris-11"
+  list_parallels_vms(options)
   return
 end
 
 # List Linux Autoyast Parallels VMs
 
 def list_ay_parallels_vms(options)
-  search_string = "opensuse"
-  list_parallels_vms(search_string)
+  options['search'] = "opensuse"
+  list_parallels_vms(options)
   return
 end
 
 # List vSphere Parallels VMs
 
 def list_vs_parallels_vms(options)
-  search_string = "other"
-  list_parallels_vms(search_string)
+  options['search'] = "other"
+  list_parallels_vms(options)
   return
 end
 
@@ -528,6 +540,9 @@ def unconfigure_parallels_vm(options)
   sleep(5)
   message = "Deleting Parallels VM "+options['name']
   command = "prlctl delete #{options['name']}"
+  execute_command(options,message,command)
+  message = "Unregistering Parallels VM "+options['name']
+  command = "prlctl unregister #{options['name']}"
   execute_command(options,message,command)
   return
 end

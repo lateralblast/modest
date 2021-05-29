@@ -46,6 +46,18 @@ def create_packer_json(options)
   image_dir         = options['clientdir']+"/images"
   install_password  = $q_struct['admin_password'].value
   http_dir          = packer_dir
+  if options['vm'].to_s.match(/parallels/)
+    case options['service'].to_s
+    when /win/
+      parallels_tools_flavor = "win"
+    when /ubuntu|rhel|sles/
+      parallels_tools_flavor = "lin"
+    when /mac|osx/
+      parallels_tools_flavor = "mac"
+    else
+      parallels_tools_flavor = "other"
+    end
+  end
   if options['livecd'] == true
     http_dir = packer_dir+"/"+options['vm']+"/"+options['name']+"/subiquity/http"
   end
@@ -732,6 +744,8 @@ def create_packer_json(options)
     options['mac']  = options['mac'].gsub(/:/,"")
 	when /fusion|vmware/
 		options['type'] = "vmware-iso"
+  when /parallels/
+    options['type'] = "parallels-iso"
 	end
 	if options['checksum'] == true
 		md5_file = options['file']+".md5"
@@ -2245,6 +2259,78 @@ def create_packer_json(options)
           ]
         }
       end
+    when /parallels/
+      if options['vmnetwork'].to_s.match(/hostonly|bridged/)
+        if options['headless'] == true
+          json_data = {
+            :variables => {
+              :hostname => options['name'],
+              :net_config => net_config
+            },
+            :builders => [
+              :name                   => options['name'],
+              :vm_name                => options['name'],
+              :type                   => options['type'],
+              :output_directory       => image_dir,
+              :disk_size              => options['size'],
+              :iso_url                => iso_url,
+              :ssh_host               => options['ip'],
+              :ssh_port               => ssh_port,
+              :ssh_username           => ssh_username,
+              :ssh_password           => ssh_password,
+              :ssh_timeout            => ssh_timeout,
+              :shutdown_command       => shutdown_command,
+              :shutdown_timeout       => shutdown_timeout,
+              :ssh_pty                => ssh_pty,
+              :iso_checksum           => install_checksum,
+              :http_directory         => http_dir,
+              :http_port_min          => options['httpport'],
+              :http_port_max          => options['httpport'],
+              :boot_wait              => boot_wait,
+              :boot_command           => boot_command,
+              :parallels_tools_flavor => parallels_tools_flavor,
+              "prlctl": [
+                ["set", "{{.Name}}", "--3d-accelerate", "off"],
+                ["set", "{{.Name}}", "--adaptive-hypervisor", "on"]
+              ]
+            ]
+          }
+        else
+          json_data = {
+            :variables => {
+              :hostname => options['name'],
+              :net_config => net_config
+            },
+            :builders => [
+              :name                   => options['name'],
+              :vm_name                => options['name'],
+              :type                   => options['type'],
+              :output_directory       => image_dir,
+              :disk_size              => options['size'],
+              :iso_url                => iso_url,
+              :ssh_host               => options['ip'],
+              :ssh_port               => ssh_port,
+              :ssh_username           => ssh_username,
+              :ssh_password           => ssh_password,
+              :ssh_timeout            => ssh_timeout,
+              :shutdown_command       => shutdown_command,
+              :shutdown_timeout       => shutdown_timeout,
+              :ssh_pty                => ssh_pty,
+              :iso_checksum           => install_checksum,
+              :http_directory         => http_dir,
+              :http_port_min          => options['httpport'],
+              :http_port_max          => options['httpport'],
+              :boot_wait              => boot_wait,
+              :boot_command           => boot_command,
+              :parallels_tools_flavor => parallels_tools_flavor,
+              "prlctl": [
+                ["set", "{{.Name}}", "--3d-accelerate", "off"],
+                ["set", "{{.Name}}", "--adaptive-hypervisor", "on"]
+              ]
+            ]
+          }
+        end
+      end
     when /qemu|kvm|xen/
       if options['vmnetwork'].to_s.match(/hostonly|bridged/)
         if options['headless'] == true
@@ -2263,8 +2349,6 @@ def create_packer_json(options)
               :iso_url              => iso_url,
               :ssh_host             => options['ip'],
               :ssh_port             => ssh_port,
-              :ssh_host_port_min    => ssh_host_port_min,
-              :ssh_host_port_max    => ssh_host_port_max,
               :ssh_username         => ssh_username,
               :ssh_password         => ssh_password,
               :ssh_timeout          => ssh_timeout,
@@ -2306,8 +2390,6 @@ def create_packer_json(options)
               :iso_url              => iso_url,
               :ssh_host             => options['ip'],
               :ssh_port             => ssh_port,
-              :ssh_host_port_min    => ssh_host_port_min,
-              :ssh_host_port_max    => ssh_host_port_max,
               :ssh_username         => ssh_username,
               :ssh_password         => ssh_password,
               :ssh_timeout          => ssh_timeout,
@@ -2435,14 +2517,14 @@ def create_packer_aws_json(options)
   options['ami']     = $q_struct['source_ami'].value
   options['region']  = $q_struct['region'].value
   options['size']    = $q_struct['instance_type'].value
-  options['adminuser']   = $q_struct['ssh_username'].value
   options['keyfile'] = File.basename($q_struct['keyfile'].value,".pem")+".key.pub"
-  options['name']  = $q_struct['ami_name'].value
-  tmp_keyfile     = "/tmp/"+options['keyfile']
-  user_data_file  = $q_struct['user_data_file'].value
-  packer_dir      = options['clientdir']+"/packer"
-  options['clientdir']      = packer_dir+"/aws/"+options['name']
-  json_file       = options['clientdir']+"/"+options['name']+".json"
+  options['name']    = $q_struct['ami_name'].value
+  options['adminuser'] = $q_struct['ssh_username'].value
+  options['clientdir'] = packer_dir+"/aws/"+options['name']
+  tmp_keyfile    = "/tmp/"+options['keyfile']
+  user_data_file = $q_struct['user_data_file'].value
+  packer_dir     = options['clientdir']+"/packer"
+  json_file      = options['clientdir']+"/"+options['name']+".json"
   check_dir_exists(options,options['clientdir'])
   json_data = {
     :builders => [
