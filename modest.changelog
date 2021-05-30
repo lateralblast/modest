@@ -1295,3 +1295,5 @@
 # Initial Parallels support for Packer
 # 6.4.7: Sat 29 May 2021 17:07:30 AEST
 # Bug fixes
+# 6.4.8: Sun 30 May 2021 12:59:26 AEST
+# Some more support for Parallels for Packer

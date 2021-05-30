@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      6.4.7
+# Version:      6.4.8
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -1404,7 +1404,13 @@ if options['vm'] != options['empty']
     options['vm']  = "parallels"
     options['sudo'] = false
     options['size'] = options['size'].gsub(/G/,"000")
-    options['hostonlyip'] = "192.168.55.1"
+    if defaults['osname'].to_s.match(/Darwin/) && defaults['osversion'].to_i > 10
+      options['hostonlyip'] = "10.211.55.1"
+      options['vmgateway']  = "10.211.55.1"
+    else
+      options['hostonlyip'] = "192.168.55.1"
+      options['vmgateway']  = "192.168.55.1"
+    end
   when /virtualbox|vbox/
     options = check_vbox_is_installed(options)
     handle_vm_install_status(options)

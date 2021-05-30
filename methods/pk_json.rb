@@ -657,11 +657,24 @@ def create_packer_json(options)
                      "autoinstall ds=nocloud-net;seedfrom=http://"+ks_ip+":#{options['httpport']}/ --- "+
                      "<enter><wait>"
     else
-      boot_header = "<enter><wait5><f6><esc><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
-                    "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
-                    "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
-                    "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
-                    "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><wait>"
+      if options['vm'].to_s.match(/parallels/)
+        boot_header = "<wait>e<wait><down><wait><down><wait><down><wait><leftCtrlOn>e<leftCtrlOff>"+
+                      "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
+                      "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
+                      "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
+                      "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
+                      "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
+                      "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
+                      "<bs><bs><bs><bs><bs><bs>"
+        boot_footer = "<wait><f10><wait>"
+      else
+        boot_header = "<enter><wait5><f6><esc><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
+                      "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
+                      "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
+                      "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
+                      "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><wait>"
+        boot_footer = "<wait><enter><wait>"
+      end
       if options['vmnetwork'].to_s.match(/hostonly|bridged/)
         ks_url = "http://#{ks_ip}:#{options['httpport']}/"+ks_file
         boot_command = boot_header+
@@ -678,7 +691,8 @@ def create_packer_json(options)
                        " netcfg/get_nameservers="+$q_struct['nameserver'].value+
                        " netcfg/get_domain="+$q_struct['domain'].value+
                        " <wait>preseed/url="+ks_url+
-                       " initrd=/install/initrd.gz net.ifnames=0 biosdevname=0 -- <wait><enter><wait>"
+                       " initrd=/install/initrd.gz net.ifnames=0 biosdevname=0 -- "+
+                       boot_footer
       else
         ks_url = "http://#{ks_ip}:#{options['httpport']}/"+ks_file
         boot_command = boot_header+
@@ -686,7 +700,8 @@ def create_packer_json(options)
                        " auto-install/enable=true"+
                        " debconf/priority=critical"+
                        " <wait>preseed/url="+ks_url+
-                       " initrd=/install/initrd.gz net.ifnames=0 biosdevname=0 -- <wait><enter><wait>"
+                       " initrd=/install/initrd.gz net.ifnames=0 biosdevname=0 -- "+
+                       boot_footer
       end
     end
     shutdown_command = "echo 'shutdown -P now' > /tmp/shutdown.sh ; echo '#{install_password}'|sudo -S sh '/tmp/shutdown.sh'"

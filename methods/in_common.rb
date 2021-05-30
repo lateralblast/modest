@@ -160,8 +160,13 @@ def set_defaults(options,defaults)
       defaults['hostonlyip'] = "192.168.56.1"
       defaults['nic']        = "eth0"
     when /Parallels/
-      defaults['vmgateway']  = "192.168.54.1"
-      defaults['hostonlyip'] = "192.168.54.1"
+      if defaults['osname'].to_s.match(/Darwin/) && defaults['osversion'].to_i > 10
+        defaults['vmgateway']  = "10.211.55.1"
+        defaults['hostonlyip'] = "10.211.55.1"
+      else
+        defaults['vmgateway']  = "192.168.54.1"
+        defaults['hostonlyip'] = "192.168.54.1"
+      end
     else
       defaults['vmgateway']  = "192.168.55.1"
       defaults['hostonlyip'] = "192.168.55.1"
@@ -474,6 +479,14 @@ def reset_defaults(options,defaults)
     vm_type = defaults['vm']
   end
   case vm_type
+  when /parallels/
+    if defaults['osname'].to_s.match(/Darwin/) && defaults['osversion'].to_i > 10
+      defaults['vmgateway']  = "10.211.55.1"
+      defaults['hostonlyip'] = "10.211.55.1"
+    else
+      defaults['vmgateway']  = "192.168.54.1"
+      defaults['hostonlyip'] = "192.168.54.1"
+    end
   when /fusion/
     if defaults['osname'].to_s.match(/Darwin/) && defaults['osversion'].to_i > 10
       if options['vmnetwork'].to_s.match(/nat/)
@@ -761,6 +774,7 @@ def set_hostonly_info(options)
   host_ip        = get_my_ip(options)
   host_subnet    = host_ip.split(".")[2] 
   install_subnet = options['ip'].split(".")[2] 
+  hostonly_base  = "192.168"
   case options['vm']
   when /vmware|vmx|fusion/
     if options['osname'].to_s.match(/Darwin/) && options['osversion'].to_i > 10
@@ -772,10 +786,15 @@ def set_hostonly_info(options)
     else
       hostonly_subnet      = "52"
     end
+  when /parallels/
+    hostonly_base  = "10.211"
+    if options['osname'].to_s.match(/Darwin/) && options['osversion'].to_i > 10
+      hostonly_subnet      = "55"
+    else
+      hostonly_subnet      = "54"
+    end
   when /vbox|virtualbox/
     hostonly_subnet      = "56"
-  when /parallels/
-    hostonly_subnet      = "54"
   when /kvm/
     hostonly_subnet      = "122"
   else
@@ -783,7 +802,6 @@ def set_hostonly_info(options)
       hostonly_subnet      = "58"
     end
   end
-  hostonly_base = "192.168"
   if hostonly_subnet == host_subnet
     output = "Warning:\tHost and Hostonly network are the same"
     handle_output(options,output)
