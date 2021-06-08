@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      6.4.8
+# Version:      6.4.9
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -83,9 +83,13 @@ class Regexp
   end
 end
 
+# Current unused modules:
+#
+# "capistrano", "nokogiri", "mechanize", "terminfo"
+#
+
 [ "getopt/long", "builder", "parseconfig", "unix_crypt", "netaddr", "json",
-  "fileutils", "ssh-config", "yaml", "capistrano", "nokogiri", "mechanize",
-  "net/ssh", "net/scp", "terminfo" ].each do |load_name|
+  "fileutils", "ssh-config", "yaml", "net/ssh", "net/scp" ].each do |load_name|
   begin
     require "#{load_name}"
   rescue LoadError
@@ -1049,7 +1053,7 @@ if options['action'].to_s.match(/build|import/)
     handle_output(options,"Warning:\tVM type not specified")
     quit(options)
   else
-    if !options['vm'].to_s.match(/vbox|fusion|aws|kvm|parallels/)
+    if !options['vm'].to_s.match(/vbox|fusion|aws|kvm|parallels|qemu/)
       handle_output(options,"Warning:\tInvalid VM type specified")
       quit(options)
     end
