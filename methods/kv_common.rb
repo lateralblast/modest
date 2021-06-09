@@ -76,7 +76,7 @@ end
 def get_kvm_vm_ip(options)
   options = get_kvm_vm_mac(options)
   if !options['mac'].to_s.match(/[0-9]|[A-Z]|[a-z]/)
-    optrions['mac'] = ""
+    options['mac'] = ""
   else
     options['ip']  = %x[arp -an |grep "#{options['mac']}" |awk '{print $2}' |tr -d '()'|head -1].chomp
   end
@@ -282,11 +282,14 @@ def check_kvm_is_installed(options)
   output  = execute_command(options,message,command)
   if not output.match(/kvm/)
     message = "Information:\tAdding user to kvm group"
-    command = "usermod -a -G kvm #{options['user']}"
+    command = "usermod -a -G #{options['kvmgroup']} #{options['user']}"
     output  = execute_command(options,message,command)
   end
-  dir_name   = "/etc/qemu"
-  file_name  = "/etc/qemu/bridge.conf"
+  dir_name  = "/etc/qemu"
+  file_name = "/etc/qemu/bridge.conf"
+  file_gid  = get_group_gid(options,options['kvmgroup'])
+  file_mode = "w"
+  check_file_group(options,file_name,file_gid,file_mode)
   file_array = []
   file_line  = "allow "+options['bridge'].to_s
   file_array.append(file_line)

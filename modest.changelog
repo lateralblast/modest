@@ -1299,3 +1299,5 @@
 # Some more support for Parallels for Packer
 # 6.4.9: Tue 08 Jun 2021 12:59:01 AEST
 # Removed unused modules causing gem build errors
+# 6.5.0: Wed 09 Jun 2021 11:29:45 AEST
+# Bug fixes 

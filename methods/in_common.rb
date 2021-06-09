@@ -174,7 +174,8 @@ def set_defaults(options,defaults)
         defaults['nic'] = "eth0"
         network_test = %x[ifconfig -a |grep eth0].chomp
         if !network_test.match(/eth0/)
-          defaults['nic'] = %x[sudo sh -c 'route |grep default'].split(/\s+/)[-1].chomp
+          output = %x[route |grep default]
+          defaults['nic'] = output.split(/\s+/)[-1].chomp
         end
       end
     end
@@ -322,6 +323,8 @@ def set_defaults(options,defaults)
   defaults['keyboard']        = "US"
   defaults["keyfile"]         = "none"
   defaults['keymap']          = "US-English"
+  defaults['kvmgroup']        = "kvm"
+  defaults['kvmgid']          = get_group_gid(options,defaults['kvmgroup'])
   defaults['language']        = "en_US"
   defaults['livecd']          = false
   defaults['ldomdir']         = '/ldoms'
@@ -391,6 +394,7 @@ def set_defaults(options,defaults)
   defaults['sshport']         = "22"
   defaults['sshtimeout']      = "20m"
   defaults['sudo']            = true
+  defaults['sudogroup']       = "sudo"
   defaults['suffix']          = defaults["scriptname"]
   defaults['systemlocale']    = "C"
   defaults['target']          = "vmware"
@@ -2597,7 +2601,7 @@ def list_ovas()
   handle_output(options,"")
 end
 
-# Check directory ownership
+# Check directory user ownership
 
 def check_dir_owner(options,dir_name,uid)
   test_uid = File.stat(dir_name).uid
@@ -2612,13 +2616,53 @@ def check_dir_owner(options,dir_name,uid)
   return
 end
 
-# Check file ownership
+# Check directory group read ownership
+
+def check_dir_group(options,dir_name,dir_gid,dir_mode)
+  test_gid = File.stat(dir_name).gid
+  if test_gid.to_i != dir_gid.to_i
+    message = "Information:\tChanging group ownership of "+dir_name+" to "+dir_gid.to_s
+    command = "chgrp -R #{dir_gid.to_s} \"#{dir_name}\""
+    execute_command(options,message,command)
+    message = "Information:\tChanging group permissions of "+dir_name+" to "+dir_gid.to_s
+    command = "chmod -R g+#{dir_mode} \"#{dir_name}\""
+    execute_command(options,message,command)
+  end
+  return
+end
+
+# Check file user ownership
 
 def check_file_owner(options,file_name,uid)
   test_uid = File.stat(file_name).uid
   if test_uid != uid.to_i
     message = "Information:\tChanging ownership of "+file_name+" to "+uid.to_s
-    command = "chown #{uid.to_s} \"#{file_name}\""
+    command = "chown #{uid.to_s} #{file_name}"
+    execute_command(options,message,command)
+  end
+  return
+end
+
+# Get group gid
+
+def get_group_gid(options,group) 
+  message = "Information:\tGetting GID of "+group
+  command = "getent group #{group} |cut -f3 -d:"
+  output  = execute_command(options,message,command)
+  output  = output.chomp
+  return(output)
+end
+
+# Check file user ownership
+
+def check_file_group(options,file_name,file_gid,file_mode)
+  test_gid = File.stat(file_name).gid
+  if test_gid != file_gid.to_i
+    message = "Information:\tChanging group ownership of "+file_name+" to "+file_gid.to_s
+    command = "chgrp #{file_gid.to_s} \"#{file_name}\""
+    execute_command(options,message,command)
+    message = "Information:\tChanging group permissions of "+file_name+" to "+file_gid.to_s
+    command = "chmod g+#{file_mode} \"#{file_name}\""
     execute_command(options,message,command)
   end
   return
@@ -3847,6 +3891,13 @@ def execute_command(options,message,command)
         File.write(batch_file,command)
         handle_output(options,"Information:\tCreating batch file '#{batch_file}' to run command '#{command}"'')
         command = "cygstart --action=runas "+batch_file
+      end
+    end
+    if command.match(/^sudo/)
+      sudo_check = %x[getent group #{options['sudogroup']}].chomp
+      if !sudo_check.match(/#{options['user']}/)
+        handle_output(options,"Warning:\tUser #{options['user']} is not in sudoers group")
+        exit
       end
     end
     if options['verbose'] == true

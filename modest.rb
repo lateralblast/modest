@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      6.4.9
+# Version:      6.5.0
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -277,6 +277,8 @@ begin
     ['--keyfile', REQUIRED],          # AWS Keyfile
     ['--keymap', REQUIRED],           # Key map
     ['--keyname', REQUIRED],          # AWS Key name (defaults to region)
+    ['--kvmgroup', REQUIRED],         # Set KVM group
+    ['--kvmgid', REQUIRED],           # Set KVM gid
     ['--launchSecurity', REQUIRED],   # Launch Security (KVM)
     ['--license', REQUIRED],          # License key (e.g. ESX)
     ['--livecd', BOOLEAN],            # Specify Live CD (Changes install method)
@@ -390,6 +392,7 @@ begin
     ['--stack', REQUIRED],            # AWS CF Stack
     ['--strict', BOOLEAN],            # Ignore SSH keys
     ['--sudo', BOOLEAN],              # Use sudo
+    ['--sudogroup', REQUIRED],        # Set Sudo group
     ['--suffix', REQUIRED],           # AWS AMI Name suffix
     ['--sysid', REQUIRED],            # Solaris Jumpstart sysid file
     ['--sysinfo', REQUIRED],          # Sysinfo (KVM)
