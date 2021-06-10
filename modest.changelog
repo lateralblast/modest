@@ -1305,3 +1305,5 @@
 # KVM bug fixes
 # 6.5.2: Thu 10 Jun 2021 13:07:02 AEST
 # More KVM improvements
+# 6.5.3: Thu 10 Jun 2021 14:47:20 AEST
+# Improved handling of some KVM defaults

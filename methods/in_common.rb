@@ -469,6 +469,13 @@ def reset_defaults(options,defaults)
     defaults['adminname'] = "Administrator"
   end
   if options['vm'].to_s.match(/kvm/)
+    defaults['features'] = "kvm_hidden=on"
+    if defaults['osarch'].to_s.match(/^x/) 
+      defaults['machine'] = "q35"
+      defaults['arch']    = "x86_64"
+    end
+    defaults['cpu']  = "host-passthrough"
+    defaults['boot'] = "hd,menu=on"
     if !options['type'].to_s.match(/packer/) && options['action'].to_s.match(/create/)
       defaults['import'] = true
     end
@@ -2090,7 +2097,14 @@ def get_install_service_from_file(options)
     service_version = service_version.gsub(/__/,"_")
     options['method'] = "pe"
   end
-  options['os-type'] = options['service']
+  if !options['vm'].to_s.match(/kvm/)
+    if options['file'].to_s.match(/cloudimg/) && options['file'].to_s.match(/ubuntu/) 
+      options['os-type'] = "linux"
+    else
+      options['os-type'] = options['service']
+    end
+  else
+  end
   options['service'] = options['os-type']+"_"+service_version.gsub(/__/,"_")
   if options['verbose'] == true
     handle_output(options,"Information:\tSetting service name to #{options['service']}")
