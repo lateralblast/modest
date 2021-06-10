@@ -1311,3 +1311,5 @@
 # Packer install fixes
 # 6.5.5: Thu 10 Jun 2021 17:04:02 AEST
 # Packer KVM improvements
+# 6.5.6: Fri 11 Jun 2021 09:47:12 AEST
+# Improved error checking for questions 

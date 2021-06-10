@@ -6,6 +6,10 @@ def process_questions(options)
     if options['verbose'] == true
       handle_output(options,"Information:\tProcessing value for #{key}")
     end
+    if $q_struct[key].value == nil 
+      handle_output(options,"Warning:\tValue for #{key} is NULL")
+      quit(options)
+    end
     correct = false
     if $q_struct[key].ask.match(/yes/)
       while correct == false do

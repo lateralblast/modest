@@ -340,9 +340,9 @@ def set_defaults(options,defaults)
   defaults['masked']          = false
   defaults['memory']          = "2048"
   defaults['vcpus']           = "1"
-#  defaults['mirror']          = defaults['country'].downcase+'.archive.ubuntu.com'
-#  defaults['mirrordir']       = "/ubuntu"
-#  defaults['mirrorurl']       = defaults['mirror']+defaults['mirrordir']
+  defaults['mirror']          = defaults['country'].downcase+'.archive.ubuntu.com'
+  defaults['mirrordir']       = "/ubuntu"
+  defaults['mirrorurl']       = defaults['mirror']+defaults['mirrordir']
   defaults['mirrordisk']      = false   
   defaults['mode']            = 'client'
   defaults['nameserver']      = "8.8.8.8"
@@ -1932,6 +1932,11 @@ def get_install_service_from_file(options)
     options['method']  = "ps"
   when /ubuntu/
     options['service'] = "ubuntu"
+    if options['vm'].to_s.match(/kvm/)
+      options['os-type'] = "linux"
+    else
+      options['os-type'] = "ubuntu"
+    end
     if options['file'].to_s.match(/cloudimg/)
       options['method']  = "ci"
       options['release'] = options['file'].to_s.split(/-/)[1]
