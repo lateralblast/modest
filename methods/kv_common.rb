@@ -383,6 +383,12 @@ end
 # Configure a KVM client
 
 def configure_kvm_client(options)
+  exists = check_kvm_vm_exists(options)
+  if exists == "yes"
+    message = "Warning:\t KVM VM #{options['name']} already exists"
+    handle_output(options,message)
+    quit(options)
+  end
   if options['import'] == true
     configure_kvm_import_client(options)
   else

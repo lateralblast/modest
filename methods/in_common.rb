@@ -469,6 +469,9 @@ def reset_defaults(options,defaults)
     defaults['adminname'] = "Administrator"
   end
   if options['vm'].to_s.match(/kvm/)
+    if !options['type'].to_s.match(/packer/) && options['action'].to_s.match(/create/)
+      defaults['import'] = true
+    end
     defaults['rootdisk'] = "/dev/vda"
   end
   if options['noreboot'] == true
