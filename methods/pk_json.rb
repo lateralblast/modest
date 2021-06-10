@@ -780,6 +780,11 @@ def create_packer_json(options)
   else
     install_checksum = install_checksum_type+":"+install_checksum
   end
+  if options['vm'].to_s.match(/kvm/)
+    if options['console'].to_s.match(/text/)
+      headless_mode = "true"
+    end
+  end
   bridge_nic = get_vm_if_name(options)
   if options['service'].to_s.match(/windows/) and options['vm'].to_s.match(/vbox/) and options['vmnetwork'].to_s.match(/hostonly|bridged/)
     handle_output(options,"Warning:\tPacker with Windows and VirtualBox only works on a NAT network (Packer issue)")
@@ -982,7 +987,7 @@ def create_packer_json(options)
       end
     when /qemu|kvm|xen/
       if options['vmnetwork'].to_s.match(/hostonly|bridged/)
-        if options['headless'] == true
+        if options['headless'] == true || options['console'].to_s.match(/text/)
           json_data = {
             :variables => {
               :hostname => options['name'],
@@ -1020,6 +1025,7 @@ def create_packer_json(options)
               :qemuargs             => [
                 [ "-nographic" ],
                 [ "-serial", "stdio" ],
+                [ "-cpu", "host" ],
                 [ "-m", options['memory'] ],
                 [ "-smp", "cpus="+options['vcpus'] ]
               ]
@@ -1062,6 +1068,7 @@ def create_packer_json(options)
               :net_bridge           => net_bridge,
               :qemuargs             => [
                 [ "-serial", "stdio" ],
+                [ "-cpu", "host" ],
                 [ "-m", options['memory'] ],
                 [ "-smp", "cpus="+options['vcpus'] ]
               ]
@@ -1105,6 +1112,7 @@ def create_packer_json(options)
               :qemuargs             => [
                 [ "-nographic" ],
                 [ "-serial", "stdio" ],
+                [ "-cpu", "host" ],
                 [ "-m", options['memory']+"M" ],
                 [ "-smp", "cpus="+options['vcpus'] ]
               ]
@@ -1145,6 +1153,7 @@ def create_packer_json(options)
               :net_device           => net_device,
               :qemuargs             => [
                 [ "-serial", "stdio" ],
+                [ "-cpu", "host" ],
                 [ "-m", options['memory']+"M" ],
                 [ "-smp", "cpus="+options['vcpus'] ]
               ]
@@ -1386,7 +1395,7 @@ def create_packer_json(options)
       end
     when /kvm|qemu|xen/
       if options['vmnetwork'].to_s.match(/hostonly|bridged/)
-        if options['headless'] == true
+        if options['headless'] == true || options['console'].to_s.match(/text/)
           json_data = {
             :variables => {
               :hostname => options['name'],
@@ -1424,6 +1433,7 @@ def create_packer_json(options)
               :qemuargs             => [
                 [ "-nographic" ],
                 [ "-serial", "stdio" ],
+                [ "-cpu", "host" ],
                 [ "-m", options['memory'] ],
                 [ "-smp", "cpus="+options['vcpus'] ]
               ],
@@ -1473,6 +1483,7 @@ def create_packer_json(options)
               :net_bridge           => net_bridge,
               :qemuargs             => [
                 [ "-serial", "stdio" ],
+                [ "-cpu", "host" ],
                 [ "-m", options['memory'] ],
                 [ "-smp", "cpus="+options['vcpus'] ]
               ],
@@ -1523,6 +1534,7 @@ def create_packer_json(options)
               :qemuargs             => [
                 [ "-nographic" ],
                 [ "-serial", "stdio" ],
+                [ "-cpu", "host" ],
                 [ "-m", options['memory']+"M" ],
                 [ "-smp", "cpus="+options['vcpus'] ]
               ],
@@ -1570,6 +1582,7 @@ def create_packer_json(options)
               :net_device           => net_device,
               :qemuargs             => [
                 [ "-serial", "stdio" ],
+                [ "-cpu", "host" ],
                 [ "-m", options['memory']+"M" ],
                 [ "-smp", "cpus="+options['vcpus'] ]
               ],
@@ -1895,7 +1908,7 @@ def create_packer_json(options)
       end
     when /qemu|kvm|xen/
       if options['vmnetwork'].to_s.match(/hostonly|bridged/)
-        if options['headless'] == true
+        if options['headless'] == true || options['console'].to_s.match(/text/)
           json_data = {
             :variables => {
               :hostname => options['name'],
@@ -1933,6 +1946,7 @@ def create_packer_json(options)
               :qemuargs             => [
                 [ "-nographic" ],
                 [ "-serial", "stdio" ],
+                [ "-cpu", "host" ],
                 [ "-m", options['memory'] ],
                 [ "-smp", "cpus="+options['vcpus'] ]
               ],
@@ -1979,6 +1993,7 @@ def create_packer_json(options)
               :net_bridge           => net_bridge,
               :qemuargs             => [
                 [ "-serial", "stdio" ],
+                [ "-cpu", "host" ],
                 [ "-m", options['memory'] ],
                 [ "-smp", "cpus="+options['vcpus'] ]
               ],
@@ -2026,6 +2041,7 @@ def create_packer_json(options)
               :qemuargs             => [
                 [ "-nographic" ],
                 [ "-serial", "stdio" ],
+                [ "-cpu", "host" ],
                 [ "-m", options['memory']+"M" ],
                 [ "-smp", "cpus="+options['vcpus'] ]
               ],
@@ -2070,6 +2086,7 @@ def create_packer_json(options)
               :net_device           => net_device,
               :qemuargs             => [
                 [ "-serial", "stdio" ],
+                [ "-cpu", "host" ],
                 [ "-m", options['memory']+"M" ],
                 [ "-smp", "cpus="+options['vcpus'] ]
               ],
@@ -2348,7 +2365,7 @@ def create_packer_json(options)
       end
     when /qemu|kvm|xen/
       if options['vmnetwork'].to_s.match(/hostonly|bridged/)
-        if options['headless'] == true
+        if options['headless'] == true || options['console'].to_s.match(/text/)
           json_data = {
             :variables => {
               :hostname => options['name'],
@@ -2384,6 +2401,7 @@ def create_packer_json(options)
               :qemuargs             => [
                 [ "-nographic" ],
                 [ "-serial", "stdio" ],
+                [ "-cpu", "host" ],
                 [ "-m", options['memory'] ],
                 [ "-smp", "cpus="+options['vcpus'] ]
               ]
@@ -2424,6 +2442,7 @@ def create_packer_json(options)
               :net_bridge           => net_bridge,
               :qemuargs             => [
                 [ "-serial", "stdio" ],
+                [ "-cpu", "host" ],
                 [ "-m", options['memory'] ],
                 [ "-smp", "cpus="+options['vcpus'] ]
               ]
@@ -2467,6 +2486,7 @@ def create_packer_json(options)
               :qemuargs             => [
                 [ "-nographic" ],
                 [ "-serial", "stdio" ],
+                [ "-cpu", "host" ],
                 [ "-m", options['memory']+"M" ],
                 [ "-smp", "cpus="+options['vcpus'] ]
               ]
@@ -2507,6 +2527,7 @@ def create_packer_json(options)
               :net_device           => net_device,
               :qemuargs             => [
                 [ "-serial", "stdio" ],
+                [ "-cpu", "host" ],
                 [ "-m", options['memory']+"M" ],
                 [ "-smp", "cpus="+options['vcpus'] ]
               ]
