@@ -16,7 +16,7 @@ def check_packer_is_installed(options)
     packer_bin = options["packer"].to_s
   end
   packer_version = options["packerversion"].to_s
-  if !packer_bin.match(/packer/)
+  if !packer_bin.match(/packer/) or !File.exist?(packer_bin)
     if options['osname'].to_s.match(/Darwin/)
       install_osx_package(options,"packer")
       packer_bin = %x[which packer].chomp
@@ -38,7 +38,7 @@ def check_packer_is_installed(options)
         execute_command(options,message,command)
       end
       message = "Information:\tExtracting and installing Packer"
-      command = "cd /tmp ; unzip -o #{tmp_file} ; cp /tmp/packer /usr/local/bin ; chmod +x /usr/local/bin/packer"
+      command = "sudo sh -c 'cd /tmp ; unzip -o #{tmp_file} ; cp /tmp/packer /usr/local/bin ; chmod +x /usr/local/bin/packer'"
       execute_command(options,message,command)
     end
   end

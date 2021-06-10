@@ -292,6 +292,11 @@ def configure_packer_client(options)
     options = configure_packer_ai_client(options)
   when /js/
     options = configure_packer_js_client(options)
+  when /ci/
+    case options['service']
+    when /ubuntu/
+      options = configure_packer_ps_client(options)
+    end
   end
   if options['vm'].to_s.match(/fusion/)
     options['share'] = ""

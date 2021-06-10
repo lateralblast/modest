@@ -185,9 +185,9 @@ def import_packer_kvm_vm(options)
   if File.exist?(qcow_file)
     message = "Information:\tImporting QCOW file for Packer KVM VM "+options['name']
     if options['text'] == true or options['headless'] == true or options['serial'] == true
-      command = "virt-install --import --noreboot --name #{options['name']} --memory #{options['memory']} --disk \"#{qcow_file}\" --graphics none --network bridge=#{options['bridge']} &"
+      command = "virt-install --import --noreboot --name #{options['name']} --memory #{options['memory']} --disk \"#{qcow_file}\" --graphics none --network bridge=#{options['bridge']}"
     else
-      command = "virt-install --import --noreboot --name #{options['name']} --memory #{options['memory']} --disk \"#{qcow_file}\" --graphics vnc --network bridge=#{options['bridge']} &"
+      command = "virt-install --import --noreboot --name #{options['name']} --memory #{options['memory']} --disk \"#{qcow_file}\" --graphics vnc --network bridge=#{options['bridge']}"
     end
     execute_command(options,message,command)
   else

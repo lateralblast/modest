@@ -438,7 +438,7 @@ def set_defaults(options,defaults)
   defaults['vswitch']         = "vSwitch0"
   defaults['wikidir']         = defaults['scriptdir']+"/"+File.basename(defaults['script'],".rb")+".wiki"
   defaults['wikiurl']         = "https://github.com/lateralblast/mode.wiki.git"
-  defaults['workdir']         = defaults['home']+"/.mode"
+  defaults['workdir']         = defaults['home']+"/.modest"
   defaults['backupdir']       = defaults['workdir']+"/backup"
   defaults['bindir']          = defaults['workdir']+"/bin"
   defaults['rpmdir']          = defaults['workdir']+"/rpms"
@@ -1367,6 +1367,10 @@ end
 # Useful for generating client config files
 
 def check_local_config(options)
+  # Check packer is installed
+  if options['type'].to_s.match(/packer/)
+    check_packer_is_installed(options)
+  end
   # Check Docker is installed
   if options['type'].to_s.match(/docker/)
     check_docker_is_installed

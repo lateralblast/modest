@@ -58,7 +58,7 @@ def populate_ps_questions(options)
     end
   end
 
-  if options['service'].to_s != "purity" and options['method'] != "ci"
+  if options['service'].to_s != "purity"
 
     name = "headless_mode"
     config = Ks.new(
@@ -368,37 +368,38 @@ def populate_ps_questions(options)
 
   broadcast = options['ip'].split(/\./)[0..2].join(".")+".255"
 
-
-  if options['method'].to_s != "ci"
-
-    name = "broadcast"
-    config = Ks.new(
-      type      = "",
-      question  = "Broadcast",
-      ask       = "yes",
-      parameter = "",
-      value     = broadcast,
-      valid     = "",
-      eval      = "no"
-      )
-    $q_struct[name] = config
-    $q_order.push(name)
-
-    network_address = options['ip'].split(/\./)[0..2].join(".")+".0"
-
-    name = "network_address"
-    config = Ks.new(
-      type      = "",
-      question  = "Network Address",
-      ask       = "yes",
-      parameter = "",
-      value     = network_address,
-      valid     = "",
-      eval      = "no"
-      )
-    $q_struct[name] = config
-    $q_order.push(name)
+  name = "broadcast"
+  config = Ks.new(
+    type      = "",
+    question  = "Broadcast",
+    ask       = "yes",
+    parameter = "",
+    value     = broadcast,
+    valid     = "",
+    eval      = "no"
+    )
+  $q_struct[name] = config
+  $q_order.push(name)
   
+  network_address = options['ip'].split(/\./)[0..2].join(".")+".0"
+
+  name = "network_address"
+  config = Ks.new(
+    type      = "",
+    question  = "Network Address",
+    ask       = "yes",
+    parameter = "",
+    value     = network_address,
+    valid     = "",
+    eval      = "no"
+    )
+  $q_struct[name] = config
+  $q_order.push(name)
+
+  if options['dhcp'] = true
+    static = "false"
+  else
+    static = "true"
   end
 
   name = "static"
@@ -407,7 +408,7 @@ def populate_ps_questions(options)
     question  = "Confirm Static",
     ask       = "yes",
     parameter = "netcfg/confirm_static",
-    value     = "true",
+    value     = static,
     valid     = "",
     eval      = "no"
     )

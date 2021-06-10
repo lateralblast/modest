@@ -1307,3 +1307,5 @@
 # More KVM improvements
 # 6.5.3: Thu 10 Jun 2021 14:47:20 AEST
 # Improved handling of some KVM defaults
+# 6.5.4: Thu 10 Jun 2021 16:30:09 AEST
+# Packer install fixes
