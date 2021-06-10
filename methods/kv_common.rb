@@ -534,22 +534,27 @@ def configure_kvm_import_client(options)
   command = "virt-install"
   params  = [ "name", "vcpus", "memory", "cdrom", "cpu", "os-type", "os-variant", "host-device", "machine", "pxe", "import",
               "extra-args", "connect", "metadata", "initrd-inject", "unattended", "install", "boot", "idmap", "disk", "network",
-              "graphics", "controller", "input", "serial", "parallel", "channel", "console", "hostdev", "filesystem", "sound",
+              "graphics", "controller", "serial", "parallel", "channel", "console", "hostdev", "filesystem", "sound",
               "watchdog", "video", "smartcard", "redirdev", "memballoon", "tpm", "rng", "panic", "memdev", "vsock", "iothreads",
               "seclabel", "cputune", "memtune", "blkiotune", "memorybacking", "features", "clock", "pm", "events", "resource",
               "sysinfo", "qemu-commandline", "launchSecurity", "hvm", "paravirt", "container", "virt-type", "arch", "machine",
               "autostart", "transient", "destroy-on-exit", "wait", "noautoconsole", "noreboot", "print-xml", "dry-run", "check" ]
   params.each do |param|
-    if options[param] != options['empty']
-      if options[param] != true and options[param] != false
+    if options[param] != options['empty'] && options[param] != "text"
+      if options[param] != true && options[param] != false
         command = command + " --"+param+" "+options[param].to_s
       else
         if options[param] != false
           command = command + " --"+param
         end
       end
+    else
+      if param.match(/graphics/)
+        command = command + " --"+param+" "+options[param].to_s
+      end
     end
   end
+  command = command + " --noreboot"
   message = "Information:\tCreating VM #{options['name'].to_s}"
   output  = execute_command(options,message,command)
   return

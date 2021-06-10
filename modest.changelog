@@ -1301,3 +1301,5 @@
 # Removed unused modules causing gem build errors
 # 6.5.0: Wed 09 Jun 2021 11:29:45 AEST
 # Bug fixes 
+# 6.5.1: Thu 10 Jun 2021 12:05:54 AEST 
+# KVM bug fixes

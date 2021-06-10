@@ -283,6 +283,7 @@ def set_defaults(options,defaults)
   defaults['fusiondir']       = defaults['home']+"/Virtual Machines"
   defaults['gatewaynode']     = "1"
   defaults['gateway']         = ""
+  defaults['graphics']        = "none"
   defaults['grant']           = "CanonicalUser"
   defaults['hardwareversion'] = "8"
   defaults['headless']        = false
@@ -1919,10 +1920,11 @@ def get_install_service_from_file(options)
     options['service'] = "ubuntu"
     if options['file'].to_s.match(/cloudimg/)
       options['method']  = "ci"
-      options['release'] = options['file'].to_s.split(/-/)[1] 
-      options['release'] = options['file'].to_s.split(/-/)[4].split(/\./)[0] 
+      options['release'] = options['file'].to_s.split(/-/)[1]
+      options['arch']    = options['file'].to_s.split(/-/)[4].split(/\./)[0].gsub(/amd64/,"x86_64")
       service_version    = options['service'].to_s.+"_"+options['release'].to_s.gsub(/\./,"_")+options['arch']+to_s
-      options['os-variant'] = "linux"
+      options['os-type']    = "linux"
+      options['os-variant'] = "ubuntu"+options['release'].to_s
     else
       service_version = options['file'].to_s.split(/-/)[1].gsub(/\./,"_").gsub(/_iso/,"")
       service_version = service_version+"_"+options['arch']
@@ -2091,7 +2093,6 @@ def get_install_service_from_file(options)
     handle_output(options,"Information:\tSetting service name to #{options['service']}")
     handle_output(options,"Information:\tSetting OS name to #{options['os-type']}")
   end
-  return options
 end
 
 # Get Install method from ISO file name
@@ -2216,7 +2217,15 @@ def get_iso_list(options)
   when /suse/
     options['os-type'] = "openSUSE"
   when /ubuntu/
-    options['os-type'] = "ubuntu"
+    if options['file'].to_s.match(/cloudimg/)
+      if options['vm'].to_s.match(/kvm/)
+        options['os-type'] = "linux"
+      else
+        options['os-type'] = "ubuntu"
+      end
+    else
+      options['os-type'] = "ubuntu"
+    end
   when /debian/
     options['os-type'] = "debian"
   when /purity/
@@ -3884,6 +3893,16 @@ def execute_command(options,message,command)
               command = "sudo sh -c '"+command+"'"
             end
           end
+        end
+      else
+        if command.match(/ifconfig/) && command.match(/up$/)
+          command = "sudo sh -c '"+command+"'"
+        end
+        if command.match(/virt-install/)
+          command = "sudo sh -c '"+command+"'"
+        end
+        if command.match(/qemu/) && command.match(/chmod|chgrp/)
+          command = "sudo sh -c '"+command+"'"
         end
       end
       if options['osname'].to_s.match(/NT/) && command.match(/netsh/)
