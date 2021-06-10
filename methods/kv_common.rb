@@ -418,6 +418,10 @@ def configure_kvm_import_client(options)
         temp_disk = options['disk'].to_s.split(/ /)[0]+" --disk "+options['disk'].to_s.split(/ /)[1]
         options['disk'] = temp_disk
       end
+    else
+      options['disk1'] = options['basedir']+"/"+options['name'].to_s+"-seed.qcow2,device=cdrom"
+      options['disk2'] = options['basedir']+"/"+options['name'].to_s+".qcow2,device=disk"
+      options['disk']  = options['disk1']+" --disk "+options['disk2']
     end
   end
   if options['file'] == options['empty']
