@@ -1167,9 +1167,13 @@ if options['action'] != options['empty']
   end
 end
 
+# Get additional information from install file if required
+
 if options['type'].to_s.match(/vcsa|packer/)
   if options['service'] == options['empty'] || options['os-type'] == options['empty'] || options['method'] == options['empty'] || options['release'] == options['empty'] || options['arch'] == options['empty'] || options['label'] == options['empty']
-    options = get_install_service_from_file(options)
+    if options['file'] != options['empty']
+      options = get_install_service_from_file(options)
+    end
   end
 end
 
