@@ -160,10 +160,10 @@ def populate_ps_questions(options)
     $q_struct[name] = config
     $q_order.push(name)
   
-    if options['vm'].to_s.match(/vbox/) and options['type'].to_s.match(/packer/)
-      enable_dhcp = "true"
+    if options['vm'].to_s.match(/vbox/) && options['type'].to_s.match(/packer/)
+      disable_dhcp = "false"
     else
-      enable_dhcp = options['disabledhcp']
+      disable_dhcp = "true"
     end
 
     name = "disable_dhcp"
@@ -172,7 +172,7 @@ def populate_ps_questions(options)
       question  = "Disable DHCP",
       ask       = "yes",
       parameter = "netcfg/disable_dhcp",
-      value     = enable_dhcp,
+      value     = disable_dhcp,
       valid     = "",
       eval      = "no"
       )
@@ -396,7 +396,7 @@ def populate_ps_questions(options)
   $q_struct[name] = config
   $q_order.push(name)
 
-  if options['dhcp'] = true
+  if options['dhcp'] == true
     static = "false"
   else
     static = "true"

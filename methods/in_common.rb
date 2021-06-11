@@ -267,7 +267,6 @@ def set_defaults(options,defaults)
   defaults['defaults']        = false
   defaults['dhcp']            = false
   defaults['disableautoconf'] = "true"
-  defaults['disabledhcp']     = "true"
   defaults['diskmode']        = "thin"
   defaults['domainname']      = "lab.net"
   defaults['download']        = false
@@ -459,17 +458,16 @@ end
 # Set some parameter once we have more details
 
 def reset_defaults(options,defaults)
-  if options['vmnetwork'].to_s.match(/nat/)
-    if options['ip'] == options['empty']
-      defaults['dhcp'] = true
-    end
+  if options['ip'].to_s.match(/[0-9]/)
+    defaults['dhcp'] = false
   end
   if options['os-type'].to_s.match(/win/)
     defaults['adminuser'] = "Administrator"
     defaults['adminname'] = "Administrator"
   end
   if options['vm'].to_s.match(/kvm/)
-    defaults['features'] = "kvm_hidden=on"
+    defaults['features']  = "kvm_hidden=on"
+    defaults['vmnetwork'] = "hostonly"
     if defaults['osarch'].to_s.match(/^x/) 
       defaults['machine'] = "q35"
       defaults['arch']    = "x86_64"
@@ -480,6 +478,11 @@ def reset_defaults(options,defaults)
       defaults['import'] = true
     end
     defaults['rootdisk'] = "/dev/vda"
+  end
+  if options['vmnetwork'].to_s.match(/nat/)
+    if options['ip'] == options['empty']
+      defaults['dhcp'] = true
+    end
   end
   if options['noreboot'] == true
     defaults['reboot'] = false
@@ -2107,12 +2110,14 @@ def get_install_service_from_file(options)
     options['method'] = "pe"
   end
   if !options['vm'].to_s.match(/kvm/)
-    if options['file'].to_s.match(/cloudimg/) && options['file'].to_s.match(/ubuntu/) 
+    options['service'] = options['os-type']+"_"+service_version.gsub(/__/,"_")
+  else
+    if options['file'].to_s.match(/cloudimg/) && options['file'].to_s.match(/ubuntu/)
       options['os-type'] = "linux"
     else
       options['os-type'] = options['service']
     end
-  else
+    options['service'] = options['service']+"_"+service_version.gsub(/__/,"_")
   end
   options['service'] = options['os-type']+"_"+service_version.gsub(/__/,"_")
   if options['verbose'] == true

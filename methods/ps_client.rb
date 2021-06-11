@@ -151,7 +151,7 @@ def populate_ps_first_boot_list(options)
     post_list.push("echo '  renderer: networkd' >> #{net_config}")
     post_list.push("echo '  ethernets:' >> #{net_config}")
     post_list.push("echo '    #{client_nic}:' >> #{net_config}")
-    if options['vmnetwork'].to_s.match(/hostonly|bridged/) and options['dhcp'] == false
+    if options['vmnetwork'].to_s.match(/hostonly|bridged/) && options['dhcp'] == false
       post_list.push("echo '      addresses: [#{options['ip']}/24]' >> #{net_config}")
       post_list.push("echo '      gateway4: #{client_gateway}' >> #{net_config}")
       post_list.push("echo '      nameservers:' >> #{net_config}")
