@@ -2119,7 +2119,6 @@ def get_install_service_from_file(options)
     end
     options['service'] = options['service']+"_"+service_version.gsub(/__/,"_")
   end
-  options['service'] = options['os-type']+"_"+service_version.gsub(/__/,"_")
   if options['verbose'] == true
     handle_output(options,"Information:\tSetting service name to #{options['service']}")
     handle_output(options,"Information:\tSetting OS name to #{options['os-type']}")
