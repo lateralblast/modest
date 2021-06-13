@@ -3943,7 +3943,11 @@ def execute_command(options,message,command)
       end
     end
     if command.match(/^sudo/)
-      sudo_check = %x[getent group #{options['sudogroup']}].chomp
+      if options['osname'].to_s.match(/Darwin/)
+        sudo_check = %x[ dscacheutil -q group -a name admin |grep users].chomp
+      else
+        sudo_check = %x[getent group #{options['sudogroup']}].chomp
+      end
       if !sudo_check.match(/#{options['user']}/)
         handle_output(options,"Warning:\tUser #{options['user']} is not in sudoers group")
         exit
