@@ -2644,6 +2644,10 @@ end
 # Check directory user ownership
 
 def check_dir_owner(options,dir_name,uid)
+  if dir_name.match(/^\//) or dir_name == ""
+    handle_output(options,"Warning:\tDirectory name not set")
+    quit(options)
+  end
   test_uid = File.stat(dir_name).uid
   if test_uid.to_i != uid.to_i
     message = "Information:\tChanging ownership of "+dir_name+" to "+uid.to_s
@@ -2667,6 +2671,10 @@ end
 # Check directory group read ownership
 
 def check_dir_group(options,dir_name,dir_gid,dir_mode)
+  if dir_name.match(/^\//) or dir_name == ""
+    handle_output(options,"Warning:\tDirectory name not set")
+    quit(options)
+  end
   test_gid = File.stat(dir_name).gid
   if test_gid.to_i != dir_gid.to_i
     message = "Information:\tChanging group ownership of "+dir_name+" to "+dir_gid.to_s
