@@ -186,6 +186,8 @@ def set_defaults(options,defaults)
   end
   defaults['dhcpdrange'] = defaults['hostonlyip'].split(".")[0..-2].join(".")+".200"+" "+defaults['hostonlyip'].split(".")[0..-2].join(".")+".250"
   # Declare other defaults
+  defaults['virtdir'] = ""
+  defaults['basedir'] = ""
   if defaults['osname'].match(/Darwin/) && defaults['osmajor'].to_i > 18
     #defaults['basedir']  = "/System/Volumes/Data"
     #defaults['mountdir'] = '/System/Volumes/Data/cdrom'
@@ -193,8 +195,7 @@ def set_defaults(options,defaults)
     defaults['mountdir'] = defaults['home']+"/Documents/modest/cdrom"
   else
     if options['vm'].to_s.match(/kvm/)
-      defaults['basedir'] = "/var/lib/libvirt/images"
-    else
+      defaults['virtdir'] = "/var/lib/libvirt/images"
       defaults['basedir'] = ""
     end
     defaults['mountdir'] = '/cdrom'

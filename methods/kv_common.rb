@@ -287,9 +287,6 @@ def check_kvm_is_installed(options)
   end
   dir_name  = "/etc/qemu"
   file_name = "/etc/qemu/bridge.conf"
-  file_gid  = get_group_gid(options,options['kvmgroup'])
-  file_mode = "w"
-  check_file_group(options,file_name,file_gid,file_mode)
   file_array = []
   file_line  = "allow "+options['bridge'].to_s
   file_array.append(file_line)
@@ -299,6 +296,9 @@ def check_kvm_is_installed(options)
     check_dir_owner(options,dir_name,options['uid'])
     write_array_to_file(options,file_array,file_name,file_mode)
     check_dir_owner(options,dir_name,"0")
+    file_gid  = get_group_gid(options,options['kvmgroup'])
+    file_mode = "w"
+    check_file_group(options,file_name,file_gid,file_mode)
     check_file_owner(options,file_name,"0")
     restart_linux_service(options,"libvirtd.service")
   else
