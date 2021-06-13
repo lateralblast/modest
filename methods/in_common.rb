@@ -2646,10 +2646,18 @@ def check_dir_owner(options,dir_name,uid)
   test_uid = File.stat(dir_name).uid
   if test_uid.to_i != uid.to_i
     message = "Information:\tChanging ownership of "+dir_name+" to "+uid.to_s
-    command = "chown -R #{uid.to_s} \"#{dir_name}\""
+    if dir_name.to_s.match(/^\/etc/)
+      command = "sudo chown -R #{uid.to_s} \"#{dir_name}\""
+    else
+      command = "chown -R #{uid.to_s} \"#{dir_name}\""
+    end
     execute_command(options,message,command)
     message = "Information:\tChanging permissions of "+dir_name+" to "+uid.to_s
-    command = "chmod -R u+w \"#{dir_name}\""
+    if dir_name.to_s.match(/^\/etc/)
+      command = "sudo chmod -R u+w \"#{dir_name}\""
+    else
+      command = "chmod -R u+w \"#{dir_name}\""
+    end
     execute_command(options,message,command)
   end
   return
@@ -2661,10 +2669,18 @@ def check_dir_group(options,dir_name,dir_gid,dir_mode)
   test_gid = File.stat(dir_name).gid
   if test_gid.to_i != dir_gid.to_i
     message = "Information:\tChanging group ownership of "+dir_name+" to "+dir_gid.to_s
-    command = "chgrp -R #{dir_gid.to_s} \"#{dir_name}\""
+    if dir_name.to_s.match(/^\/etc/)
+      command = "sudo chgrp -R #{dir_gid.to_s} \"#{dir_name}\""
+    else
+      command = "chgrp -R #{dir_gid.to_s} \"#{dir_name}\""
+    end
     execute_command(options,message,command)
     message = "Information:\tChanging group permissions of "+dir_name+" to "+dir_gid.to_s
-    command = "chmod -R g+#{dir_mode} \"#{dir_name}\""
+    if dir_name.to_s.match(/^\/etc/)
+      command = "sudo chmod -R g+#{dir_mode} \"#{dir_name}\""
+    else
+      command = "chmod -R g+#{dir_mode} \"#{dir_name}\""
+    end
     execute_command(options,message,command)
   end
   return
@@ -2676,7 +2692,11 @@ def check_file_owner(options,file_name,uid)
   test_uid = File.stat(file_name).uid
   if test_uid != uid.to_i
     message = "Information:\tChanging ownership of "+file_name+" to "+uid.to_s
-    command = "chown #{uid.to_s} #{file_name}"
+    if file_name.to_s.match(/^\/etc/)
+      command = "sudo chown #{uid.to_s} #{file_name}"
+    else
+      command = "chown #{uid.to_s} #{file_name}"
+    end
     execute_command(options,message,command)
   end
   return
@@ -3788,7 +3808,11 @@ def check_dir_exists(options,dir_name)
   if !File.directory?(dir_name) && !File.symlink?(dir_name)
     if dir_name.match(/[a-z]|[A-Z]/)
       message = "Information:\tCreating: "+dir_name
-      command = "mkdir -p \"#{dir_name}\""
+      if dir_name.match(/^\/etc/)
+        command = "sudo mkdir -p \"#{dir_name}\""
+      else
+        command = "mkdir -p \"#{dir_name}\""
+      end
       output  = execute_command(options,message,command)
     end
   end
@@ -3943,11 +3967,7 @@ def execute_command(options,message,command)
       end
     end
     if command.match(/^sudo/)
-      if options['osname'].to_s.match(/Darwin/)
-        sudo_check = %x[ dscacheutil -q group -a name admin |grep users].chomp
-      else
-        sudo_check = %x[getent group #{options['sudogroup']}].chomp
-      end
+      sudo_check = %x[getent group #{options['sudogroup']}].chomp
       if !sudo_check.match(/#{options['user']}/)
         handle_output(options,"Warning:\tUser #{options['user']} is not in sudoers group")
         exit

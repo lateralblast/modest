@@ -46,6 +46,7 @@ def create_packer_json(options)
   image_dir         = options['clientdir']+"/images"
   install_password  = $q_struct['admin_password'].value
   http_dir          = packer_dir
+  ks_ip             = options['vmgateway']
   if options['vm'].to_s.match(/parallels/)
     case options['service'].to_s
     when /win/
@@ -831,6 +832,7 @@ def create_packer_json(options)
             :http_directory       => http_dir,
             :http_port_min        => options['httpport'],
             :http_port_max        => options['httpport'],
+            :http_bind_address    => ks_ip,
             :boot_wait            => boot_wait,
             :boot_command         => boot_command,
             :format               => output_format,
@@ -920,6 +922,7 @@ def create_packer_json(options)
             :http_directory       => http_dir,
             :http_port_min        => options['httpport'],
             :http_port_max        => options['httpport'],
+            :http_bind_address    => ks_ip,
             :boot_wait            => boot_wait,
             :boot_command         => boot_command,
             :tools_upload_flavor  => tools_upload_flavor,
@@ -1015,6 +1018,7 @@ def create_packer_json(options)
               :http_directory       => http_dir,
               :http_port_min        => options['httpport'],
               :http_port_max        => options['httpport'],
+              :http_bind_address    => ks_ip,
               :boot_wait            => boot_wait,
               :boot_command         => boot_command,
               :format               => format,
@@ -1315,6 +1319,7 @@ def create_packer_json(options)
             :http_directory       => http_dir,
             :http_port_min        => options['httpport'],
             :http_port_max        => options['httpport'],
+            :http_bind_address    => ks_ip,
             :boot_wait            => boot_wait,
             :boot_command         => boot_command,
             :format               => output_format,
@@ -1423,6 +1428,7 @@ def create_packer_json(options)
               :http_directory       => http_dir,
               :http_port_min        => options['httpport'],
               :http_port_max        => options['httpport'],
+              :http_bind_address    => ks_ip,
               :boot_wait            => boot_wait,
               :boot_command         => boot_command,
               :format               => format,
@@ -1624,6 +1630,7 @@ def create_packer_json(options)
             :http_directory       => http_dir,
             :http_port_min        => options['httpport'],
             :http_port_max        => options['httpport'],
+            :http_bind_address    => ks_ip,
             :boot_wait            => boot_wait,
             :boot_command         => boot_command,
             :tools_upload_flavor  => tools_upload_flavor,
@@ -1829,6 +1836,7 @@ def create_packer_json(options)
             :http_directory       => http_dir,
             :http_port_min        => options['httpport'],
             :http_port_max        => options['httpport'],
+            :http_bind_address    => ks_ip,
             :boot_wait            => boot_wait,
             :boot_command         => boot_command,
             :tools_upload_flavor  => tools_upload_flavor,
@@ -1936,6 +1944,7 @@ def create_packer_json(options)
               :http_directory       => http_dir,
               :http_port_min        => options['httpport'],
               :http_port_max        => options['httpport'],
+              :http_bind_address    => ks_ip,
               :boot_wait            => boot_wait,
               :boot_command         => boot_command,
               :format               => format,
@@ -2135,6 +2144,7 @@ def create_packer_json(options)
             :http_directory       => http_dir,
             :http_port_min        => options['httpport'],
             :http_port_max        => options['httpport'],
+            :http_bind_address    => ks_ip,
             :boot_wait            => boot_wait,
             :boot_command         => boot_command,
             :format               => output_format,
@@ -2226,6 +2236,7 @@ def create_packer_json(options)
             :http_directory       => http_dir,
             :http_port_min        => options['httpport'],
             :http_port_max        => options['httpport'],
+            :http_bind_address    => ks_ip,
             :boot_wait            => boot_wait,
             :boot_command         => boot_command,
             :tools_upload_flavor  => tools_upload_flavor,
@@ -2318,6 +2329,7 @@ def create_packer_json(options)
               :http_directory         => http_dir,
               :http_port_min          => options['httpport'],
               :http_port_max          => options['httpport'],
+              :http_bind_address    => ks_ip,
               :boot_wait              => boot_wait,
               :boot_command           => boot_command,
               :parallels_tools_flavor => parallels_tools_flavor,
@@ -2391,6 +2403,7 @@ def create_packer_json(options)
               :http_directory       => http_dir,
               :http_port_min        => options['httpport'],
               :http_port_max        => options['httpport'],
+              :http_bind_address    => ks_ip,
               :boot_wait            => boot_wait,
               :boot_command         => boot_command,
               :format               => format,
