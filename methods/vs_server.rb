@@ -59,6 +59,9 @@ def configure_vs_repo(options)
     check_fs_exists(options,options['repodir'])
     options['netbootdir'] = options['tftpdir']+"/"+options['service']
     if not File.symlink?(options['repodir'])
+      if options['verbose'] == true
+        handle_output(options,"Information:\tChecking vSphere net boot directory")
+      end
       check_dir_owner(options,options['netbootdir'],options['uid'])
       File.symlink(options['repodir'],options['netbootdir'])
     end
@@ -67,6 +70,9 @@ def configure_vs_repo(options)
     options['netbootdir'] = options['tftpdir']+"/"+options['service']
     check_fs_exists(options,options['netbootdir'])
     if !File.exist?(options['repodir'])
+      if options['verbose'] == true
+        handle_output(options,"Information:\tChecking vSphere net boot directory")
+      end
       check_dir_owner(options,options['netbootdir'],options['uid'])
       File.symlink(options['netbootdir'],options['repodir'])
     end

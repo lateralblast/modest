@@ -200,10 +200,13 @@ end
 # Import OVA into KVM
 
 def import_kvm_ova(options)
-  base_dir  = $image_base_dir+"/kvm"
+  base_dir = options['imagedir']+"/kvm"
+  if options['verbose'] == true
+    handle_output(options,"Information:\tChecking KVM image directory")
+  end
   check_dir_exists(options,base_dir)
   check_dir_owner(options,base_dir,options['uid'])
-  image_dir = $image_base_dir+"/kvm/"+options['name']
+  image_dir = options['imagedir']+"/kvm/"+options['name']
   check_dir_exists(options,image_dir)
   check_dir_owner(options,image_dir,options['uid'])
   qcow_file = image_dir+"/"+options['name']+".qcow2"
@@ -285,6 +288,9 @@ def check_kvm_is_installed(options)
     command = "usermod -a -G #{options['kvmgroup']} #{options['user']}"
     output  = execute_command(options,message,command)
   end
+  if options['verbose'] == true
+    handle_output(options,"Information:\tChecking QEMU configuration directory")
+  end
   dir_name  = "/etc/qemu"
   file_name = "/etc/qemu/bridge.conf"
   file_array = []
@@ -361,6 +367,9 @@ def convert_kvm_image(options)
   end
   path_name = Pathname.new(options['outputfile'].to_s).dirname
   if !File.exist?(path_name)
+    if options['verbose'] == true
+      handle_output(options,"Information:\tChecking KVM output directory")
+    end
     check_dir_exists(options,path_name)
     check_dir_owner(options,path_name,options['uid'])
   end
@@ -473,6 +482,9 @@ def configure_kvm_import_client(options)
       config_path  = Pathname.new(options['outputfile'].to_s)
       config_path  = config_path.dirname.to_s
       network_file = "#{config_path}/#{options['name'].to_s}_network.cfg"
+    end
+    if options['verbose'] == true
+      handle_output(options,"Information:\tChecking KVM output directory")
     end
     check_dir_exists(options,config_path)
     check_dir_owner(options,config_path,options['uid'])

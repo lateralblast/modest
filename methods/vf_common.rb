@@ -194,6 +194,12 @@ def import_packer_fusion_vm(options)
     quit(options)
   end
   fusion_vm_dir,fusion_vmx_file,fusion_disk_file = check_fusion_vm_doesnt_exist(options)
+  if options['verbose'] == true
+    handle_output(options,"Information:\tChecking Fusion client directory")
+  end
+  if options['verbose'] == true
+    handle_output(options,"Information:\tChecking Packer Fusion VM configuration directory")
+  end
   check_dir_exists(options,fusion_vm_dir)
   uid = options['uid']
   check_dir_owner(options,fusion_vm_dir,uid)
@@ -1488,6 +1494,9 @@ def create_fusion_vm_vmx_file(options,fusion_vmx_file)
     fusion_vm_dir = File.dirname(fusion_vmx_file)
   end
   file = File.open(fusion_vmx_file,"w")
+  if options['verbose'] == true
+    handle_output(options,"Information:\tChecking Fusion VMX configuration directory")
+  end
   check_dir_exists(options,fusion_vm_dir)
   uid = options['uid']
   check_dir_owner(options,fusion_vm_dir,uid)
@@ -1508,6 +1517,9 @@ end
 
 def create_fusion_vm_esx_file(options,local_vmx_file,fixed_vmx_file)
   fusion_vm_dir,fusion_vmx_file,fusion_disk_file = check_fusion_vm_doesnt_exist(options)
+  if options['verbose'] == true
+    handle_output(options,"Information:\tChecking Fusion ESX configuration directory")
+  end
   check_dir_exists(options,fusion_vm_dir)
   uid = options['uid']
   check_dir_owner(options,fusion_vm_dir,uid)
@@ -1547,6 +1559,9 @@ end
 
 def configure_fusion_vm(options)
   (fusion_vm_dir,fusion_vmx_file,fusion_disk_file) = check_fusion_vm_doesnt_exist(options)
+  if options['verbose'] == true
+    handle_output(options,"Information:\tChecking Fusion VM configuration directory")
+  end
   check_dir_exists(options,fusion_vm_dir)
   uid = options['uid']
   check_dir_owner(options,fusion_vm_dir,uid)

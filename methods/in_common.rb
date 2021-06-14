@@ -3433,6 +3433,9 @@ def check_tftpd_config(options)
     pxelinux_dir  = options['tftpdir']
     pxelinux_tftp = pxelinux_dir+"/pxelinux.0"
     syslinux_tftp = pxelinux_dir+"/ldlinux.c32"
+    if options['verbose'] == true
+      handle_output(options,"Information:\tChecking PXE directory")
+    end
     check_dir_exists(options,pxelinux_dir)
     check_dir_owner(options,pxelinux_dir,options['uid'])
     if !File.exist?(pxelinux_tftp)
@@ -3488,6 +3491,9 @@ end
 def check_tftpd_dir(options)
   if options['osname'].to_s.match(/SunOS/)
     old_tftp_dir = "/tftpboot"
+    if options['verbose'] == true
+      handle_output(options,"Information:\tChecking TFTP directory")
+    end
     check_dir_exists(options,options['tftpdir'])
     check_dir_owner(options,options['tftpdir'],options['uid'])
     if not File.symlink?(old_tftp_dir)
@@ -4824,6 +4830,9 @@ def get_method_from_service(service)
 end
 
 def check_perms(options)
+  if options['verbose'] == true
+    handle_output(options,"Information:\tChecking client directory")
+  end
   check_dir_exists(options,options['clientdir'])
   check_dir_owner(options,options['clientdir'],options['uid'])
   return

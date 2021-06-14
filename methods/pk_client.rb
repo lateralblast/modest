@@ -259,6 +259,12 @@ def configure_packer_client(options)
   if options['osname'].to_s.match(/Linux/) and not options['ip'] == options['empty']
     enable_linux_ufw_internal_network(options)
   end
+  if options['verbose'] == true
+    handle_output(options,"Information:\tChecking Packer client directory")
+  end
+  if options['verbose'] == true
+    handle_output(options,"Information:\tChecking Packer client configuration directory")
+  end
   check_dir_exists(options,options['clientdir'])
   check_dir_owner(options,options['clientdir'],options['uid'])
   exists = check_vm_exists(options)
@@ -302,6 +308,9 @@ def configure_packer_client(options)
     options['share'] = ""
     options['mount'] = ""
     image_dir = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/images/"
+    if options['verbose'] == true
+      handle_output(options,"Information:\tChecking Packer image directory")
+    end
     check_dir_exists(options,image_dir)
     check_dir_owner(options,image_dir,options['uid'])
     fusion_vmx_file = image_dir+"/"+options['name']+".vmx"
@@ -433,6 +442,9 @@ end
 
 def create_packer_ay_install_files(options)
   output_file = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/"+options['name']+".xml"
+  if options['verbose'] == true
+    handle_output(options,"Information:\tChecking Packer AutoYast configuration directory")
+  end
   check_dir_exists(options,options['clientdir'])
   check_dir_owner(options,options['clientdir'],owner['uid'])
   delete_file(options,output_file)
@@ -474,6 +486,9 @@ end
 
 def create_packer_js_install_files(options)
   options['packerdir'] = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']
+  if options['verbose'] == true
+    handle_output(options,"Information:\tChecking Packer Jumpstart configuration directory")
+  end
   check_dir_exists(options,options['packerdir'])
   check_dir_owner(options,options['packerdir'],options['uid'])
   output_file = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/"+options['name']+".cfg"

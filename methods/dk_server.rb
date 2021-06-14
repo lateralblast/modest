@@ -5,7 +5,10 @@
 def configure_docker_server(options)
   check_dir_exists(options,options)
   options['tftpdir'] = options['exportdir']+"/tftpboot"
-  check_dir_exists(options,options)
+  if options['verbose'] == true
+    handle_output(options,"Information:\tChecking TFTP directory")
+  end
+  check_dir_exists(options,options['tftpdir'])
   check_dir_owner(options,options['tftpdir'],options['uid'])
   service_dir = options['tftpdir']+"/"+options['service']
   check_dir_exists(options,service_dir)

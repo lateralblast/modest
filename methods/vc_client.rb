@@ -41,7 +41,7 @@ def deploy_vcsa_vm(options)
   options['vmgateway']         = $q_struct['gateway'].value
   options['nameserver']      = $q_struct['dns.servers'].value
   vcsa_json_file = create_vcsa_json(options)
-  #create_cvsa_deploy_script(options)
+  #create_vcsa_deploy_script(options)
   options['repodir'] = options['baserepodir']+"/"+options['service']
   if options['osname'].to_s.match(/Darwin/)
     deployment_dir = options['repodir']+"/vcsa-cli-installer/mac"
@@ -71,9 +71,12 @@ end
 
 # Create deployment script
 
-def create_cvsa_deploy_script(options)
+def create_vcsa_deploy_script(options)
   options['netmask'] = options['netmask'].gsub(/\//,"")
   uid = %x[id -u].chomp
+  if options['verbose'] == true
+    handle_output(options,"Information:\tChecking VCSA client directory")
+  end
   check_dir_exists(options,options['clientdir'])
   check_dir_owner(options,options['clientdir'],uid)
   service_dir = options['clientdir']+"/"+options['service']
@@ -294,6 +297,9 @@ def create_vcsa_json(options)
       end
     end
     uid = %x[id -u].chomp
+    if options['verbose'] == true
+      handle_output(options,"Information:\tChecking VCSA JSON configuration directory")
+    end
     check_dir_exists(options,options['clientdir'])
     check_dir_owner(options,options['clientdir'],uid)
     service_dir = options['clientdir']+"/"+options['service']

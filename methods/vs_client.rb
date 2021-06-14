@@ -65,6 +65,9 @@ def configure_vs_pxe_client(options)
   tftp_boot_file = "boot.cfg.01"+tftp_pxe_file
   tftp_pxe_file  = "01"+tftp_pxe_file+".pxelinux"
   test_file      = options['tftpdir']+"/"+tftp_pxe_file
+  if options['verbose'] == true
+    handle_output(options,"Information:\tChecking vSphere TFTP directory")
+  end
   check_dir_exists(options,options['tftpdir'])
   check_dir_owner(options,options['tftpdir'],options['uid'])
   if not File.exist?(test_file)
@@ -74,6 +77,9 @@ def configure_vs_pxe_client(options)
     execute_command(options,message,command)
   end
   pxe_cfg_dir   = options['tftpdir']+"/pxelinux.cfg"
+  if options['verbose'] == true
+    handle_output(options,"Information:\tChecking vSphere PXE configuration directory")
+  end
   check_dir_exists(options,pxe_cfg_dir)
   check_dir_owner(options,pxe_cfg_dir,options['uid'])
   pxe_cfg_file1 = options['mac'].gsub(/:/,"-")
@@ -141,6 +147,9 @@ def configure_vs_pxe_client(options)
     end
   end
   tftp_boot_file_dir = File.dirname(tftp_boot_file)
+  if options['verbose'] == true
+    handle_output(options,"Information:\tChecking vSphere TFTP boot file directory")
+  end
   check_dir_exists(options,tftp_boot_file_dir)
   check_dir_owner(options,options['tftpdir'],options['uid'])
   check_dir_owner(options,tftp_boot_file_dir,options['uid'])
@@ -392,6 +401,9 @@ def output_vs_header(options,output_file)
   end
   dir_name = File.dirname(output_file)
   top_dir  = dir_name.split(/\//)[0..-2].join("/")
+  if options['verbose'] == true
+    handle_output(options,"Information:\tChecking vSphere boot header file directory")
+  end
   check_dir_owner(options,top_dir,options['uid'])
   check_dir_exists(options,dir_name)
   check_dir_owner(options,dir_name,options['uid'])
