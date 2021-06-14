@@ -1390,6 +1390,9 @@ def check_local_config(options)
     options = set_fusion_dir(options)
   end
   # Check base dirs exist
+  if options['verbose'] == true
+    handle_output(options,"Information:\tChecking base repository directory")
+  end
   check_dir_exists(options,options['baserepodir'])
   check_dir_owner(options,options['baserepodir'],options['uid'])
   if options['vm'].to_s.match(/vbox/)
@@ -1419,6 +1422,9 @@ def check_local_config(options)
     handle_output(options,"Information:\tSetting temporary directory to #{options['workdir']}")
   end
   # Get OS name and set system settings appropriately
+  if options['verbose'] == true
+    handle_output(options,"Information:\tChecking work directory")
+  end
   check_dir_exists(options,options['workdir'])
   check_dir_owner(options,options['workdir'],options['uid'])
   check_dir_exists(options,options['tmpdir'])
@@ -1512,6 +1518,9 @@ def check_local_config(options)
   end
   check_dir_exists(options,options['backupdir'])
   options = install_package(options,"rpm")
+  if options['verbose'] == true
+    handle_output(options,"Information:\tChecking work bin directory")
+  end
   if File.exist?("/bin/rpm2cpio")
     options['rpm2cpiobin'] = "/bin/rpm2cpio"
   else
@@ -1545,6 +1554,9 @@ def check_local_config(options)
   end
   # Check directory ownerships
   [ options['workdir'], options['bindir'], options['rpmdir'], options['backupdir'] ].each do |test_dir|
+    if options['verbose'] == true
+      handle_output(options,"Information:\tChecking #{test_dir} directory")
+    end
     check_dir_exists(options,test_dir)
     check_dir_owner(options,test_dir,options['uid'])
   end
