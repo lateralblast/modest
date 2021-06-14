@@ -346,8 +346,6 @@ end
 
 
 def convert_kvm_image(options)
-  input_file  = options['inputfile'].to_s
-  output_file = options['outputfile'].to_s
   if !File.exist?(input_file)
     handle_output(options,"Warning:\tFile #{input_file} does not exist")
     quit(options)
@@ -360,6 +358,9 @@ def convert_kvm_image(options)
     else
       path_name = Pathname.new(options['inputfile'].to_s).dirname
       file_name = path_name+" "+options['name'].to_s+".disk" 
+      if !file_name.match(/^\/[a-z]/)
+        file_name = options['libvirtdir']+"/"+file_name
+      end
       options['outputfile'] = file_name
       output = options['outputfile']
       handle_output(options,"Information:\tSetting output file to #{output}")
@@ -408,6 +409,21 @@ def configure_kvm_client(options)
   return
 end
 
+# Create a KVM disk
+
+def create_kvm_disk(options)
+  disk_size = options['size'].to_s
+  if !options['outputfile'] == options['empty']
+    disk_file = options['outputfile']
+  else
+    disk_file = options['basedir']+"/"+options['name'].to_s+".qcow2"
+  end
+  message = "Information:\tCreating KVM disk #{disk_file} of size #{disk_size}"
+  command = "sudo qemu-img create -f qcow2 #{disk_file} #{disk_size}"
+  execute_command(options,message,command)
+  return
+end
+
 # Configure a KVM VM via import
 
 def configure_kvm_import_client(options)
@@ -428,7 +444,11 @@ def configure_kvm_import_client(options)
         options['disk'] = temp_disk
       end
     else
-      options['disk1'] = options['basedir']+"/"+options['name'].to_s+"-seed.qcow2,device=cdrom"
+      if options['file'].to_s.match(/cloud/)
+        options['disk1'] = options['basedir']+"/"+options['name'].to_s+"-seed.qcow2,device=cdrom"
+      else
+        options['disk1'] = options['file']+",device=cdrom"
+      end
       options['disk2'] = options['basedir']+"/"+options['name'].to_s+".qcow2,device=disk"
       options['disk']  = options['disk1']+" --disk "+options['disk2']
     end
@@ -437,7 +457,7 @@ def configure_kvm_import_client(options)
     handle_output(options,"Warning:\tNo install file specified")
     quit(options)
   end
-  if options['import'] == true
+  if options['import'] == true and options['method'] == "ci"
     if options['cloudfile'] == options['empty']
       if options['disk'].to_s.match(/ /)
         cloud_file = options['disk'].to_s.split(" ")[0]
@@ -470,6 +490,8 @@ def configure_kvm_import_client(options)
         convert_kvm_image(options)
       end
     end
+  else
+    create_kvm_disk(options)
   end
   if options['method'] == "ci"
     options = populate_ps_questions(options)

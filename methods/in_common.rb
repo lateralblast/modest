@@ -196,7 +196,7 @@ def set_defaults(options,defaults)
   else
     if options['vm'].to_s.match(/kvm/)
       defaults['virtdir'] = "/var/lib/libvirt/images"
-      defaults['basedir'] = ""
+      defaults['basedir'] = defaults['virtdir']
     end
     defaults['mountdir'] = '/cdrom'
   end
@@ -863,7 +863,7 @@ def get_my_ip(options)
     if options['osname'].to_s.match(/SunOS/)
       command = "/usr/sbin/ifconfig -a | awk \"BEGIN { count=0; } { if ( \\\$1 ~ /inet/ ) { count++; if( count==2 ) { print \\\$2; } } }\""
     else
-      if options['kvm'].to_s == "kvm"
+      if options['vm'].to_s == "kvm"
         command = "hostname -I |awk \"{print \\\$2}\""
       else
         command = "hostname -I |awk \"{print \\\$1}\""
@@ -1955,17 +1955,17 @@ def get_install_service_from_file(options)
     end
     if options['file'].to_s.match(/cloudimg/)
       options['method']  = "ci"
-      options['release'] = options['file'].to_s.split(/-/)[1]
+      options['release'] = options['file'].to_s.split(/-/)[1].split(/\./)[0..1].join(".")
       options['arch']    = options['file'].to_s.split(/-/)[4].split(/\./)[0].gsub(/amd64/,"x86_64")
       service_version    = options['service'].to_s.+"_"+options['release'].to_s.gsub(/\./,"_")+options['arch']+to_s
-      options['os-type']    = "linux"
-      options['os-variant'] = "ubuntu"+options['release'].to_s
+      options['os-type'] = "linux"
     else
       service_version = options['file'].to_s.split(/-/)[1].gsub(/\./,"_").gsub(/_iso/,"")
       service_version = service_version+"_"+options['arch']
       options['method']  = "ps"
-      options['release'] = options['file'].to_s.split(/-/)[1]
+      options['release'] = options['file'].to_s.split(/-/)[1].split(/\./)[0..1].join(".")
     end
+    options['os-variant'] = "ubuntu"+options['release'].to_s
     if options['file'].to_s.match(/live/)
       options['livecd'] = true
     end
@@ -2128,7 +2128,11 @@ def get_install_service_from_file(options)
     if options['file'].to_s.match(/cloudimg/) && options['file'].to_s.match(/ubuntu/)
       options['os-type'] = "linux"
     else
-      options['os-type'] = options['service']
+      if options['vm'].to_s.match(/kvm/)
+        options['os-type'] = "linux"
+      else
+        options['os-type'] = options['service']
+      end
     end
     options['service'] = options['service']+"_"+service_version.gsub(/__/,"_")
   end
@@ -2136,6 +2140,7 @@ def get_install_service_from_file(options)
     handle_output(options,"Information:\tSetting service name to #{options['service']}")
     handle_output(options,"Information:\tSetting OS name to #{options['os-type']}")
   end
+  return(options)
 end
 
 # Get Install method from ISO file name
@@ -2260,12 +2265,8 @@ def get_iso_list(options)
   when /suse/
     options['os-type'] = "openSUSE"
   when /ubuntu/
-    if options['file'].to_s.match(/cloudimg/)
-      if options['vm'].to_s.match(/kvm/)
-        options['os-type'] = "linux"
-      else
-        options['os-type'] = "ubuntu"
-      end
+    if options['vm'].to_s.match(/kvm/)
+      options['os-type'] = "linux"
     else
       options['os-type'] = "ubuntu"
     end
@@ -2656,7 +2657,7 @@ end
 # Check directory user ownership
 
 def check_dir_owner(options,dir_name,uid)
-  if dir_name.match(/^\//) or dir_name == ""
+  if dir_name.match(/^\/$/) or dir_name == ""
     handle_output(options,"Warning:\tDirectory name not set")
     quit(options)
   end
@@ -2683,7 +2684,7 @@ end
 # Check directory group read ownership
 
 def check_dir_group(options,dir_name,dir_gid,dir_mode)
-  if dir_name.match(/^\//) or dir_name == ""
+  if dir_name.match(/^\/$/) or dir_name == ""
     handle_output(options,"Warning:\tDirectory name not set")
     quit(options)
   end
