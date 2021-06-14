@@ -196,7 +196,6 @@ def set_defaults(options,defaults)
   else
     if options['vm'].to_s.match(/kvm/)
       defaults['virtdir'] = "/var/lib/libvirt/images"
-      defaults['basedir'] = defaults['virtdir']
     end
     defaults['mountdir'] = '/cdrom'
   end
@@ -243,7 +242,7 @@ def set_defaults(options,defaults)
   defaults['adminname']       = "Sys Admin"
   defaults['adminpassword']   = "P455w0rd"
   defaults['adminuid']        = "200"
-  defaults['adminshell']      = "/bin/bash"
+  defaults['adminshell']     = "/bin/bash"
   defaults['apachedir']       = '/etc/apache2'
   defaults['aidir']           = defaults['basedir']+'/export/auto_install'
   defaults['aiport']          = '10081'
@@ -292,11 +291,7 @@ def set_defaults(options,defaults)
   defaults['hosts']           = "files dns"
   defaults['hostip']          = get_my_ip(defaults)
   defaults['httpport']        = "8888"
-  if options['vm'].to_s.match(/kvm/)
-    defaults['imagedir'] = defaults['basedir']+'/export/images'
-  else
-    defaults['imagedir'] = defaults['basedir']+'/export/images'
-  end
+  defaults['imagedir']        = defaults['basedir']+'/export/images'
   defaults['install']         = "initial_install"
   defaults['instances']       = "1,1"
   defaults['ipfamily']        = "ipv4"

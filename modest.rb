@@ -501,7 +501,7 @@ raw_params.each do |raw_param|
     valid_param = "valid"+raw_param
     if options[raw_param]
       if defaults[valid_param]
-        test_value = options[raw_param]
+        test_value = options[raw_param][0]
         if test_value.match(/\,/)
           test_value = test_value.split(",")[0]
         end

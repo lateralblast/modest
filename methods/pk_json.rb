@@ -44,8 +44,12 @@ def create_packer_json(options)
   iso_url           = "file://"+options['file']
   packer_dir        = options['clientdir']+"/packer"
   image_dir         = options['clientdir']+"/images"
-  install_password  = $q_struct['admin_password'].value
   http_dir          = packer_dir
+  if $q_struct['admin_password']
+    install_password  = $q_struct['admin_password'].value
+  else
+    install_password  = $q_struct['root_password'].value
+  end
   if options['vm'].to_s.match(/parallels/)
     case options['service'].to_s
     when /win/

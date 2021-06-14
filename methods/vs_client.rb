@@ -224,7 +224,7 @@ end
 # Configure VSphere client
 
 def configure_vs_client(options)
-  options['repodir']=options['baserepodir']+"/"+options['service']
+  options['repodir'] = options['baserepodir']+"/"+options['service']
   if not File.directory?(options['repodir']) and not File.symlink?(options['repodir'])
     handle_output(options,"Information:\tWarning service #{options['service']} does not exist")
     handle_output(options,"")

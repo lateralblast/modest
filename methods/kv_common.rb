@@ -416,7 +416,7 @@ def create_kvm_disk(options)
   if !options['outputfile'] == options['empty']
     disk_file = options['outputfile']
   else
-    disk_file = options['basedir']+"/"+options['name'].to_s+".qcow2"
+    disk_file = options['clientdir']+"/"+options['name'].to_s+".qcow2"
   end
   message = "Information:\tCreating KVM disk #{disk_file} of size #{disk_size}"
   command = "sudo qemu-img create -f qcow2 #{disk_file} #{disk_size}"
@@ -445,11 +445,11 @@ def configure_kvm_import_client(options)
       end
     else
       if options['file'].to_s.match(/cloud/)
-        options['disk1'] = options['basedir']+"/"+options['name'].to_s+"-seed.qcow2,device=cdrom"
+        options['disk1'] = options['virtdir']+"/images/"+options['name'].to_s+"-seed.qcow2,device=cdrom"
       else
         options['disk1'] = options['file']+",device=cdrom"
       end
-      options['disk2'] = options['basedir']+"/"+options['name'].to_s+".qcow2,device=disk"
+      options['disk2'] = options['virtdir']+"/images/"+options['name'].to_s+".qcow2,device=disk"
       options['disk']  = options['disk1']+" --disk "+options['disk2']
     end
   end
