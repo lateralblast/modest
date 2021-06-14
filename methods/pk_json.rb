@@ -710,6 +710,7 @@ def create_packer_json(options)
     end
     shutdown_command = "echo 'shutdown -P now' > /tmp/shutdown.sh ; echo '#{install_password}'|sudo -S sh '/tmp/shutdown.sh'"
   when /vsphere|esx|vmware/
+    boot_wait = "2s"
     if options['vm'].to_s.match(/fusion/)
       virtual_dev       = "pvscsi"
     end
