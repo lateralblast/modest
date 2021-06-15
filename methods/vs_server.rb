@@ -122,7 +122,7 @@ def configure_vs_pxe_boot(options)
       if not rpm_file.match(/syslinux/)
         rpm_file = "syslinux-4.02-7.2.el5.i386.rpm"
         rpm_file = rpm_dir+"/"+rpm_file
-        rpm_url  = "http://vault.centos.org/5.11/os/i386/CentOS/syslinux-4.02-7.2.el5.i386.rpm"
+        rpm_url  = "https://vault.centos.org/5.11/os/i386/CentOS/syslinux-4.02-7.2.el5.i386.rpm"
         wget_file(options,rpm_url,rpm_file)
       else
         rpm_file = rpm_dir+"/"+rpm_file

@@ -1513,6 +1513,7 @@ def check_local_config(options)
   end
   check_dir_exists(options,options['backupdir'])
   options = install_package(options,"rpm")
+  options = install_package(options,"rpm2cpio")
   if options['verbose'] == true
     handle_output(options,"Information:\tChecking work bin directory")
   end
