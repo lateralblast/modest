@@ -1489,6 +1489,7 @@ def create_packer_json(options)
               :http_directory       => http_dir,
               :http_port_min        => options['httpport'],
               :http_port_max        => options['httpport'],
+              :http_bind_address    => ks_ip,
               :boot_wait            => boot_wait,
               :boot_command         => boot_command,
               :format               => format,
