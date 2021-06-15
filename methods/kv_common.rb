@@ -445,11 +445,11 @@ def configure_kvm_import_client(options)
       end
     else
       if options['file'].to_s.match(/cloud/)
-        options['disk1'] = options['virtdir']+"/images/"+options['name'].to_s+"-seed.qcow2,device=cdrom"
+        options['disk1'] = options['virtdir']+"/"+options['name'].to_s+"-seed.qcow2,device=cdrom"
       else
         options['disk1'] = options['file']+",device=cdrom"
       end
-      options['disk2'] = options['virtdir']+"/images/"+options['name'].to_s+".qcow2,device=disk"
+      options['disk2'] = options['virtdir']+"/"+options['name'].to_s+".qcow2,device=disk"
       options['disk']  = options['disk1']+" --disk "+options['disk2']
     end
   end
