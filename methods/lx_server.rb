@@ -4,7 +4,7 @@
 
 def list_lxc_services(options)
   if options['osname'].to_s.match(/Linux/)
-    image_list = Dir.entries($lxc_image_dir)
+    image_list = Dir.entries(options['lxcimagedir'])
     if image_list.length > 0
       if options['output'].to_s.match(/html/)
         handle_output(options,"<h1>Available LXC service(s)</h1>")

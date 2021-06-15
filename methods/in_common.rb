@@ -326,7 +326,8 @@ def set_defaults(options,defaults)
   defaults['ldomdir']         = '/ldoms'
   defaults['local']           = "local"
   defaults['locale']          = "en_US"
-  defaults['lxcdir']          = "/lxc"
+  defaults['lxcdir']          = "/export/clients/lxc"
+  defaults['lxcimagedir']     = "/export/clients/lxc/images"
   defaults['mac']             = ""
   defaults['maasadmin']       = "root"
   defaults['maasemail']       = defaults['maasadmin']+"@"+defaults['hostip']
@@ -2212,7 +2213,6 @@ def list_all_services(options)
   list_ai_services(options)
   list_ay_services(options)
   list_image_services(options)
-  list_all_services(options)
   list_js_services(options)
   list_ks_services(options)
   list_cdom_services(options)
@@ -3960,7 +3960,7 @@ def execute_command(options,message,command)
   end
   if execute == true
     if options['uid'] != 0
-      if !command.match(/brew |sw_vers|id |groups|hg|pip|VBoxManage|vboxmanage|netstat|df|vmrun|noVNC|docker|packer|ansible-playbook|virt-install|qemu/) && !options['osname'].to_s.match(/NT/)
+      if !command.match(/brew |sw_vers|id |groups|hg|pip|VBoxManage|vboxmanage|netstat|df|vmrun|noVNC|docker|packer|ansible-playbook|virt-install|qemu|^ls/) && !options['osname'].to_s.match(/NT/)
         if options['sudo'] == true
           command = "sudo sh -c '"+command+"'"
         else

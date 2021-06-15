@@ -288,6 +288,7 @@ begin
     ['--logfs', REQUIRED],            # Set log fs
     ['--logsize', REQUIRED],          # Set log fs size
     ['--lxcdir', REQUIRED],           # Linux Container Directory
+    ['--lxcimagedir', REQUIRED],      # Linux Image Directory
     ['--mac', REQUIRED],              # MAC Address
     ['--machine', REQUIRED],          # Solaris Jumpstart Machine file
     ['--masked', BOOLEAN],            # Mask passwords in output (WIP)
