@@ -416,7 +416,7 @@ def create_kvm_disk(options)
   if !options['outputfile'] == options['empty']
     disk_file = options['outputfile']
   else
-    disk_file = options['clientdir']+"/"+options['name'].to_s+".qcow2"
+    disk_file = options['virtdir']+"/"+options['name'].to_s+".qcow2"
   end
   message = "Information:\tCreating KVM disk #{disk_file} of size #{disk_size}"
   command = "sudo qemu-img create -f qcow2 #{disk_file} #{disk_size}"
@@ -450,10 +450,14 @@ def configure_kvm_import_client(options)
         options['disk1'] = options['file']+",device=cdrom"
       end
       options['disk2'] = options['virtdir']+"/"+options['name'].to_s+".qcow2,device=disk"
-      options['disk']  = options['disk1']+" --disk "+options['disk2']
+      if !options['type'].to_s.match(/packer/)
+        options['disk']  = options['disk2']
+      else
+        options['disk']  = options['disk1']+" --disk "+options['disk2']
+      end
     end
   end
-  if options['file'] == options['empty']
+  if options['file'] == options['empty'] && options['pxe'] == false
     handle_output(options,"Warning:\tNo install file specified")
     quit(options)
   end
@@ -575,14 +579,17 @@ def configure_kvm_import_client(options)
       quit(options)
     end
   end
+  if options['pxe'] == true
+    options['boot'] = "network,menu=on"
+  end
   command = "virt-install"
-  params  = [ "name", "vcpus", "memory", "cdrom", "cpu", "os-type", "os-variant", "host-device", "machine", "pxe", "import",
+  params  = [ "name", "vcpus", "memory", "cdrom", "cpu", "os-type", "os-variant", "host-device", "machine", "mac", "import",
               "extra-args", "connect", "metadata", "initrd-inject", "unattended", "install", "boot", "idmap", "disk", "network",
               "graphics", "controller", "serial", "parallel", "channel", "console", "hostdev", "filesystem", "sound",
               "watchdog", "video", "smartcard", "redirdev", "memballoon", "tpm", "rng", "panic", "memdev", "vsock", "iothreads",
               "seclabel", "cputune", "memtune", "blkiotune", "memorybacking", "features", "clock", "pm", "events", "resource",
               "sysinfo", "qemu-commandline", "launchSecurity", "hvm", "paravirt", "container", "virt-type", "arch", "machine",
-              "autostart", "transient", "destroy-on-exit", "wait", "noautoconsole", "noreboot", "print-xml", "dry-run", "check", "mac" ]
+              "autostart", "transient", "destroy-on-exit", "wait", "noautoconsole", "noreboot", "print-xml", "dry-run", "check" ]
   params.each do |param|
     if options[param] != options['empty'] && options[param] != "text"
       if options[param] != true && options[param] != false

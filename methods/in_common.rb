@@ -260,6 +260,7 @@ def set_defaults(options,defaults)
   defaults['cluster']         = "SUNWCprog"
   defaults['containertype']   = "ova"
   defaults['controller']      = "sas"
+  defaults['console']         = ""
   defaults['copykeys']        = true
   defaults['country']         = 'AU'
   defaults['creds']           = defaults['home']+"/.aws/credentials"
@@ -463,7 +464,9 @@ def reset_defaults(options,defaults)
     defaults['adminname'] = "Administrator"
   end
   if options['vm'].to_s.match(/kvm/)
-    defaults['network']   = "bridge=vibr0"
+    defaults['console']   = "pty,target_type=virtio"
+    defaults['mac']       = generate_mac_address(options)
+    defaults['network']   = "bridge=virbr0"
     defaults['features']  = "kvm_hidden=on"
     defaults['vmnetwork'] = "hostonly"
     if defaults['osarch'].to_s.match(/^x/) 
@@ -517,7 +520,7 @@ def reset_defaults(options,defaults)
       defaults['vmnet'] = "vmnet1"
     end
   when /kvm/
-    defaults['vmnet'] = "vibr0"
+    defaults['vmnet'] = "virbr0"
   when /vbox/
     defaults['vmnet'] = "vboxnet0"
   when /dom/
@@ -1920,7 +1923,7 @@ def get_install_service_from_file(options)
   options['release'] = ""
   options['method']  = ""
   options['label']   = ""
-  if options['file'].to_s.match(/amd64|x86_64/)
+  if options['file'].to_s.match(/amd64|x86_64/) || options['vm'].to_s.match(/kvm/)
     options['arch'] = "x86_64"
   else
     options['arch'] = "i386"
@@ -2176,11 +2179,11 @@ end
 # Generate MAC address
 
 def generate_mac_address(options)
-  if options['vm'].to_s.match(/fusion|vm|vbox/)
+  if options['vm'].to_s.match(/fusion|vbox/)
     mac_address = "00:05:"+(1..4).map{"%0.2X"%rand(256)}.join(":")
   else
     if options['vm'].to_s.match(/kvm/)
-      mac_address = "52:54:00"+(1..3).map{"%0.2X"%rand(256)}.join(":")
+      mac_address = "52:54:00:"+(1..3).map{"%0.2X"%rand(256)}.join(":")
     else
       mac_address = (1..6).map{"%0.2X"%rand(256)}.join(":")
     end

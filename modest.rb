@@ -349,7 +349,7 @@ begin
     ['--pxe', BOOLEAN],               # PXE (KVM)
     ['--pxetype', REQUIRED],          # PXE boot type (bios/uefi)
     ['--qemu-commandline', REQUIRED], # Qemu commandline (KVM)
-    ['--redirdev', REQUIRED],         # Redirdev )KVM
+    ['--redirdev', REQUIRED],         # Redirdev (KVM)
     ['--release', REQUIRED],          # OS Release
     ['--region', REQUIRED],           # AWS Region
     ['--repo', REQUIRED],             # Set repository
