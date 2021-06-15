@@ -582,7 +582,7 @@ def configure_kvm_import_client(options)
               "watchdog", "video", "smartcard", "redirdev", "memballoon", "tpm", "rng", "panic", "memdev", "vsock", "iothreads",
               "seclabel", "cputune", "memtune", "blkiotune", "memorybacking", "features", "clock", "pm", "events", "resource",
               "sysinfo", "qemu-commandline", "launchSecurity", "hvm", "paravirt", "container", "virt-type", "arch", "machine",
-              "autostart", "transient", "destroy-on-exit", "wait", "noautoconsole", "noreboot", "print-xml", "dry-run", "check" ]
+              "autostart", "transient", "destroy-on-exit", "wait", "noautoconsole", "noreboot", "print-xml", "dry-run", "check", "mac" ]
   params.each do |param|
     if options[param] != options['empty'] && options[param] != "text"
       if options[param] != true && options[param] != false

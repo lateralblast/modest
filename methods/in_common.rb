@@ -463,6 +463,7 @@ def reset_defaults(options,defaults)
     defaults['adminname'] = "Administrator"
   end
   if options['vm'].to_s.match(/kvm/)
+    defaults['network']   = "bridge=vibr0"
     defaults['features']  = "kvm_hidden=on"
     defaults['vmnetwork'] = "hostonly"
     if defaults['osarch'].to_s.match(/^x/) 
@@ -1153,18 +1154,6 @@ def delete_user_ssh_config(options)
     file.close
   end
   return
-end
-
-# Generate a client MAC address if not given one
-
-def create_install_mac(options)
-  if not options['mac'].to_s.match(/[0-9]/)
-    options['mac'] = (1..6).map{"%0.2X"%rand(256)}.join(":")
-    if options['verbose'] == true
-      handle_output(options,"Information:\tGenerated MAC address #{options['mac']}")
-    end
-  end
-  return options['mac']
 end
 
 # Check VNC is installed
@@ -2190,7 +2179,11 @@ def generate_mac_address(options)
   if options['vm'].to_s.match(/fusion|vm|vbox/)
     mac_address = "00:05:"+(1..4).map{"%0.2X"%rand(256)}.join(":")
   else
-    mac_address = (1..6).map{"%0.2X"%rand(256)}.join(":")
+    if options['vm'].to_s.match(/kvm/)
+      mac_address = "52:54:00"+(1..3).map{"%0.2X"%rand(256)}.join(":")
+    else
+      mac_address = (1..6).map{"%0.2X"%rand(256)}.join(":")
+    end
   end
   return mac_address
 end
