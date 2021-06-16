@@ -4759,10 +4759,19 @@ end
 # List services
 
 def list_services(options)
-  case options['method']
+  if options['os-type'].to_s != options['empty'].to_s
+    search = options['os-type'].to_s
+  else
+    if options['method'].to_s != options['empty'].to_s
+      search = options['method'].to_s
+    else
+      search = "all"
+    end
+  end
+  case search
   when /ai/
     list_ai_services(options)
-  when /ay/
+  when /ay|sles/
     list_ay_services(options)
   when /image/
     list_image_services(options)
@@ -4770,7 +4779,7 @@ def list_services(options)
     list_all_services(options)
   when /js/
     list_js_services(options)
-  when /ks/
+  when /ks|rhel|centos|scientific/
     list_ks_services(options)
   when /cdom/
     list_cdom_services(options)
@@ -4780,11 +4789,11 @@ def list_services(options)
     list_gdom_services(options)
   when /lxc/
     list_lxc_services(options)
-  when /ps/
+  when /ps|ubuntu|debian/
     list_ps_services(options)
   when /zone/
     list_zone_services(options)
-  when /vx/
+  when /vs|vmware|vsphere/
     list_vs_services(options)
   when /xb/
     list_xb_services(options)

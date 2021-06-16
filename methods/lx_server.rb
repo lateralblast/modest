@@ -3,7 +3,7 @@
 # List availabel images
 
 def list_lxc_services(options)
-  if options['osname'].to_s.match(/Linux/)
+  if options['osname'].to_s.match(/Linux/) && Dir.exist?(options['lxcimagedir'])
     image_list = Dir.entries(options['lxcimagedir'])
     if image_list.length > 0
       if options['output'].to_s.match(/html/)

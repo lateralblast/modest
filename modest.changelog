@@ -1317,3 +1317,7 @@
 # Bug fixes
 # 6.5.8: Tue 15 Jun 2021 13:35:00 AEST
 # KVM improvements
+# 6.5.9: Wed 16 Jun 2021 14:45:00 AEST
+# Bug Fixes
+# 6.6.0: Thu 17 Jun 2021 08:59:49 AM AEST
+# Fixed bugs with listing services

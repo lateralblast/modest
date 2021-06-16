@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      6.5.9
+# Version:      6.6.0
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -1748,6 +1748,8 @@ if options['action'] != options['empty']
       describe_file(options)
     end
     case options['type']
+    when /service/
+      list_services(options)
     when /network/
       show_vm_network(options)
     when /ssh/

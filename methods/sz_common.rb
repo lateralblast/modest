@@ -19,13 +19,15 @@ end
 # List zone services
 
 def list_zone_services(options)
-  options['version'] = options['osrelease'].split(/\./)[1]
-  os_branded = options['version'].to_i-1
-  os_branded = os_branded.to_s
-  handle_output(options,"Supported containers:")
-  handle_output(options,"") 
-  handle_output(options,"Solaris #{options['version']} (native)")
-  handle_output(options,"Solaris #{os_branded} (branded)")
+  if options['osname'].to_s.match(/SunOS/)
+    options['version'] = options['osrelease'].split(/\./)[1]
+    os_branded = options['version'].to_i-1
+    os_branded = os_branded.to_s
+    handle_output(options,"Supported containers:")
+    handle_output(options,"") 
+    handle_output(options,"Solaris #{options['version']} (native)")
+    handle_output(options,"Solaris #{os_branded} (branded)")
+  end
   return
 end
 
