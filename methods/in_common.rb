@@ -973,6 +973,15 @@ def print_help(options)
   return
 end
 
+# Output if verbose flag set
+
+def verbose_output(options,text)
+  if options['verbose'] == true
+    options = handle_output(options,text)
+  end
+  return options
+end
+
 # Handle output
 
 def handle_output(options,text)
@@ -2116,7 +2125,7 @@ def get_install_service_from_file(options)
     options['method'] = "pe"
   end
   if !options['vm'].to_s.match(/kvm/)
-    options['service'] = options['os-type']+"_"+service_version.gsub(/__/,"_")
+    options['service'] = options['service']+"_"+service_version.gsub(/__/,"_")
   else
     if options['file'].to_s.match(/cloudimg/) && options['file'].to_s.match(/ubuntu/)
       options['os-type'] = "linux"
@@ -3170,6 +3179,9 @@ def check_dhcpd_config(options)
     file.write("\n")
     if options['osname'].to_s.match(/SunOS|Linux/)
       file.write("subnet #{network_address} netmask #{options['netmask']} {\n")
+      if options['verbose'] == true
+
+      end
       if options['dhcpdrange'] == options['empty']
         if options['hostip'].to_s.split(".")[2] == options['hostonlyip'].to_s.split(".")[2]
           options['dhcpdrange'] = options['hostonlyip'].to_s.split(".")[0..-1].join(".")+".200"+" "+options['hostonlyip'].split(".")[0..-1].join(".")+"250"
