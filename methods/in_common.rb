@@ -145,8 +145,13 @@ def set_defaults(options,defaults)
           defaults['vmgateway']  = "192.168.158.1"
           defaults['hostonlyip'] = "192.168.158.1"
         else
-          defaults['vmgateway']  = "192.168.104.1"
-          defaults['hostonlyip'] = "192.168.104.1"
+          if defaults['osname'].to_s.match(/Darwin/) && defaults['osversion'].to_i > 11
+            defaults['vmgateway']  = "192.168.2.1"
+            defaults['hostonlyip'] = "192.168.2.1"
+          else
+            defaults['vmgateway']  = "192.168.104.1"
+            defaults['hostonlyip'] = "192.168.104.1"
+          end
         end
       else
         defaults['vmgateway']  = "192.168.52.1"
@@ -512,8 +517,13 @@ def reset_defaults(options,defaults)
         defaults['vmgateway']  = "192.168.158.1"
         defaults['hostonlyip'] = "192.168.158.1"
       else
-        defaults['vmgateway']  = "192.168.104.1"
-        defaults['hostonlyip'] = "192.168.104.1"
+        if defaults['osname'].to_s.match(/Darwin/) && defaults['osversion'].to_i > 11
+          defaults['vmgateway']  = "192.168.2.1"
+          defaults['hostonlyip'] = "192.168.2.1"
+        else
+          defaults['vmgateway']  = "192.168.104.1"
+          defaults['hostonlyip'] = "192.168.104.1"
+        end
       end
       defaults['vmnet'] = "bridge100"
     else
@@ -798,12 +808,16 @@ def set_hostonly_info(options)
   when /vmware|vmx|fusion/
     if options['osname'].to_s.match(/Darwin/) && options['osversion'].to_i > 10
       if options['vmnetwork'].to_s.match(/nat/)
-        hostonly_subnet      = "158"
+        hostonly_subnet = "158"
       else
-        hostonly_subnet      = "104"
+        if options['osname'].to_s.match(/Darwin/) && options['osversion'].to_i > 11
+          hostonly_subnet = "2"
+        else
+          hostonly_subnet = "104"
+        end
       end
     else
-      hostonly_subnet      = "52"
+      hostonly_subnet = "52"
     end
   when /parallels/
     hostonly_base  = "10.211"
@@ -1481,7 +1495,7 @@ def check_local_config(options)
       else
         check_apt_tftpd(options)
         check_apt_dhcpd(options)
-        if options['osname'].to_s.match(/Ubuntu/)
+        if options['osuname'].to_s.match(/Ubuntu/)
           options['tftpdir']   = "/srv/tftp"
         else
           options['tftpdir']   = "/var/lib/tftpboot"

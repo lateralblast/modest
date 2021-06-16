@@ -691,6 +691,19 @@ def populate_ps_questions(options)
   
   end
 
+#  name = "use_mirror"
+#  config = Ks.new(
+#    type      = "boolean",
+#    question  = "Use Mirror",
+#    ask       = "no",
+#    parameter = "apt-setup/use_mirror",
+#    value     = options['usemirror'].to_s,
+#    valid     = "",
+#    eval      = "no"
+#    )
+#  $q_struct[name] = config
+#  $q_order.push(name)
+
   name = "mirror_country"
   config = Ks.new(
     type      = "string",
