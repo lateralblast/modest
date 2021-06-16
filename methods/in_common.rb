@@ -1472,7 +1472,11 @@ def check_local_config(options)
       else
         check_apt_tftpd(options)
         check_apt_dhcpd(options)
-        options['tftpdir']   = "/var/lib/tftpboot"
+        if options['osname'].to_s.match(/Ubuntu/)
+          options['tftpdir']   = "/srv/tftp"
+        else
+          options['tftpdir']   = "/var/lib/tftpboot"
+        end
         options['dhcpdfile'] = "/etc/dhcp/dhcpd.conf"
       end
       check_dhcpd_config(options)
