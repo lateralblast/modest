@@ -1323,3 +1323,5 @@
 # Fixed bugs with listing services
 # 6.6.1: Thu 17 Jun 2021 10:06:09 AEST
 # Bug fix
+# 6.6.2: Thu 17 Jun 2021 12:28:18 AEST
+# Improved MVware Fusion support

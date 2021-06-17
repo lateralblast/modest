@@ -497,14 +497,20 @@ def get_fusion_version(options)
   end
   vf_version = execute_command(options,message,command)
   vf_version = vf_version.chomp
+  vf_dotver  = vf_version.split(".")[1]
   vf_version = vf_version.split(".")[0]
   vf_version = vf_version.to_i
+  vf_dotver  = vf_dotver.to_i
   if vf_version > 6
     if vf_version > 7
       if vf_version >= 8
         if vf_version >= 10
           if vf_version >= 11
-            hw_version = "16"
+            if vf_dotver >= 1
+              hw_version = "18"
+            else
+              hw_version = "16"
+            end
           else
             hw_version = "14"
           end
@@ -1583,6 +1589,20 @@ end
 # Populate VMware Fusion VM vmx information
 
 def populate_fusion_vm_vmx_info(options)
+  case options['os-type'].to_s
+  when /vmware|esx|vsphere/
+    if options['release'].to_s.match(/[0-9]/)
+      if options['release'].to_s.match(/\./)
+        guest_os = "vmkernel"+options['release'].to_s.split(".")[0]
+      else
+        guest_os = "vmkernel"+options['release']
+      end
+    else
+      guest_os = "vmkernel7"
+    end
+  else
+    guest_os = options['os-type'].to_s
+  end
   if options['uuid'] == options['empty'] or !options['uuid'].to_s.match(/[0-9]/)
     options['uuid'] = options['mac'].to_s.downcase.gsub(/\:/," ")+" 00 00-00 00 "+options['mac'].to_s.downcase.gsub(/\:/," ")
   end
@@ -1595,7 +1615,11 @@ def populate_fusion_vm_vmx_info(options)
     if version > 7
       if version >= 8
         if version >= 9
-          vmx_info.push("virtualHW.version,16")
+          if version >= 18
+            vmx_info.push("virtualHW.version,18")
+          else
+            vmx_info.push("virtualHW.version,16")
+          end
         else
           vmx_info.push("virtualHW.version,12")
         end
@@ -1639,7 +1663,11 @@ def populate_fusion_vm_vmx_info(options)
   vmx_info.push("ethernet0.present,TRUE")
   vmx_info.push("ethernet0.noPromisc,FALSE")
   vmx_info.push("ethernet0.connectionType,#{options['vmnetwork']}")
-  vmx_info.push("ethernet0.virtualDev,e1000")
+  if options['os-type'].to_s.match(/vmware|esx|vsphere/)
+    vmx_info.push("ethernet0.virtualDev,vmxnet3")
+  else
+    vmx_info.push("ethernet0.virtualDev,e1000")
+  end
   vmx_info.push("ethernet0.wakeOnPcktRcv,FALSE")
   if options['dhcp'] == false
     vmx_info.push("ethernet0.addressType,static")
@@ -1682,7 +1710,7 @@ def populate_fusion_vm_vmx_info(options)
 #  vmx_info.push("usb.vbluetooth.startConnected,FALSE")
   vmx_info.push("tools.syncTime,TRUE")
   vmx_info.push("displayName,#{options['name']}")
-  vmx_info.push("guestOS,#{options['os-type']}")
+  vmx_info.push("guestOS,#{guest_os}")
   vmx_info.push("nvram,#{options['name']}.nvram")
   vmx_info.push("virtualHW.productCompatibility,hosted")
   vmx_info.push("tools.upgrade.policy,upgradeAtPowerCycle")
