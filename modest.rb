@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      6.6.0
+# Version:      6.6.1
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -2000,7 +2000,7 @@ if options['action'] != options['empty']
       end
     end
   when /add|create/
-    if options['type'] == options['empty'] && options['vm'] == options['empty']
+    if options['type'] == options['empty'] && options['vm'] == options['empty'] && options['service'] == options['empty']
       handle_output(options,"Warning:\tNo service type or VM specified")
       quit(options)
     end
