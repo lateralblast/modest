@@ -1327,3 +1327,5 @@
 # Improved MVware Fusion support
 # 6.6.3: Thu 17 Jun 2021 16:14:42 AEST
 # More VMware Fusion improvements
+# 6.6.4: Thu 17 Jun 2021 20:02:02 AEST
+# Added more support for UEFI BIOS

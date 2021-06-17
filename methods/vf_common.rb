@@ -1641,6 +1641,9 @@ def populate_fusion_vm_vmx_info(options)
       vmx_info.push("scsi0.virtualDev,lsilogic")
     end
   end
+  if options['biostype'].to_s.match(/efi/)
+    vmx_info.push("firmware,efi")
+  end
   vmx_info.push("scsi0:0.present,TRUE")
   vmx_info.push("scsi0:0.fileName,#{options['name']}.vmdk")
   vmx_info.push("memsize,#{options['memory']}")

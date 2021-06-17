@@ -27,7 +27,7 @@ def configure_ks_pxe_client(options)
   message = "Information:\tCreating PXE boot file for "+options['name']+" with MAC address "+options['mac']
   command = "cd #{options['tftpdir']} ; ln -s #{pxelinux_file} #{tftp_pxe_file}"
   execute_command(options,message,command)
-  if options['pxetype'].to_s.match(/efi/)
+  if options['biostype'].to_s.match(/efi/)
     shim_efi_file  = "/usr/lib/shim/shimx64.efi"
     if !File.exist?(shim_efi_file)
       install_package(options,"shim")
@@ -121,7 +121,7 @@ def configure_ks_pxe_client(options)
   autoyast_url = "http://"+options['hostip']+"/"+options['name']+"/"+options['name']+".xml"
   install_url  = "http://"+host_info+"/"+options['service']
   file         = File.open(tmp_file,"w")
-  if options['pxetype'].to_s.match(/efi/)
+  if options['biostype'].to_s.match(/efi/)
     menuentry = "menuentry \""+options['name']+"\" {\n"
     file.write(menuentry)
   else
@@ -143,7 +143,7 @@ def configure_ks_pxe_client(options)
     options['nameserver'] = $q_struct['nameserver'].value
     disable_dhcp          = $q_struct['disable_dhcp'].value
     if disable_dhcp.match(/true/)
-      if options['pxetype'].to_s.match(/efi/)
+      if options['biostype'].to_s.match(/efi/)
         append_string = "  linux #{linux_file} --- auto=true priority=critical preseed/url=#{ks_url} console-keymaps-at/keymap=us locale=en_US hostname=#{options['name']} domain=#{install_domain} interface=#{install_nic} grub-installer/bootdev=#{options['rootdisk']} netcfg/get_ipaddress=#{options['ip']} netcfg/get_netmask=#{options['netmask']} netcfg/get_gateway=#{options['vmgateway']} netcfg/get_nameservers=#{options['nameserver']} netcfg/disable_dhcp=true initrd=#{initrd_file} net.ifnames=0 biosdevname=0"
         initrd_string = "  initrd #{initrd_file}"
       else
@@ -175,14 +175,14 @@ def configure_ks_pxe_client(options)
   end
   append_string = append_string+"\n"
   file.write(append_string)
-  if options['pxetype'].to_s.match(/efi/)
+  if options['biostype'].to_s.match(/efi/)
     initrd_string = initrd_string+"\n"
     file.write(initrd_string)
     file.write("}\n")
   end
   file.flush
   file.close
-  if options['pxetype'].to_s.match(/efi/)
+  if options['biostype'].to_s.match(/efi/)
     grub_file = pxe_cfg_dir+"/grub.cfg"
     if File.exist?(grub_file)
       File.delete(grub_file)
@@ -225,7 +225,7 @@ def unconfigure_ks_pxe_client(options)
     handle_output(options,"Warning:\tNo MAC Address entry found for #{options['name']}")
     quit(options)
   end
-  if options['pxetype'].to_s.match(/efi/)
+  if options['biostype'].to_s.match(/efi/)
     tmp_cfg_octs = options['ip'].split(".")
     pxe_cfg_octs = [] 
     tmp_cfg_octs.each do |octet|
@@ -264,7 +264,7 @@ def unconfigure_ks_pxe_client(options)
     message = "Information:\tRemoving PXE boot config file "+pxe_cfg_file+" for "+options['name']
     command = "rm #{pxe_cfg_file}"
     output  = execute_command(options,message,command)
-    if options['pxetype'].to_s.match(/efi/)
+    if options['biostype'].to_s.match(/efi/)
       grub_file = pxe_cfg_dir+"/grub.cfg"
       grub_file = File.open(grub_file, "w")
       file_list = Dir.entries(pxe_cfg_dir)

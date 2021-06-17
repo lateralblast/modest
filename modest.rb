@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      6.6.3
+# Version:      6.6.4
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -347,7 +347,7 @@ begin
     ['--publisherurl', REQUIRED],     # Publisher URL
     ['--pxebootdir', REQUIRED],       # PXE boot dir
     ['--pxe', BOOLEAN],               # PXE (KVM)
-    ['--pxetype', REQUIRED],          # PXE boot type (bios/uefi)
+    ['--biostype', REQUIRED],         # BIOS boot type (bios/uefi)
     ['--qemu-commandline', REQUIRED], # Qemu commandline (KVM)
     ['--redirdev', REQUIRED],         # Redirdev (KVM)
     ['--release', REQUIRED],          # OS Release

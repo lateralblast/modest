@@ -370,7 +370,7 @@ def set_defaults(options,defaults)
   defaults['proto']           = "tcp"
   defaults['publisherhost']   = defaults['hostip']
   defaults['publisherport']   = "10081"
-  defaults['pxetype']         = "bios"
+  defaults['biostype']        = "bios"
   defaults['repodir']         = defaults['basedir']+'/export/repo'
   defaults['rpoolname']       = 'rpool'
   defaults['rootdisk']        = "/dev/sda"
@@ -3700,7 +3700,7 @@ def add_dhcp_client(options)
     file.write("  fixed-address #{options['ip']};\n")
     file.write("  hardware ethernet #{options['mac']};\n")
     if options['service'].to_s.match(/[a-z,A-Z]/)
-      if options['pxetype'].to_s.match(/efi/)
+      if options['biostype'].to_s.match(/efi/)
         file.write("  filename \"shimx64.efi\";\n")
       else
         file.write("  filename \"#{tftp_pxe_file}\";\n")
