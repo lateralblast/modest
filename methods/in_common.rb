@@ -3701,7 +3701,11 @@ def add_dhcp_client(options)
     file.write("  hardware ethernet #{options['mac']};\n")
     if options['service'].to_s.match(/[a-z,A-Z]/)
       if options['biostype'].to_s.match(/efi/)
-        file.write("  filename \"shimx64.efi\";\n")
+        if options['service'].to_s.match(/vmware|esx|vsphere/)
+          file.write("  filename \"#{options['service'].to_s}/bootx64.efi\";\n")
+        else
+          file.write("  filename \"shimx64.efi\";\n")
+        end
       else
         file.write("  filename \"#{tftp_pxe_file}\";\n")
       end

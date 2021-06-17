@@ -83,6 +83,16 @@ def configure_vs_pxe_client(options)
   check_dir_exists(options,pxe_cfg_dir)
   check_dir_owner(options,pxe_cfg_dir,options['uid'])
   pxe_cfg_file1 = options['mac'].gsub(/:/,"-")
+  if options['biostype'].to_s.match(/efi/)
+    efi_boot_file  = options['tftpdir'].to_s+"/"+options['service'].to_s+"/efi/boot/bootx64.efi"
+    efi_mboot_file = options['tftpdir'].to_s+"/"+options['service'].to_s+"/bootx64.efi"
+    if !File.exist?(efi_mboot_file)
+      message = "Information:\tCopying UEFI PXE boot file #{efi_boot_file} to #{efi_mboot_file}"
+      command = "cp #{efi_boot_file} #{efi_mboot_file}"
+      execute_command(options,message,command)
+    end
+    efi_cfg_file = pxe_cfg_file1
+  end
   pxe_cfg_file1 = "01-"+pxe_cfg_file1
   pxe_cfg_file1 = pxe_cfg_file1.downcase
   pxe_cfg_file1 = pxe_cfg_dir+"/"+pxe_cfg_file1
@@ -116,7 +126,11 @@ def configure_vs_pxe_client(options)
     file.close
     print_contents_of_file(options,"",pxe_cfg_file)
   end
-  tftp_boot_file = options['tftpdir']+"/"+options['service']+"/"+tftp_boot_file
+  if options['biostype'].to_s.match(/efi/)
+    tftp_boot_file = options['tftpdir']+"/"+options['service']+"/"+efi_cfg_file+"/boot.cfg"
+  else
+    tftp_boot_file = options['tftpdir']+"/"+options['service']+"/"+tftp_boot_file
+  end
   esx_boot_file  = options['tftpdir']+"/"+options['service']+"/boot.cfg"
   if options['verbose'] == true
     handle_output(options,"Creating:\tBoot config file #{tftp_boot_file}")
@@ -130,6 +144,11 @@ def configure_vs_pxe_client(options)
         if not line.match(/text/)
           line = line.chomp+" text\n"
         end
+      end
+    end
+    if options['biostype'].to_s.match(/efi/)
+      if line.match(/^kernelopt/)
+        line = line.chomp+" ks=#{ks_url}\n"
       end
     end
     if options['serial'] == true

@@ -1329,3 +1329,5 @@
 # More VMware Fusion improvements
 # 6.6.4: Thu 17 Jun 2021 20:02:02 AEST
 # Added more support for UEFI BIOS
+# 6.6.5: Fri 18 Jun 2021 01:20:21 AEST
+# ESXi UEFI PXE boot config improvements
