@@ -1632,7 +1632,7 @@ def populate_fusion_vm_vmx_info(options)
   end
   vmx_info.push("vcpu.hotadd,FALSE")
   vmx_info.push("scsi0.present,TRUE")
-  if options['service'].to_s.match(/el_8/)
+  if options['service'].to_s.match(/el_8|vsphere|esx|vmware/) || options['os-type'].to_s.match(/vsphere|esx|vmware|el_6/)
     vmx_info.push("scsi0.virtualDev,pvscsi")
   else
     if options['os-type'].to_s.match(/windows7srv-64/)
@@ -1683,8 +1683,10 @@ def populate_fusion_vm_vmx_info(options)
   end
   vmx_info.push("ethernet0.linkStatePropagation.enable,TRUE")
 #  vmx_info.push("usb.present,TRUE")
-#  vmx_info.push("ehci.present,TRUE")
-#  vmx_info.push("ehci.pciSlotNumber,35")
+  if options['service'].to_s.match(/el_8|vsphere|esx|vmware/) || options['os-type'].to_s.match(/vsphere|esx|vmware|el_6/)
+    vmx_info.push("ehci.present,TRUE")
+    vmx_info.push("ehci.pciSlotNumber,35")
+  end
   vmx_info.push("sound.present,TRUE")
   if options['os-type'].to_s.match(/windows7srv-64/)
     vmx_info.push("sound.virtualDev,hdaudio")
@@ -1784,7 +1786,7 @@ def populate_fusion_vm_vmx_info(options)
   vmx_info.push("hgfs.linkRootShare,TRUE")
   if version >= 8
     vmx_info.push("acpi.smbiosVersion2.7,FALSE")
-    vmx_info.push("numa.autosize.vcpu.maxPerVirtualNode,1")
+    vmx_info.push("numa.autosize.vcpu.maxPerVirtualNode,2")
     vmx_info.push("numa.autosize.cookie,10001")
     vmx_info.push("migrate.hostlog,#{options['name']}-#{options['mac']}.hlog")
   end
