@@ -95,7 +95,11 @@ def create_packer_json(options)
     guest_additions_mode = options['vmtools']
   end
   if options['vmnetwork'].to_s.match(/hostonly/)
-    ks_ip = options['vmgateway']
+    if options['osname'].to_s.match(/Darwin/) && options['osversion'].to_i > 10 
+      ks_ip = options['hostip']
+    else
+      ks_ip = options['vmgateway']
+    end
     http_bind_ip = 
     natpf_ssh_rule = "packerssh,tcp,"+options['ip']+",2222,"+options['ip']+",22"
   else
@@ -645,14 +649,18 @@ def create_packer_json(options)
   when /debian|ubuntu/
     tools_upload_flavor = ""
     tools_upload_path   = ""
-    if options['vmnetwork'].to_s.match(/nat/)
-      if options['dhcp'] == true
-        ks_ip = options['hostonlyip'].to_s
+    if !options['osname'].to_s.match(/Darwin/) && options['osversion'].to_i > 10 
+      if options['vmnetwork'].to_s.match(/nat/)
+        if options['dhcp'] == true
+          ks_ip = options['hostonlyip'].to_s
+        else
+          ks_ip = options['hostip'].to_s
+        end
       else
-        ks_ip = options['hostip'].to_s
+        ks_ip = options['hostonlyip'].to_s
       end
     else
-      ks_ip = options['hostonlyip'].to_s
+      ks_ip = options['hostip'].to_s
     end
     ks_file = options['vm']+"/"+options['name']+"/"+options['name']+".cfg"
     if options['livecd'] == true
