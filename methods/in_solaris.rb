@@ -23,7 +23,7 @@ def check_solaris_install()
     end
   end
   if not File.exist(pkgutil_bin)
-    pkg_file    = "pkgutil-"+options['osarch']+".pkg"
+    pkg_file    = "pkgutil-"+options['host-os-arch']+".pkg"
     local_file  = "/tmp/"+pkg_file
     remote_file = $local_opencsw_mirror+"/"+pkg_file
     wget_file(options,remote_file,local_file)
@@ -115,7 +115,7 @@ end
 # Handle SMF service
 
 def handle_smf_service(options,function,smf_service)
-  if options['osname'].to_s.match(/SunOS/)
+  if options['host-os-name'].to_s.match(/SunOS/)
     uc_function = function.capitalize
     if function.match(/enable/)
       message = "Information:\tChecking status of service "+smf_service
@@ -167,7 +167,7 @@ end
 # Check SMF service
 
 def check_smf_service(options,smf_service)
-  if options['osname'].to_s.match(/SunOS/)
+  if options['host-os-name'].to_s.match(/SunOS/)
     message = "Information:\tChecking service "+smf_service
     command = "svcs -a |grep #{smf_service}"
     output  = execute_command(options,message,command)
@@ -339,7 +339,7 @@ end
 # Check Solaris DNS server
 
 def check_sol_bind(options)
-  if options['osname'].to_s.match(/11/)
+  if options['host-os-name'].to_s.match(/11/)
     pkg_name = "service/network/dns/bind"
     install_sol11_pkg(options,pkg_name)
   end

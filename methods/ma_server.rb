@@ -4,7 +4,7 @@
 
 def configure_maas_server()
   maas_url = "http://"+options['hostip']+"/MAAS/"
-  if options['osuname'].match(/Ubuntu/)
+  if options['host-os-uname'].match(/Ubuntu/)
     message = "Information:\tChecking installation status of MAAS"
     command = "dpkg -l maas"
     output  = execute_command(options,message,command)

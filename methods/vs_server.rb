@@ -28,7 +28,7 @@ end
 def unconfigure_vs_repo(options)
   remove_apache_alias(options)
   options['repodir'] = options['baserepodir']+"/"+options['service']
-  if options['osname'].to_s.match(/SunOS/)
+  if options['host-os-name'].to_s.match(/SunOS/)
     if File.symlink?(options['repodir'])
       message = "Information:\tRemoving symlink "+options['repodir']
       command = "rm #{options['repodir']}"
@@ -55,7 +55,7 @@ end
 # Copy Linux ISO contents to
 
 def configure_vs_repo(options)
-  if options['osname'].to_s.match(/SunOS/)
+  if options['host-os-name'].to_s.match(/SunOS/)
     check_fs_exists(options,options['repodir'])
     options['netbootdir'] = options['tftpdir']+"/"+options['service']
     if not File.symlink?(options['repodir'])
@@ -66,7 +66,7 @@ def configure_vs_repo(options)
       File.symlink(options['repodir'],options['netbootdir'])
     end
   end
-  if options['osname'].to_s.match(/Linux/)
+  if options['host-os-name'].to_s.match(/Linux/)
     options['netbootdir'] = options['tftpdir']+"/"+options['service']
     check_fs_exists(options,options['netbootdir'])
     if !File.exist?(options['repodir'])
@@ -91,7 +91,7 @@ def configure_vs_repo(options)
   ovf_file   = options['clientdir']+"/vmware-ovftools.tar.gz"
   if not File.exist?(ovf_file)
     wget_file(options,options['ovftarurl'],ovf_file)
-    if options['osuname'].match(/RedHat/) and options['osversion'].match(/^7|^6\.7/)
+    if options['host-os-uname'].match(/RedHat/) and options['host-os-version'].match(/^7|^6\.7/)
       message = "Information:\tFixing permission on "+ovf_file
       command = "chcon -R -t httpd_sys_rw_content_t #{ovf_file}"
       execute_command(options,message,command)

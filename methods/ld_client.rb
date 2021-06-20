@@ -39,9 +39,9 @@ end
 # List available LDoms
 
 def list_gdoms(options)
-  if options['osuname'].match(/SunOS/)
-    if options['osrelease'].match(/10|11/)
-      if options['osuname'].match(/sun4v/)
+  if options['host-os-uname'].match(/SunOS/)
+    if options['host-os-release'].match(/10|11/)
+      if options['host-os-uname'].match(/sun4v/)
         ldom_type    = "Guest Domain"
         ldom_command = "ldm list |grep -v NAME |grep -v primary |awk '{print $1}'"
         list_doms(ldom_type,ldom_command)

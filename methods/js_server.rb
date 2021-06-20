@@ -6,7 +6,7 @@
 def configure_js_nfs_service(options)
   export_name = "client_configs"
   options['repodir'] = options['baserepodir']+"/"+options['service']
-  if options['osname'].to_s.match(/SunOS/) && options['osrelease'].match(/11/)
+  if options['host-os-name'].to_s.match(/SunOS/) && options['host-os-release'].match(/11/)
       check_fs_exists(options,options['clientdir'])
       add_nfs_export(options,export_name,options['repodir'])
   else
@@ -29,8 +29,8 @@ end
 def configure_js_tftp_service(options)
   boot_dir   = options['tftpdir']+"/"+options['service']+"/boot"
   source_dir = options['repodir']+"/boot"
-  if options['osname'].to_s.match(/SunOS/)
-    if options['osrelease'].match(/11/)
+  if options['host-os-name'].to_s.match(/SunOS/)
+    if options['host-os-release'].match(/11/)
       pkg_name = "system/boot/network"
       message  = "Information:\tChecking boot server package is installed"
       command  = "pkg info #{pkg_name} |grep Name |awk \"{print \\\$2}\""
@@ -61,10 +61,10 @@ def configure_js_tftp_service(options)
       enable_smf_service(options,smf_install_service)
     end
   end
-  if options['osname'].to_s.match(/Darwin/)
+  if options['host-os-name'].to_s.match(/Darwin/)
     check_osx_tftpd()
   end
-  if options['osname'].to_s.match(/Linux/)
+  if options['host-os-name'].to_s.match(/Linux/)
   end
   if not File.directory?(boot_dir)
     check_dir_exists(options,boot_dir)
@@ -113,7 +113,7 @@ end
 # Configure Jumpstart repo
 
 def configure_js_repo(options)
-  if options['osname'].to_s.match(/SunOS|Linux/)
+  if options['host-os-name'].to_s.match(/SunOS|Linux/)
     check_fs_exists(options,options['repodir'])
   else
     check_dir_exists(options,options['repodir'])
@@ -123,7 +123,7 @@ def configure_js_repo(options)
     handle_output(options,"Checking:\tDirectory #{check_dir} exists")
   end
   if not File.directory?(check_dir)
-    if options['osname'].to_s.match(/SunOS/)
+    if options['host-os-name'].to_s.match(/SunOS/)
       mount_iso(options)
       if options['file'].to_s.match(/sol\-10/)
         check_dir = options['mountdir']+"/boot"
@@ -140,7 +140,7 @@ def configure_js_repo(options)
           quit(options)
         end
         message = "Information:\tCopying ISO file "+options['file']+" contents to "+options['repodir']
-        if options['osname'].to_s.match(/SunOS/)
+        if options['host-os-name'].to_s.match(/SunOS/)
           if options['file'].to_s.match(/sol\-10/)
             command = "cd /cdrom/Solaris_#{options['version']}/Tools ; ./setup_install_server #{options['repodir']}"
           else
@@ -320,7 +320,7 @@ def configure_js_server(options)
 
       copy_js_sparc_boot_images(options)
     end
-    if !options['osname'].to_s.match(/Darwin/)
+    if !options['host-os-name'].to_s.match(/Darwin/)
       fix_js_rm_client(options)
       fix_js_check(options)
     else

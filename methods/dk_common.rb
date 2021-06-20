@@ -3,7 +3,7 @@
 # Install docker
 
 def install_docker(options)
-	if options['osname'].to_s.match(/Darwin/)
+	if options['host-os-name'].to_s.match(/Darwin/)
 		if not Dir.exist?("/Applications/Docker.app")
 			handle_output(options,"Information:\tDocker no installed")
 			handle_output(options,"Download:\thttps://docs.docker.com/docker-for-mac/")
@@ -71,7 +71,7 @@ end
 def check_docker_is_installed(options)
   installed   = "yes"
   docker_file = ""
-	if options['osname'].to_s.match(/Darwin/)
+	if options['host-os-name'].to_s.match(/Darwin/)
 		[ "docker", "docker-compose", "docker-machine" ].each do |check_file|
 			file_name = "/usr/local/bin/"+check_file
       if not File.exist?(file_name) and not File.symlink?(file_name)
@@ -82,7 +82,7 @@ def check_docker_is_installed(options)
 	end
 	if installed == "no"
     handle_output(options,"Information:\tDocker #{docker_file} not installed")
-    if options['osname'].to_s.match(/Darwin/)
+    if options['host-os-name'].to_s.match(/Darwin/)
       options = install_package(docker_file)
     else
       quit(options)

@@ -30,8 +30,8 @@ end
 
 def configure_ks_repo(options)
   options['netbootdir'] = options['tftpdir']+"/"+options['service']
-  if options['osname'].to_s.match(/SunOS/)
-    if options['osversion'].to_i < 11
+  if options['host-os-name'].to_s.match(/SunOS/)
+    if options['host-os-version'].to_i < 11
       check_fs_exists(options,options['repodir'])
       if not File.symlink?(options['netbootdir'])
         File.symlink(options['repodir'],options['netbootdir'])
@@ -45,7 +45,7 @@ def configure_ks_repo(options)
       end
     end
   end
-  if options['osname'].to_s.match(/Linux/)
+  if options['host-os-name'].to_s.match(/Linux/)
     check_fs_exists(options,options['netbootdir'])
     if not File.symlink?(options['repodir'])
       check_dir_owner(options,options['baserepodir'],options['uid'])
@@ -143,7 +143,7 @@ def configure_ks_pxe_boot(options)
         message = "Information:\tCopying PXE boot files from "+rpm_file+" to "+options['pxebootdir']
         command = "cd #{options['pxebootdir']} ; #{options['rpm2cpiobin'] } #{rpm_file} | cpio -iud"
         output  = execute_command(options,message,command)
-        if options['osuname'].match(/RedHat/) and options['osrelease'].match(/^7/) and options['pxebootdir'].to_s.match(/[a-z]/)
+        if options['host-os-uname'].match(/RedHat/) and options['host-os-release'].match(/^7/) and options['pxebootdir'].to_s.match(/[a-z]/)
           httpd_p = "httpd_sys_rw_content_t"
           tftpd_p = "unconfined_u:object_r:system_conf_t:s0"
           message = "Information:\tFixing permissions on "+options['pxebootdir']

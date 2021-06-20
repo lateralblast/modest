@@ -451,9 +451,9 @@ end
 # Get/set #{options['vboxmanage']} path
 
 def set_vbox_bin(options)
-  case options['osname']
+  case options['host-os-name']
   when /Darwin|NT/
-    if options['osname'].to_s.match(/NT/)
+    if options['host-os-name'].to_s.match(/NT/)
       path = %x[echo $PATH]
       if not path.match(/VirtualBox/)
         handle_output(options,"Warning:\tVirtualBox directory not in PATH")
@@ -1137,7 +1137,7 @@ end
 def check_vbox_hostonly_network(options)
   if_name  = options['vmnet']
   if_check = get_vbox_hostonly_interface(options)
-  if options['osname'].to_s.match(/NT/)
+  if options['host-os-name'].to_s.match(/NT/)
     string = "VirtualBox Host-Only Ethernet Adapter"
   else
     string = "vboxnet"
@@ -1169,9 +1169,9 @@ def check_vbox_hostonly_network(options)
     command = "#{options['vboxmanage']} dhcpserver remove --ifname \"#{if_name}\""
   end
   gw_if_name = get_gw_if_name(options)
-  case options['osname']
+  case options['host-os-name']
   when /Darwin/
-    if options['osrelease'].split(".")[0].to_i < 14
+    if options['host-os-release'].split(".")[0].to_i < 14
       check_osx_nat(options,gw_if_name,if_name)
     else
       check_osx_pfctl(options,gw_if_name,if_name)
@@ -1187,7 +1187,7 @@ end
 # Check VirtualBox is installed
 
 def check_vbox_is_installed(options)
-  if options['osname'].to_s.match(/Darwin/)
+  if options['host-os-name'].to_s.match(/Darwin/)
     app_dir = "/Applications/VirtualBox.app"
   else
     app_dir = "/usr/bin"

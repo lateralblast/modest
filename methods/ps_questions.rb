@@ -1356,13 +1356,13 @@ def populate_ps_questions(options)
 
   if options['type'].to_s.match(/packer/)
     if options['vmnetwork'].to_s.match(/hostonly|bridged/)
-      if options['osname'].to_s.match(/Darwin/) && options['osversion'].to_i > 10 
+      if options['host-os-name'].to_s.match(/Darwin/) && options['host-os-version'].to_i > 10 
         script_url = "http://"+options['hostip'].to_s+":"+options['httpport'].to_s+"/"+options['vm'].to_s+"/"+options['name'].to_s+"/"+options['name'].to_s+"_post.sh"
       else
         script_url = "http://"+gateway+":"+options['httpport'].to_s+"/"+options['vm'].to_s+"/"+options['name'].to_s+"/"+options['name'].to_s+"_post.sh"
       end
     else
-      if options['osname'].to_s.match(/Darwin/) && options['osversion'].to_i > 10 
+      if options['host-os-name'].to_s.match(/Darwin/) && options['host-os-version'].to_i > 10 
         script_url = "http://"+options['hostip'].to_s+":"+options['httpport'].to_s+"/"+options['vm'].to_s+"/"+options['name'].to_s+"/"+options['name'].to_s+"_post.sh"
       else
         script_url = "http://"+options['hostonlyip'].to_s+":"+options['httpport'].to_s+"/"+options['vm'].to_s+"/"+options['name'].to_s+"/"+options['name'].to_s+"_post.sh"

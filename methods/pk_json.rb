@@ -95,7 +95,7 @@ def create_packer_json(options)
     guest_additions_mode = options['vmtools']
   end
   if options['vmnetwork'].to_s.match(/hostonly/)
-    if options['osname'].to_s.match(/Darwin/) && options['osversion'].to_i > 10 
+    if options['host-os-name'].to_s.match(/Darwin/) && options['host-os-version'].to_i > 10 
       ks_ip = options['hostip']
     else
       ks_ip = options['vmgateway']
@@ -240,7 +240,7 @@ def create_packer_json(options)
       end
     end
   when /sol_11_[2-3]/
-    if options['oscpu'].to_i > 6 and options['osmem'].to_i > 16
+    if options['host-os-cpu'].to_i > 6 and options['host-os-memory'].to_i > 16
       wait_time1 = "<wait120>"
       wait_time2 = "<wait90>"
     else
@@ -308,7 +308,7 @@ def create_packer_json(options)
                    "sudo sh -c \"echo 'LookupClientHostnames no' >> /etc/ssh/sshd_config\"<enter><wait>"+
                    "exit<enter><wait>"
   when /sol_11_4/
-    if options['oscpu'].to_i > 6 and options['osmem'].to_i > 16
+    if options['host-os-cpu'].to_i > 6 and options['host-os-memory'].to_i > 16
       wait_time1 = "<wait130>"
       wait_time2 = "<wait100>"
     else
@@ -376,7 +376,7 @@ def create_packer_json(options)
                    "sudo sh -c \"/usr/sbin/svcadm stop asr-notify\"<enter><wait>"+
                    "exit<enter><wait>"
   when /sol_11_[0,1]/
-    if options['oscpu'].to_i > 6 and options['osmem'].to_i > 16
+    if options['host-os-cpu'].to_i > 6 and options['host-os-memory'].to_i > 16
       wait_time1 = "<wait120>"
       wait_time2 = "<wait90>"
     else
@@ -507,7 +507,7 @@ def create_packer_json(options)
     else
       purity_nic  = "ct0."+install_nic
     end
-    if options['oscpu'].to_i > 6 and options['osmem'].to_i > 16
+    if options['host-os-cpu'].to_i > 6 and options['host-os-memory'].to_i > 16
       wait_time1 = "<wait360>"
       wait_time2 = "<wait210>"
     else
@@ -649,7 +649,7 @@ def create_packer_json(options)
   when /debian|ubuntu/
     tools_upload_flavor = ""
     tools_upload_path   = ""
-    if !options['osname'].to_s.match(/Darwin/) && options['osversion'].to_i > 10 
+    if !options['host-os-name'].to_s.match(/Darwin/) && options['host-os-version'].to_i > 10 
       if options['vmnetwork'].to_s.match(/nat/)
         if options['dhcp'] == true
           ks_ip = options['hostonlyip'].to_s

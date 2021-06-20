@@ -1331,3 +1331,7 @@
 # Added more support for UEFI BIOS
 # 6.6.5: Fri 18 Jun 2021 01:20:21 AEST
 # ESXi UEFI PXE boot config improvements
+# 6.6.6: Sat 19 Jun 2021 13:21:56 AEST
+# Initial working UEFI PXE boot for ESX
+# 6.6.7: Sun 20 Jun 2021 19:17:47 AEST
+# Code cleanup

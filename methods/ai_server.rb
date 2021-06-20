@@ -5,7 +5,7 @@
 # This will also delete all the clients under it
 
 def unconfigure_ai_server(options)
-  if options['osname'].to_s.match(/SunOS/)
+  if options['host-os-name'].to_s.match(/SunOS/)
     service_base_name   = get_service_base_name(options['service'])
     smf_install_service = "svc:/application/pkg/server:"+service_base_name
     smf_service_test    = %x[svcs -a |grep "#{smf_install_service}']
@@ -70,7 +70,7 @@ end
 # If you don't do this it won't actually write to the file
 
 def check_dhcpd4_conf(options)
-  if options['osname'].to_s.match(/SunOS/)
+  if options['host-os-name'].to_s.match(/SunOS/)
     file="/etc/inet/dhcpd4.conf"
     if options['verbose'] == true
       handle_output(options,"Checking:\t#{file} exists")
@@ -114,7 +114,7 @@ end
 
 def check_ai_service(options,service_name)
   message = "Information:\tChecking AI service "+service_name
-  if options['osname'].to_s.match(/SunOS/)
+  if options['host-os-name'].to_s.match(/SunOS/)
     if options['service'].to_s.match(/alt/)
       command = "installadm list |grep '#{service_name}'"
     else
@@ -149,7 +149,7 @@ def configure_ai_services(options,iso_repo_version)
     lc_arch = sys_arch.downcase
     ai_dir  = options['aibasedir']+"/"+iso_repo_version+"_"+lc_arch
     service_name = iso_repo_version+"_"+lc_arch
-    if options['osname'].to_s.match(/SunOS/)
+    if options['host-os-name'].to_s.match(/SunOS/)
       service_check = check_ai_service(options,service_name)
       if not service_check.match(/#{service_name}/)
         message = "Information:\tCreating AI service for #{lc_arch}"
@@ -165,7 +165,7 @@ def configure_ai_services(options,iso_repo_version)
       if not File.exist?(ai_file)
         handle_output(options,"Warning:\tAI ISO file #{ai_file} not found for architecture #{lc_arch}")
       else
-        if options['osname'].to_s.match(/Darwin/)
+        if options['host-os-name'].to_s.match(/Darwin/)
           tftp_version_dir = options['tftpdir']+"/"+options['service']
           output = check_osx_iso_mount(tftp_version_dir, ai_options['file'])
           if output.match(/Resource busy/)
@@ -207,7 +207,7 @@ end
 
 def get_ai_install_services(options)
   message = "Information:\tGetting list of AI services"
-  if options['osname'].to_s.match(/SunOS/)
+  if options['host-os-name'].to_s.match(/SunOS/)
     command = "installadm list |grep \"^sol_11\" |awk \"{print \\\$1}\""
   else
     command = "ls #{options['baserepodir']} |grep 'sol_11'"
@@ -355,7 +355,7 @@ end
 # List AI services
 
 def list_ai_services(options)
-  if options['osname'].to_s.match(/SunOS/) and options['osversion'].to_i > 10
+  if options['host-os-name'].to_s.match(/SunOS/) and options['host-os-version'].to_i > 10
     message = "AI Services:"
     command = "installadm list |grep auto_install |grep -v default |awk \"{print \\\$1}\""
     output  = execute_command(options,message,command)

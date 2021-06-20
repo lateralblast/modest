@@ -291,7 +291,7 @@ def create_ai_manifest(options,output_file)
               xml.disk_name(:name => $q_struct['mirrordisk'].value, :name_type => "ctd")
             }
             xml.logical {
-              xml.zpool(:is_root => "true", :name => options["rpoolname"].value) {
+              xml.zpool(:is_root => "true", :name => options['rpoolname'].value) {
                 xml.filesystem(:mountpoint => "/export", :name => "export")
                 xml.filesystem(:name => "export/home")
                 xml.be(:name => "solaris")

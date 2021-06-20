@@ -209,7 +209,7 @@ def check_vm_network(options)
   when /fusion/
     options = check_fusion_natd(options,vm_if_name)
   end
-  if options['osname'].to_s.match(/NT/)
+  if options['host-os-name'].to_s.match(/NT/)
     output = get_win_ip_from_if_name(vm_if_name)
   else
     message = "Information:\tChecking "+vm_if_name+" is configured"
@@ -218,7 +218,7 @@ def check_vm_network(options)
   end
   if not output.match(/#{options['hostonlyip']}/)
     message = "Information:\tConfiguring "+vm_if_name
-    if options['osname'].to_s.match(/NT/)
+    if options['host-os-name'].to_s.match(/NT/)
       command = "netsh interface ip set address #{vm_if_name} static #{options['hostonlyip']} #{options['netmask']}"
     else
       command = "ifconfig #{vm_if_name} inet #{options['hostonlyip']} netmask #{options['netmask']} up"

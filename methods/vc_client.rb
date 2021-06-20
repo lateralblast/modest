@@ -23,30 +23,30 @@ end
 def deploy_vcsa_vm(options)
   populate_vcsa_questions(options)
   process_questions(options)
-  options['server']          = $q_struct['esx.hostname'].value
-  options['datastore']       = $q_struct['esx.datastore'].value
-  options['serveradmin']     = $q_struct['esx.username'].value
-  options['serverpassword']  = $q_struct['esx.password'].value
-  options['size']            = $q_struct['deployment.option'].value
+  options['server']         = $q_struct['esx.hostname'].value
+  options['datastore']      = $q_struct['esx.datastore'].value
+  options['serveradmin']    = $q_struct['esx.username'].value
+  options['serverpassword'] = $q_struct['esx.password'].value
+  options['size']           = $q_struct['deployment.option'].value
   options['servernetmask']  = $q_struct['deployment.network'].value
-  options['name']          = $q_struct['appliance.name'].value
+  options['name']           = $q_struct['appliance.name'].value
   options['rootpassword']   = $q_struct['root.password'].value
-  options['timeserver']      = $q_struct['ntp.servers'].value
+  options['timeserver']     = $q_struct['ntp.servers'].value
   options['adminpassword']  = $q_struct['password'].value
-  options['domainname']      = $q_struct['domain-name'].value
-  options['sitename']        = $q_struct['site-name'].value
+  options['domainname']     = $q_struct['domain-name'].value
+  options['sitename']       = $q_struct['site-name'].value
   options['ipfamil']        = $q_struct['ip.family'].value
-  options['ip']              = $q_struct['ip'].value
-  options['netmask']         = $q_struct['prefix'].value
-  options['vmgateway']         = $q_struct['gateway'].value
-  options['nameserver']      = $q_struct['dns.servers'].value
+  options['ip']             = $q_struct['ip'].value
+  options['netmask']        = $q_struct['prefix'].value
+  options['vmgateway']      = $q_struct['gateway'].value
+  options['nameserver']     = $q_struct['dns.servers'].value
   vcsa_json_file = create_vcsa_json(options)
   #create_vcsa_deploy_script(options)
   options['repodir'] = options['baserepodir']+"/"+options['service']
-  if options['osname'].to_s.match(/Darwin/)
+  if options['host-os-name'].to_s.match(/Darwin/)
     deployment_dir = options['repodir']+"/vcsa-cli-installer/mac"
   end
-  if options['osname'].to_s.match(/Linux/)
+  if options['host-os-name'].to_s.match(/Linux/)
     deployment_dir = options['repodir']+"/vcsa-cli-installer/lin64"
   end
   if File.directory?(deployment_dir)

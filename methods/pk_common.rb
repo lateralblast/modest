@@ -10,22 +10,22 @@ end
 # Check packer is installed
 
 def check_packer_is_installed(options)
-  if options["packer"] == options['empty']
+  if options['packer'] == options['empty']
     packer_bin = %x[which packer].chomp
   else
-    packer_bin = options["packer"].to_s
+    packer_bin = options['packer'].to_s
   end
-  packer_version = options["packerversion"].to_s
+  packer_version = options['packerversion'].to_s
   if !packer_bin.match(/packer/) or !File.exist?(packer_bin)
-    if options['osname'].to_s.match(/Darwin/)
+    if options['host-os-name'].to_s.match(/Darwin/)
       install_osx_package(options,"packer")
       packer_bin = %x[which packer].chomp
     else
-      if options['osmachine'].to_s.match(/64/)
-        packer_bin = "packer_"+packer_version+"_"+options['osname'].downcase+"_amd64.zip"
+      if options['host-os-machine'].to_s.match(/64/)
+        packer_bin = "packer_"+packer_version+"_"+options['host-os-name'].downcase+"_amd64.zip"
         packer_url = "https://releases.hashicorp.com/packer/"+packer_version+"/"+packer_bin
       else
-        packer_bin = "packer_"+packer_version+"_"+options['osname'].downcase+"_386.zip"
+        packer_bin = "packer_"+packer_version+"_"+options['host-os-name'].downcase+"_386.zip"
         packer_url = "https://releases.hashicorp.com/packer/"+$packer_version+"/"+packer_bin
       end
       tmp_file = "/tmp/"+packer_bin
@@ -42,7 +42,7 @@ def check_packer_is_installed(options)
       execute_command(options,message,command)
     end
   end
-  options["packer"] = packer_bin
+  options['packer'] = packer_bin
   return options
 end
 

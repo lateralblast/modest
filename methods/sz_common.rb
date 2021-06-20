@@ -4,8 +4,8 @@
 # Check we are on Solaris 10 or later
 
 def check_zone_is_installed()
-  if options['osname'].to_s.match(/SunOS/)
-    if options['osrelease'].split(/\./)[0].to_i > 10
+  if options['host-os-name'].to_s.match(/SunOS/)
+    if options['host-os-release'].split(/\./)[0].to_i > 10
       exists = "yes"
     else
       exists = "no"
@@ -19,8 +19,8 @@ end
 # List zone services
 
 def list_zone_services(options)
-  if options['osname'].to_s.match(/SunOS/)
-    options['version'] = options['osrelease'].split(/\./)[1]
+  if options['host-os-name'].to_s.match(/SunOS/)
+    options['version'] = options['host-os-release'].split(/\./)[1]
     os_branded = options['version'].to_i-1
     os_branded = os_branded.to_s
     handle_output(options,"Supported containers:")
@@ -61,8 +61,8 @@ def list_zone_isos(options)
       handle_output(options,"Available branded zone images:")
       handle_output(options,"") 
     end
-    if options['osarch'].to_s.match(/sparc/)
-      search_arch = options['osarch']
+    if options['host-os-arch'].to_s.match(/sparc/)
+      search_arch = options['host-os-arch']
     else
       search_arch = "x86"
     end
@@ -131,7 +131,7 @@ end
 # Check branded zone support is installed
 
 def check_branded_zone_pkg()
-  if options['osrelease'].match(/11/)
+  if options['host-os-release'].match(/11/)
     message = "Information:\tChecking branded zone support is installed"
     command = "pkg info pkg:/system/zones/brand/brand-solaris10 |grep Version |awk \"{print \\\$2}\""
     output  = execute_command(options,message,command)
@@ -321,7 +321,7 @@ def create_zone_config(options)
   options['vmnic'] = options['vmnic'].split(/\//)[0]
   zone_status = check_zone_doesnt_exist(options)
   if not zone_status.match(/#{options['name']}/)
-    if options['osarch'].to_s.match(/i386/)
+    if options['host-os-arch'].to_s.match(/i386/)
       message = "Information:\tChecking Platform"
       command = "prtdiag -v |grep 'VMware'"
       output  = execute_command(options,message,command)
@@ -391,8 +391,8 @@ def create_zone(options)
     end
     options['image'] = "solaris-"+image_version+"-"+image_arch+".bin"
   end
-  if options['osrelease'].match(/11/) and options['release'].to_s.match(/10/)
-    if options['osarch'].to_s.match(/i386/)
+  if options['host-os-release'].match(/11/) and options['release'].to_s.match(/10/)
+    if options['host-os-arch'].to_s.match(/i386/)
       branded_file = branded_dir+"solaris-10u11-x86.bin"
     else
       branded_file = branded_dir+"solaris-10u11-sparc.bin"
@@ -412,7 +412,7 @@ def create_zone(options)
         print_branded_zone_info()
       end
       create_zone_config(options['name'],options['ip'])
-      if options['osrelease'].match(/11/) and virtual == true
+      if options['host-os-release'].match(/11/) and virtual == true
         handle_output(options,"Warning:\tCan't create branded zones with exclusive IPs in VMware")
         quit(options)
       else
@@ -498,7 +498,7 @@ def configure_zone(options)
   end
   if not options['image'].to_s.match(/[a-z,A-Z]/) and not options['service'].to_s.match(/[a-z,A-Z]/)
     if not options['release'].to_s.match(/[0-9]/)
-      options['release'] = options['osrelease']
+      options['release'] = options['host-os-release']
     end
   end
   if options['release'].to_s.match(/11/)

@@ -8,7 +8,7 @@ Lx = Struct.new(:question, :ask, :value, :valid, :eval)
 
 def check_lxc_is_installed()
   message = "Information:\tChecking LXC Packages are installed"
-  if options['osuname'].match(/Ubuntu/)
+  if options['host-os-uname'].match(/Ubuntu/)
     command = "dpkg -l lxc"
     output  = execute_command(options,message,command)
     if output.match(/no packages/)

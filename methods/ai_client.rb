@@ -280,7 +280,7 @@ def configure_ai_client(options)
   check_ai_client_doesnt_exist(options)
   populate_ai_client_profile_questions(options)
   process_questions(options)
-  if options['osname'].to_s.match(/Darwin/)
+  if options['host-os-name'].to_s.match(/Darwin/)
     tftp_version_dir = options['tftpdir']+"/"+options['service']
     check_osx_iso_mount(tftp_version_dir,options['file'])
   end
@@ -289,7 +289,7 @@ def configure_ai_client(options)
   handle_output(options,"Configuring:\tClient #{options['name']} with MAC address #{options['mac']}")
   import_ai_client_profile(options,output_file)
   create_ai_client(options)
-  if options['osname'].to_s.match(/SunOS/) and options['osrelease'].match(/11/)
+  if options['host-os-name'].to_s.match(/SunOS/) and options['host-os-release'].match(/11/)
     clear_solaris_dhcpd(options)
   end
   return

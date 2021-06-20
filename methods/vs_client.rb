@@ -9,7 +9,7 @@ def get_vs_clients(options)
       options['repodir'] = options['baserepodir']+"/"+service_name
       file_list        = Dir.entries(options['repodir'])
       file_list.each do |file_name|
-        if file_name.match(/\.cfg$/) and not File_name.match(/boot\.cfg|isolinux\.cfg/)
+        if file_name.match(/\.cfg$/) and !file_name.match(/boot\.cfg|isolinux\.cfg/)
           client_name = file_name.split(/\./)[0]
           client_info = client_name+" service = "+service_name
           client_list.push(client_info)

@@ -3,7 +3,7 @@
 # List availabel images
 
 def list_lxc_services(options)
-  if options['osname'].to_s.match(/Linux/) && Dir.exist?(options['lxcimagedir'])
+  if options['host-os-name'].to_s.match(/Linux/) && Dir.exist?(options['lxcimagedir'])
     image_list = Dir.entries(options['lxcimagedir'])
     if image_list.length > 0
       if options['output'].to_s.match(/html/)
@@ -123,7 +123,7 @@ def configure_lxc_server(server_type)
   options['service'] = ""
   populate_lxc_server_questions()
   process_questions(options)
-  if options['osuname'].match(/Ubuntu/)
+  if options['host-os-uname'].match(/Ubuntu/)
     configure_ubuntu_lxc_server(server_type)
   end
   check_lxc_install()

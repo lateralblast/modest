@@ -436,7 +436,7 @@ def configure_kvm_import_client(options)
     check_kvm_hostonly_network(if_name)
   end
   if !options['disk1'] == options['none']
-    options['disk'] = options["disk1"].to_s+" "+options['disk2'].to_s
+    options['disk'] = options['disk1'].to_s+" "+options['disk2'].to_s
   else
     if options['disk'].to_s.match(/ /)
       if !options['disk'].to_s.match(/--disk/)
@@ -614,7 +614,7 @@ end
 # List KVM VMs
 
 def list_kvm_vms(options)
-  if !options['osname'].match(/Linux/)
+  if !options['host-os-name'].match(/Linux/)
     return
   end
   command   = "virsh list --all"

@@ -3,9 +3,9 @@
 # List CDom services
 
 def list_cdom_services(options)
-  if options['osuname'].match(/SunOS/)
-    if options['osrelease'].match(/10|11/)
-      if options['osuname'].match(/sun4v/)
+  if options['host-os-uname'].match(/SunOS/)
+    if options['host-os-release'].match(/10|11/)
+      if options['host-os-uname'].match(/sun4v/)
         ldom_type    = "Control Domain"
         ldom_command = "ldm list |grep ^primary |awk '{print $1}'"
         list_doms(ldom_type,ldom_command)
@@ -48,7 +48,7 @@ end
 def check_cdom_install(options)
   ldm_bin = "/usr/sbin/ldm"
   if not File.exist?(ldm_bin)
-    if options['osrelease'].match(/11/)
+    if options['host-os-release'].match(/11/)
       message = "Information:\tInstalling LDoms software"
       command = "pkg install ldomsmanager"
       execute_command(options,message,command)
@@ -116,7 +116,7 @@ def check_cdom_config(options)
       handle_output(options,"Warning:\tLDom configuration #{config} already exists")
       quit(options)
     end
-    if options['osuname'].match(/T5[0-9]|T3/)
+    if options['host-os-uname'].match(/T5[0-9]|T3/)
       mau     = $q_struct['cdom_mau'].value
       message = "Information:\tAllocating "+mau+"Crypto unit(s) to primary domain"
       command = "ldm set-mau #{mau} primary"

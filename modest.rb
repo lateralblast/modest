@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      6.6.6
+# Version:      6.6.7
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -519,7 +519,7 @@ end
 # If we've been given a file try to get os and other insformation from file
 
 if options['file'].to_s.match(/[A-Z]|[a-z]|[0-9]/) && !options['action'].to_s.match(/list/)
-  options['osname'] = defaults['osname']
+  options['host-os-name'] = defaults['host-os-name']
   options['sudo']   = defaults['sudo']
   if !options['mountdir']
     options['mountdir'] = defaults['mountdir']
@@ -1302,7 +1302,7 @@ if options['release'].to_s.match(/[0-9]/)
     if options['vm'] == options['empty']
       options['vm'] = "none"
     end
-    if options['vm'].to_s.match(/zone/) && options['osrelease'].match(/10|11/) && !options['release'].to_s.match(/10|11/)
+    if options['vm'].to_s.match(/zone/) && options['host-os-release'].match(/10|11/) && !options['release'].to_s.match(/10|11/)
       handle_output(options,"Warning:\tInvalid release number: #{options['release']}")
       quit(options)
     end
@@ -1313,7 +1313,7 @@ if options['release'].to_s.match(/[0-9]/)
   end
 else
   if options['vm'].to_s.match(/zone/)
-    options['release'] = options['osrelease']
+    options['release'] = options['host-os-release']
   else
     options['release'] = options['empty']
   end
@@ -1360,7 +1360,7 @@ end
 
 # Get/set publisher port (Used for configuring AI server)
 
-if options['osname'].to_s.match(/SunOS/) and !options['publisher'] == options['empty']
+if options['host-os-name'].to_s.match(/SunOS/) and !options['publisher'] == options['empty']
   if options['mode'].to_s.match(/server/) || options['type'].to_s.match(/service/)
     options['publisherhost'] = options['publisher']
     if options['publisherhost'].to_s.match(/:/)
@@ -1370,7 +1370,7 @@ if options['osname'].to_s.match(/SunOS/) and !options['publisher'] == options['e
     handle_output(options,"Information:\tSetting publisher port to #{options['publisherport']}")
   else
     if options['mode'] == "server" || options['file'].to_s.match(/repo/)
-      if options['osname'] == "SunOS"
+      if options['host-os-name'] == "SunOS"
         options['mode'] = "server"
         options = check_local_config(options)
         options['publisherhost'] = options['hostip']
@@ -1417,7 +1417,7 @@ if options['vm'] != options['empty']
     options['vm']  = "parallels"
     options['sudo'] = false
     options['size'] = options['size'].gsub(/G/,"000")
-    if defaults['osname'].to_s.match(/Darwin/) && defaults['osversion'].to_i > 10
+    if defaults['host-os-name'].to_s.match(/Darwin/) && defaults['host-os-version'].to_i > 10
       options['hostonlyip'] = "10.211.55.1"
       options['vmgateway']  = "10.211.55.1"
     else
@@ -1443,17 +1443,17 @@ if options['vm'] != options['empty']
     options['sudo']  = false
     options['vm']    = "fusion"
   when /zone|container|lxc/
-    if options['osname'].to_s.match(/SunOS/)
+    if options['host-os-name'].to_s.match(/SunOS/)
       options['vm'] = "zone"
     else
       options['vm'] = "lxc"
     end
   when /ldom|cdom|gdom/
-    if $os_arch.downcase.match(/sparc/) && options['osname'].to_s.match(/SunOS/)
+    if $os_arch.downcase.match(/sparc/) && options['host-os-name'].to_s.match(/SunOS/)
       if options['release'] == options['empty']
-        options['release']   = options['osrelease']
+        options['release']   = options['host-os-release']
       end
-      if options['osrelease'].match(/10|11/)
+      if options['host-os-release'].match(/10|11/)
         if options['mode'].to_s.match(/client/)
           options['vm'] = "gdom"
         end
@@ -2078,7 +2078,7 @@ if options['action'] != options['empty']
     if options['mode'].to_s.match(/server/) || options['type'].to_s.match(/service/) && options['file'] != options['empty'] && options['vm'] == options['empty'] && !options['type'].to_s.match(/packer/) && !options['service'].to_s.match(/packer/)
       options['mode'] = "server"
       options = check_local_config(options)
-      if options['oshost'].to_s.match(/Docker/)
+      if options['host-os'].to_s.match(/Docker/)
         configure_docker_server(options)
       end
       if options['method'] == "none"

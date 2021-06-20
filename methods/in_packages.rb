@@ -45,11 +45,11 @@ end
 # Install local package
 
 def install_package(options,pkg_name)
-  if !options['ospackages'].grep(/^#{pkg_name}$/)
-    if options['osname'].to_s.match(/Darwin/)
+  if !options['host-os-packages'].grep(/^#{pkg_name}$/)
+    if options['host-os-name'].to_s.match(/Darwin/)
       install_osx_package(options,pkg_name)
     end
-    if options['osname'].to_s.match(/Linux/)
+    if options['host-os-name'].to_s.match(/Linux/)
       install_linux_package(options,pkg_name)
     end
     options = update_package_list(options)
@@ -60,9 +60,9 @@ end
 # Updage package list
 
 def update_package_list(options)
-  if options['osname'].match(/Darwin/)
+  if options['host-os-name'].match(/Darwin/)
     if File.exist?("/usr/local/bin/brew")
-      options['ospackages'] = %x[/usr/local/bin/brew list].split(/\s+|\n/)
+      options['host-os-packages'] = %x[/usr/local/bin/brew list].split(/\s+|\n/)
     end
   end
   return options

@@ -320,7 +320,7 @@ def configure_js_client(options)
   check_dir_exists(options,options['clientdir'])
   # Get release information
   options['repodir'] = options['baserepodir']+"/"+options['service']
-  if options['osname'].to_s.match(/Darwin/)
+  if options['host-os-name'].to_s.match(/Darwin/)
     check_osx_iso_mount(options)
   end
   options['version'] = get_js_iso_version(options)
