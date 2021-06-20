@@ -63,7 +63,7 @@ end
 
 def get_client_vm_type(options)
   options['vm'] = ""
-  options['validvm'].each do |test_vm|
+  options['valid-vm'].each do |test_vm|
     if options['verbose'] == true
       handle_output(options,"Information:\tChecking if '#{options['name']}' is a '#{test_vm}' VM")
     end

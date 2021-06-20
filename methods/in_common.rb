@@ -63,10 +63,10 @@ def set_defaults(options,defaults)
     end
   end  
   if defaults['host-os-release'].to_s.match(/\./)
-    defaults['host-os-major'] = defaults[""].to_s.split(/\./)[0]
+    defaults['host-os-major'] = defaults['host-os-release'].to_s.split(/\./)[0]
     defaults['os-minor'] = defaults['host-os-release'].to_s.split(/\./)[1]
   else
-    defaults['host-os-major'] = defaults['host-os-release'].to_s
+    defaults['host-os-major'] = defaults['host-os-release']
     defaults['os-minor'] = "0"
   end
   # Declare valid defaults

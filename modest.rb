@@ -499,7 +499,7 @@ raw_params = IO.readlines(defaults['scriptfile']).grep(/REQUIRED|BOOLEAN/).join.
 raw_params.each do |raw_param|
   if raw_param.match(/\[/) && !raw_param.match(/^raw_params/)
     raw_param   = raw_param.split(/--/)[1].split(/'/)[0]
-    valid_param = "valid"+raw_param
+    valid_param = "valid-"+raw_param
     if options[raw_param]
       if defaults[valid_param]
         test_value = options[raw_param][0]
@@ -1468,8 +1468,8 @@ if options['vm'] != options['empty']
       quit(options)
     end
   end
-  if !options['validvm'].to_s.downcase.match(/#{options['vm']}/) && !options['action'].to_s.match(/list/)
-    print_valid_list(options,"Warning:\tInvalid VM type",options['validvm'])
+  if !options['valid-vm'].to_s.downcase.match(/#{options['vm'].to_s}/) && !options['action'].to_s.match(/list/)
+    print_valid_list(options,"Warning:\tInvalid VM type",options['valid-vm'])
   end
   if options['verbose'] == true
     handle_output(options,"Information:\tSetting VM type to #{options['vm']}")
@@ -1610,7 +1610,7 @@ if options['method'] == options['empty'] && !options['action'].to_s.match(/delet
   else
     if !options['action'].to_s.match(/list|info|check/)
       if !options['action'].to_s.match(/add|create/) && options['vm'] == options['empty']
-        print_valid_list(options,"Warning:\tInvalid OS specified",options['validos'])
+        print_valid_list(options,"Warning:\tInvalid OS specified",options['valid-os'])
       end
     end
   end
@@ -2214,7 +2214,7 @@ if options['action'] != options['empty']
         end
       else
         if options['name'] != options['empty']
-          for vm_type in options['validvm']
+          for vm_type in options['valid-vm']
             options['vm'] = vm_type
             exists = check_vm_exists(options)
             if exists == "yes"
@@ -2248,7 +2248,7 @@ if options['action'] != options['empty']
         end
       else
         if options['name'] != options['empty']
-          for vm_type in options['validvm']
+          for vm_type in options['valid-vm']
             options['vm'] = vm_type
             exists = check_vm_exists(options)
             if exists == "yes"
