@@ -45,7 +45,7 @@ end
 # Install local package
 
 def install_package(options,pkg_name)
-  if !options['host-os-packages'].grep(/^#{pkg_name}$/)
+  if !options['host-os-packages'].to_s.match(/\"#{pkg_name}\"/)
     if options['host-os-name'].to_s.match(/Darwin/)
       install_osx_package(options,pkg_name)
     end

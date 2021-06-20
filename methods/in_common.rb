@@ -20,8 +20,11 @@ def set_defaults(options,defaults)
     end
   else
     if defaults['host-os-name'].to_s.match(/Linux/)
+      if defaults['host-os-uname'].to_s.match(/Ubuntu/)
+        defaults['host-os-packages'] = %x[dpkg -l |awk '{print $2}'].split(/\s+|\n/)
+      end
       defaults['host-os-memory'] = %x[free -g |grep ^Mem |awk '{print $2}'].chomp
-      defaults['host-os-cpu'] = %x[cat /proc/cpuinfo |grep processor |wc -l].chomp
+      defaults['host-os-cpu']    = %x[cat /proc/cpuinfo |grep processor |wc -l].chomp
     else
       defaults['host-os-memory'] = "1"
       defaults['host-os-cpu'] = "1"
@@ -647,7 +650,8 @@ end
 
 # Clean up options
 
-def cleanup_options(options)
+def cleanup_options(options,defaults)
+  options['host-os-packages'] = defaults['host-os-packages']
   if options['vm'].to_s.match(/parallels/)
     options['vmapp'] = "Parallels Desktop"
   end
@@ -1484,6 +1488,10 @@ def check_local_config(options)
       check_sol_bind(options)
     end
     if options['host-os-name'].to_s.match(/Linux/)
+      install_package(options,"apache2")
+      install_package(options,"rpm2cpio")
+      install_package(options,"shim")
+      install_package(options,"shim-signed")
       options['apachedir'] = "/etc/httpd"
       if options['host-os-uname'].match(/RedHat|CentOS/)
         check_yum_xinetd(options)
@@ -4769,7 +4777,11 @@ def list_services(options)
     if options['method'].to_s != options['empty'].to_s
       search = options['method'].to_s
     else
-      search = "all"
+      if options['search'].to_s != options['empty'].to_s
+        search = options['search'].to_s
+      else
+        search = "all"
+      end
     end
   end
   case search

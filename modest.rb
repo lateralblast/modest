@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      6.6.7
+# Version:      6.6.8
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -607,7 +607,7 @@ options = set_local_config(options)
 
 # Clean up options
 
-options = cleanup_options(options)
+options = cleanup_options(options,defaults)
 
 # Create required directories
 
