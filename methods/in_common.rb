@@ -70,25 +70,25 @@ def set_defaults(options,defaults)
     defaults['os-minor'] = "0"
   end
   # Declare valid defaults
-  defaults['validacl']     = [ 'private', 'public-read', 'public-read-write',
+  defaults['valid-acl']     = [ 'private', 'public-read', 'public-read-write',
                                'authenticated-read' ]
-  defaults['validaction']  = [ 'add', 'boot', 'build', 'connect', 'check',
+  defaults['valid-action']  = [ 'add', 'boot', 'build', 'connect', 'check',
                                'clone', 'create', 'delete', 'deploy', 'download',
                                'export', 'get', 'halt', 'info', 'import', 'list',
                                'migrate', 'shutdown', 'start', 'stop', 'upload',
                                'usage' ]
-  defaults['validarch']    = [ 'x86_64', 'i386', 'sparc' ]
-  defaults['validconsole'] = [ 'text', 'console', 'x11', 'headless', "pty", "vnc" ]
-  defaults['validformat']  = [ 'VMDK', 'RAW', 'VHD' ]
-  defaults['validmethod']  = [ 'ks', 'xb', 'vs', 'ai', 'js', 'ps', 'lxc', 'ay',
+  defaults['valid-arch']    = [ 'x86_64', 'i386', 'sparc' ]
+  defaults['valid-console'] = [ 'text', 'console', 'x11', 'headless', "pty", "vnc" ]
+  defaults['valid-format']  = [ 'VMDK', 'RAW', 'VHD' ]
+  defaults['valid-method']  = [ 'ks', 'xb', 'vs', 'ai', 'js', 'ps', 'lxc', 'ay',
                                'image', 'ldom', 'cdom', 'gdom' ]
-  defaults['validmode']    = [ 'client', 'server', 'osx' ]
-  defaults['validos']      = [ 'Solaris', 'VMware-VMvisor', 'CentOS',
+  defaults['valid-mode']    = [ 'client', 'server', 'osx' ]
+  defaults['valid-os']      = [ 'Solaris', 'VMware-VMvisor', 'CentOS',
                                'OracleLinux', 'SLES', 'openSUSE', 'NT',
                                'Ubuntu', 'Debian', 'Fedora', 'RHEL', 'SL',
                                'Purity', 'Windows', 'JeOS', 'AMZNL' ]
-  defaults['validoutput']  = [ 'text', 'html' ]
-  defaults['validtype']    = [ 'iso', 'flar', 'ova', 'snapshot', 'service',
+  defaults['valid-output']  = [ 'text', 'html' ]
+  defaults['valid-type']    = [ 'iso', 'flar', 'ova', 'snapshot', 'service',
                                'boot', 'cdrom', 'net', 'disk', 'client', 'dvd',
                                'server', 'ansible', 'vcsa', 'packer', 'docker',
                                'amazon-ebs', 'image', 'ami', 'instance', 'bucket',
@@ -96,24 +96,24 @@ def set_defaults(options,defaults)
                                'ssh', 'stack', 'object', 'cf', 'cloudformation',
                                'public', 'private', 'securitygroup', 'iprule',
                                'pxe', 'nic', 'network' ]
-  defaults['validtarget']  = [ 'citrix', 'vmware', 'windows' ]
+  defaults['valid-target']  = [ 'citrix', 'vmware', 'windows' ]
   # VM related defaults
   if defaults['host-os-arch'].to_s.match(/sparc/)
     if defaults['host-os-major'] = %x[uname -r].split(/\./)[1].to_i > 9
-      defaults['validvm'] = [ 'zone', 'cdom', 'gdom', 'aws' ]
+      defaults['valid-vm'] = [ 'zone', 'cdom', 'gdom', 'aws' ]
     end
   else
     case defaults['host-os-name']
     when /not recognised/
       handle_output(options,"Information:\tAt the moment Cygwin is required to run on Windows")
     when /NT/
-      defaults['validvm'] = [ 'vbox', 'aws', 'fusion' ]
+      defaults['valid-vm'] = [ 'vbox', 'aws', 'fusion' ]
     when /SunOS/
-      defaults['validvm']    = [ 'vbox', 'zone', 'aws' ]
+      defaults['valid-vm']    = [ 'vbox', 'zone', 'aws' ]
       defaults['host-os-platform'] = %x[prtdiag |grep 'System Configuration'].chomp
       defaults['nic']        = %x[dladm show-link |grep phys |grep up |awk '{print $1}'].chomp
     when /Linux/
-      defaults['validvm']   = [ 'vbox', 'lxc', 'docker', 'aws', 'qemu', 'kvm', 'xen', 'fusion' ]
+      defaults['valid-vm']   = [ 'vbox', 'lxc', 'docker', 'aws', 'qemu', 'kvm', 'xen', 'fusion' ]
       if File.exist?("/sbin/dmidecode")
         defaults['dmidecode'] = "/sbin/dmidecode"
       else
@@ -134,7 +134,7 @@ def set_defaults(options,defaults)
       defaults['host-os-release'] = %x[#{defaults['lsb']} -r -s].chomp
       defaults['host-os-version'] = %x[#{defaults['lsb']} -r -s].chomp.split(".")[0]
     when /Darwin/
-      defaults['validvm'] = [ 'vbox', 'fusion', 'parallels', 'aws', 'docker', 'qemu'  ]
+      defaults['valid-vm'] = [ 'vbox', 'fusion', 'parallels', 'aws', 'docker', 'qemu'  ]
       defaults['nic']     = "en0"
       defaults['ovfbin']  = "/Applications/VMware OVF Tool/ovftool"
     end
