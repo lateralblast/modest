@@ -70,10 +70,15 @@ def configure_vs_pxe_client(options)
   end
   check_dir_exists(options,options['tftpdir'])
   check_dir_owner(options,options['tftpdir'],options['uid'])
-  if not File.exist?(test_file)
-    pxelinux_file = options['service']+"/usr/share/syslinux/pxelinux.0"
-    message       = "Information:\tCreating PXE boot file for "+options['name']+" with MAC address "+options['mac']
-    command       = "cd #{options['tftpdir']} ; ln -s #{pxelinux_file} #{tftp_pxe_file}"
+  if !File.exist?(test_file)
+    message = "Information:\tCreating PXE boot file for "+options['name']+" with MAC address "+options['mac']
+    if options['biostype'].to_s.match(/efi/)
+      efi_boot_file = options['tftpdir'].to_s+"/"+options['service'].to_s+"/efi/boot/bootx64.efi"
+      command = "cd #{options['tftpdir']} ; ln -s #{efi_boot_file} #{tftp_pxe_file}"
+    else
+      pxelinux_file = options['service']+"/usr/share/syslinux/pxelinux.0"
+      command = "cd #{options['tftpdir']} ; ln -s #{pxelinux_file} #{tftp_pxe_file}"
+    end
     execute_command(options,message,command)
   end
   pxe_cfg_dir   = options['tftpdir']+"/pxelinux.cfg"
@@ -82,56 +87,50 @@ def configure_vs_pxe_client(options)
   end
   check_dir_exists(options,pxe_cfg_dir)
   check_dir_owner(options,pxe_cfg_dir,options['uid'])
-  pxe_cfg_file1 = options['mac'].gsub(/:/,"-")
+  ks_url     = "http://"+options['hostip']+"/"+options['name']+"/"+options['name']+".cfg"
+  #ks_url    = "http://"+options['hostip']+"/clients/"+options['service']+"/"+options['name']+"/"+options['name']+".cfg"
+  mboot_file = options['service']+"/mboot.c32"
   if options['biostype'].to_s.match(/efi/)
-    efi_boot_file  = options['tftpdir'].to_s+"/"+options['service'].to_s+"/efi/boot/bootx64.efi"
-    efi_mboot_file = options['tftpdir'].to_s+"/"+options['service'].to_s+"/bootx64.efi"
-    if !File.exist?(efi_mboot_file)
-      message = "Information:\tCopying UEFI PXE boot file #{efi_boot_file} to #{efi_mboot_file}"
-      command = "cp #{efi_boot_file} #{efi_mboot_file}"
-      execute_command(options,message,command)
-    end
-    efi_cfg_file = pxe_cfg_file1
-  end
-  pxe_cfg_file1 = "01-"+pxe_cfg_file1
-  pxe_cfg_file1 = pxe_cfg_file1.downcase
-  pxe_cfg_file1 = pxe_cfg_dir+"/"+pxe_cfg_file1
-  pxe_cfg_file2 = options['mac'].split(":")[0..3].join+"-"+options['mac'].split(":")[4..5].join+"-0000-0000-"+options['mac'].gsub(/\:/,"")
-  pxe_cfg_file2 = pxe_cfg_file2.downcase
-  pxe_cfg_file2 = pxe_cfg_dir+"/"+pxe_cfg_file2
-  ks_url       = "http://"+options['hostip']+"/"+options['name']+"/"+options['name']+".cfg"
-  #ks_url       = "http://"+options['hostip']+"/clients/"+options['service']+"/"+options['name']+"/"+options['name']+".cfg"
-  mboot_file   = options['service']+"/mboot.c32"
-  if options['verbose'] == true
-    handle_output(options,"Information:\tCreating Menu config file #{pxe_cfg_file1}")
-  end
-  for pxe_cfg_file in [ pxe_cfg_file1, pxe_cfg_file2 ]
-    file = File.open(pxe_cfg_file,"w")
-    if options['serial'] == true
-      file.write("serial 0 115200\n")
-    end
-    file.write("DEFAULT ESX\n")
-    file.write("LABEL ESX\n")
-    file.write("KERNEL #{mboot_file}\n")
-    if options['text'] == true
-      if options['serial'] == true
-        file.write("APPEND -c #{tftp_boot_file} text gdbPort=none logPort=none tty2Port=com1 ks=#{ks_url} +++\n")
-      else
-        file.write("APPEND -c #{tftp_boot_file} text ks=#{ks_url} +++\n")
-      end
-    else
-      file.write("APPEND -c #{tftp_boot_file} ks=#{ks_url} +++\n")
-    end
-    file.write("IPAPPEND 1\n")
-    file.close
-    print_contents_of_file(options,"",pxe_cfg_file)
-  end
-  if options['biostype'].to_s.match(/efi/)
-    tftp_boot_file = options['tftpdir']+"/"+options['service']+"/"+efi_cfg_file+"/boot.cfg"
+    pxe_cfg_dir = options['tftpdir'].to_s+"/"+options['mac'].gsub(/:/,"-")
+    check_dir_exists(options,pxe_cfg_dir)
+    check_dir_owner(options,pxe_cfg_dir,options['uid'])
   else
-    tftp_boot_file = options['tftpdir']+"/"+options['service']+"/"+tftp_boot_file
+    pxe_cfg_file1 = options['mac'].to_s.gsub(/:/,"-")
+    pxe_cfg_file1 = "01-"+pxe_cfg_file1
+    pxe_cfg_file1 = pxe_cfg_file1.downcase
+    pxe_cfg_file1 = pxe_cfg_dir+"/"+pxe_cfg_file1
+    pxe_cfg_file2 = options['mac'].split(":")[0..3].join+"-"+options['mac'].split(":")[4..5].join+"-0000-0000-"+options['mac'].gsub(/\:/,"")
+    pxe_cfg_file2 = pxe_cfg_file2.downcase
+    pxe_cfg_file2 = pxe_cfg_dir+"/"+pxe_cfg_file2
+    for pxe_cfg_file in [ pxe_cfg_file1, pxe_cfg_file2 ]
+      verbose_output(options,"Information:\tCreating Menu config file #{pxe_cfg_file}")
+      file = File.open(pxe_cfg_file,"w")
+      if options['serial'] == true
+        file.write("serial 0 115200\n")
+      end
+      file.write("DEFAULT ESX\n")
+      file.write("LABEL ESX\n")
+      file.write("KERNEL #{mboot_file}\n")
+      if options['text'] == true
+        if options['serial'] == true
+          file.write("APPEND -c #{tftp_boot_file} text gdbPort=none logPort=none tty2Port=com1 ks=#{ks_url} +++\n")
+        else
+          file.write("APPEND -c #{tftp_boot_file} text ks=#{ks_url} +++\n")
+        end
+      else
+        file.write("APPEND -c #{tftp_boot_file} ks=#{ks_url} +++\n")
+      end
+      file.write("IPAPPEND 1\n")
+      file.close
+      print_contents_of_file(options,"",pxe_cfg_file)
+    end
   end
-  esx_boot_file  = options['tftpdir']+"/"+options['service']+"/boot.cfg"
+  if options['biostype'].to_s.match(/efi/)
+    tftp_boot_file = options['tftpdir'].to_s+"/01-"+options['mac'].to_s.gsub(/:/,"-").downcase+"/boot.cfg"
+  else
+    tftp_boot_file = options['tftpdir'].to_s+"/"+options['service'].to_s+"/"+tftp_boot_file
+  end
+  esx_boot_file  = options['tftpdir'].to_s+"/"+options['service'].to_s+"/boot.cfg"
   if options['verbose'] == true
     handle_output(options,"Creating:\tBoot config file #{tftp_boot_file}")
   end
@@ -146,10 +145,8 @@ def configure_vs_pxe_client(options)
         end
       end
     end
-    if options['biostype'].to_s.match(/efi/)
-      if line.match(/^kernelopt/)
-        line = line.chomp+" ks=#{ks_url}\n"
-      end
+    if line.match(/^kernelopt/)
+      line = "kernelopt=ks=#{ks_url}\n"
     end
     if options['serial'] == true
       if line.match(/^kernelopt/)
@@ -162,7 +159,9 @@ def configure_vs_pxe_client(options)
       copy.push(line)
       copy.push("prefix=#{options['service']}\n")
     else
-      copy.push(line)
+      if !line.match(/^prefix/)
+        copy.push(line)
+      end
     end
   end
   tftp_boot_file_dir = File.dirname(tftp_boot_file)

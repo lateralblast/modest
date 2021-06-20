@@ -3197,11 +3197,11 @@ def check_dhcpd_config(options)
 
       end
       if options['dhcpdrange'] == options['empty']
-        if options['hostip'].to_s.split(".")[2] == options['hostonlyip'].to_s.split(".")[2]
-          options['dhcpdrange'] = options['hostonlyip'].to_s.split(".")[0..-1].join(".")+".200"+" "+options['hostonlyip'].split(".")[0..-1].join(".")+"250"
-        else
+#        if options['hostip'].to_s.split(".")[2] == options['hostonlyip'].to_s.split(".")[2]
+#          options['dhcpdrange'] = options['hostonlyip'].to_s.split(".")[0..-1].join(".")+".200"+" "+options['hostonlyip'].split(".")[0..-1].join(".")+"250"
+#        else
           options['dhcpdrange'] = options['hostip'].to_s.split(".")[0..-1].join(".")+".200"+" "+options['hostip'].split(".")[0..-1].join(".")+"250"
-        end
+#        end
       end
       file.write("  range #{options['dhcpdrange']};\n")
       file.write("  option broadcast-address #{broadcast_address};\n")
