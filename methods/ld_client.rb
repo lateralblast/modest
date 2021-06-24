@@ -29,9 +29,9 @@ end
 # Get Guest domain MAC
 
 def get_gdom_mac(options)
-  message    = "Information:\tGetting guest domain "+options['name']+" MAC address"
-  command    = "ldm list-bindings #{options['name']} |grep '#{options['vmnic']}' |awk '{print $5}'"
-  output     = execute_command(options,message,command)
+  message = "Information:\tGetting guest domain "+options['name']+" MAC address"
+  command = "ldm list-bindings #{options['name']} |grep '#{options['vmnic']}' |awk '{print $5}'"
+  output  = execute_command(options,message,command)
   options['mac'] = output.chomp
   return options['mac']
 end
@@ -210,8 +210,8 @@ def create_gdom(options)
   memory   = $q_struct['gdom_memory'].value
   vcpu     = $q_struct['gdom_vcpu'].value
   vds_disk = options['name']+"_vdisk0"
-  message = "Information:\tCreating guest domain "+options['name']
-  command = "ldm add-domain #{options['name']}"
+  message  = "Information:\tCreating guest domain "+options['name']
+  command  = "ldm add-domain #{options['name']}"
   execute_command(options,message,command)
   message = "Information:\tAdding vCPUs to Guest domain "+options['name']
   command = "ldm add-vcpu #{vcpu} #{options['name']}"

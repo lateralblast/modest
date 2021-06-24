@@ -291,8 +291,8 @@ def check_kvm_is_installed(options)
   if options['verbose'] == true
     handle_output(options,"Information:\tChecking QEMU configuration directory")
   end
-  dir_name  = "/etc/qemu"
-  file_name = "/etc/qemu/bridge.conf"
+  dir_name   = "/etc/qemu"
+  file_name  = "/etc/qemu/bridge.conf"
   file_array = []
   file_line  = "allow "+options['bridge'].to_s
   file_array.append(file_line)
@@ -451,9 +451,9 @@ def configure_kvm_import_client(options)
       end
       options['disk2'] = options['virtdir']+"/"+options['name'].to_s+".qcow2,device=disk"
       if !options['type'].to_s.match(/packer/)
-        options['disk']  = options['disk2']
+        options['disk'] = options['disk2']
       else
-        options['disk']  = options['disk1']+" --disk "+options['disk2']
+        options['disk'] = options['disk1']+" --disk "+options['disk2']
       end
     end
   end

@@ -22,19 +22,19 @@ end
 # Check installed packages
 
 def check_installed_pkg(p_struct,pkg_name)
-  message           = "Information:\tChecking if package "+pkg_name+" is installed"
-  command           = "pkg info #{pkg_name} |grep Version |awk \"{print \\\$2}\""
-  installed_version = execute_command(options,message,command)
-  installed_version = installed_version.chomp
-  return installed_version
+  message = "Information:\tChecking if package "+pkg_name+" is installed"
+  command = "pkg info #{pkg_name} |grep Version |awk \"{print \\\$2}\""
+  ins_ver = execute_command(options,message,command)
+  ins_ver = ins_ver.chomp
+  return ins_ver
 end
 
 # Install a package
 
 def install_pkg(p_struct,pkg_name,pkg_repo_dir)
-  pkg_version       = p_struct[pkg_name].version
-  installed_version = check_installed_pkg(p_struct,pkg_name)
-  if not installed_version.match(/#{pkg_version}/)
+  pkg_ver = p_struct[pkg_name].version
+  ins_ver = check_installed_pkg(p_struct,pkg_name)
+  if not ins_ver.match(/#{pkg_ver}/)
     message = "Information:\tInstalling Package "+pkg_name
     command = "pkg install -g #{pkg_repo_dir} #{pkg_name}"
     execute_command(options,message,command)

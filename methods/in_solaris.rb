@@ -86,7 +86,7 @@ def check_local_publisher(options)
   if not output.match(/online/)
     handle_output(options,"Warning:\tNo local publisher online")
     options['repodir'] = options['baserepodir']+"/sol_"+options['update'].gsub(/\./,"_")
-    publisher_dir    = options['repodir']+"/publisher"
+    publisher_dir      = options['repodir']+"/publisher"
     if not File.directory?(publisher_dir)
       handle_output(options,"Warning:\tNo local repository")
       options['file'] = options['isodir']+"/sol-"+options['update'].gsub(/\./,"_")+"-repo-full.iso"

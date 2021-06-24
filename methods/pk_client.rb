@@ -502,7 +502,7 @@ def create_packer_js_install_files(options)
 #  options['sysid'] = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/sysidcfg"
   create_js_sysid_file(options)
   options['publisherhost'] = ""
-  options['karch']  = "packer"
+  options['karch'] = "packer"
   options = populate_js_machine_questions(options)
   process_questions(options)
 #  options['machine'] = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/profile"

@@ -101,7 +101,7 @@ def stop_aws_vm(options)
     reservations.each do |reservation|
       reservation['instances'].each do |instance|
         options['id'] = instance.instance_id
-        status     = instance.state.name
+        status        = instance.state.name
         if status.match(/running/)
           handle_output(options,"Information:\tStopping Instance ID #{options['id']}")
           ec2 = initiate_aws_ec2_client(options['access'],options['secret'],options['region'])
@@ -134,7 +134,7 @@ def boot_aws_vm(options)
     reservations.each do |reservation|
       reservation['instances'].each do |instance|
         options['id'] = instance.instance_id
-        status     = instance.state.name
+        status = instance.state.name
         if not status.match(/running|terminated/)
           handle_output(options,"Information:\tStarting Instance ID #{options['id']}")
           ec2 = initiate_aws_ec2_client(options)
@@ -187,7 +187,7 @@ def delete_aws_vm(options)
       reservations.each do |reservation|
         reservation['instances'].each do |instance|
           options['id'] = instance.instance_id
-          status = instance.state.name
+          status        = instance.state.name
           if not status.match(/terminated/)
             handle_output(options,"Information:\tTerminating Instance ID #{options['id']}")
             ec2.terminate_instances(instance_ids:[options['id']])

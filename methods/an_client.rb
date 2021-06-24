@@ -181,8 +181,8 @@ def build_ansible_aws_config(options)
     handle_output(options,"Warning:\tAnsible AWS config file '#{yaml_file}' does not exist")
     quit(options)
   end
-  message    = "Information:\tBuilding Ansible AWS instance using AMI name '#{options['name']}' using '#{yaml_file}'"
-  command    = "cd #{options['clientdir']} ; ansible-playbook -i hosts #{yaml_file}"
+  message = "Information:\tBuilding Ansible AWS instance using AMI name '#{options['name']}' using '#{yaml_file}'"
+  command = "cd #{options['clientdir']} ; ansible-playbook -i hosts #{yaml_file}"
   execute_command(options,message,command)
   get_ansible_instance_info(options['name'])
   return

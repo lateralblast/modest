@@ -169,9 +169,9 @@ def configure_ks_pxe_boot(options)
       else
         iso_image_dir = options['baserepodir']+"/"+options['service']+"/images"
       end
-      message       = "Information:\tCopying PXE boot images from "+iso_image_dir+" to "+pxe_image_dir
-      command       = "cp -r #{iso_image_dir} #{options['pxebootdir']}"
-      output        = execute_command(options,message,command)
+      message = "Information:\tCopying PXE boot images from "+iso_image_dir+" to "+pxe_image_dir
+      command = "cp -r #{iso_image_dir} #{options['pxebootdir']}"
+      output  = execute_command(options,message,command)
     end
   else
     check_dir_exists(options,options['pxebootdir'])

@@ -157,8 +157,8 @@ def configure_js_repo(options)
               start_block = start_block.to_i*640
               start_block = start_block.to_s
               no_blocks   = no_blocks(/^0/,"")
-              dd_message = "Extracting UFS partition from #{options['file']} to #{ufs_file}"
-              dd_command = "dd if=#{iso_info} of=#{ufs_file} bs=512 skip=#{start_block} count=#{no_blocks}"
+              dd_message  = "Extracting UFS partition from #{options['file']} to #{ufs_file}"
+              dd_command  = "dd if=#{iso_info} of=#{ufs_file} bs=512 skip=#{start_block} count=#{no_blocks}"
               execute_command(dd_message,dd_command)
             end
             command = "(cd /cdrom ; tar -cpf - . ) | (cd #{options['repodir']} ; tar -xpf - )"

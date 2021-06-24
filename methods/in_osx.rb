@@ -9,8 +9,8 @@ def check_osx_ip_forwarding(options,gw_if_name)
     handle_output(options,message)
     handle_output(options,"Executing:\t"+command)
   end
-  output  = %x[#{command}]
-  output  = output.chomp.to_i
+  output = %x[#{command}]
+  output = output.chomp.to_i
   if output == 0
     message = "Information:\tEnabling IP forwarding"
     command = "sudo sh -c \"sysctl net.inet.ip.forwarding=1\""
@@ -186,14 +186,14 @@ def check_osx_service_is_enabled(options,service)
     handle_output(options,"Warning:\tLaunch Agent not found for #{service}")
     quit(options)
   end
-  tmp_file  = "/tmp/tmp.plist"
-  message   = "Information:\tChecking service "+service+" is enabled"
+  tmp_file = "/tmp/tmp.plist"
+  message  = "Information:\tChecking service "+service+" is enabled"
   if service.match(/dhcp/)
-    command   = "cat #{plist_file} | grep Disabled |grep true"
+    command = "cat #{plist_file} | grep Disabled |grep true"
   else
-    command   = "cat #{plist_file} | grep -C1 Disabled |grep true"
+    command = "cat #{plist_file} | grep -C1 Disabled |grep true"
   end
-  output    = execute_command(options,message,command)
+  output = execute_command(options,message,command)
   if not output.match(/true/)
     if options['verbose'] == true
       handle_output(options,"Information:\t#{service} enabled")

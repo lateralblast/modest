@@ -71,15 +71,15 @@ def output_pe_client_profile(options,output_file)
   admin_password  = $q_struct['admin_password'].value
   organisation    = $q_struct['organisation'].value
   cpu_arch        = $q_struct['cpu_arch'].value
-  options['license'] = $q_struct['license_key'].value
+  options['license']   = $q_struct['license_key'].value
   options['vmnetwork'] = $q_struct['network_type'].value
   if options['vmnetwork'].to_s.match(/hostonly|bridged/)
-    network_name    = $q_struct['network_name'].value
-    network_cidr    = $q_struct['network_cidr'].value
-    network_ip      = $q_struct['ip_address'].value
-    gateway_ip      = $q_struct['gateway_address'].value
-    nameserver_ip   = $q_struct['nameserver_ip'].value
-    search_domain   = $q_struct['search_domain'].value
+    network_name  = $q_struct['network_name'].value
+    network_cidr  = $q_struct['network_cidr'].value
+    network_ip    = $q_struct['ip_address'].value
+    gateway_ip    = $q_struct['gateway_address'].value
+    nameserver_ip = $q_struct['nameserver_ip'].value
+    search_domain = $q_struct['search_domain'].value
   end
   # Put in some Microsoft Eval Keys if no license specified
   if not options['license'].to_s.match(/[0-9]/)

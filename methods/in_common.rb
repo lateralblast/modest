@@ -27,7 +27,7 @@ def set_defaults(options,defaults)
       defaults['host-os-cpu']    = %x[cat /proc/cpuinfo |grep processor |wc -l].chomp
     else
       defaults['host-os-memory'] = "1"
-      defaults['host-os-cpu'] = "1"
+      defaults['host-os-cpu']    = "1"
     end
   end
   if File.exist?("/proc/1/cgroup")
@@ -67,43 +67,43 @@ def set_defaults(options,defaults)
   end  
   if defaults['host-os-release'].to_s.match(/\./)
     defaults['host-os-major'] = defaults['host-os-release'].to_s.split(/\./)[0]
-    defaults['os-minor'] = defaults['host-os-release'].to_s.split(/\./)[1]
+    defaults['os-minor']      = defaults['host-os-release'].to_s.split(/\./)[1]
   else
     defaults['host-os-major'] = defaults['host-os-release']
     defaults['os-minor'] = "0"
   end
   # Declare valid defaults
   defaults['valid-acl']     = [ 'private', 'public-read', 'public-read-write',
-                               'authenticated-read' ]
+                                'authenticated-read' ]
   defaults['valid-action']  = [ 'add', 'boot', 'build', 'connect', 'check',
-                               'clone', 'create', 'delete', 'deploy', 'download',
-                               'export', 'get', 'halt', 'info', 'import', 'list',
-                               'migrate', 'shutdown', 'start', 'stop', 'upload',
-                               'usage' ]
+                                'clone', 'create', 'delete', 'deploy', 'download',
+                                'export', 'get', 'halt', 'info', 'import', 'list',
+                                'migrate', 'shutdown', 'start', 'stop', 'upload',
+                                'usage' ]
   defaults['valid-arch']    = [ 'x86_64', 'i386', 'sparc' ]
   defaults['valid-console'] = [ 'text', 'console', 'x11', 'headless', "pty", "vnc" ]
   defaults['valid-format']  = [ 'VMDK', 'RAW', 'VHD' ]
   defaults['valid-method']  = [ 'ks', 'xb', 'vs', 'ai', 'js', 'ps', 'lxc', 'ay',
-                               'image', 'ldom', 'cdom', 'gdom' ]
+                                'image', 'ldom', 'cdom', 'gdom' ]
   defaults['valid-mode']    = [ 'client', 'server', 'osx' ]
   defaults['valid-os']      = [ 'Solaris', 'VMware-VMvisor', 'CentOS',
-                               'OracleLinux', 'SLES', 'openSUSE', 'NT',
-                               'Ubuntu', 'Debian', 'Fedora', 'RHEL', 'SL',
-                               'Purity', 'Windows', 'JeOS', 'AMZNL' ]
+                                'OracleLinux', 'SLES', 'openSUSE', 'NT',
+                                'Ubuntu', 'Debian', 'Fedora', 'RHEL', 'SL',
+                                'Purity', 'Windows', 'JeOS', 'AMZNL' ]
   defaults['valid-output']  = [ 'text', 'html' ]
   defaults['valid-type']    = [ 'iso', 'flar', 'ova', 'snapshot', 'service',
-                               'boot', 'cdrom', 'net', 'disk', 'client', 'dvd',
-                               'server', 'ansible', 'vcsa', 'packer', 'docker',
-                               'amazon-ebs', 'image', 'ami', 'instance', 'bucket',
-                               'acl', 'snapshot', 'key', 'sg', 'dhcp', 'keypair',
-                               'ssh', 'stack', 'object', 'cf', 'cloudformation',
-                               'public', 'private', 'securitygroup', 'iprule',
-                               'pxe', 'nic', 'network' ]
+                                'boot', 'cdrom', 'net', 'disk', 'client', 'dvd',
+                                'server', 'ansible', 'vcsa', 'packer', 'docker',
+                                'amazon-ebs', 'image', 'ami', 'instance', 'bucket',
+                                'acl', 'snapshot', 'key', 'sg', 'dhcp', 'keypair',
+                                'ssh', 'stack', 'object', 'cf', 'cloudformation',
+                                'public', 'private', 'securitygroup', 'iprule',
+                                'pxe', 'nic', 'network' ]
   defaults['valid-target']  = [ 'citrix', 'vmware', 'windows' ]
   # VM related defaults
   if defaults['host-os-arch'].to_s.match(/sparc/)
     if defaults['host-os-major'] = %x[uname -r].split(/\./)[1].to_i > 9
-      defaults['valid-vm'] = [ 'zone', 'cdom', 'gdom', 'aws' ]
+      defaults['valid-vm']       = [ 'zone', 'cdom', 'gdom', 'aws' ]
     end
   else
     case defaults['host-os-name']
@@ -112,11 +112,11 @@ def set_defaults(options,defaults)
     when /NT/
       defaults['valid-vm'] = [ 'vbox', 'aws', 'fusion' ]
     when /SunOS/
-      defaults['valid-vm']    = [ 'vbox', 'zone', 'aws' ]
+      defaults['valid-vm'] = [ 'vbox', 'zone', 'aws' ]
+      defaults['nic']      = %x[dladm show-link |grep phys |grep up |awk '{print $1}'].chomp
       defaults['host-os-platform'] = %x[prtdiag |grep 'System Configuration'].chomp
-      defaults['nic']        = %x[dladm show-link |grep phys |grep up |awk '{print $1}'].chomp
     when /Linux/
-      defaults['valid-vm']   = [ 'vbox', 'lxc', 'docker', 'aws', 'qemu', 'kvm', 'xen', 'fusion' ]
+      defaults['valid-vm'] = [ 'vbox', 'lxc', 'docker', 'aws', 'qemu', 'kvm', 'xen', 'fusion' ]
       if File.exist?("/sbin/dmidecode")
         defaults['dmidecode'] = "/sbin/dmidecode"
       else
@@ -137,9 +137,9 @@ def set_defaults(options,defaults)
       defaults['host-os-release'] = %x[#{defaults['lsb']} -r -s].chomp
       defaults['host-os-version'] = %x[#{defaults['lsb']} -r -s].chomp.split(".")[0]
     when /Darwin/
+      defaults['nic']    = "en0"
+      defaults['ovfbin'] = "/Applications/VMware OVF Tool/ovftool"
       defaults['valid-vm'] = [ 'vbox', 'fusion', 'parallels', 'aws', 'docker', 'qemu'  ]
-      defaults['nic']     = "en0"
-      defaults['ovfbin']  = "/Applications/VMware OVF Tool/ovftool"
     end
     case defaults['host-os-platform']
     when /VMware/
@@ -250,7 +250,7 @@ def set_defaults(options,defaults)
   defaults['adminname']       = "Sys Admin"
   defaults['adminpassword']   = "P455w0rd"
   defaults['adminuid']        = "200"
-  defaults['adminshell']     = "/bin/bash"
+  defaults['adminshell']      = "/bin/bash"
   defaults['apachedir']       = '/etc/apache2'
   defaults['aidir']           = defaults['basedir'].to_s+'/export/auto_install'
   defaults['aiport']          = '10081'
@@ -308,7 +308,7 @@ def set_defaults(options,defaults)
   defaults['region']          = "ap-southeast-2"
   if options['vm']
     if options['vm'].to_s.match(/aws/)
-      defaults['keydir']  = ENV['HOME'].to_s+"/.ssh/aws"
+      defaults['keydir'] = ENV['HOME'].to_s+"/.ssh/aws"
     else
       defaults['keydir'] = ENV['HOME'].to_s+"/.ssh"
     end
@@ -325,131 +325,131 @@ def set_defaults(options,defaults)
       defaults['vmnic'] = "eth0"
     end
   end
-  defaults['keyboard']        = "US"
-  defaults["keyfile"]         = "none"
-  defaults['keymap']          = "US-English"
-  defaults['kvmgroup']        = "kvm"
-  defaults['kvmgid']          = get_group_gid(options,defaults['kvmgroup'].to_s)
-  defaults['language']        = "en_US"
-  defaults['livecd']          = false
-  defaults['ldomdir']         = '/ldoms'
-  defaults['local']           = "local"
-  defaults['locale']          = "en_US"
-  defaults['lxcdir']          = "/export/clients/lxc"
-  defaults['lxcimagedir']     = "/export/clients/lxc/images"
-  defaults['mac']             = ""
-  defaults['maasadmin']       = "root"
-  defaults['maasemail']       = defaults['maasadmin'].to_s+"@"+defaults['hostip'].to_s
-  defaults['maaspassword']    = defaults['adminpassword'].to_s
-  defaults['manifest']        = "modest"
-  defaults['masked']          = false
-  defaults['memory']          = "2048"
-  defaults['vcpus']           = "1"
-  defaults['mirror']          = defaults['country'].to_s.downcase+'.archive.ubuntu.com'
-  defaults['mirrordir']       = "/ubuntu"
-  defaults['mirrorurl']       = defaults['mirror'].to_s+defaults['mirrordir'].to_s
-  defaults['mirrordisk']      = false   
-  defaults['mode']            = 'client'
-  defaults['nameserver']      = "8.8.8.8"
-  defaults['nameservice']     = "none"
-  defaults['net']             = "net0"
-  defaults['netmask']         = "255.255.255.0"
-  defaults['nfs4domain']      = "dynamic"
-  defaults['nokeys']          = false
-  defaults['nomirror']        = true
-  defaults['nosuffix']        = false
-  defaults['noreboot']        = false
-  defaults['reboot']          = true
-  defaults['novncdir']        = "/usr/local/novnc"
-  defaults['number']          = "1,1"
-  defaults['object']          = "uploads"
-  defaults['opencsw']         = 'http://mirror.opencsw.org/opencsw/'
-  defaults['organisation']    = "Multi OS Deployment Server"
-  defaults['output']          = 'text'
-  defaults['ovftarurl']       = "https://github.com/richardatlateralblast/ottar/blob/master/vmware-ovftools.tar.gz?raw=true"
-  defaults['ovfdmgurl']       = "https://github.com/richardatlateralblast/ottar/blob/master/VMware-ovftool-4.1.0-2459827-mac.x64.dmg?raw=true"
-  defaults['packerversion']   = "1.7.2"
-  defaults['pkgdir']          = defaults['basedir'].to_s+'/export/pkgs'
-  defaults['proto']           = "tcp"
-  defaults['publisherhost']   = defaults['hostip'].to_s
-  defaults['publisherport']   = "10081"
-  defaults['biostype']        = "bios"
-  defaults['repodir']         = defaults['basedir'].to_s+'/export/repo'
-  defaults['rpoolname']       = 'rpool'
-  defaults['rootdisk']        = "/dev/sda"
-  defaults['rootpassword']    = "P455w0rd"
-  defaults['rpm2cpiobin']     = ""
-  defaults['search']          = "all"
-  defaults['security']        = "none"
-  defaults['server']          = defaults['hostip'].to_s
-  defaults['severadmin']      = "root"
-  defaults['servernetwork']   = "vmnetwork1"
-  defaults['serverpassword']  = "P455w0rd"
-  defaults['serversize']      = "small"
-  defaults['serial']          = false
-  defaults['sitename']        = defaults['domainname'].to_s.split(".")[0]
-  defaults['size']            = "100G"
-  defaults['slice']           = "8192"
-  defaults['sharedfolder']    = defaults['home'].to_s+"/Documents"
-  defaults['sharedmount']     = "/mnt"
-  defaults['splitvols']       = false
-  defaults['sshconfig']       = defaults['home'].to_s+"/.ssh/config"
-  defaults['sshenadble']      = "true"
-  defaults['sshkeydir']       = defaults['home'].to_s+"/.ssh"
-  defaults['sshkeyfile']      = defaults['home'].to_s+"/.ssh/id_rsa.pub"
-  defaults['sshport']         = "22"
-  defaults['sshtimeout']      = "20m"
-  defaults['sudo']            = true
-  defaults['sudogroup']       = "sudo"
-  defaults['suffix']          = defaults["scriptname"].to_s
-  defaults['systemlocale']    = "C"
-  defaults['target']          = "vmware"
-  defaults['terminal']        = "sun"
-  defaults['techpreview']     = false
-  defaults['text']            = false
-  defaults['timeserver']      = "0."+defaults['country'].to_s.downcase+".pool.ntp.org"
-  defaults['tmpdir']          = "/tmp"
-  defaults['tftpdir']         = "/etc/netboot"
-  defaults['thindiskmode']    = "true"
-  defaults['time']            = "Eastern Standard Time"
-  defaults['timezone']        = "Australia/Victoria"
-  defaults['trunk']           = 'stable'
-  defaults['ubuntumirror']    = "mirror.aarnet.edu.au"
-  defaults['ubuntudir']       = "/ubuntu"
-  defaults['uid']             = %x[/usr/bin/id -u].chomp
-  defaults['uid']             = Integer(defaults['uid'])
-  defaults['uuid']            = ""
-  defaults['unmasked']        = false
-  defaults['usemirror']       = false
-  defaults['user']            = %x[whoami].chomp
-  defaults['utc']             = "off"
-  defaults['vboxadditions']   = "/Applications/VirtualBox.app//Contents/MacOS/VBoxGuestAdditions.iso"
-  defaults['vboxmanage']      = "/usr/local/bin/VBoxManage"
-  defaults['vcpu']            = "1"
-  defaults['vgname']          = "vg01"
-  defaults['vnc']             = true
-  defaults['verbose']         = "false"
-  defaults['vmntools']        = false
-  defaults['vmnetwork']       = "hostonly"
-  defaults['vncpassword']     = "P455w0rd"
-#  defaults['vncport']         = "5961"
-  defaults['vncport']         = "5900"
-  defaults['vlanid']          = "0"
+  defaults['keyboard']       = "US"
+  defaults["keyfile"]        = "none"
+  defaults['keymap']         = "US-English"
+  defaults['kvmgroup']       = "kvm"
+  defaults['kvmgid']         = get_group_gid(options,defaults['kvmgroup'].to_s)
+  defaults['language']       = "en_US"
+  defaults['livecd']         = false
+  defaults['ldomdir']        = '/ldoms'
+  defaults['local']          = "local"
+  defaults['locale']         = "en_US"
+  defaults['lxcdir']         = "/export/clients/lxc"
+  defaults['lxcimagedir']    = "/export/clients/lxc/images"
+  defaults['mac']            = ""
+  defaults['maasadmin']      = "root"
+  defaults['maasemail']      = defaults['maasadmin'].to_s+"@"+defaults['hostip'].to_s
+  defaults['maaspassword']   = defaults['adminpassword'].to_s
+  defaults['manifest']       = "modest"
+  defaults['masked']         = false
+  defaults['memory']         = "2048"
+  defaults['vcpus']          = "1"
+  defaults['mirror']         = defaults['country'].to_s.downcase+'.archive.ubuntu.com'
+  defaults['mirrordir']      = "/ubuntu"
+  defaults['mirrorurl']      = defaults['mirror'].to_s+defaults['mirrordir'].to_s
+  defaults['mirrordisk']     = false   
+  defaults['mode']           = 'client'
+  defaults['nameserver']     = "8.8.8.8"
+  defaults['nameservice']    = "none"
+  defaults['net']            = "net0"
+  defaults['netmask']        = "255.255.255.0"
+  defaults['nfs4domain']     = "dynamic"
+  defaults['nokeys']         = false
+  defaults['nomirror']       = true
+  defaults['nosuffix']       = false
+  defaults['noreboot']       = false
+  defaults['reboot']         = true
+  defaults['novncdir']       = "/usr/local/novnc"
+  defaults['number']         = "1,1"
+  defaults['object']         = "uploads"
+  defaults['opencsw']        = 'http://mirror.opencsw.org/opencsw/'
+  defaults['organisation']   = "Multi OS Deployment Server"
+  defaults['output']         = 'text'
+  defaults['ovftarurl']      = "https://github.com/richardatlateralblast/ottar/blob/master/vmware-ovftools.tar.gz?raw=true"
+  defaults['ovfdmgurl']      = "https://github.com/richardatlateralblast/ottar/blob/master/VMware-ovftool-4.1.0-2459827-mac.x64.dmg?raw=true"
+  defaults['packerversion']  = "1.7.2"
+  defaults['pkgdir']         = defaults['basedir'].to_s+'/export/pkgs'
+  defaults['proto']          = "tcp"
+  defaults['publisherhost']  = defaults['hostip'].to_s
+  defaults['publisherport']  = "10081"
+  defaults['biostype']       = "bios"
+  defaults['repodir']        = defaults['basedir'].to_s+'/export/repo'
+  defaults['rpoolname']      = 'rpool'
+  defaults['rootdisk']       = "/dev/sda"
+  defaults['rootpassword']   = "P455w0rd"
+  defaults['rpm2cpiobin']    = ""
+  defaults['search']         = "all"
+  defaults['security']       = "none"
+  defaults['server']         = defaults['hostip'].to_s
+  defaults['severadmin']     = "root"
+  defaults['servernetwork']  = "vmnetwork1"
+  defaults['serverpassword'] = "P455w0rd"
+  defaults['serversize']     = "small"
+  defaults['serial']         = false
+  defaults['sitename']       = defaults['domainname'].to_s.split(".")[0]
+  defaults['size']           = "100G"
+  defaults['slice']          = "8192"
+  defaults['sharedfolder']   = defaults['home'].to_s+"/Documents"
+  defaults['sharedmount']    = "/mnt"
+  defaults['splitvols']      = false
+  defaults['sshconfig']      = defaults['home'].to_s+"/.ssh/config"
+  defaults['sshenadble']     = "true"
+  defaults['sshkeydir']      = defaults['home'].to_s+"/.ssh"
+  defaults['sshkeyfile']     = defaults['home'].to_s+"/.ssh/id_rsa.pub"
+  defaults['sshport']        = "22"
+  defaults['sshtimeout']     = "20m"
+  defaults['sudo']           = true
+  defaults['sudogroup']      = "sudo"
+  defaults['suffix']         = defaults["scriptname"].to_s
+  defaults['systemlocale']   = "C"
+  defaults['target']         = "vmware"
+  defaults['terminal']       = "sun"
+  defaults['techpreview']    = false
+  defaults['text']           = false
+  defaults['timeserver']     = "0."+defaults['country'].to_s.downcase+".pool.ntp.org"
+  defaults['tmpdir']         = "/tmp"
+  defaults['tftpdir']        = "/etc/netboot"
+  defaults['thindiskmode']   = "true"
+  defaults['time']           = "Eastern Standard Time"
+  defaults['timezone']       = "Australia/Victoria"
+  defaults['trunk']          = 'stable'
+  defaults['ubuntumirror']   = "mirror.aarnet.edu.au"
+  defaults['ubuntudir']      = "/ubuntu"
+  defaults['uid']            = %x[/usr/bin/id -u].chomp
+  defaults['uid']            = Integer(defaults['uid'])
+  defaults['uuid']           = ""
+  defaults['unmasked']       = false
+  defaults['usemirror']      = false
+  defaults['user']           = %x[whoami].chomp
+  defaults['utc']            = "off"
+  defaults['vboxadditions']  = "/Applications/VirtualBox.app//Contents/MacOS/VBoxGuestAdditions.iso"
+  defaults['vboxmanage']     = "/usr/local/bin/VBoxManage"
+  defaults['vcpu']           = "1"
+  defaults['vgname']         = "vg01"
+  defaults['vnc']            = true
+  defaults['verbose']        = "false"
+  defaults['vmntools']       = false
+  defaults['vmnetwork']      = "hostonly"
+  defaults['vncpassword']    = "P455w0rd"
+#  defaults['vncport']        = "5961"
+  defaults['vncport']        = "5900"
+  defaults['vlanid']         = "0"
 #  defaults['vm']              = "vbox"
-  defaults['vmnet']           = "vboxnet0"
-  defaults['vmnetdhcp']       = false
-  defaults['vmnetwork']       = "hostonly"
-  defaults['vmtools']         = "disable"
-  defaults['vswitch']         = "vSwitch0"
-  defaults['wikidir']         = defaults['scriptdir'].to_s+"/"+File.basename(defaults['script'],".rb")+".wiki"
-  defaults['wikiurl']         = "https://github.com/lateralblast/mode.wiki.git"
-  defaults['workdir']         = defaults['home'].to_s+"/.modest"
-  defaults['backupdir']       = defaults['workdir'].to_s+"/backup"
-  defaults['bindir']          = defaults['workdir'].to_s+"/bin"
-  defaults['rpmdir']          = defaults['workdir'].to_s+"/rpms"
-  defaults['zonedir']         = '/zones'
-  defaults['yes']             = false
-  defaults['zpoolname']       = 'rpool'
+  defaults['vmnet']          = "vboxnet0"
+  defaults['vmnetdhcp']      = false
+  defaults['vmnetwork']      = "hostonly"
+  defaults['vmtools']        = "disable"
+  defaults['vswitch']        = "vSwitch0"
+  defaults['wikidir']        = defaults['scriptdir'].to_s+"/"+File.basename(defaults['script'],".rb")+".wiki"
+  defaults['wikiurl']        = "https://github.com/lateralblast/mode.wiki.git"
+  defaults['workdir']        = defaults['home'].to_s+"/.modest"
+  defaults['backupdir']      = defaults['workdir'].to_s+"/backup"
+  defaults['bindir']         = defaults['workdir'].to_s+"/bin"
+  defaults['rpmdir']         = defaults['workdir'].to_s+"/rpms"
+  defaults['zonedir']        = '/zones'
+  defaults['yes']            = false
+  defaults['zpoolname']      = 'rpool'
   if options['vm'].to_s.match(/kvm/)
     defaults['cdrom']           = "none"
     defaults['install']         = "none"
@@ -594,8 +594,8 @@ def reset_defaults(options,defaults)
       defaults['size'] = "500"
     end
   when /ps/
-    defaults["software"] = "openssh-server"
-    defaults["language"] = "en"
+    defaults['software'] = "openssh-server"
+    defaults['language'] = "en"
   end
   case options['service']
   when /win/
@@ -888,11 +888,11 @@ def get_my_ip(options)
       end
     end
   end
-  output  = execute_command(options,message,command)
-  output  = output.chomp
-  output  = output.strip
-  output  = output.gsub(/\s+|\n/,"")
-  output  = output.strip
+  output = execute_command(options,message,command)
+  output = output.chomp
+  output = output.strip
+  output = output.gsub(/\s+|\n/,"")
+  output = output.strip
   return output
 end
 

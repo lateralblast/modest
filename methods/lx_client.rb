@@ -53,8 +53,8 @@ end
 # Create Ubuntu container config
 
 def create_ubuntu_lxc_config(options)
-  options['ip']  = single_install_ip(options)
-  tmp_file    = "/tmp/lxc_"+options['name']
+  tmp_file = "/tmp/lxc_"+options['name']
+  options['ip'] = single_install_ip(options)
   options['clientdir']  = options['lxcdir']+"/"+options['name']
   config_file = options['clientdir']+"/config"
   message = "Information:\tCreating configuration for "+options['name']

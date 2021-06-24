@@ -289,8 +289,8 @@ def configure_js_client(options)
       command = "chmod 755 #{options['file']}"
       execute_command(options,message,command)
     end
-    export_dir  = Pathname.new(options['file'])
-    export_dir  = export_dir.dirname.to_s
+    export_dir = Pathname.new(options['file'])
+    export_dir = export_dir.dirname.to_s
     add_apache_alias(options,export_dir)
     if not options['service'].to_s.match(/[a-z,A-Z]/)
       options['service'] = Pathname.new(options['file'])

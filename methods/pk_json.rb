@@ -165,14 +165,14 @@ def create_packer_json(options)
     nic_config1  = "bridged"
     nic_command2 = "--nictype1"
     if options['service'].to_s.match(/vmware|esx|vsphere/)
-      nic_config2  = "virtio"
+      nic_config2 = "virtio"
     else
-      nic_config2  = "82545EM"
+      nic_config2 = "82545EM"
     end
     nic_command3 = "--bridgeadapter1"
     nic_config3  = "#{nic_name}"
   end
-  options['size']     = options['size'].gsub(/G/,"000")
+  options['size'] = options['size'].gsub(/G/,"000")
   if options['service'].to_s.match(/el_8|centos_8/)
     virtual_dev = "pvscsi"
   end
@@ -183,8 +183,8 @@ def create_packer_json(options)
     admin_password = options['adminpassword']
   else
     if options['method'].to_s.match(/vs/)
-      ssh_username   = "root"
-      ssh_password   = $q_struct['root_password'].value
+      ssh_username = "root"
+      ssh_password = $q_struct['root_password'].value
     else
       ssh_username   = $q_struct['admin_username'].value
       ssh_password   = $q_struct['admin_password'].value
@@ -449,17 +449,17 @@ def create_packer_json(options)
                    "- nowin install -B install_media=cdrom<enter><wait>"+
                    "b<wait>"
   when /sles/
-    ssh_port            = "22"
-    ssh_host_port_max   = "22"
-    ssh_host_port_min   = "22"
-    ks_file             = options['vm']+"/"+options['name']+"/"+options['name']+".xml"
-    ks_url              = "http://#{ks_ip}:#{options['httpport']}/"+ks_file
-    install_nic         = $q_struct['nic'].value
-    options['netmask']     = $q_struct['netmask'].value
-    options['vmgateway']     = $q_struct['gateway'].value
-    options['nameserver']  = $q_struct['nameserver'].value
-    install_domain      = options['domainname']
-    net_config          = install_nic+"="+options['ip']+"/24,"+options['vmgateway']+","+options['nameserver']+","+install_domain
+    ssh_port              = "22"
+    ssh_host_port_max     = "22"
+    ssh_host_port_min     = "22"
+    ks_file               = options['vm']+"/"+options['name']+"/"+options['name']+".xml"
+    ks_url                = "http://#{ks_ip}:#{options['httpport']}/"+ks_file
+    install_nic           = $q_struct['nic'].value
+    options['netmask']    = $q_struct['netmask'].value
+    options['vmgateway']  = $q_struct['gateway'].value
+    options['nameserver'] = $q_struct['nameserver'].value
+    install_domain        = options['domainname']
+    net_config            = install_nic+"="+options['ip']+"/24,"+options['vmgateway']+","+options['nameserver']+","+install_domain
     if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
       if options['vmnetwork'].to_s.match(/hostonly|bridged/)
         boot_command = "<esc><enter><wait> linux<wait>"+

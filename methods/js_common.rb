@@ -16,55 +16,55 @@ def populate_js_fs_list(options)
 
   name = "root"
   config = Fs.new(
-    name      = "root",
-    mount     = "/",
-    slice     = "0",
-    mirror    = "d10",
-    size      = options['slice']
+    name   = "root",
+    mount  = "/",
+    slice  = "0",
+    mirror = "d10",
+    size   = options['slice']
     )
   f_struct[name] = config
   f_order.push(name)
 
   name = "swap"
   config = Fs.new(
-    name      = "swap",
-    mount     = "/",
-    slice     = "1",
-    mirror    = "d20",
-    size      = options['slice']
+    name   = "swap",
+    mount  = "/",
+    slice  = "1",
+    mirror = "d20",
+    size   = options['slice']
     )
   f_struct[name] = config
   f_order.push(name)
 
   name = "var"
   config = Fs.new(
-    name      = "var",
-    mount     = "/var",
-    slice     = "3",
-    mirror    = "d30",
-    size      = options['slice']
+    name   = "var",
+    mount  = "/var",
+    slice  = "3",
+    mirror = "d30",
+    size   = options['slice']
     )
   f_struct[name] = config
   f_order.push(name)
 
   name = "opt"
   config = Fs.new(
-    name      = "opt",
-    mount     = "/opt",
-    slice     = "4",
-    mirror    = "d40",
-    size      = "1024"
+    name   = "opt",
+    mount  = "/opt",
+    slice  = "4",
+    mirror = "d40",
+    size   = "1024"
     )
   f_struct[name] = config
   f_order.push(name)
 
   name = "export"
   config = Fs.new(
-    name      = "export",
-    mount     = "/home/home",
-    slice     = "5",
-    mirror    = "d50",
-    size      = "free"
+    name   = "export",
+    mount  = "/home/home",
+    slice  = "5",
+    mirror = "d50",
+    size   = "free"
     )
   f_struct[name] = config
   f_order.push(name)
