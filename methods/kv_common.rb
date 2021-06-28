@@ -268,7 +268,7 @@ def check_kvm_is_installed(options)
   message = "Information:\tChecking KVM is installed"
   command = "ifconfig -a |grep #{gw_if_name}"
   output  = execute_command(options,message,command)
-  if not output.match(/#{gw_if_name}/)
+  if !output.match(/#{gw_if_name}/) || !File.exist?("/usr/bin/virt-install")
     message = "Information:\tInstalling KVM"
     if File.exist?("/etc/redhat-release") or File.exist?("/etc/SuSE-release")
       command = "yum install qemu-kvm qemu-utils libvirt-clients libvirt-daemon-system bridge-utils virt-manager"

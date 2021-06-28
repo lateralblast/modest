@@ -73,7 +73,7 @@ def configure_vs_pxe_client(options)
   if !File.exist?(test_file)
     message = "Information:\tCreating PXE boot file for "+options['name']+" with MAC address "+options['mac']
     if options['biostype'].to_s.match(/efi/)
-      efi_boot_file = options['tftpdir'].to_s+"/"+options['service'].to_s+"/efi/boot/bootx64.efi"
+      efi_boot_file = options['service'].to_s+"/efi/boot/bootx64.efi"
       command = "cd #{options['tftpdir']} ; ln -s #{efi_boot_file} #{tftp_pxe_file}"
     else
       pxelinux_file = options['service']+"/usr/share/syslinux/pxelinux.0"
