@@ -1341,4 +1341,27 @@
 # Some code cleanup
 # 6.7.0: Mon 28 Jun 2021 10:54:00 AEST
 # Fixes for TFTP boot
-
+# 6.7.1: Mon 27 Sep 2021 07:44:00 AEST
+# Initial support for Ubuntu Live Server automated install
+# 6.7.2: Mon 27 Sep 2021 13:27:24 AEST
+# Cleaned up NIC question/determination for Ubuntu
+# 6.7.3: Mon 27 Sep 2021 14:17:48 AEST
+# Fixes for live install PXE boot
+# 6.7.4: Tue 28 Sep 2021 07:39:30 AEST
+# Initial post install commands for subiquity
+# 6.7.5: Tue 28 Sep 2021 09:27:42 AEST
+# Updates for post install commands for subiquity
+# 6.7.6: Tue 28 Sep 2021 10:27:00 AEST
+# Initial working support for subiquity PXE installs
+# 6.7.7: Wed 29 Sep 2021 20:53:11 AEST
+# Updated subiquitiy post install script
+# 6.7.8: Wed 29 Sep 2021 21:10:08 AEST
+# Fixes for subiquity post install script
+# 6.7.9: Thu 30 Sep 2021 16:29:52 AEST
+# More fixes for subiquity post install script
+# 6.8.0: Thu 30 Sep 2021 20:42:20 AEST
+# More fixes for subiquity post install script
+# 6.8.1: Thu 30 Sep 2021 21:23:52 AEST
+# Subiquity code clean up
+# 6.8.2: Fri  1 Oct 2021 20:07:57 AEST
+# Added biosdevnames switch

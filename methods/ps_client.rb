@@ -47,14 +47,19 @@ end
 # Populate first boot commands
 
 def populate_ps_first_boot_list(options)
+  if options['service'].to_s.match(/live/)
+    install_target = "/target"
+  else
+    install_target = ""
+  end
   post_list  = []
-  options['ip']  = $q_struct['ip'].value
   admin_user = $q_struct['admin_username'].value
+  options['ip'] = $q_struct['ip'].value
   if options['copykeys'] == true
     ssh_keyfile = options['sshkeyfile']
     if File.exist?(ssh_keyfile)
       ssh_key = %x[cat #{ssh_keyfile}].chomp
-      ssh_dir = "/home/"+admin_user+"/.ssh"
+      ssh_dir = "#{install_target}/home/"+admin_user+"/.ssh"
     end
   end
   if options['service'].to_s.match(/ubuntu/)
@@ -78,19 +83,14 @@ def populate_ps_first_boot_list(options)
   post_list.push("export LANGUAGE=en_US.UTF-8")
   post_list.push("export LANG=en_US.UTF-8")
   post_list.push("export LC_ALL=en_US.UTF-8")
-  post_list.push("/usr/sbin/locale-gen en_US.UTF-8")
-  post_list.push("echo 'LC_ALL=en_US.UTF-8' > /etc/default/locales")
-  post_list.push("echo 'LANG=en_US.UTF-8' >> /etc/default/locales")
-  post_list.push("")
-  post_list.push("# Configure apt mirror")
-  post_list.push("")
-  post_list.push("cp /etc/apt/sources.list /etc/apt/sources.list.orig")
-  #post_list.push("sed -i 's,archive.ubuntu.com,#{options['mirror']},g' /etc/apt/sources.list")
+  post_list.push("curtin in-target --target=/target -- /usr/sbin/locale-gen en_US.UTF-8")
+  post_list.push("echo 'LC_ALL=en_US.UTF-8' > #{install_target}/etc/default/locales")
+  post_list.push("echo 'LANG=en_US.UTF-8' >> #{install_target}/etc/default/locales")
   post_list.push("")
   if options['copykeys'] == true and File.exist?(ssh_keyfile)
     post_list.push("# Setup SSH keys")
     post_list.push("")
-    post_list.push("mkdir #{ssh_dir}")
+    post_list.push("mkdir -p #{ssh_dir}")
     post_list.push("chown #{admin_user}:#{admin_user} #{ssh_dir}")
     post_list.push("chmod 700 #{ssh_dir}")
     post_list.push("echo \"#{ssh_key}\" > #{ssh_dir}/authorized_keys")
@@ -100,7 +100,7 @@ def populate_ps_first_boot_list(options)
   end
   post_list.push("# Setup sudoers")
   post_list.push("")
-  post_list.push("echo \"#{admin_user} ALL=(ALL) NOPASSWD:ALL\" >> /etc/sudoers.d/#{admin_user}")
+  post_list.push("echo \"#{admin_user} ALL=(ALL) NOPASSWD:ALL\" >> #{install_target}/etc/sudoers.d/#{admin_user}")
 #  post_list.push("")
 #  post_list.push("# Enable serial console")
 #  post_list.push("")
@@ -112,33 +112,57 @@ def populate_ps_first_boot_list(options)
   post_list.push("")
   post_list.push("# Fix ethernet names to be ethX style and enable serial")
   post_list.push("")
-  if options['vm'] == options['empty']
-    post_list.push("SERIALTTY=`/usr/bin/setserial -g /dev/ttyS[012345] |grep -v unknown |tail -1 |cut -f1 -d, |cut -f3 -d/`")
-    post_list.push("SERIALPORT=`/usr/bin/setserial -g /dev/ttyS[012345] |grep -v unknown |tail -1 |cut -f3 -d, |awk '{print $2}'`")
-    post_list.push("echo 'GRUB_DEFAULT=0' > /etc/default/grub")
-    post_list.push("echo 'GRUB_TIMEOUT_STYLE=menu' >> /etc/default/grub")
-    post_list.push("echo 'GRUB_TIMEOUT=5' >> /etc/default/grub")
-    post_list.push("echo 'GRUB_DISTRIBUTOR=`lsb_release -i -s 2> /dev/null || echo Debian`' >> /etc/default/grub")
-    post_list.push("echo \"GRUB_SERIAL_COMMAND=\\\"serial --speed=115200 --port=$SERIALPORT\\\"\" >> /etc/default/grub")
-    post_list.push("echo \"GRUB_CMDLINE_LINUX=\\\"net.ifnames=0 biosdevname=0 console=tty0 console=$SERIALTTY,115200\\\"\" >> /etc/default/grub")
-    post_list.push("echo \"GRUB_TERMINAL_INPUT=\\\"console serial\\\"\" >> /etc/default/grub")
-    post_list.push("echo \"GRUB_TERMINAL_OUTPUT=\\\"console serial\\\"\" >> /etc/default/grub")
-    post_list.push("echo 'GRUB_GFXPAYLOAD_LINUX=text' >> /etc/default/grub")
+  if options['service'].to_s.match(/live/)
+    if options['biosdevnames'] == true
+      post_list.push("echo 'GRUB_CMDLINE_LINUX=\"net.ifnames=0 biosdevname=0 console=tty0 console=ttyS0\"' >> #{install_target}/etc/default/grub")
+    else
+      post_list.push("echo 'GRUB_CMDLINE_LINUX=\"console=tty0 console=ttyS0\"' >> #{install_target}/etc/default/grub")
+    end
+    post_list.push("echo \"GRUB_TERMINAL_INPUT=\\\"console serial\\\"\" >> #{install_target}/etc/default/grub")
+    post_list.push("echo \"GRUB_TERMINAL_OUTPUT=\\\"console serial\\\"\" >> #{install_target}/etc/default/grub")
+    post_list.push("curtin in-target --target=/target -- update-grub")
   else
-    post_list.push("echo 'GRUB_CMDLINE_LINUX=\"net.ifnames=0 biosdevname=0 console=tty0 console=ttyS0\"' >>/etc/default/grub")
-    post_list.push("echo \"GRUB_TERMINAL_INPUT=\\\"console serial\\\"\" >> /etc/default/grub")
-    post_list.push("echo \"GRUB_TERMINAL_OUTPUT=\\\"console serial\\\"\" >> /etc/default/grub")
-    post_list.push("echo \"GRUB_CMDLINE_LINUX_DEFAULT=\\\"nomodeset\\\"\" >> /etc/default/grub")
-    post_list.push("systemctl disable openipmi.service")
-    post_list.push("systemctl stop openipmi.service")
-    post_list.push("systemctl enable serial-getty@ttyS0.service")
-    post_list.push("systemctl start serial-getty@ttyS0.service")
+    post_list.push("# Configure apt mirror")
+    post_list.push("")
+    post_list.push("cp #{install_target}/etc/apt/sources.list #{install_target}/etc/apt/sources.list.orig")
+    #post_list.push("sed -i 's,archive.ubuntu.com,#{options['mirror']},g' /etc/apt/sources.list")
+    post_list.push("")
+    if options['vm'] == options['empty']
+      post_list.push("SERIALTTY=`/usr/bin/setserial -g /dev/ttyS[012345] |grep -v unknown |tail -1 |cut -f1 -d, |cut -f3 -d/`")
+      post_list.push("SERIALPORT=`/usr/bin/setserial -g /dev/ttyS[012345] |grep -v unknown |tail -1 |cut -f3 -d, |awk '{print $2}'`")
+      post_list.push("echo 'GRUB_DEFAULT=0' > #{install_target}/etc/default/grub")
+      post_list.push("echo 'GRUB_TIMEOUT_STYLE=menu' >> #{install_target}/etc/default/grub")
+      post_list.push("echo 'GRUB_TIMEOUT=5' >> #{install_target}/etc/default/grub")
+      post_list.push("echo 'GRUB_DISTRIBUTOR=`lsb_release -i -s 2> /dev/null || echo Debian`' >> #{install_target}/etc/default/grub")
+      post_list.push("echo \"GRUB_SERIAL_COMMAND=\\\"serial --speed=115200 --port=$SERIALPORT\\\"\" >> #{install_target}/etc/default/grub")
+      if options['biosdevnames'] == true
+        post_list.push("echo \"GRUB_CMDLINE_LINUX=\\\"net.ifnames=0 biosdevname=0 console=tty0 console=$SERIALTTY,115200\\\"\" >> #{install_target}/etc/default/grub")
+      else
+        post_list.push("echo \"GRUB_CMDLINE_LINUX=\\\"console=tty0 console=$SERIALTTY,115200\\\"\" >> #{install_target}/etc/default/grub")
+      end
+      post_list.push("echo \"GRUB_TERMINAL_INPUT=\\\"console serial\\\"\" >> #{install_target}/etc/default/grub")
+      post_list.push("echo \"GRUB_TERMINAL_OUTPUT=\\\"console serial\\\"\" >> #{install_target}/etc/default/grub")
+      post_list.push("echo 'GRUB_GFXPAYLOAD_LINUX=text' >> #{install_target}/etc/default/grub")
+    else
+      if options['biosdevnames'] == true
+        post_list.push("echo 'GRUB_CMDLINE_LINUX=\"net.ifnames=0 biosdevname=0 console=tty0 console=ttyS0\"' >> #{install_target}/etc/default/grub")
+      else
+        post_list.push("echo 'GRUB_CMDLINE_LINUX=\"console=tty0 console=ttyS0\"' >> #{install_target}/etc/default/grub")
+      end
+      post_list.push("echo \"GRUB_TERMINAL_INPUT=\\\"console serial\\\"\" >> #{install_target}/etc/default/grub")
+      post_list.push("echo \"GRUB_TERMINAL_OUTPUT=\\\"console serial\\\"\" >> #{install_target}/etc/default/grub")
+      post_list.push("echo \"GRUB_CMDLINE_LINUX_DEFAULT=\\\"nomodeset\\\"\" >> #{install_target}/etc/default/grub")
+      post_list.push("systemctl disable openipmi.service")
+      post_list.push("systemctl stop openipmi.service")
+      post_list.push("systemctl enable serial-getty@ttyS0.service")
+      post_list.push("systemctl start serial-getty@ttyS0.service")
+      post_list.push("/usr/sbin/update-grub")
+    end
   end
-  post_list.push("/usr/sbin/update-grub")
   post_list.push("")
   post_list.push("# Configure network")
   post_list.push("")
-  net_config = "/etc/network/interfaces"
+  net_config = "#{install_target}/etc/network/interfaces"
   post_list.push("echo '# The loopback network interface' > #{net_config}")
   post_list.push("echo 'auto lo' >> #{net_config}")
   post_list.push("echo 'iface lo inet loopback' >> #{net_config}")
@@ -225,49 +249,52 @@ def populate_ps_first_boot_list(options)
   end
   post_list.push("")
   if options['type'].to_s.match(/packer/)
-    post_list.push("echo 'Port 22' >> /etc/ssh/sshd_config")
-    post_list.push("echo 'Port 2222' >> /etc/ssh/sshd_config")
+    post_list.push("echo 'Port 22' >> #{install_target}/etc/ssh/sshd_config")
+    post_list.push("echo 'Port 2222' >> #{install_target}/etc/ssh/sshd_config")
     post_list.push("")
   end
-  if options['vmnetwork'].to_s.match(/hostonly|bridged/)
-    resolv_conf = "/etc/resolv.conf"
-    post_list.push("# Configure hosts file")
-    post_list.push("")
-    if options['service'].to_s.match(/ubuntu_18|ubuntu_20/)
-      post_list.push("sudo systemctl disable systemd-resolved.service")
-      post_list.push("sudo systemctl stop systemd-resolved")
-      post_list.push("rm /etc/resolv.conf")
+  if options['service'].to_s.match(/live/)
+    post_list.push("curtin in-target --target=/target -- apt install setserial net-tools")
+  else
+    if options['vmnetwork'].to_s.match(/hostonly|bridged/)
+      resolv_conf = "#{install_target}/etc/resolv.conf"
+      post_list.push("# Configure hosts file")
+      post_list.push("")
+      if options['service'].to_s.match(/ubuntu_18|ubuntu_20/)
+        post_list.push("sudo systemctl disable systemd-resolved.service")
+        post_list.push("sudo systemctl stop systemd-resolved")
+        post_list.push("rm /etc/resolv.conf")
+      end
+      post_list.push("echo 'nameserver #{client_nameserver}' > #{resolv_conf}")
+      post_list.push("echo 'search local' >> #{resolv_conf}")
     end
-    post_list.push("echo 'nameserver #{client_nameserver}' > #{resolv_conf}")
-    post_list.push("echo 'search local' >> #{resolv_conf}")
-  end
-  post_list.push("")
-  post_list.push("")
-  post_list.push("# Configure sources.list")
-  post_list.push("")
-  post_list.push("export UBUNTU_RELEASE=`lsb_release -sc`")
-  post_list.push("")
-  post_list.push("echo \"\" > /etc/apt/sources.list")
-  post_list.push("echo \"###### Ubuntu Main Repos\" >> /etc/apt/sources.list")
-  post_list.push("echo \"deb http://#{client_mirrorurl} $UBUNTU_RELEASE main restricted universe multiverse\" >> /etc/apt/sources.list")
-  post_list.push("echo \"deb-src http://#{client_mirrorurl} $UBUNTU_RELEASE main restricted universe multiverse\" >> /etc/apt/sources.list")
-  post_list.push("echo \"\" >> /etc/apt/sources.list")
-  post_list.push("echo \"###### Ubuntu Update Repos\" >> /etc/apt/sources.list")
-  post_list.push("echo \"deb http://#{client_mirrorurl} $UBUNTU_RELEASE-security main restricted universe multiverse\" >> /etc/apt/sources.list")
-  post_list.push("echo \"deb-src http://#{client_mirrorurl} $UBUNTU_RELEASE-security main restricted universe multiverse\" >> /etc/apt/sources.list")
-  post_list.push("echo \"deb http://#{client_mirrorurl} $UBUNTU_RELEASE-updates main restricted universe multiverse\" >> /etc/apt/sources.list")
-  post_list.push("echo \"deb-src http://#{client_mirrorurl} $UBUNTU_RELEASE-updates main restricted universe multiverse\" >> /etc/apt/sources.list")
-  post_list.push("echo \"deb http://#{client_mirrorurl} $UBUNTU_RELEASE-proposed main restricted universe multiverse\" >> /etc/apt/sources.list")
-  post_list.push("echo \"deb-src http://#{client_mirrorurl} $UBUNTU_RELEASE-proposed main restricted universe multiverse\" >> /etc/apt/sources.list")
-  post_list.push("echo \"deb http://#{client_mirrorurl} $UBUNTU_RELEASE-backports main restricted universe multiverse\" >> /etc/apt/sources.list")
-  post_list.push("echo \"deb-src http://#{client_mirrorurl} $UBUNTU_RELEASE-backports main restricted universe multiverse\" >> /etc/apt/sources.list")
-  post_list.push("")
-  post_list.push("# Disable script and reboot")
-  post_list.push("")
-  post_list.push("update-rc.d -f firstboot.sh remove")
-  post_list.push("mv /etc/init.d/firstboot.sh /etc/init.d/_firstboot.sh")
-  if options['reboot'] == true
-    post_list.push("/sbin/reboot")
+    post_list.push("")
+    post_list.push("# Configure sources.list")
+    post_list.push("")
+    post_list.push("export UBUNTU_RELEASE=`lsb_release -sc`")
+    post_list.push("")
+    post_list.push("echo \"\" > #{install_target}/etc/apt/sources.list")
+    post_list.push("echo \"###### Ubuntu Main Repos\" >> #{install_target}/etc/apt/sources.list")
+    post_list.push("echo \"deb http://#{client_mirrorurl} $UBUNTU_RELEASE main restricted universe multiverse\" >> #{install_target}/etc/apt/sources.list")
+    post_list.push("echo \"deb-src http://#{client_mirrorurl} $UBUNTU_RELEASE main restricted universe multiverse\" >> #{install_target}/etc/apt/sources.list")
+    post_list.push("echo \"\" >> /etc/apt/sources.list")
+    post_list.push("echo \"###### Ubuntu Update Repos\" >> /etc/apt/sources.list")
+    post_list.push("echo \"deb http://#{client_mirrorurl} $UBUNTU_RELEASE-security main restricted universe multiverse\" >> #{install_target}/etc/apt/sources.list")
+    post_list.push("echo \"deb-src http://#{client_mirrorurl} $UBUNTU_RELEASE-security main restricted universe multiverse\" >> #{install_target}/etc/apt/sources.list")
+    post_list.push("echo \"deb http://#{client_mirrorurl} $UBUNTU_RELEASE-updates main restricted universe multiverse\" >> #{install_target}/etc/apt/sources.list")
+    post_list.push("echo \"deb-src http://#{client_mirrorurl} $UBUNTU_RELEASE-updates main restricted universe multiverse\" >> #{install_target}/etc/apt/sources.list")
+    post_list.push("echo \"deb http://#{client_mirrorurl} $UBUNTU_RELEASE-proposed main restricted universe multiverse\" >> #{install_target}/etc/apt/sources.list")
+    post_list.push("echo \"deb-src http://#{client_mirrorurl} $UBUNTU_RELEASE-proposed main restricted universe multiverse\" >> #{install_target}/etc/apt/sources.list")
+    post_list.push("echo \"deb http://#{client_mirrorurl} $UBUNTU_RELEASE-backports main restricted universe multiverse\" >> #{install_target}/etc/apt/sources.list")
+    post_list.push("echo \"deb-src http://#{client_mirrorurl} $UBUNTU_RELEASE-backports main restricted universe multiverse\" >> #{install_target}/etc/apt/sources.list")
+    post_list.push("")
+    post_list.push("# Disable script and reboot")
+    post_list.push("")
+    post_list.push("update-rc.d -f firstboot.sh remove")
+    post_list.push("mv /etc/init.d/firstboot.sh /etc/init.d/_firstboot.sh")
+    if options['reboot'] == true
+      post_list.push("/sbin/reboot")
+    end
   end
   post_list.push("")
   return post_list

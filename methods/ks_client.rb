@@ -27,6 +27,14 @@ def configure_ks_pxe_client(options)
   message = "Information:\tCreating PXE boot file for "+options['name']+" with MAC address "+options['mac']
   command = "cd #{options['tftpdir']} ; ln -s #{pxelinux_file} #{tftp_pxe_file}"
   execute_command(options,message,command)
+  if options['service'].to_s.match(/live/)
+    iso_dir  = options['tftpdir']+"/"+options['service']
+    message  = "Information:\tDetermining install ISO location"
+    command  = "ls #{iso_dir}/*.iso"
+    iso_file = execute_command(options,message,command) 
+    iso_file = iso_file.chomp
+    install_iso = File.basename(iso_file)
+  end
   if options['biostype'].to_s.match(/efi/)
     shim_efi_file  = "/usr/lib/shim/shimx64.efi"
     if !File.exist?(shim_efi_file)
@@ -83,14 +91,22 @@ def configure_ks_pxe_client(options)
   if options['service'].to_s.match(/sles/)
     vmlinuz_file = "/"+options['service']+"/boot/#{options['arch']}/loader/linux"
   else
-    vmlinuz_file = "/"+options['service']+"/images/pxeboot/vmlinuz"
+    if options['service'].to_s.match(/live/)
+      vmlinuz_file = "/"+options['service']+"/casper/vmlinuz"
+    else
+      vmlinuz_file = "/"+options['service']+"/images/pxeboot/vmlinuz"
+    end
   end
   if options['service'].to_s.match(/ubuntu/)
-    if options['service'].to_s.match(/x86_64/)
-      initrd_file  = "/"+options['service']+"/images/pxeboot/netboot/ubuntu-installer/amd64/initrd.gz"
-      linux_file  = "/"+options['service']+"/images/pxeboot/netboot/ubuntu-installer/amd64/linux"
+    if options['service'].to_s.match(/live/)
+      initrd_file = "/"+options['service']+"/casper/initrd"
     else
-      initrd_file  = "/"+options['service']+"/images/pxeboot/netboot/ubuntu-installer/i386/initrd.gz"
+      if options['service'].to_s.match(/x86_64/)
+        initrd_file  = "/"+options['service']+"/images/pxeboot/netboot/ubuntu-installer/amd64/initrd.gz"
+        linux_file  = "/"+options['service']+"/images/pxeboot/netboot/ubuntu-installer/amd64/linux"
+      else
+        initrd_file  = "/"+options['service']+"/images/pxeboot/netboot/ubuntu-installer/i386/initrd.gz"
+      end
     end
     ldlinux_link = options['tftpdir']+"/ldlinux.c32"
     if not File.exist?(ldlinux_link) and not File.symlink?(ldlinux_link)
@@ -117,6 +133,10 @@ def configure_ks_pxe_client(options)
   end
   #ks_url       = "http://"+host_info+"/clients/"+options['service']+"/"+options['name']+"/"+options['name']+".cfg"
   #autoyast_url = "http://"+host_info+"/clients/"+options['service']+"/"+options['name']+"/"+options['name']+".xml"
+  base_url     = "http://"+options['hostip']+"/"+options['name']
+  if options['service'].to_s.match(/live/)
+    iso_url = "http://"+options['hostip']+"/"+options['service']+"/"+install_iso
+  end
   ks_url       = "http://"+options['hostip']+"/"+options['name']+"/"+options['name']+".cfg"
   autoyast_url = "http://"+options['hostip']+"/"+options['name']+"/"+options['name']+".xml"
   install_url  = "http://"+host_info+"/"+options['service']
@@ -132,6 +152,9 @@ def configure_ks_pxe_client(options)
     file.write("DEFAULT LINUX\n")
     file.write("LABEL LINUX\n")
     file.write("  KERNEL #{vmlinuz_file}\n")
+    if options['service'].to_s.match(/live/)
+      file.write("  INITRD #{initrd_file}\n")
+    end
   end
   if options['service'].to_s.match(/ubuntu/)
     options['ip']         = $q_struct['ip'].value
@@ -140,26 +163,72 @@ def configure_ks_pxe_client(options)
     options['vmgateway']  = $q_struct['gateway'].value
     options['netmask']    = $q_struct['netmask'].value
     options['vmnetwork']  = $q_struct['network_address'].value
-    options['nameserver'] = $q_struct['nameserver'].value
     disable_dhcp          = $q_struct['disable_dhcp'].value
     if disable_dhcp.match(/true/)
       if options['biostype'].to_s.match(/efi/)
-        append_string = "  linux #{linux_file} --- auto=true priority=critical preseed/url=#{ks_url} console-keymaps-at/keymap=us locale=en_US hostname=#{options['name']} domain=#{install_domain} interface=#{install_nic} grub-installer/bootdev=#{options['rootdisk']} netcfg/get_ipaddress=#{options['ip']} netcfg/get_netmask=#{options['netmask']} netcfg/get_gateway=#{options['vmgateway']} netcfg/get_nameservers=#{options['nameserver']} netcfg/disable_dhcp=true initrd=#{initrd_file} net.ifnames=0 biosdevname=0"
-        initrd_string = "  initrd #{initrd_file}"
+        if options['service'].to_s.match(/live/)
+          linux_file    = "/"+options['service'].to_s+"/casper/vmlinuz"
+          initrd_file   = "/"+options['service'].to_s+"/casper/initrd"
+          if options['biosdevnames'] == true
+            append_string = "  linux #{linux_file} net.ifnames=0 biosdevname=0 root=/dev/ram0 ramdisk_size=1500000 ip=dhcp url=#{iso_url} autoinstall ds=nocloud-net;s=#{base_url}/"
+          else
+            append_string = "  linux #{linux_file} root=/dev/ram0 ramdisk_size=1500000 ip=dhcp url=#{iso_url} autoinstall ds=nocloud-net;s=#{base_url}/"
+          end
+          initrd_string = "  initrd #{initrd_file}"
+        else
+          if options['biosdevnames'] == true
+            append_string = "  linux #{linux_file} --- auto=true priority=critical preseed/url=#{ks_url} console-keymaps-at/keymap=us locale=en_US hostname=#{options['name']} domain=#{install_domain} interface=#{install_nic} grub-installer/bootdev=#{options['rootdisk']} netcfg/get_ipaddress=#{options['ip']} netcfg/get_netmask=#{options['netmask']} netcfg/get_gateway=#{options['vmgateway']} netcfg/get_nameservers=#{options['nameserver']} netcfg/disable_dhcp=true initrd=#{initrd_file} net.ifnames=0 biosdevname=0"
+          else
+            append_string = "  linux #{linux_file} --- auto=true priority=critical preseed/url=#{ks_url} console-keymaps-at/keymap=us locale=en_US hostname=#{options['name']} domain=#{install_domain} interface=#{install_nic} grub-installer/bootdev=#{options['rootdisk']} netcfg/get_ipaddress=#{options['ip']} netcfg/get_netmask=#{options['netmask']} netcfg/get_gateway=#{options['vmgateway']} netcfg/get_nameservers=#{options['nameserver']} netcfg/disable_dhcp=true initrd=#{initrd_file}"
+          end
+          initrd_string = "  initrd #{initrd_file}"
+        end
       else
-        append_string = "  APPEND auto=true priority=critical preseed/url=#{ks_url} console-keymaps-at/keymap=us locale=en_US hostname=#{options['name']} domain=#{install_domain} interface=#{install_nic} grub-installer/bootdev=#{options['rootdisk']} netcfg/get_ipaddress=#{options['ip']} netcfg/get_netmask=#{options['netmask']} netcfg/get_gateway=#{options['vmgateway']} netcfg/get_nameservers=#{options['nameserver']} netcfg/disable_dhcp=true initrd=#{initrd_file} net.ifnames=0 biosdevname=0"
+        if options['service'].to_s.match(/live/)
+          if options['biosdevnames'] == true
+            append_string = "  APPEND root=/dev/ram0 ramdisk_size=1500000 ip=dhcp url=#{iso_url} autoinstall ds=nocloud-net;s=#{base_url}/ net.ifnames=0 biosdevname=0"
+          else
+            append_string = "  APPEND root=/dev/ram0 ramdisk_size=1500000 ip=dhcp url=#{iso_url} autoinstall ds=nocloud-net;s=#{base_url}/"
+          end
+        else
+          if options['biosdevnames'] == true
+            append_string = "  APPEND auto=true priority=critical preseed/url=#{ks_url} console-keymaps-at/keymap=us locale=en_US hostname=#{options['name']} domain=#{install_domain} interface=#{install_nic} grub-installer/bootdev=#{options['rootdisk']} netcfg/get_ipaddress=#{options['ip']} netcfg/get_netmask=#{options['netmask']} netcfg/get_gateway=#{options['vmgateway']} netcfg/get_nameservers=#{options['nameserver']} netcfg/disable_dhcp=true initrd=#{initrd_file} net.ifnames=0 biosdevname=0"
+          else
+            append_string = "  APPEND auto=true priority=critical preseed/url=#{ks_url} console-keymaps-at/keymap=us locale=en_US hostname=#{options['name']} domain=#{install_domain} interface=#{install_nic} grub-installer/bootdev=#{options['rootdisk']} netcfg/get_ipaddress=#{options['ip']} netcfg/get_netmask=#{options['netmask']} netcfg/get_gateway=#{options['vmgateway']} netcfg/get_nameservers=#{options['nameserver']} netcfg/disable_dhcp=true initrd=#{initrd_file}"
+          end
+        end
       end
     else
       append_string = "  APPEND "
     end
   else
     if options['service'].to_s.match(/sles/)
-      append_string = "  APPEND initrd=#{initrd_file} install=#{install_url} autoyast=#{autoyast_url} language=#{options['language']} net.ifnames=0 biosdevname=0"
+      if options['biosdevnames'] == true
+        append_string = "  APPEND initrd=#{initrd_file} install=#{install_url} autoyast=#{autoyast_url} language=#{options['language']} net.ifnames=0 biosdevname=0"
+      else
+        append_string = "  APPEND initrd=#{initrd_file} install=#{install_url} autoyast=#{autoyast_url} language=#{options['language']}"
+      end
     else
       if options['service'].to_s.match(/fedora_2[0-3]/)
-        append_string = "  APPEND initrd=#{initrd_file} ks=#{ks_url} ip=#{options['ip']} netmask=#{options['netmask']} net.ifnames=0 biosdevname=0"
+        if options['biosdevnames'] == true
+          append_string = "  APPEND initrd=#{initrd_file} ks=#{ks_url} ip=#{options['ip']} netmask=#{options['netmask']} net.ifnames=0 biosdevname=0"
+        else
+          append_string = "  APPEND initrd=#{initrd_file} ks=#{ks_url} ip=#{options['ip']} netmask=#{options['netmask']}"
+        end
       else
-        append_string = "  APPEND initrd=#{initrd_file} ks=#{ks_url} ksdevice=bootif ip=#{options['ip']} netmask=#{options['netmask']} net.ifnames=0 biosdevname=0"
+        if options['service'].to_s.match(/live/)
+          if options['biosdevnames'] == true
+            append_string = "  APPEND net.ifnames=0 biosdevname=0 root=/dev/ram0 ramdisk_size=1500000 ip=dhcp url=#{iso_url}"
+          else
+            append_string = "  APPEND root=/dev/ram0 ramdisk_size=1500000 ip=dhcp url=#{iso_url}"
+          end
+        else 
+          if options['biosdevnames'] == true
+            append_string = "  APPEND initrd=#{initrd_file} ks=#{ks_url} ksdevice=bootif ip=#{options['ip']} netmask=#{options['netmask']} net.ifnames=0 biosdevname=0"
+          else
+            append_string = "  APPEND initrd=#{initrd_file} ks=#{ks_url} ksdevice=bootif ip=#{options['ip']} netmask=#{options['netmask']}"
+          end
+        end
       end
     end
   end
@@ -327,7 +396,12 @@ def configure_ks_client(options)
   if options['service'].to_s.match(/sles/)
     output_file = options['clientdir']+"/"+options['name']+".xml"
   else
-    output_file = options['clientdir']+"/"+options['name']+".cfg"
+    if options['service'].to_s.match(/live/)
+      output_file = options['clientdir']+"/user-data"
+      meta_file   = options['clientdir']+"/meta-data"
+    else
+      output_file = options['clientdir']+"/"+options['name']+".cfg"
+    end
   end
   delete_file(options,output_file)
   if options['service'].to_s.match(/fedora|rhel|centos|sl_|oel/)
@@ -344,17 +418,25 @@ def configure_ks_client(options)
       process_questions(options)
       output_ay_client_profile(options,output_file)
     else
-      if options['service'].to_s.match(/ubuntu|debian|purity/)
+      if options['service'].to_s.match(/live/)
         options = populate_ps_questions(options)
         process_questions(options)
-        if !options['service'].to_s.match(/purity/)
-          output_ps_header(options,output_file)
-          output_file = options['clientdir']+"/"+options['name']+"_post.sh"
-          post_list   = populate_ps_post_list(options)
-          output_ks_post_list(options,post_list,output_file)
-          output_file = options['clientdir']+"/"+options['name']+"_first_boot.sh"
-          post_list   = populate_ps_first_boot_list(options)
-          output_ks_post_list(options,post_list,output_file)
+        (user_data,exec_data) = populate_cc_userdata(options)
+        output_cc_user_data(options,user_data,exec_data,output_file)
+        FileUtils.touch(meta_file)
+      else
+        if options['service'].to_s.match(/ubuntu|debian|purity/)
+          options = populate_ps_questions(options)
+          process_questions(options)
+          if !options['service'].to_s.match(/purity/)
+            output_ps_header(options,output_file)
+            output_file = options['clientdir']+"/"+options['name']+"_post.sh"
+            post_list   = populate_ps_post_list(options)
+            output_ks_post_list(options,post_list,output_file)
+            output_file = options['clientdir']+"/"+options['name']+"_first_boot.sh"
+            post_list   = populate_ps_first_boot_list(options)
+            output_ks_post_list(options,post_list,output_file)
+          end
         end
       end
     end
@@ -393,7 +475,9 @@ def populate_ks_post_list(options)
   post_list.push("")
   post_list.push("# Fix ethernet names to be ethX style")
   post_list.push("")
-  post_list.push("echo 'GRUB_CMDLINE_LINUX=\"net.ifnames=0 biosdevname=0\"' >>/etc/default/grub")
+  if options['biosdevnames'] == true
+    post_list.push("echo 'GRUB_CMDLINE_LINUX=\"net.ifnames=0 biosdevname=0\"' >>/etc/default/grub")
+  end
   post_list.push("/usr/sbin/update-grub")
   post_list.push("")
   post_list.push("")

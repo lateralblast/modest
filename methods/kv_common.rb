@@ -428,7 +428,7 @@ end
 
 def configure_kvm_import_client(options)
   if options['os-type'] == options['empty'] or options['os-variant'] == options['empty'] or options['method'] == options['empty']
-    optons = get_install_service_from_file(options)
+    options = get_install_service_from_file(options)
   end
   check_kvm_is_installed(options)
   if_name = get_vm_if_name(options)

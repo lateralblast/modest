@@ -76,6 +76,16 @@ def configure_ks_repo(options)
       umount_iso(options)
     end
   end
+  if options['service'].to_s.match(/live/)
+    orig_file = options['file'].to_s
+    iso_file  = File.basename(orig_file)
+    file_name = options['repodir'].to_s+"/"+iso_file
+    if not File.exist?(file_name)
+      message = "Information:\tCopying ISO file "+orig_file+" to "+file_name
+      command = "cp #{orig_file} #{file_name}"
+      execute_command(options,message,command)
+    end
+   end
   return
 end
 
@@ -280,8 +290,12 @@ def configure_linux_server(options,search_string)
       file_name = file_name.chomp
       (linux_distro,iso_version,iso_arch) = get_linux_version_info(file_name)
       iso_version  = iso_version.gsub(/\./,"_")
-      options['service'] = linux_distro+"_"+iso_version+"_"+iso_arch
-      options['repodir']  = options['baserepodir']+"/"+options['service']
+      if file_name.match(/live/)
+        options['service'] = linux_distro+"_"+iso_version+"_live_"+iso_arch
+      else
+        options['service'] = linux_distro+"_"+iso_version+"_"+iso_arch
+      end
+      options['repodir'] = options['baserepodir']+"/"+options['service']
       if !file_name.match(/DVD[1,2]\.iso|2of2\.iso|dvd\.iso$/)
         add_apache_alias(options,options['service'])
         configure_ks_repo(options)

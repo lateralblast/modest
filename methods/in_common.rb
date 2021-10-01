@@ -83,8 +83,8 @@ def set_defaults(options,defaults)
   defaults['valid-arch']    = [ 'x86_64', 'i386', 'sparc' ]
   defaults['valid-console'] = [ 'text', 'console', 'x11', 'headless', "pty", "vnc" ]
   defaults['valid-format']  = [ 'VMDK', 'RAW', 'VHD' ]
-  defaults['valid-method']  = [ 'ks', 'xb', 'vs', 'ai', 'js', 'ps', 'lxc', 'ay',
-                                'image', 'ldom', 'cdom', 'gdom' ]
+  defaults['valid-method']  = [ 'ks', 'xb', 'vs', 'ai', 'js', 'ps', 'lxc',
+                                'ay', "ci", 'image', 'ldom', 'cdom', 'gdom' ]
   defaults['valid-mode']    = [ 'client', 'server', 'osx' ]
   defaults['valid-os']      = [ 'Solaris', 'VMware-VMvisor', 'CentOS',
                                 'OracleLinux', 'SLES', 'openSUSE', 'NT',
@@ -257,6 +257,7 @@ def set_defaults(options,defaults)
   defaults['bename']          = "solaris"
   defaults['backupsuffix']    = ".pre-modest"
   defaults['baserepodir']     = defaults['basedir'].to_s+"/export/repo"
+  defaults['biosdevnames']    = true
   defaults['boot']            = "disk"
   defaults['bootsize']        = "512"
   defaults['bucket']          = defaults['scriptname'].to_s+".bucket"
@@ -1985,8 +1986,13 @@ def get_install_service_from_file(options)
       options['os-type'] = "linux"
     else
       service_version = options['file'].to_s.split(/-/)[1].gsub(/\./,"_").gsub(/_iso/,"")
-      service_version = service_version+"_"+options['arch']
-      options['method']  = "ps"
+      if options['file'].to_s.match(/live/)
+        options['method'] = "ci"
+        service_version   = service_version+"_live_"+options['arch']
+      else
+        options['method'] = "ps"
+        service_version   = service_version+"_"+options['arch']
+      end
       options['release'] = options['file'].to_s.split(/-/)[1].split(/\./)[0..1].join(".")
     end
     options['os-variant'] = "ubuntu"+options['release'].to_s
@@ -2251,6 +2257,7 @@ def list_all_services(options)
   list_gdom_services(options)
   list_lxc_services(options)
   list_ps_services(options)
+  list_cc_services(options)
   list_zone_services(options)
   list_vs_services(options)
   list_xb_services(options)
@@ -2519,6 +2526,8 @@ def unconfigure_client(options)
       unconfigure_ks_client(options)
     when /ps/
       unconfigure_ps_client(options)
+    when /ci/
+      unconfigure_cc_client(options)
     when /vs/
       unconfigure_vs_client(options)
     when /xb/
@@ -2549,6 +2558,8 @@ def configure_client(options)
       configure_ks_client(options)
     when /ps/
       configure_ps_client(options)
+    when /ci/
+      configure_cc_client(options)
     when /vs/
       configure_vs_client(options)
     when /xb/
@@ -2578,6 +2589,8 @@ def configure_server(options)
     configure_lxc_server(options)
   when /ps/
     configure_ps_server(options)
+  when /ci/
+    configure_cc_server(options)
   when /vs/
     configure_vs_server(options)
   when /xb/
@@ -2599,6 +2612,8 @@ def list_clients(options)
     search_string = "centos|redhat|rhel|scientific|fedora"
   when /ps|preseed/
     search_string = "debian|ubuntu"
+  when /ci/
+    search_string = "live"
   when /vmware|vsphere|esx|vs/
     search_string = "vmware"
   when /ay|autoyast/
@@ -4807,6 +4822,8 @@ def list_services(options)
     list_lxc_services(options)
   when /ps|ubuntu|debian/
     list_ps_services(options)
+  when /ci/
+    list_cc_services(options)
   when /zone/
     list_zone_services(options)
   when /vs|vmware|vsphere/
@@ -4884,7 +4901,11 @@ def get_method_from_service(service)
   when /sol_11/
     method = "ai"
   when /ubuntu|debian/
-    method = "ps"
+    if service.match(/live/)
+      method = "ci"
+    else 
+      method = "ps"
+    end
   when /sles|suse/
     method = "ay"
   when /vmware/

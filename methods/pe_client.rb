@@ -304,7 +304,7 @@ def output_pe_client_profile(options,output_file)
           xml.EnableLUA("false")
         }
       }
-      xml.tag!(:"cpi:offlineImage", :"xmlns:cpi" => "urn:schemas-microsoft-com:cpi", :"cpi:source" => "catalog:d:/sources/install_#{options['label'].downcase}.clg")
+      xml.tag!(:"cpi:offlineImage", :"xmlns:cpi" => "urn:schemas-microsoft-com:cpi", :"cpi:source" => "catalog:d:/sources/#{options['label']}.clg")
     end
     if options['label'].to_s.match(/2008/)
       xml.servicing
@@ -493,7 +493,7 @@ def output_pe_client_profile(options,output_file)
           xml.SkipAutoActivation("true")
         }
       }
-      xml.tag!(:"cpi:offlineImage", :"xmlns:cpi" => "urn:schemas-microsoft-com:cpi", :"cpi:source" => "catalog:d:/sources/install_#{options['label'].downcase}.clg")
+      xml.tag!(:"cpi:offlineImage", :"xmlns:cpi" => "urn:schemas-microsoft-com:cpi", :"cpi:source" => "catalog:d:/sources/#{options['label']}.clg")
     end
   }
   file = File.open(output_file,"w")

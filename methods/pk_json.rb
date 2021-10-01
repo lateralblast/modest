@@ -665,7 +665,11 @@ def create_packer_json(options)
     ks_file = options['vm']+"/"+options['name']+"/"+options['name']+".cfg"
     if options['livecd'] == true
       boot_wait    = "3s"
-      boot_header  = "<enter><enter><f6><esc><wait><bs><bs><bs><bs>net.ifnames=0 biosdevname=0 "
+      if options['biosdevnames'] == true
+        boot_header  = "<enter><enter><f6><esc><wait><bs><bs><bs><bs>net.ifnames=0 biosdevname=0 "
+      else
+        boot_header  = "<enter><enter><f6><esc><wait><bs><bs><bs><bs>"
+      end
       boot_command = boot_header+
                      "autoinstall ds=nocloud-net;seedfrom=http://"+ks_ip+":#{options['httpport']}/ --- "+
                      "<enter><wait>"
@@ -688,6 +692,11 @@ def create_packer_json(options)
                       "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><wait>"
         boot_footer = "<wait><enter><wait>"
       end
+      if options['biosdevnames'] == true
+        kernel_string = "net.ifnames=0 biosdevname=0 "
+      else
+        kernel_string = ""
+      end
       if options['vmnetwork'].to_s.match(/hostonly|bridged/)
         ks_url = "http://#{ks_ip}:#{options['httpport']}/"+ks_file
         boot_command = boot_header+
@@ -704,7 +713,7 @@ def create_packer_json(options)
                        " netcfg/get_nameservers="+$q_struct['nameserver'].value+
                        " netcfg/get_domain="+$q_struct['domain'].value+
                        " <wait>preseed/url="+ks_url+
-                       " initrd=/install/initrd.gz net.ifnames=0 biosdevname=0 -- "+
+                       " initrd=/install/initrd.gz "+kernel_string+"-- "+
                        boot_footer
       else
         ks_url = "http://#{ks_ip}:#{options['httpport']}/"+ks_file
@@ -713,7 +722,7 @@ def create_packer_json(options)
                        " auto-install/enable=true"+
                        " debconf/priority=critical"+
                        " <wait>preseed/url="+ks_url+
-                       " initrd=/install/initrd.gz net.ifnames=0 biosdevname=0 -- "+
+                       " initrd=/install/initrd.gz "+kernel_string+"-- "+
                        boot_footer
       end
     end
@@ -746,22 +755,32 @@ def create_packer_json(options)
     tools_upload_path   = ""
     ks_file      = options['vm']+"/"+options['name']+"/"+options['name']+".cfg"
     ks_url       = "http://#{ks_ip}:#{options['httpport']}/"+ks_file
-    if options['vmnetwork'].to_s.match(/hostonly|bridged/)
-      boot_command = "<tab><wait><bs><bs><bs><bs><bs><bs>=0 net.ifnames=0 biosdevname=0 inst.text inst.method=cdrom inst.repo=cdrom:/dev/sr0 inst.ks="+ks_url+" ip="+options['ip']+"::"+options['vmgateway']+":"+options['netmask']+":"+options['name']+":eth0:off<enter><wait>"
+    if options['biosdevnames'] == true
+      kernel_string = "net.ifnames=0 biosdevname=0 "
     else
-      boot_command = "<tab><wait><bs><bs><bs><bs><bs><bs>=0 net.ifnames=0 biosdevname=0 inst.text inst.method=cdrom inst.repo=cdrom:/dev/sr0 inst.ks="+ks_url+" ip=dhcp<enter><wait>"
+      kernel_string = ""
+    end
+    if options['vmnetwork'].to_s.match(/hostonly|bridged/)
+      boot_command = "<tab><wait><bs><bs><bs><bs><bs><bs>=0 "+kernel_string+"inst.text inst.method=cdrom inst.repo=cdrom:/dev/sr0 inst.ks="+ks_url+" ip="+options['ip']+"::"+options['vmgateway']+":"+options['netmask']+":"+options['name']+":eth0:off<enter><wait>"
+    else
+      boot_command = "<tab><wait><bs><bs><bs><bs><bs><bs>=0 "+kernel_string+"inst.text inst.method=cdrom inst.repo=cdrom:/dev/sr0 inst.ks="+ks_url+" ip=dhcp<enter><wait>"
     end
 #  when /rhel_7/
 #    ks_file       = options['vm']+"/"+options['name']+"/"+options['name']+".cfg"
 #    ks_url        = "http://#{ks_ip}:#{options['httpport']}/"+ks_file
 #    boot_command  = "<esc><wait> linux text install ks="+ks_url+" ksdevice=eno16777736 "+"ip="+options['ip']+" netmask="+options['netmask']+" gateway="+options['vmgateway']+"<enter><wait>"
   else
-    ks_file       = options['vm']+"/"+options['name']+"/"+options['name']+".cfg"
-    ks_url        = "http://#{ks_ip}:#{options['httpport']}/"+ks_file
-    if options['vmnetwork'].to_s.match(/hostonly|bridged/)
-      boot_command  = "<esc><wait> linux net.ifnames=0 biosdevname=0 text install ks="+ks_url+" ip="+options['ip']+" netmask="+options['netmask']+" gateway="+options['vmgateway']+"<enter><wait>"
+    if options['biosdevnames'] == true
+      kernel_string = "net.ifnames=0 biosdevname=0 "
     else
-      boot_command  = "<esc><wait> linux net.ifnames=0 biosdevname=0 text install ks="+ks_url+"<enter><wait>"
+      kernel_string = ""
+    end
+    ks_file = options['vm']+"/"+options['name']+"/"+options['name']+".cfg"
+    ks_url  = "http://#{ks_ip}:#{options['httpport']}/"+ks_file
+    if options['vmnetwork'].to_s.match(/hostonly|bridged/)
+      boot_command  = "<esc><wait> linux "+kernel_string+"text install ks="+ks_url+" ip="+options['ip']+" netmask="+options['netmask']+" gateway="+options['vmgateway']+"<enter><wait>"
+    else
+      boot_command  = "<esc><wait> linux "+kernel_string+"text install ks="+ks_url+"<enter><wait>"
     end
     if options['guest'].class == Array
   	  options['guest'] = options['guest'].join

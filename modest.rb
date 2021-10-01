@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      6.7.0
+# Version:      6.8.2
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -173,6 +173,8 @@ begin
     ['--awsuser', REQUIRED],          # AWS User
     ['--bename', REQUIRED],           # ZFS BE (Boot Environment) name
     ['--baserepodir', REQUIRED],      # Base repository directory
+    ['--biosdevnames', BOOLEAN],      # Use biosdevnames (e.g. eth0 instead of eno1)
+    ['--biostype', REQUIRED],         # BIOS boot type (bios/uefi)
     ['--blkiotune', REQUIRED],        # Block IO tune (KVM)
     ['--boot', REQUIRED],             # Set boot device
     ['--bootproto', REQUIRED],        # Set boot protocol
@@ -347,7 +349,6 @@ begin
     ['--publisherurl', REQUIRED],     # Publisher URL
     ['--pxebootdir', REQUIRED],       # PXE boot dir
     ['--pxe', BOOLEAN],               # PXE (KVM)
-    ['--biostype', REQUIRED],         # BIOS boot type (bios/uefi)
     ['--qemu-commandline', REQUIRED], # Qemu commandline (KVM)
     ['--redirdev', REQUIRED],         # Redirdev (KVM)
     ['--release', REQUIRED],          # OS Release
@@ -464,7 +465,7 @@ if options['method'] != options['empty']
   options['method'] = options['method'].gsub(/jumpstart/,"js")
   options['method'] = options['method'].gsub(/kickstart/,"ks")
   options['method'] = options['method'].gsub(/preseed/,"ps")
-  options['method'] = options['method'].gsub(/cloudinit/,"ci")
+  options['method'] = options['method'].gsub(/cloudinit|cloudconfig/,"ci")
 end
 
 # Set up some initital defaults

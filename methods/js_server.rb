@@ -148,10 +148,10 @@ def configure_js_repo(options)
             if not File.exist?(ufs_file)
               dd_message = "Extracting VTOC from #{options['file']}" 
               dd_command = "dd if=#{options['file']} of=/tmp/vtoc bs=512 count=1"
-              execute_command(dd_message,dd_command)
+              execute_command(options,dd_message,dd_command)
               dd_message = "Processing VTOC information for #{options['file']}"
               dd_command = "od -D -j 452 -N 8 < /tmp/vtoc |head -1"
-              output     = execute_command(dd_message,dd_command)
+              output     = execute_command(options,dd_message,dd_command)
               (header,start_block,no_blocks) = output.split(/\s+/)
               start_block = start_block.gsub(/^0/,"")
               start_block = start_block.to_i*640

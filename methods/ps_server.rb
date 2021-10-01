@@ -1,5 +1,5 @@
 
-# AutoYast routines
+# Preseed routines
 
 # Configure Preseed server
 
@@ -13,7 +13,7 @@ end
 
 def list_ps_services(options)
   message = "Preseed Services:"
-  command = "ls #{options['baserepodir']}/ |grep ubuntu"
+  command = "ls #{options['baserepodir']}/ |grep ubuntu |grep -v live"
   output  = execute_command(options,message,command)
   handle_output(options,message)
   handle_output(options,output)

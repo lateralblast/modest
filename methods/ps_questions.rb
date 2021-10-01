@@ -276,13 +276,27 @@ def populate_ps_questions(options)
   $q_struct[name] = config
   $q_order.push(name)
 
+  if options['vmnic'] == options['empty']
+    if options['nic'] != options['empty']
+      nic_name = options['nic']
+    else
+      nic_name = get_nic_name_from_install_service(options)
+    end
+  else
+    if options['nic'] != options['empty']
+      nic_name = options['nic']
+    else
+      nic_name = options['vmnic'].to_s
+    end
+  end
+
   name = "interface"
   config = Ks.new(
     type      = "select",
     question  = "Network interface",
     ask       = "yes",
     parameter = "netcfg/choose_interface",
-    value     = options['vmnic'],
+    value     = nic_name,
     valid     = "",
     eval      = "no"
     )
@@ -317,6 +331,23 @@ def populate_ps_questions(options)
     )
   $q_struct[name] = config
   $q_order.push(name)
+
+  if options['service'].to_s.match(/live/)
+
+    name = "cidr"
+    config = Ks.new(
+      type      = "string",
+      question  = "CIDR",
+      ask       = "yes",
+      parameter = "netcfg/get_cidr",
+      value     = options['cidr'],
+      valid     = "",
+      eval      = "no"
+      )
+    $q_struct[name] = config
+    $q_order.push(name)
+
+  end 
 
   name = "netmask"
   config = Ks.new(
@@ -445,12 +476,6 @@ def populate_ps_questions(options)
   #    end
   #  end
   #end
-
-  if options['vmnic'] == options['empty']
-    nic_name = get_nic_name_from_install_service(options)
-  else
-    nic_name = options['vmnic'].to_s
-  end
 
 #  name = "nic"
 #  config = Ks.new(
