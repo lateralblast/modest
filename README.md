@@ -25,9 +25,10 @@ and HTTP based install services, eg:
 - Solaris 11 Automated Installer (AI) service
 - Solaris 10 (and earlier) Jumpstart services
 - Centos, Scientific, OEL, Fedora, and RHEL Kickstart services
-- Ubuntu Linux Preseed services
+- Ubuntu Linux Preseed and Subiquity services
 - SuSE Enterprise Linux AutoYast services
 - ESXi Kickstart services
+- PXE boot install services for Linux and ESXi
 - Simplify creation, deletion, snapshot, import and export of VirtualBox VMs
 - Simplify creation, deletion, snapshot, import and export of Parallels VMs
 - Simplify creation, deletion, snapshot, import and export of VMware Fusion VMs
@@ -45,6 +46,7 @@ and HTTP based install services, eg:
   - Solaris 10 & 11
   - Windows 2008 R2 & 2012 R2
   - Windows 2016 PR5 (No WM Tools and License Key support)
+  - Windows 2019
   - ESXi
   - Create AMIs
 - AWS support
