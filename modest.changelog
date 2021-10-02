@@ -1365,3 +1365,5 @@
 # Subiquity code clean up
 # 6.8.2: Fri  1 Oct 2021 20:07:57 AEST
 # Added biosdevnames switch
+# 6.8.3: Sat  2 Oct 2021 12:08:30 AEST
+# Fixed dhcpd range generation for dhcpd config

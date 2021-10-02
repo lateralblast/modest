@@ -192,7 +192,6 @@ def set_defaults(options,defaults)
       defaults['hostonlyip'] = "192.168.122.1"
     end
   end
-  defaults['dhcpdrange'] = defaults['hostonlyip'].to_s.split(".")[0..-2].join(".")+".200"+" "+defaults['hostonlyip'].to_s.split(".")[0..-2].join(".")+".250"
   # Declare other defaults
   defaults['virtdir'] = ""
   defaults['basedir'] = ""
@@ -3220,11 +3219,7 @@ def check_dhcpd_config(options)
 
       end
       if options['dhcpdrange'] == options['empty']
-#        if options['hostip'].to_s.split(".")[2] == options['hostonlyip'].to_s.split(".")[2]
-#          options['dhcpdrange'] = options['hostonlyip'].to_s.split(".")[0..-1].join(".")+".200"+" "+options['hostonlyip'].split(".")[0..-1].join(".")+"250"
-#        else
-          options['dhcpdrange'] = options['hostip'].to_s.split(".")[0..-1].join(".")+".200"+" "+options['hostip'].split(".")[0..-1].join(".")+"250"
-#        end
+        options['dhcpdrange'] = network_address.split(".")[0..-2].join(".")+".200"+" "+network_address.split(".")[0..-2].join(".")+"250"
       end
       file.write("  range #{options['dhcpdrange']};\n")
       file.write("  option broadcast-address #{broadcast_address};\n")
