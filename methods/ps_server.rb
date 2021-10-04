@@ -12,14 +12,13 @@ end
 # List Preseed services
 
 def list_ps_services(options)
-  message = "Preseed Services:"
-  command = "ls #{options['baserepodir']}/ |grep ubuntu |grep -v live"
-  output  = execute_command(options,message,command)
+  dir_list = get_dir_item_list(options)
+  message  = "Preseed Services:"
   handle_output(options,message)
-  handle_output(options,output)
-  command = "ls #{options['baserepodir']}/ |grep debian"
-  output  = execute_command(options,message,command)
-  handle_output(options,output)
+  dir_list.each do |service|
+    handle_output(options,service)
+  end
+  handle_output(options,"")
   return
 end
 

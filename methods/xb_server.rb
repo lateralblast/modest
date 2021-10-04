@@ -87,7 +87,7 @@ def configure_other_server(options,search_string)
       handle_output(options,"Warning:\tISO file #{options['file']} does not exist")
     end
   else
-    iso_list = check_iso_base_dir(search_string)
+    iso_list = get_base_dir_list(options)
   end
   if iso_list[0]
     iso_list.each do |file_name|
@@ -119,10 +119,12 @@ end
 # List kickstart services
 
 def list_xb_services(options)
-  message = "BSD Services:"
-  command = "ls #{options['baserepodir']}/ |egrep 'bsd|coreos'"
-  output  = execute_command(options,message,command)
+  dir_list = get_dir_item_list(options)
+  message  = "BSD Services:"
   handle_output(options,message)
-  handle_output(options,output)
+  dir_list.each do |service|
+    handle_output(options,service)
+  end
+  handle_output(options,"")
   return
 end

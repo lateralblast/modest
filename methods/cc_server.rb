@@ -9,14 +9,15 @@ def configure_cc_server(options)
   return
 end
 
-# List Cloud Config services
+# List Ubuntu Subiquity / Cloud Config services
 
 def list_cc_services(options)
-  message = "Cloud Config/Init Services:"
-  command = "ls #{options['baserepodir']}/ |grep ubuntu |grep live"
-  output  = execute_command(options,message,command)
+  dir_list = get_dir_item_list(options)
+  message  = "Ubuntu Subiquity or Cloud Config/Init Services:"
   handle_output(options,message)
-  handle_output(options,output)
+  dir_list.each do |service|
+    handle_output(options,service)
+  end
   handle_output(options,"")
   return
 end

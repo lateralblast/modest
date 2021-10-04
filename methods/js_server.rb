@@ -227,11 +227,13 @@ end
 # List Jumpstart services
 
 def list_js_services(options)
-  message = "Jumpstart Services:"
-  command = "ls #{options['baserepodir']}/ |egrep 'sol_6|sol_7|sol_8|sol_9|sol_10'"
-  output  = execute_command(options,message,command)
+  dir_list = get_dir_item_list(options)
+  message  = "Jumpstart Services:"
   handle_output(options,message)
-  handle_output(options,output)
+  dir_list.each do |service|
+    handle_output(options,service)
+  end
+  handle_output(options,"")
   return
 end
 
@@ -270,8 +272,8 @@ end
 
 def configure_js_server(options)
   check_dhcpd_config(options)
-  iso_list      = []
-  search_string = "\\-ga\\-"
+  iso_list = []
+  options['search'] = "\\-ga\\-|_ga_"
   if options['file'].to_s.match(/[a-z,A-Z]/)
     if File.exist?(options['file'])
       if not options['file'].to_s.match(/sol/)
@@ -284,7 +286,7 @@ def configure_js_server(options)
       handle_output(options,"Warning:\tISO file #{options['file']} does not exist")
     end
   else
-    iso_list=check_iso_base_dir(search_string)
+    iso_list = get_base_dir_list(options)
   end
   if options['file'].class == String
     iso_list[0] = options['file']

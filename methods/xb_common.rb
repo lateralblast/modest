@@ -3,7 +3,7 @@
 # List ISOs
 
 def list_other_isos(options,search_string)
-  iso_list      = check_iso_base_dir(search_string)
+  iso_list = get_base_dir_list(options)
   if iso_list.length > 0
     handle_output(options,"Other available ISOs:")
     handle_output(options,"")

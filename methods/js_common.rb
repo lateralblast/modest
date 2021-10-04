@@ -129,8 +129,8 @@ end
 # List available ISOs
 
 def list_js_isos(options)
-  search_string = "\\-ga\\-"
-  iso_list      = check_iso_base_dir(search_string)
+  options["search"] = "\\-ga\\-|_ga_"
+  iso_list = get_base_dir_list(options)
   if iso_list.length > 0
     if options['output'].to_s.match(/html/)
       handle_output(options,"<h1>Available Jumpstart ISOs:</h1>")

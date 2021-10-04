@@ -2281,8 +2281,8 @@ end
 
 # Get ISO list
 
-def get_iso_list(options)
-  full_list = check_iso_base_dir(options)
+def get_dir_item_list(options)
+  full_list = get_base_dir_list(options)
   if options['search'].to_s.match(/all/)
     return full_list
   end
@@ -2412,7 +2412,7 @@ def list_isos(options)
     string = options['isodir'].to_s+":"
     handle_output(options,string)
   end
-  iso_list = get_iso_list(options)
+  iso_list = get_dir_item_list(options)
   iso_list.each do |file_name|
     if options['output'].to_s.match(/html/)
       handle_output(options,"<tr>#{file_name}</tr>")
@@ -4268,7 +4268,7 @@ end
 # It will check that there are ISOs in the directory
 # If none exist it will exit
 
-def check_iso_base_dir(options)
+def get_base_dir_list(options)
   search_string = options['search']
   if options['isodir'] == nil or options['isodir'] == "none" and options['file'] == options['empty']
     handle_output(options,"Warning:\tNo valid ISO directory specified")
@@ -4280,7 +4280,12 @@ def check_iso_base_dir(options)
   end
   if options['file'] == options['empty']
     check_fs_exists(options,options['isodir'])
-    iso_list = Dir.entries(options['isodir']).grep(/iso/)
+    case options['type'].to_s
+    when /iso/
+      iso_list = Dir.entries(options['isodir']).grep(/iso|ISO/)
+    when /service/
+      iso_list = Dir.entries(options['repodir']).grep(/[a-z]|[A-Z]/)
+    end
     if search_string.match(/sol_11/)
       if not iso_list.grep(/full/)
         handle_output(options,"Warning:\tNo full repository ISO images exist in #{options['isodir']}")

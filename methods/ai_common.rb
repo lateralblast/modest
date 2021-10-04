@@ -153,8 +153,8 @@ end
 # List available ISOs
 
 def list_ai_isos(options)
-  search_string = "sol-11"
-  iso_list      = check_iso_base_dir(search_string)
+  options['search'] = "sol-11"
+  iso_list = get_base_dir_list(options)
   if iso_list.length > 0
     if options['output'].to_s.match(/html/)
       handle_output(options,"<h1>Available AI ISOs:</h1>")

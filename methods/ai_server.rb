@@ -297,7 +297,8 @@ def configure_ai_server(options)
     else
       search_string = "repo"
     end
-    iso_list = check_iso_base_dir(options,search_string)
+    option['search'] = search_string
+    iso_list = get_base_dir_list(options)
   else
     iso_list[0] = file_name
   end

@@ -159,8 +159,8 @@ end
 # Configure VSphere server
 
 def configure_vs_server(options)
-  search_string = "VMvisor"
-  iso_list      = []
+  iso_list = []
+  options["search"] = "VMvisor"
   if options['file'].to_s.match(/[a-z,A-Z]/)
     if File.exist?(options['file'])
       if not options['file'].to_s.match(/VM/)
@@ -173,7 +173,7 @@ def configure_vs_server(options)
       handle_output(options,"Warning:\tISO file #{options['file']} does not exist")
     end
   else
-    iso_list = check_iso_base_dir(search_string)
+    iso_list = get_base_dir_list(options)
   end
   if iso_list[0]
     iso_list.each do |file_name|
@@ -202,10 +202,12 @@ end
 # List vSphere kickstart services
 
 def list_vs_services(options)
-  message = "vSphere Services:"
-  command = "ls #{options['baserepodir']}/ |egrep 'vmware|esx'"
-  output  = execute_command(options,message,command)
+  dir_list = get_dir_item_list(options)
+  message  = "vSphere Services:"
   handle_output(options,message)
-  handle_output(options,output)
+  dir_list.each do |service|
+    handle_output(options,service)
+  end
+  handle_output(options,"")
   return
 end

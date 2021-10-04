@@ -103,7 +103,7 @@ def list_linux_isos(options)
     linux_type = "Linux"
   end
   if options['file'] == options['empty']
-    iso_list = check_iso_base_dir(search_string,linux_type)
+    iso_list = get_base_dir_list(options)
   else
     iso_list    = []
     iso_list[0] = options['file']
