@@ -16,6 +16,8 @@ def list_cc_services(options)
   command = "ls #{options['baserepodir']}/ |grep ubuntu |grep live"
   output  = execute_command(options,message,command)
   handle_output(options,message)
+  handle_output(options,output)
+  handle_output(options,"")
   return
 end
 
