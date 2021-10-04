@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      6.8.7
+# Version:      6.8.8
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -465,7 +465,7 @@ if options['method'] != options['empty']
   options['method'] = options['method'].gsub(/jumpstart/,"js")
   options['method'] = options['method'].gsub(/kickstart/,"ks")
   options['method'] = options['method'].gsub(/preseed/,"ps")
-  options['method'] = options['method'].gsub(/cloudinit|cloudconfig/,"ci")
+  options['method'] = options['method'].gsub(/cloudinit|cloudconfig|subiquity/,"ci")
 end
 
 # Set up some initital defaults

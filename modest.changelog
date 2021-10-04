@@ -1375,3 +1375,6 @@
 # Improvements for ISO and service listings
 # 6.8.7: Tue  5 Oct 2021 09:34:00 AEDT
 # More improvements for ISO and service listings
+# 6.8.8: Tue  5 Oct 2021 10:19:35 AEDT
+# Fix for copying live/subiquity images
+

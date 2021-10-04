@@ -190,10 +190,12 @@ def configure_ks_pxe_boot(options)
     pxe_image_dir = options['pxebootdir']+"/images/pxeboot"
     check_dir_exists(options,pxe_image_dir)
     test_file = pxe_image_dir+"/vmlinuz"
-    if options['service'].to_s.match(/ubuntu/)
-      iso_image_dir = options['baserepodir']+"/"+options['service']+"/install"
-    else
-      iso_image_dir = options['baserepodir']+"/"+options['service']+"/isolinux"
+    if not options['method'].to_s.match(/ci/)
+      if options['service'].to_s.match(/ubuntu/)
+        iso_image_dir = options['baserepodir']+"/"+options['service']+"/install"
+      else
+        iso_image_dir = options['baserepodir']+"/"+options['service']+"/isolinux"
+      end
     end
     if not File.exist?(test_file)
       message = "Information:\tCopying PXE boot files from "+iso_image_dir+" to "+pxe_image_dir
