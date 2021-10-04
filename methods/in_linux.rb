@@ -104,6 +104,8 @@ def list_linux_isos(options)
   end
   if options['file'] == options['empty']
     iso_list = get_base_dir_list(options)
+    puts iso_list
+    exit
   else
     iso_list    = []
     iso_list[0] = options['file']
