@@ -2322,21 +2322,19 @@ def get_dir_item_list(options)
   when /vmware|vsphere|esx/
     options['os-type'] = "VMware-VMvisor"
   end
-  if options['search'] == options['empty']
-    case options['method']
-    when /kick|ks/
-      options['search'] = "CentOS|OracleLinux|Fedora|rhel|SL|VMware"
-    when /jump|js/
-      options['serch'] = "sol-10"
-    when /ai/
-      options['search'] = "sol-11"
-    when /yast|ay/
-      options['search'] = "SLES|openSUSE"
-    when /preseed|ps/
-      options['search'] = "debian|ubuntu|purity"
-    when /ci/
-      options['search'] = "live"
-    end
+  case options['method']
+  when /kick|ks/
+    other_search = "CentOS|OracleLinux|Fedora|rhel|SL|VMware"
+  when /jump|js/
+    other_search = "sol-10"
+  when /ai/
+    other_search = "sol-11"
+  when /yast|ay/
+    other_search = "SLES|openSUSE"
+  when /preseed|ps/
+    other_search = "debian|ubuntu|purity"
+  when /ci/
+    other_search = "live"
   end
   if options['release'].to_s.match(/[0-9]/)
     case options['os-type']
@@ -2372,7 +2370,7 @@ def get_dir_item_list(options)
     end
   end
   search_strings = []
-  [ options['os-type'], options['release'], options['arch'] ].each do |search_string|
+  [ options['os-type'], options['release'], options['arch'], other_search ].each do |search_string|
     if search_string
       if not search_string == options['empty']
         if search_string.match(/[a-z,A-Z,0-9]/)
