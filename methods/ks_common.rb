@@ -30,8 +30,9 @@ end
 # List ISOs
 
 def list_ks_isos()
-  search_string = "CentOS|rhel|SL|OracleLinux|Fedora"
-  linux_type    = "CentOS, Red Hat Enterprise, Oracle Linux, Scientific or Fedora"
-  list_linux_isos(search_string,linux_type)
+  if not options['search'].to_s.match(/[a-z]|[A-Z]|all/)
+    options['search'] = "CentOS|rhel|SL|OracleLinux|Fedora"
+  end
+  list_linux_isos(options)
   return
 end

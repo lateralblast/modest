@@ -89,7 +89,19 @@ end
 
 # List ISOs
 
-def list_linux_isos(search_string,linux_type,options)
+def list_linux_isos(options)
+  case options['method'].to_s
+  when /ps|preseed/
+    linux_type = "Ubuntu/Debian/Purity"
+  when /ay|autoyast/
+    linux_type = "SuSE/SLES"
+  when /ks|kickstart/
+    linux_type = "RedHat/Scientific/Oracle/Fedora"
+  when /ci/
+    linux_type = "Ubuntu"
+  else
+    linux_type = "Linux"
+  end
   if options['file'] == options['empty']
     iso_list = check_iso_base_dir(search_string,linux_type)
   else
@@ -126,8 +138,8 @@ def list_linux_isos(search_string,linux_type,options)
         handle_output(options,"Version:\t#{iso_version}")
         handle_output(options,"Architecture:\t#{iso_arch}")
       end
-      iso_version      = iso_version.gsub(/\./,"_")
-      options['service']     = linux_distro+"_"+iso_version+"_"+iso_arch
+      iso_version = iso_version.gsub(/\./,"_")
+      options['service'] = linux_distro+"_"+iso_version+"_"+iso_arch
       options['repodir'] = options['baserepodir']+"/"+options['service']
       if File.directory?(options['repodir'])
         if options['output'].to_s.match(/html/)

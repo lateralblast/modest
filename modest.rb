@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      6.8.3
+# Version:      6.8.4
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -1582,31 +1582,23 @@ if options['method'] == options['empty'] && !options['action'].to_s.match(/delet
   when /sol|sunos/
     if options['release'].to_s.match(/[0-9]/)
       if options['release'] == "11"
-        example_type     = "ai"
         options['method'] = "ai"
       else
-        example_type     = "js"
         options['method'] = "js"
       end
     end
   when /ubuntu|debian/
-    example_type     = "ps"
     options['method'] = "ps"
   when /suse|sles/
-    example_type     = "ay"
     options['method'] = "ay"
   when /redhat|rhel|scientific|sl|centos|fedora|vsphere|esx/
-    example_type     = "ks"
     options['method'] = "ks"
   when /bsd/
-    example_type     = "xb"
     options['method'] = "xb"
   when /vmware|esx|vsphere/
-    example_type     = "vs"
     options['method'] = "vs"
     configure_vmware_esxi_defaults
   when "windows"
-    example_type     = "pe"
     options['method'] = "pe"
   else
     if !options['action'].to_s.match(/list|info|check/)
@@ -1620,7 +1612,6 @@ end
 # Handle gateway if not empty
 
 if options['vmgateway'] != options['empty']
-  options['vmgateway']  = options['vmgateway']
   options['vmgateway'] = options['vmgateway']
 else
   if options['vmnetwork'] == "hostonly"

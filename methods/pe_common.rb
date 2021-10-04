@@ -6,6 +6,6 @@ def list_pe_isos()
   options['release'] = ""
   options['arch']    = ""
   options['file']    = ""
-  list_isos(options['os-type'],options['method'],options['release'],options['arch'],options['file'])
+  list_isos(options)
   return
 end

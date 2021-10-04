@@ -1367,3 +1367,5 @@
 # Added biosdevnames switch
 # 6.8.3: Sat  2 Oct 2021 12:08:30 AEST
 # Fixed dhcpd range generation for dhcpd config
+# 6.8.4: Mon  4 Oct 2021 12:11:41 AEDT
+# Cleaned up ISO list function

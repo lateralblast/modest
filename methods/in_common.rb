@@ -379,7 +379,7 @@ def set_defaults(options,defaults)
   defaults['rootdisk']       = "/dev/sda"
   defaults['rootpassword']   = "P455w0rd"
   defaults['rpm2cpiobin']    = ""
-  defaults['search']         = "all"
+  defaults['search']         = ""
   defaults['security']       = "none"
   defaults['server']         = defaults['hostip'].to_s
   defaults['severadmin']     = "root"
@@ -1889,27 +1889,30 @@ end
 # list OS install ISOs
 
 def list_os_isos(options)
-  case options['os-type']
+  linux_type = ""
+  case options['os-type'].to_s
   when /linux/
-    search_string = "CentOS|OracleLinux|SUSE|SLES|SL|Fedora|ubuntu|debian|purity"
+    if not options['search'].to_s.match(/[a-z]/)
+      options['search'] = "CentOS|OracleLinux|SUSE|SLES|SL|Fedora|ubuntu|debian|purity"
+    end
   when /sol/
     search_string = "sol"
   when /esx|vmware|vsphere/
     search_string = "VMvisor"
   else
-    list_all_isos()
+    list_all_isos(options)
     return
   end
-  eval"[list_#{options['os-type']}_isos(search_string)]"
+  if options['os-type'].to_s.match(/linux/)
+    list_linux_isos(options)
+  end
   return
 end
 
 # List all isos
 
-def list_all_isos(valid)
-  vaild['method'].each do |method|
-    eval"[list_#{method}_isos()]"
-  end
+def list_all_isos(options)
+  list_isos(options)
   return
 end
 
@@ -2279,9 +2282,8 @@ end
 # Get ISO list
 
 def get_iso_list(options)
-  search_string = ""
-  full_list = check_iso_base_dir(search_string, options)
-  if !options['os-type'].to_s.match(/[a-z]/) && !options['method'].to_s.match(/[a-z]/) && !options['release'].to_s.match(/[a-z]/) && !options['arch'].to_s.match(/[a-z]/)
+  full_list = check_iso_base_dir(options)
+  if options['search'].to_s.match(/all/)
     return full_list
   end
   temp_list = []
@@ -2320,17 +2322,21 @@ def get_iso_list(options)
   when /vmware|vsphere|esx/
     options['os-type'] = "VMware-VMvisor"
   end
-  case options['method']
-  when /kick|ks/
-    options['method'] = "CentOS|OracleLinux|Fedora|rhel|SL|VMware"
-  when /jump|js/
-    options['method'] = "sol-10"
-  when /ai/
-    options['method'] = "sol-11"
-  when /yast|ay/
-    options['method'] = "SLES|openSUSE"
-  when /preseed|ps/
-    options['method'] = "debian|ubuntu|purity"
+  if options['search'] == options['empty']
+    case options['method']
+    when /kick|ks/
+      options['search'] = "CentOS|OracleLinux|Fedora|rhel|SL|VMware"
+    when /jump|js/
+      options['serch'] = "sol-10"
+    when /ai/
+      options['search'] = "sol-11"
+    when /yast|ay/
+      options['search'] = "SLES|openSUSE"
+    when /preseed|ps/
+      options['search'] = "debian|ubuntu|purity"
+    when /ci/
+      options['search'] = "live"
+    end
   end
   if options['release'].to_s.match(/[0-9]/)
     case options['os-type']
@@ -2366,13 +2372,31 @@ def get_iso_list(options)
     end
   end
   search_strings = []
-  [ options['os-type'], options['method'], options['release'], options['arch'] ].each do |search_string|
-    if search_string.match(/[a-z,A-Z,0-9]/)
-      search_strings.push(search_string)
+  [ options['os-type'], options['release'], options['arch'] ].each do |search_string|
+    if search_string
+      if not search_string == options['empty']
+        if search_string.match(/[a-z,A-Z,0-9]/)
+          search_strings.push(search_string)
+        end
+      end
     end
   end
-  temp_list = full_list
   search_strings.each do |search_string|
+    search_list = full_list.grep(/#{search_string}/)
+    if search_list
+      search_list.each do |item|
+        if options['method'].to_s.match(/ps/)
+          if !item.to_s.match(/live/)
+            temp_list.push(item)
+          end
+        else
+          temp_list.push(item)
+        end
+      end
+    end
+  end
+  if not options['search'] == options['empty'] 
+    search_string = options['search'].to_s
     temp_list = temp_list.grep(/#{search_string}/)
   end
   if temp_list.length > 0
@@ -2385,7 +2409,8 @@ end
 
 def list_isos(options)
   if not options['output'].to_s.match(/html/)
-    handle_output(options,"")
+    string = options['isodir'].to_s+":"
+    handle_output(options,string)
   end
   iso_list = get_iso_list(options)
   iso_list.each do |file_name|
@@ -2393,7 +2418,6 @@ def list_isos(options)
       handle_output(options,"<tr>#{file_name}</tr>")
     else
       handle_output(options,file_name)
-      handle_output(options,"")
     end
   end
   return
@@ -4244,7 +4268,8 @@ end
 # It will check that there are ISOs in the directory
 # If none exist it will exit
 
-def check_iso_base_dir(options,search_string)
+def check_iso_base_dir(options)
+  search_string = options['search']
   if options['isodir'] == nil or options['isodir'] == "none" and options['file'] == options['empty']
     handle_output(options,"Warning:\tNo valid ISO directory specified")
     quit(options)
@@ -4255,13 +4280,7 @@ def check_iso_base_dir(options,search_string)
   end
   if options['file'] == options['empty']
     check_fs_exists(options,options['isodir'])
-    message  = "Getting:\t"+options['isodir']+" contents"
-    if search_string.match(/[a-z,A-Z]/)
-      command  = "ls #{options['isodir']}/*.iso |egrep \"#{search_string}\" |grep -v '2.iso' |grep -v 'supp-server'"
-    else
-      command  = "ls #{options['isodir']}/*.iso |grep -v '2.iso' |grep -v 'supp-server'"
-    end
-    iso_list = execute_command(options,message,command)
+    iso_list = Dir.entries(options['isodir']).grep(/iso/)
     if search_string.match(/sol_11/)
       if not iso_list.grep(/full/)
         handle_output(options,"Warning:\tNo full repository ISO images exist in #{options['isodir']}")
@@ -4270,7 +4289,7 @@ def check_iso_base_dir(options,search_string)
         end
       end
     end
-    iso_list = iso_list.split(/\n/)
+    iso_list
   else
     iso_list[0] = options['file']
   end

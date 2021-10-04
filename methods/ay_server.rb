@@ -1,24 +1,17 @@
 
-# AutoYast routines
-
-# List available SLES ISOs
-
-def list_ay_isos()
-  search_string = "SLE"
-  linux_type    = "OpenSuSE or SuSE Enterprise Linux"
-  list_linux_isos(search_string, linux_type)
-  return
-end
+# AutoYast server routines
 
 # Configure AutoYast server
 
 def configure_ay_server(options)
-  if options['service'].to_s.match(/[a-z,A-Z]/)
-    if options['service'].downcase.match(/suse/)
+  if not options['search'].to_s.match(/[a-z]|[A-Z]|all/)
+    if options['service'].to_s.match(/[a-z]/)
+      if options['service'].downcase.match(/suse/)
+        search_string = "SLE"
+      end
+    else
       search_string = "SLE"
     end
-  else
-    search_string = "SLE"
   end
   configure_linux_server(options,search_string)
   return
