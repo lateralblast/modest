@@ -1372,4 +1372,6 @@
 # 6.8.5: Mon  4 Oct 2021 12:30:39 AEDT
 # Fixed service listing for Subiquity
 # 6.8.6: Mon  4 Oct 2021 16:22:26 AEDT
-# Improvements for ISO and  service listings
+# Improvements for ISO and service listings
+# 6.8.7: Tue  5 Oct 2021 09:34:00 AEDT
+# More improvements for ISO and service listings

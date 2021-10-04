@@ -2410,12 +2410,16 @@ def list_isos(options)
     string = options['isodir'].to_s+":"
     handle_output(options,string)
   end
-  iso_list = get_dir_item_list(options)
-  iso_list.each do |file_name|
-    if options['output'].to_s.match(/html/)
-      handle_output(options,"<tr>#{file_name}</tr>")
-    else
-      handle_output(options,file_name)
+  if options['method'].to_s.match(/ps|ks|ay|ci/)
+    list_linux_isos(options)
+  else
+    iso_list = get_dir_item_list(options)
+    iso_list.each do |file_name|
+      if options['output'].to_s.match(/html/)
+        handle_output(options,"<tr>#{file_name}</tr>")
+      else
+        handle_output(options,file_name)
+      end
     end
   end
   return
@@ -4283,6 +4287,12 @@ def get_base_dir_list(options)
       iso_list = Dir.entries(options['isodir']).grep(/iso|ISO/)
     when /service/
       iso_list = Dir.entries(options['repodir']).grep(/[a-z]|[A-Z]/)
+    end
+    if options['method'].to_s.match(/ps/)
+      iso_list = iso_list.grep_v(/live/)
+    end
+    if options['method'].to_s.match(/ci/)
+      iso_list = iso_list.grep(/live/)
     end
     if search_string.match(/sol_11/)
       if not iso_list.grep(/full/)
