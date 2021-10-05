@@ -621,7 +621,7 @@ def list_kvm_vms(options)
   message   = "Information:\tGetting list of KVM VMs"
   file_list = execute_command(options,message,command)
   file_list = file_list.split("\n")
-  if options['search'] == "all" or search_string == "none"
+  if options['search'] == "all" or options['search'] == options['empty']
     type_string = "KVM"
   else
     type_string = options['search'].capitalize+" KVM"
