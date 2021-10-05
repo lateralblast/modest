@@ -326,7 +326,7 @@ def set_defaults(options,defaults)
     end
   end
   defaults['keyboard']       = "US"
-  defaults["keyfile"]        = "none"
+  defaults['keyfile']        = "none"
   defaults['keymap']         = "US-English"
   defaults['kvmgroup']       = "kvm"
   defaults['kvmgid']         = get_group_gid(options,defaults['kvmgroup'].to_s)
@@ -401,7 +401,7 @@ def set_defaults(options,defaults)
   defaults['sshtimeout']     = "20m"
   defaults['sudo']           = true
   defaults['sudogroup']      = "sudo"
-  defaults['suffix']         = defaults["scriptname"].to_s
+  defaults['suffix']         = defaults['scriptname'].to_s
   defaults['systemlocale']   = "C"
   defaults['target']         = "vmware"
   defaults['terminal']       = "sun"
@@ -1889,7 +1889,6 @@ end
 # list OS install ISOs
 
 def list_os_isos(options)
-  linux_type = ""
   case options['os-type'].to_s
   when /linux/
     if not options['search'].to_s.match(/[a-z]/)
@@ -2249,27 +2248,15 @@ end
 # List images
 
 def list_images(options)
-  case options["vm"].to_s
+  case options['vm'].to_s
   when /aws/
     list_aws_images(options)
   when /docker/
     list_docker_images(options)
   else
-    if options["dir"] != options["empty"]
-      list_dir_images(options)
+    if options['dir'] != options['empty']
+      list_items(options)
     end
-  end
-  return
-end
-
-# List a directory of images
-
-def list_dir_images(options)
-  image_list = get_dir_item_list(options)
-  message = options["isodir"].to_s+":"
-  handle_output(options,message)
-  image_list.each do |image|
-    handle_output(options,image)
   end
   return
 end
@@ -2314,7 +2301,7 @@ def get_dir_item_list(options)
   if options['search'].to_s.match(/all/)
     return full_list
   end
-  if options['os-type'] == options["empty"] && options["search"] == options["empty"] && options["method"] == options["empty"]
+  if options['os-type'] == options['empty'] && options['search'] == options['empty'] && options['method'] == options['empty']
     return full_list
   end
   temp_list = []
@@ -2434,23 +2421,190 @@ def get_dir_item_list(options)
   return iso_list
 end
 
+# Get item version information (e.g. ISOs, images, etc)
+
+def get_item_version_info(file_name)
+  iso_info = File.basename(file_name)
+  if file_name.match(/purity/)
+    iso_info = iso_info.split(/_/)
+  else
+    iso_info = iso_info.split(/-/)
+  end
+  iso_distro = iso_info[0]
+  iso_distro = iso_distro.downcase
+  if file_name.match(/cloud/)
+    iso_distro = "ubuntu"
+  end
+  if iso_distro.match(/^sle$/)
+    iso_distro = "sles"
+  end
+  if iso_distro.match(/oraclelinux/)
+    iso_distro = "oel"
+  end
+  if iso_distro.match(/centos|ubuntu|sles|sl|oel|rhel/)
+    if file_name.match(/cloud/) and not file_name.match(/ubuntu/)
+      iso_version = get_distro_version_from_distro_name(file_name)
+    else
+      if iso_distro.match(/sles/)
+        if iso_info[2].to_s.match(/Server/)
+          iso_version = iso_info[1]+".0"
+        else
+          iso_version = iso_info[1]+"."+iso_info[2]
+          iso_version = iso_version.gsub(/SP/,"")
+        end
+      else
+        if iso_distro.match(/sl$/)
+          iso_version = iso_info[1].split(//).join(".")
+          if iso_version.length == 1
+            iso_version = iso_version+".0"
+          end
+        else
+          if iso_distro.match(/oel|rhel/)
+            if file_name =~ /-rc-/
+              iso_version = iso_info[1..3].join(".")
+              iso_version = iso_version.gsub(/server/,"")
+            else
+              iso_version = iso_info[1..2].join(".")
+              iso_version = iso_version.gsub(/[a-z,A-Z]/,"")
+            end
+            iso_version = iso_version.gsub(/^\./,"")
+          else
+            iso_version = iso_info[1]
+          end
+        end
+      end
+    end
+    if iso_version.match(/86_64/)
+      iso_version = iso_info[1]
+    end
+    if file_name.match(/live/)
+      iso_version = iso_version+"_live"
+    end
+    case file_name
+    when /workstation|desktop/
+      iso_version = iso_version+"_desktop"
+    when /server/
+      iso_version = iso_version+"_server"
+    end
+    if file_name.match(/cloud/)
+      iso_version = iso_version+"_cloud"
+    end
+    case file_name
+    when /i[3-6]86/
+      iso_arch = "i386"
+    when /x86_64|amd64/
+      iso_arch = "x86_64"
+    else
+      if file_name.match(/ubuntu/)
+        iso_arch = iso_info[-1].split(".")[0]
+      else
+        if iso_distro.match(/centos|sl$/)
+          iso_arch = iso_info[2]
+        else
+          if iso_distro.match(/sles|oel/)
+            iso_arch = iso_info[4]
+          else
+            iso_arch = iso_info[3]
+          end
+        end
+      end
+    end
+  else
+    case iso_distro
+    when /fedora/
+      iso_version = iso_info[1]
+      iso_arch    = iso_info[2]
+    when /purity/
+      iso_version = iso_info[1]
+      iso_arch    = "x86_64"
+    when /vmware/
+      iso_version = iso_info[3].split(/\./)[0..-2].join(".")
+      iso_update  = iso_info[3].split(/\./)[-1]
+      iso_release = iso_info[4].split(/\./)[-3]
+      iso_version = iso_version+"."+iso_update+"."+iso_release
+      iso_arch    = "x86_64"
+    else
+      iso_version = iso_info[2]
+      iso_arch    = iso_info[3]
+    end
+  end
+  return iso_distro,iso_version,iso_arch
+end
+
 # List ISOs
 
 def list_isos(options)
+  list_items(options)
+  return
+end
+
+# List items (ISOs, images, etc)
+
+def list_items(options)
   if not options['output'].to_s.match(/html/)
     string = options['isodir'].to_s+":"
     handle_output(options,string)
   end
-  if options['method'].to_s.match(/ps|ks|ay|ci/)
-    list_linux_isos(options)
+  if options['file'] == options['empty']
+    iso_list = get_base_dir_list(options)
   else
-    iso_list = get_dir_item_list(options)
+    iso_list    = []
+    iso_list[0] = options['file']
+  end
+  if iso_list.length > 0
+    if options['output'].to_s.match(/html/)
+      handle_output(options,"<h1>Available ISO(s)/Image(s):</h1>")
+      handle_output(options,"<table border=\"1\">")
+      handle_output(options,"<tr>")
+      handle_output(options,"<th>ISO File</th>")
+      handle_output(options,"<th>Distribution</th>")
+      handle_output(options,"<th>Version</th>")
+      handle_output(options,"<th>Architecture</th>")
+      handle_output(options,"<th>Service Name</th>")
+      handle_output(options,"</tr>")
+    else
+      handle_output(options,"Available ISO(s)/Images(s):")
+      handle_output(options,"") 
+    end
     iso_list.each do |file_name|
+      file_name = file_name.chomp
+      (linux_distro,iso_version,iso_arch) = get_linux_version_info(file_name)
       if options['output'].to_s.match(/html/)
-        handle_output(options,"<tr>#{file_name}</tr>")
+        handle_output(options,"<tr>")
+        handle_output(options,"<td>#{file_name}</td>")
+        handle_output(options,"<td>#{linux_distro}</td>")
+        handle_output(options,"<td>#{iso_version}</td>")
+        handle_output(options,"<td>#{iso_arch}</td>")
       else
-        handle_output(options,file_name)
+        handle_output(options,"ISO file:\t#{file_name}")
+        handle_output(options,"Distribution:\t#{linux_distro}")
+        handle_output(options,"Version:\t#{iso_version}")
+        handle_output(options,"Architecture:\t#{iso_arch}")
       end
+      iso_version = iso_version.gsub(/\./,"_")
+      options['service'] = linux_distro+"_"+iso_version+"_"+iso_arch
+      options['repodir'] = options['baserepodir']+"/"+options['service']
+      if File.directory?(options['repodir'])
+        if options['output'].to_s.match(/html/)
+          handle_output(options,"<td>#{options['service']} (exists)</td>")
+        else
+          handle_output(options,"Service Name:\t#{options['service']} (exists)")
+        end
+      else
+        if options['output'].to_s.match(/html/)
+          handle_output(options,"<td>#{options['service']}</td>")
+        else
+          handle_output(options,"Service Name:\t#{options['service']}")
+        end
+      end
+      if options['output'].to_s.match(/html/)
+        handle_output(options,"</tr>")
+      else
+        handle_output(options,"") 
+      end
+    end
+    if options['output'].to_s.match(/html/)
+      handle_output(options,"</table>")
     end
   end
   return

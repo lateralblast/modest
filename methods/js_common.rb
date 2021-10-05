@@ -129,7 +129,7 @@ end
 # List available ISOs
 
 def list_js_isos(options)
-  options["search"] = "\\-ga\\-|_ga_"
+  options['search'] = "\\-ga\\-|_ga_"
   iso_list = get_base_dir_list(options)
   if iso_list.length > 0
     if options['output'].to_s.match(/html/)

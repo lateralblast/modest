@@ -160,7 +160,7 @@ end
 
 def configure_vs_server(options)
   iso_list = []
-  options["search"] = "VMvisor"
+  options['search'] = "VMvisor"
   if options['file'].to_s.match(/[a-z,A-Z]/)
     if File.exist?(options['file'])
       if not options['file'].to_s.match(/VM/)

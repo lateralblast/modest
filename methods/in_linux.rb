@@ -3,168 +3,31 @@
 # Process ISO file to get details
 
 def get_linux_version_info(file_name)
-  iso_info = File.basename(file_name)
-  if file_name.match(/purity/)
-    iso_info    = iso_info.split(/_/)
-  else
-    iso_info     = iso_info.split(/-/)
-  end
-  linux_distro = iso_info[0]
-  linux_distro = linux_distro.downcase
-  if linux_distro.match(/^sle$/)
-    linux_distro = "sles"
-  end
-  if linux_distro.match(/oraclelinux/)
-    linux_distro = "oel"
-  end
-  if linux_distro.match(/centos|ubuntu|sles|sl|oel|rhel/)
-    if linux_distro.match(/sles/)
-      if iso_info[2].to_s.match(/Server/)
-        iso_version = iso_info[1]+".0"
-      else
-        iso_version = iso_info[1]+"."+iso_info[2]
-        iso_version = iso_version.gsub(/SP/,"")
-      end
-    else
-      if linux_distro.match(/sl$/)
-        iso_version = iso_info[1].split(//).join(".")
-        if iso_version.length == 1
-          iso_version = iso_version+".0"
-        end
-      else
-        if linux_distro.match(/oel|rhel/)
-          if file_name =~ /-rc-/
-            iso_version = iso_info[1..3].join(".")
-            iso_version = iso_version.gsub(/server/,"")
-          else
-            iso_version = iso_info[1..2].join(".")
-            iso_version = iso_version.gsub(/[a-z,A-Z]/,"")
-          end
-          iso_version = iso_version.gsub(/^\./,"")
-        else
-          iso_version = iso_info[1]
-        end
-      end
-    end
-    if iso_version.match(/86_64/)
-      iso_version = iso_info[1]
-    end
-    case file_name
-    when /i[3-6]86/
-      iso_arch = "i386"
-    when /x86_64|amd64/
-      iso_arch = "x86_64"
-    else
-      if linux_distro.match(/centos|sl$/)
-        iso_arch = iso_info[2]
-      else
-        if linux_distro.match(/sles|oel/)
-          iso_arch = iso_info[4]
-        else
-          iso_arch = iso_info[3]
-        end
-      end
-    end
-  else
-    case linux_distro
-    when /fedora/
-      iso_version = iso_info[1]
-      iso_arch    = iso_info[2]
-    when /purity/
-      iso_version = iso_info[1]
-      iso_arch    = "x86_64"
-    when /vmware/
-      iso_version = iso_info[3].split(/\./)[0..-2].join(".")
-      iso_update  = iso_info[3].split(/\./)[-1]
-      iso_release = iso_info[4].split(/\./)[-3]
-      iso_version = iso_version+"."+iso_update+"."+iso_release
-      iso_arch    = "x86_64"
-    else
-      iso_version = iso_info[2]
-      iso_arch    = iso_info[3]
-    end
-  end
-  return linux_distro,iso_version,iso_arch
+  iso_distro,iso_version,iso_arch = get_item_version_info(file_name)
+  return iso_distro,iso_version,iso_arch
 end
 
 # List ISOs
 
 def list_linux_isos(options)
-  case options['method'].to_s
-  when /ps|preseed/
-    linux_type = "Ubuntu/Debian/Purity"
-  when /ay|autoyast/
-    linux_type = "SuSE/SLES"
-  when /ks|kickstart/
-    linux_type = "RedHat/Scientific/Oracle/Fedora"
-  when /ci/
-    linux_type = "Ubuntu"
-  else
-    linux_type = "Linux"
-  end
-  if options['file'] == options['empty']
-    iso_list = get_base_dir_list(options)
-  else
-    iso_list    = []
-    iso_list[0] = options['file']
-  end
-  if iso_list.length > 0
-    if options['output'].to_s.match(/html/)
-      handle_output(options,"<h1>Available #{linux_type} ISOs:</h1>")
-      handle_output(options,"<table border=\"1\">")
-      handle_output(options,"<tr>")
-      handle_output(options,"<th>ISO File</th>")
-      handle_output(options,"<th>Distribution</th>")
-      handle_output(options,"<th>Version</th>")
-      handle_output(options,"<th>Architecture</th>")
-      handle_output(options,"<th>Service Name</th>")
-      handle_output(options,"</tr>")
-    else
-      handle_output(options,"Available #{linux_type} ISOs:")
-      handle_output(options,"") 
-    end
-    iso_list.each do |file_name|
-      file_name = file_name.chomp
-      (linux_distro,iso_version,iso_arch) = get_linux_version_info(file_name)
-      if options['output'].to_s.match(/html/)
-        handle_output(options,"<tr>")
-        handle_output(options,"<td>#{file_name}</td>")
-        handle_output(options,"<td>#{linux_distro}</td>")
-        handle_output(options,"<td>#{iso_version}</td>")
-        handle_output(options,"<td>#{iso_arch}</td>")
-      else
-        handle_output(options,"ISO file:\t#{file_name}")
-        handle_output(options,"Distribution:\t#{linux_distro}")
-        handle_output(options,"Version:\t#{iso_version}")
-        handle_output(options,"Architecture:\t#{iso_arch}")
-      end
-      iso_version = iso_version.gsub(/\./,"_")
-      options['service'] = linux_distro+"_"+iso_version+"_"+iso_arch
-      options['repodir'] = options['baserepodir']+"/"+options['service']
-      if File.directory?(options['repodir'])
-        if options['output'].to_s.match(/html/)
-          handle_output(options,"<td>#{options['service']} (exists)</td>")
-        else
-          handle_output(options,"Service Name:\t#{options['service']} (exists)")
-        end
-      else
-        if options['output'].to_s.match(/html/)
-          handle_output(options,"<td>#{options['service']}</td>")
-        else
-          handle_output(options,"Service Name:\t#{options['service']}")
-        end
-      end
-      if options['output'].to_s.match(/html/)
-        handle_output(options,"</tr>")
-      else
-        handle_output(options,"") 
-      end
-    end
-    if options['output'].to_s.match(/html/)
-      handle_output(options,"</table>")
-    end
-  end
+  list_isos(options)
   return
+end
+
+# Get Linux version from distro name
+
+def get_distro_version_from_distro_name(item_name)
+  case item_name
+  when /xenial/
+    distro_version = "16.04"
+  when /bionic/
+    distro_version = "18.04"
+  when /focal/
+    distro_version = "20.04"
+  when /hirsuite/
+    distro_version = "21.04"
+  end
+  return distro_version
 end
 
 # Install Linux Package

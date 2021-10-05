@@ -264,6 +264,10 @@ end
 # Check KVM is installed
 
 def check_kvm_is_installed(options)
+  if not options['host-os-name'].match(/Linux/)
+    handle_output(options,"Warning:\tPlatform does not support KVM")
+    quit(options)
+  end
   gw_if_name = get_gw_if_name(options)
   message = "Information:\tChecking KVM is installed"
   command = "ifconfig -a |grep #{gw_if_name}"
