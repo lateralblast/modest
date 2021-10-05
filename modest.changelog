@@ -1385,3 +1385,8 @@
 # Added basic image listing code for cloud images etc
 # 6.9.2: Tue  5 Oct 2021 16:41:16 AEDT
 # Improved image listing code
+# 6.9.3: Tue  5 Oct 2021 19:42:32 AEDT
+# Split out KVM client and common code
+# 6.9.4: Wed  6 Oct 2021 10:45:52 AEDT
+# Improved KVM defaults determination
+

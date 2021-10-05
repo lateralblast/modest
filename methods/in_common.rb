@@ -466,12 +466,15 @@ end
 def reset_defaults(options,defaults)
   if options['ip'].to_s.match(/[0-9]/)
     defaults['dhcp'] = false
+  else
+    defaults['dhcp'] = true
   end
   if options['os-type'].to_s.match(/win/)
     defaults['adminuser'] = "Administrator"
     defaults['adminname'] = "Administrator"
   end
   if options['vm'].to_s.match(/kvm/)
+    defaults['imagedir']  = "/var/lib/libvirt/images"
     defaults['console']   = "pty,target_type=virtio"
     defaults['mac']       = generate_mac_address(options)
     defaults['network']   = "bridge=virbr0"
@@ -480,6 +483,9 @@ def reset_defaults(options,defaults)
     if defaults['host-os-arch'].to_s.match(/^x/) 
       defaults['machine'] = "q35"
       defaults['arch']    = "x86_64"
+    end
+    if not options['disk']
+      defaults['disk'] = "path="+defaults['imagedir'].to_s+"/"+options['name'].to_s+"-seed.qcow2 path="+defaults['imagedir'].to_s+".qcow2,device=disk"
     end
     defaults['cpu']  = "host-passthrough"
     defaults['boot'] = "hd,menu=on"
@@ -496,7 +502,7 @@ def reset_defaults(options,defaults)
   if options['noreboot'] == true
     defaults['reboot'] = false
   end
-  if options['type'].to_s.match(/bucket|ami|instance|object|snapshot|stack|cf|cloud|image|key|securitygroup|id|iprule/) && options['dir'] == options['empty']
+  if options['type'].to_s.match(/bucket|ami|instance|object|snapshot|stack|cf|cloud|image|key|securitygroup|id|iprule/) && options['dir'] == options['empty'] && options['vm'] == options['empty']
     options['vm'] = "aws"
   end
   defaults['timeserver'] = "0."+defaults['country'].to_s.downcase+".pool.ntp.org"
@@ -2253,6 +2259,8 @@ def list_images(options)
     list_aws_images(options)
   when /docker/
     list_docker_images(options)
+  when /kvm/
+    list_kvm_images(options)
   else
     if options['dir'] != options['empty']
       list_items(options)
@@ -4239,6 +4247,9 @@ def execute_command(options,message,command)
           command = "sudo sh -c '"+command+"'"
         end
         if command.match(/qemu/) && command.match(/chmod|chgrp/)
+          command = "sudo sh -c '"+command+"'"
+        end
+        if options['vm'].to_s.match(/kvm/) && command.match(/libvirt/) && command.match(/ls/)
           command = "sudo sh -c '"+command+"'"
         end
       end
