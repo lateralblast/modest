@@ -496,7 +496,7 @@ def reset_defaults(options,defaults)
   if options['noreboot'] == true
     defaults['reboot'] = false
   end
-  if options['type'].to_s.match(/bucket|ami|instance|object|snapshot|stack|cf|cloud|image|key|securitygroup|id|iprule/)
+  if options['type'].to_s.match(/bucket|ami|instance|object|snapshot|stack|cf|cloud|image|key|securitygroup|id|iprule/) && options['dir'] == options['empty']
     options['vm'] = "aws"
   end
   defaults['timeserver'] = "0."+defaults['country'].to_s.downcase+".pool.ntp.org"
@@ -2246,6 +2246,34 @@ def list_image_isos(options)
   return
 end
 
+# List images
+
+def list_images(options)
+  case options["vm"].to_s
+  when /aws/
+    list_aws_images(options)
+  when /docker/
+    list_docker_images(options)
+  else
+    if options["dir"] != options["empty"]
+      list_dir_images(options)
+    end
+  end
+  return
+end
+
+# List a directory of images
+
+def list_dir_images(options)
+  image_list = get_dir_item_list(options)
+  message = options["isodir"].to_s+":"
+  handle_output(options,message)
+  image_list.each do |image|
+    handle_output(options,image)
+  end
+  return
+end
+
 # List all services
 
 def list_all_services(options)
@@ -2284,6 +2312,9 @@ end
 def get_dir_item_list(options)
   full_list = get_base_dir_list(options)
   if options['search'].to_s.match(/all/)
+    return full_list
+  end
+  if options['os-type'] == options["empty"] && options["search"] == options["empty"] && options["method"] == options["empty"]
     return full_list
   end
   temp_list = []
@@ -4284,7 +4315,9 @@ def get_base_dir_list(options)
     check_fs_exists(options,options['isodir'])
     case options['type'].to_s
     when /iso/
-      iso_list = Dir.entries(options['isodir']).grep(/iso|ISO/)
+      iso_list = Dir.entries(options['isodir']).grep(/iso$|ISO$/)
+    when /image|img/
+      iso_list = Dir.entries(options['isodir']).grep(/img$|IMG$|image$|IMAGE$/)
     when /service/
       iso_list = Dir.entries(options['repodir']).grep(/[a-z]|[A-Z]/)
     end

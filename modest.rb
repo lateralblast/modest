@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      6.9.0
+# Version:      6.9.1
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -656,7 +656,7 @@ end
 
 # Handle base ISO dir when dir option set
 
-if options['action'] == "list" && options['type'] == "iso" && options['dir']
+if options['action'] == "list" && options['type'].to_s.match(/iso|img|image/) && options['dir']
   options['isodir'] = options['dir']
 end
 
@@ -1119,7 +1119,7 @@ else
   options['text']    = false
 end
 
-# Handle list switch
+# Handle list option for action switch
 
 if options['action'].to_s.match(/list|info/)
   if options['file'] && !options['file'] == options['empty']
@@ -1747,11 +1747,7 @@ if options['action'] != options['empty']
     when /ssh/
       list_user_ssh_config(options)
     when /image|ami/
-      if options['vm'].to_s.match(/docker/)
-        list_docker_images(options)
-      else
-        list_aws_images(options)
-      end
+      list_images(options)
     when /packer|ansible/
       list_clients(options)
       quit(options)
