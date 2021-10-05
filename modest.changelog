@@ -1379,4 +1379,5 @@
 # Fix for copying live/subiquity images
 # 6.8.9: Tue  5 Oct 2021 11:14:54 AEDT
 # Fixed bug with KVM client listing
-
+# 6.9.0: Tue  5 Oct 2021 12:07:56 AEDT
+# Added check for AWS credentials when creating credentials file

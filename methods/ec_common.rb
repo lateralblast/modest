@@ -889,6 +889,15 @@ end
 # Create AWS Creds file
 
 def create_aws_creds_file(options)
+  creds_dir = File.dirname(options['creds'])
+  if !options['access'].to_s.match(/[a-z]/) || !options['secret'].to_s.match(/[a-z]/)
+    handle_output(options,"Warning:\tNo access key or secret specified")
+    quit(options)
+  end
+  if not File.exist?(creds_dir)
+    check_dir_exists(options,creds_dir)
+    check_dir_owner(options,creds_dir,options['uid'])
+  end
   file = File.open(options['creds'],"w")
   file.write("[default]\n")
   file.write("aws_access_key_id = #{options['access']}\n")
