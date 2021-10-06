@@ -138,15 +138,12 @@ def convert_kvm_image(options)
       handle_output(options,"Warning:\tNo client name specified")
       quit(options)
     else
-      file_name = options['imagedir'].to_s+"/"+options['name'].to_s+".disk" 
+      file_name = options['imagedir'].to_s+"/"+options['name'].to_s+".qcow2" 
       options['outputfile'] = file_name
       output_file = options['outputfile']
       handle_output(options,"Information:\tSetting output file to #{output_file}")
     end
   end
-  puts options['inputfile']
-  puts options['outputfile']
-  exit
   path_name = Pathname.new(options['outputfile'].to_s).dirname
   if !File.exist?(path_name)
     if options['verbose'] == true
