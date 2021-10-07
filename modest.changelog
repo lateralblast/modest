@@ -1389,4 +1389,7 @@
 # Split out KVM client and common code
 # 6.9.4: Wed  6 Oct 2021 10:45:52 AEDT
 # Improved KVM defaults determination
-
+# 6.9.5: Wed  6 Oct 2021 14:42:59 AEDT
+# Cleaned up KVM package check
+# 6.9.5: Wed  6 Oct 2021 16:07:33 AEDT
+# More improvements for KVM

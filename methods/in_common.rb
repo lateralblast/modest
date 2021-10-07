@@ -2002,6 +2002,9 @@ def get_install_service_from_file(options)
       end
       options['release'] = options['file'].to_s.split(/-/)[1].split(/\./)[0..1].join(".")
     end
+    if options['release'].to_s.split(".")[0].to_i > 20
+      options['release'] = "20.04"
+    end
     options['os-variant'] = "ubuntu"+options['release'].to_s
     if options['file'].to_s.match(/live/)
       options['livecd'] = true

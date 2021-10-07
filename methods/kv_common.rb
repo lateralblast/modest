@@ -51,15 +51,18 @@ def check_kvm_is_installed(options)
   output  = execute_command(options,message,command)
   if !output.match(/#{gw_if_name}/) || !File.exist?("/usr/bin/virt-install")
     message = "Information:\tInstalling KVM"
-    if File.exist?("/etc/redhat-release") or File.exist?("/etc/SuSE-release")
-      command = "yum install qemu-kvm qemu-utils libvirt-clients libvirt-daemon-system bridge-utils virt-manager"
-    else
-      command = "apt-get install qemu-kvm qemu-utils libvirt-clients libvirt-daemon-system bridge-utils virt-manager"
+    handle_output(options,message)
+    pkg_list = [ "qemu-kvm", "qemu-utils", "libvirt-clients", "libvirt-daemon-system", "bridge-utils", "virt-manager", "cloud-image-utils", "libosinfo-bin" ]
+    pkg_list.each do |pkg_name|
+      install_linux_package(options,pkg_name)
     end
-    output = execute_command(options,message,command)
   else
     if_name = get_vm_if_name(options)
     check_linux_nat(options,gw_if_name,if_name)
+  end
+  if !File.exist?("/usr/bin/cloud-localds")
+    pkg_name = "cloud-image-utils"
+    install_linux_package(options,pkg_name)
   end
   message = "Information:\tChecking user is a member of the kvm group"
   command = "groups"
@@ -348,13 +351,17 @@ def configure_kvm_import_client(options)
       check_file_owner(options,network_file,options['uid'])
       command = "cloud-localds --network-config "+network_file+" "+options['cloudfile'].to_s+" "+config_file
     else
-      command = "cloud-localds "+options['inputfile'].to_s+" "+config_file
+      input_file = File.basename(options['inputfile'].to_s)
+      input_file = options['imagedir'].to_s+"/"+input_file
+      command = "cloud-localds "+input_file+" "+config_file
     end
     message = "Information:\tConfiguring image file #{options['inputfile'].to_s}"
     output  = execute_command(options,message,command)
-    if !File.exist?(options['cloudfile'].to_s)
-      handle_output(options,"Warning:\tFile #{options['cloudfile'].to_s} does not exist")
-      quit(options)
+    if !File.exist?(options['cloudfile'].to_s) 
+      if $q_struct['static'].value == "true"
+        handle_output(options,"Warning:\tFile #{options['cloudfile'].to_s} does not exist")
+        quit(options)
+      end
     end
   end
   if options['pxe'] == true
