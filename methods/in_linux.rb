@@ -177,6 +177,15 @@ def restart_linux_service(options,service)
   else
     command = "service #{service} restart"
   end
+  output = execute_command(options,message,command)
+  return output
+end
+
+# Install Snap package
+
+def install_snap_pkg(options,pkg_name)
+  message = "Information:\tUsing Snap to install package #{pkg_name}"
+  command = "snap install #{pkg_name}"
   output  = execute_command(options,message,command)
   return output
 end

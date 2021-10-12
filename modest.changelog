@@ -1391,5 +1391,7 @@
 # Improved KVM defaults determination
 # 6.9.5: Wed  6 Oct 2021 14:42:59 AEDT
 # Cleaned up KVM package check
-# 6.9.5: Wed  6 Oct 2021 16:07:33 AEDT
+# 6.9.6: Wed  6 Oct 2021 16:07:33 AEDT
 # More improvements for KVM
+# 6.9.7: Wed 13 Oct 2021 00:16:56 AEDT
+# Initial Multipass support

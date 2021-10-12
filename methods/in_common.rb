@@ -110,13 +110,13 @@ def set_defaults(options,defaults)
     when /not recognised/
       handle_output(options,"Information:\tAt the moment Cygwin is required to run on Windows")
     when /NT/
-      defaults['valid-vm'] = [ 'vbox', 'aws', 'fusion' ]
+      defaults['valid-vm'] = [ 'vbox', 'aws', 'vmware', 'fusion', 'multipass' ]
     when /SunOS/
       defaults['valid-vm'] = [ 'vbox', 'zone', 'aws' ]
       defaults['nic']      = %x[dladm show-link |grep phys |grep up |awk '{print $1}'].chomp
       defaults['host-os-platform'] = %x[prtdiag |grep 'System Configuration'].chomp
     when /Linux/
-      defaults['valid-vm'] = [ 'vbox', 'lxc', 'docker', 'aws', 'qemu', 'kvm', 'xen', 'fusion' ]
+      defaults['valid-vm'] = [ 'vbox', 'lxc', 'docker', 'aws', 'qemu', 'kvm', 'xen', 'fusion', 'vmware', 'multipass' ]
       if File.exist?("/sbin/dmidecode")
         defaults['dmidecode'] = "/sbin/dmidecode"
       else
@@ -139,7 +139,7 @@ def set_defaults(options,defaults)
     when /Darwin/
       defaults['nic']    = "en0"
       defaults['ovfbin'] = "/Applications/VMware OVF Tool/ovftool"
-      defaults['valid-vm'] = [ 'vbox', 'fusion', 'parallels', 'aws', 'docker', 'qemu'  ]
+      defaults['valid-vm'] = [ 'vbox', 'vmware', 'fusion', 'parallels', 'aws', 'docker', 'qemu', 'multipass'  ]
     end
     case defaults['host-os-platform']
     when /VMware/
@@ -4230,7 +4230,7 @@ def execute_command(options,message,command)
   end
   if execute == true
     if options['uid'] != 0
-      if !command.match(/brew |sw_vers|id |groups|hg|pip|VBoxManage|vboxmanage|netstat|df|vmrun|noVNC|docker|packer|ansible-playbook|virt-install|qemu|^ls/) && !options['host-os-name'].to_s.match(/NT/)
+      if !command.match(/brew |sw_vers|id |groups|hg|pip|VBoxManage|vboxmanage|netstat|df|vmrun|noVNC|docker|packer|ansible-playbook|virt-install|qemu|^ls|multipass/) && !options['host-os-name'].to_s.match(/NT/)
         if options['sudo'] == true
           command = "sudo sh -c '"+command+"'"
         else
@@ -4246,7 +4246,7 @@ def execute_command(options,message,command)
         if command.match(/ifconfig/) && command.match(/up$/)
           command = "sudo sh -c '"+command+"'"
         end
-        if command.match(/virt-install/)
+        if command.match(/virt-install|snap/)
           command = "sudo sh -c '"+command+"'"
         end
         if command.match(/qemu/) && command.match(/chmod|chgrp/)

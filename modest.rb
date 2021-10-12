@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      6.9.6
+# Version:      6.9.7
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -820,6 +820,7 @@ end
 
 if options['vm'] != options['empty']
   options['vm'] = options['vm'].gsub(/virtualbox/,"vbox")
+  options['vm'] = options['vm'].gsub(/mp/,"multipass")
   if options['vm'].to_s.match(/aws/)
     if options['service'] == options['empty']
       options['service'] = $default_aws_type
@@ -859,7 +860,7 @@ end
 
 if options['clone'] == options['empty']
   if options['action'] == "snapshot"
-    clone_date      = %x[date].chomp.downcase.gsub(/ |:/,"_")
+    clone_date = %x[date].chomp.downcase.gsub(/ |:/,"_")
     options['clone'] = options['name'] + "-" + clone_date
   end
   if options['verbose'] == true && options['clone']
@@ -1425,6 +1426,14 @@ if options['vm'] != options['empty']
       options['hostonlyip'] = "192.168.55.1"
       options['vmgateway']  = "192.168.55.1"
     end
+  when /multipass|mp/
+    options['vm'] = "multipass"
+    if options['os-name'].to_s.match(/Darwin/)
+      options = check_vbox_is_installed(options)
+      options['hostonlyip'] = "192.168.64.1"
+      options['vmgateway']  = "192.168.64.1"
+    end
+    check_multipass_is_installed(options)
   when /virtualbox|vbox/
     options = check_vbox_is_installed(options)
     handle_vm_install_status(options)
