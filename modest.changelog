@@ -1395,3 +1395,5 @@
 # More improvements for KVM
 # 6.9.7: Wed 13 Oct 2021 00:16:56 AEDT
 # Initial Multipass support
+# 6.9.8: Wed 13 Oct 2021 22:31:47 AEDT
+# Added Multipass list routines

@@ -2552,7 +2552,7 @@ end
 # List items (ISOs, images, etc)
 
 def list_items(options)
-  if not options['output'].to_s.match(/html/)
+  if !options['output'].to_s.match(/html/) && !options['vm'].to_s.match(/mp|multipass/)
     string = options['isodir'].to_s+":"
     handle_output(options,string)
   end
@@ -2567,7 +2567,7 @@ def list_items(options)
       handle_output(options,"<h1>Available ISO(s)/Image(s):</h1>")
       handle_output(options,"<table border=\"1\">")
       handle_output(options,"<tr>")
-      handle_output(options,"<th>ISO File</th>")
+      handle_output(options,"<th>ISO/Image File</th>")
       handle_output(options,"<th>Distribution</th>")
       handle_output(options,"<th>Version</th>")
       handle_output(options,"<th>Architecture</th>")
@@ -2579,7 +2579,14 @@ def list_items(options)
     end
     iso_list.each do |file_name|
       file_name = file_name.chomp
-      (linux_distro,iso_version,iso_arch) = get_linux_version_info(file_name)
+      if options['vm'].to_s.match(/mp|multipass/)
+        iso_arch     = options['host-os-machine'].to_s
+        linux_distro = file_name.split(/ \s+/)[-1]
+        iso_version  = file_name.split(/ \s+/)[-2]
+        file_name    = file_name.split(/ \s+/)[0]
+      else
+        (linux_distro,iso_version,iso_arch) = get_linux_version_info(file_name)
+      end
       if options['output'].to_s.match(/html/)
         handle_output(options,"<tr>")
         handle_output(options,"<td>#{file_name}</td>")
@@ -2587,13 +2594,13 @@ def list_items(options)
         handle_output(options,"<td>#{iso_version}</td>")
         handle_output(options,"<td>#{iso_arch}</td>")
       else
-        handle_output(options,"ISO file:\t#{file_name}")
+        handle_output(options,"ISO/Image file:\t#{file_name}")
         handle_output(options,"Distribution:\t#{linux_distro}")
         handle_output(options,"Version:\t#{iso_version}")
         handle_output(options,"Architecture:\t#{iso_arch}")
       end
       iso_version = iso_version.gsub(/\./,"_")
-      options['service'] = linux_distro+"_"+iso_version+"_"+iso_arch
+      options['service'] = linux_distro.downcase.gsub(/\s+|\.|-/,"_").gsub(/_lts_/,"")+"_"+iso_version+"_"+iso_arch
       options['repodir'] = options['baserepodir']+"/"+options['service']
       if File.directory?(options['repodir'])
         if options['output'].to_s.match(/html/)
@@ -4470,6 +4477,10 @@ end
 # If none exist it will exit
 
 def get_base_dir_list(options)
+  if options['vm'].to_s.match(/mp|multipass/)
+    iso_list = get_multipass_iso_list(options)
+    return iso_list
+  end
   search_string = options['search']
   if options['isodir'] == nil or options['isodir'] == "none" and options['file'] == options['empty']
     handle_output(options,"Warning:\tNo valid ISO directory specified")

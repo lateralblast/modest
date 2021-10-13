@@ -4,7 +4,7 @@
 
 def check_multipass_is_installed(options)
   if !File.exist?("/usr/local/bin/multipass")
-    case options['os-name'].to_s
+    case options['host-os-name'].to_s
     when /Darwin/
       install_brew_pkg(options,"multipass")
     when /Linux/
@@ -23,14 +23,30 @@ def list_multipass_vms(options)
   else
     command = "multipass list |grep -v ^Name"
   end
-  message = "Informtion:\tGetting list of Multipass instances"
+  message = "Informtion:\tGetting list of local Multipass instances"
   output  = execute_command(options,message,command)
   vm_list = output.split("\n")
-  handle_output(options,"Name:\t\t\tState:\t\t  IPv4:\t\t   Image")
+  handle_output(options,"Image:\t\t\tState:\t\t  IPv4:\t\t   Image")
+  vm_list = output.split("\n")
   vm_list.each do |line|
     handle_output(options,line)
   end
   return
+end
+
+# List available instances
+
+def get_multipass_iso_list(options)
+  if options['search'] != options['empty'] or options['search'].to_s.match(/all/)
+    search_string = options['search'].to_s
+    command = "multipass find |grep #{search_string} |grep -v ^Image"
+  else
+    command = "multipass find |grep -v ^Image"
+  end
+  message  = "Informtion:\tGetting list of remote Multipass instances"
+  output   = execute_command(options,message,command)
+  iso_list = output.split("\n")
+  return iso_list
 end
 
 # Check if Multipass instance exists
