@@ -27,7 +27,9 @@ def populate_cc_userdata(options)
   admin_home    = "/home/"+$q_struct['admin_username'].value
   admin_crypt   = $q_struct['admin_crypt'].value
   install_nic   = $q_struct['interface'].value
-  install_ip    = $q_struct['ip'].value
+  if disable_dhcp.match(/true/)
+    install_ip    = $q_struct['ip'].value
+  end
   install_cidr  = $q_struct['cidr'].value
   install_disk  = $q_struct['partition_disk'].value
   netplan_file  = "#{install_target}/etc/netplan/01-netcfg.yaml"
@@ -133,7 +135,9 @@ def populate_cc_userdata(options)
   user_data.push("  updates: security")
   user_data.push("  user-data:")
   user_data.push("    disable-root: false")
-  exec_data.push("ip addr add #{install_ip}/#{install_cidr} dev #{install_nic}")
+  if disable_dhcp.match(/true/)
+    exec_data.push("ip addr add #{install_ip}/#{install_cidr} dev #{install_nic}")
+  end
   exec_data.push("ip link set #{install_nic} up")
   exec_data.push("ip route add default via #{install_gateway}")
   exec_data.push("echo 'DNS=#{install_nameserver}' >> #{resolved_conf}")

@@ -163,7 +163,15 @@ def populate_ps_questions(options)
     if options['vm'].to_s.match(/vbox/) && options['type'].to_s.match(/packer/)
       disable_dhcp = "false"
     else
-      disable_dhcp = "true"
+      if options['service'].to_s.match(/live/) || options['vm'].to_s.match(/mp|multipass/)
+        if options['ip'] == options['empty']
+          disable_dhcp = "false"
+        else
+          disable_dhcp = "true"
+        end
+      else
+        disable_dhcp = "true"
+      end
     end
 
     name = "disable_dhcp"
@@ -319,20 +327,37 @@ def populate_ps_questions(options)
   $q_struct[name] = config
   $q_order.push(name)
 
-  name = "ip"
-  config = Ks.new(
-    type      = "string",
-    question  = "IP address",
-    ask       = "yes",
-    parameter = "netcfg/get_ipaddress",
-    value     = options['ip'],
-    valid     = "",
-    eval      = "no"
-    )
-  $q_struct[name] = config
-  $q_order.push(name)
+  if $q_struct['disable_dhcp'].value.match(/true/)
 
-  if options['service'].to_s.match(/live/)
+    name = "ip"
+    config = Ks.new(
+      type      = "string",
+      question  = "IP address",
+      ask       = "yes",
+      parameter = "netcfg/get_ipaddress",
+      value     = options['ip'],
+      valid     = "",
+      eval      = "no"
+      )
+    $q_struct[name] = config
+    $q_order.push(name)
+
+    name = "netmask"
+    config = Ks.new(
+      type      = "string",
+      question  = "Netmask",
+      ask       = "yes",
+      parameter = "netcfg/get_netmask",
+      value     = options['netmask'],
+      valid     = "",
+      eval      = "no"
+      )
+    $q_struct[name] = config
+    $q_order.push(name)
+
+  end
+
+  if options['service'].to_s.match(/live/) || options['vm'].to_s.match(/mp|multipass/)
 
     name = "cidr"
     config = Ks.new(
@@ -348,19 +373,6 @@ def populate_ps_questions(options)
     $q_order.push(name)
 
   end 
-
-  name = "netmask"
-  config = Ks.new(
-    type      = "string",
-    question  = "Netmask",
-    ask       = "yes",
-    parameter = "netcfg/get_netmask",
-    value     = options['netmask'],
-    valid     = "",
-    eval      = "no"
-    )
-  $q_struct[name] = config
-  $q_order.push(name)
 
   if options['gateway'].to_s.match(/[0-9]/) and options['vm'].to_s == options['empty'].to_s
     gateway = options['gateway']
@@ -397,35 +409,39 @@ def populate_ps_questions(options)
   $q_struct[name] = config
   $q_order.push(name)
 
-  broadcast = options['ip'].split(/\./)[0..2].join(".")+".255"
+  if $q_struct['disable_dhcp'].value.match(/true/)
 
-  name = "broadcast"
-  config = Ks.new(
-    type      = "",
-    question  = "Broadcast",
-    ask       = "yes",
-    parameter = "",
-    value     = broadcast,
-    valid     = "",
-    eval      = "no"
-    )
-  $q_struct[name] = config
-  $q_order.push(name)
+    broadcast = options['ip'].split(/\./)[0..2].join(".")+".255"
+
+    name = "broadcast"
+    config = Ks.new(
+      type      = "",
+      question  = "Broadcast",
+      ask       = "yes",
+      parameter = "",
+      value     = broadcast,
+      valid     = "",
+      eval      = "no"
+      )
+    $q_struct[name] = config
+    $q_order.push(name)
   
-  network_address = options['ip'].split(/\./)[0..2].join(".")+".0"
+    network_address = options['ip'].split(/\./)[0..2].join(".")+".0"
 
-  name = "network_address"
-  config = Ks.new(
-    type      = "",
-    question  = "Network Address",
-    ask       = "yes",
-    parameter = "",
-    value     = network_address,
-    valid     = "",
-    eval      = "no"
-    )
-  $q_struct[name] = config
-  $q_order.push(name)
+    name = "network_address"
+    config = Ks.new(
+      type      = "",
+      question  = "Network Address",
+      ask       = "yes",
+      parameter = "",
+      value     = network_address,
+      valid     = "",
+      eval      = "no"
+      )
+    $q_struct[name] = config
+    $q_order.push(name)
+
+  end
 
   if options['dhcp'] == true
     static = "false"

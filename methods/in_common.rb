@@ -83,7 +83,7 @@ def set_defaults(options,defaults)
   defaults['valid-arch']    = [ 'x86_64', 'i386', 'sparc' ]
   defaults['valid-console'] = [ 'text', 'console', 'x11', 'headless', "pty", "vnc" ]
   defaults['valid-format']  = [ 'VMDK', 'RAW', 'VHD' ]
-  defaults['valid-method']  = [ 'ks', 'xb', 'vs', 'ai', 'js', 'ps', 'lxc',
+  defaults['valid-method']  = [ 'ks', 'xb', 'vs', 'ai', 'js', 'ps', 'lxc', 'mp',
                                 'ay', "ci", 'image', 'ldom', 'cdom', 'gdom' ]
   defaults['valid-mode']    = [ 'client', 'server', 'osx' ]
   defaults['valid-os']      = [ 'Solaris', 'VMware-VMvisor', 'CentOS',
@@ -512,6 +512,10 @@ def reset_defaults(options,defaults)
     vm_type = defaults['vm']
   end
   case vm_type
+  when /mp|multipass/
+    defaults['dhcp'] = true
+    defaults['vmgateway']  = "192.168.64.1"
+    defaults['hostonlyip'] = "192.168.64.1"
   when /parallels/
     if defaults['host-os-name'].to_s.match(/Darwin/) && defaults['host-os-version'].to_i > 10
       defaults['vmgateway']  = "10.211.55.1"
@@ -542,6 +546,9 @@ def reset_defaults(options,defaults)
     defaults['vmnet'] = "virbr0"
   when /vbox/
     defaults['vmnet'] = "vboxnet0"
+  when /mp|multipass/
+    defaults['size']   = "20G"
+    defaults['memory'] = "1G"
   when /dom/
     defaults['vmnet']  = "net0"
     defaults['mau']    = "1"
@@ -1829,6 +1836,12 @@ end
 # Get install method from service
 
 def get_install_method(options)
+  if options['vm'].to_s.match(/mp|multipass/)
+    if options['method'] == options['empty']
+      options['method'] = "mp"
+      return options['method']
+    end
+  end
   if not options['service'].to_s.match(/[a-z]/)
     options['service'] = get_install_service(options)
   end
@@ -2792,6 +2805,8 @@ def configure_client(options)
       configure_vs_client(options)
     when /xb/
       configure_xb_client(options)
+    when /mp|multipass/
+      configure_multipass_client(options)
     end
   end
   return

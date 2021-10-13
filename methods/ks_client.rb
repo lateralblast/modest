@@ -380,23 +380,25 @@ def configure_ks_client(options)
       options['arch'] = "x86_64"
     end
   end
-  configure_ks_pxe_boot(options)
-  options['repodir'] = options['baserepodir']+"/"+options['service']
-  add_apache_alias(options,options['clientdir'])
-  options['clientdir'] = options['clientdir']+"/"+options['service']+"/"+options['name']
-  check_fs_exists(options,options['clientdir'])
-  if not File.directory?(options['repodir'])
-    handle_output(options,"Warning:\tService #{options['service']} does not exist")
-    handle_output(options,"")
-    list_ks_services()
-    quit(options)
+  if not options['vm'].to_s.match(/mp|multipass/)
+    configure_ks_pxe_boot(options)
+    options['repodir'] = options['baserepodir']+"/"+options['service']
+    add_apache_alias(options,options['clientdir'])
+    options['clientdir'] = options['clientdir']+"/"+options['service']+"/"+options['name']
+    check_fs_exists(options,options['clientdir'])
+    if not File.directory?(options['repodir'])
+      handle_output(options,"Warning:\tService #{options['service']} does not exist")
+      handle_output(options,"")
+      list_ks_services()
+      quit(options)
+    end
   end
   check_dir_exists(options,options['clientdir'])
   check_dir_owner(options,options['clientdir'],options['uid'])
   if options['service'].to_s.match(/sles/)
     output_file = options['clientdir']+"/"+options['name']+".xml"
   else
-    if options['service'].to_s.match(/live/)
+    if options['service'].to_s.match(/live/) || options['vm'].to_s.match(/mp|multipass/)
       output_file = options['clientdir']+"/user-data"
       meta_file   = options['clientdir']+"/meta-data"
     else
@@ -418,7 +420,7 @@ def configure_ks_client(options)
       process_questions(options)
       output_ay_client_profile(options,output_file)
     else
-      if options['service'].to_s.match(/live/)
+      if options['service'].to_s.match(/live/) || options['vm'].to_s.match(/mp|multipass/)
         options = populate_ps_questions(options)
         process_questions(options)
         (user_data,exec_data) = populate_cc_userdata(options)
@@ -441,7 +443,7 @@ def configure_ks_client(options)
       end
     end
   end
-  if !options['service'].to_s.match(/purity/)
+  if !options['service'].to_s.match(/purity/) && !options['vm'].to_s.match(/mp|multipass/)
     configure_ks_pxe_client(options)
     configure_ks_dhcp_client(options)
     add_apache_alias(options,options['clientdir'])

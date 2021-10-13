@@ -1397,3 +1397,5 @@
 # Initial Multipass support
 # 6.9.8: Wed 13 Oct 2021 22:31:47 AEDT
 # Added Multipass list routines
+# 6.9.9: Thu 14 Oct 2021 00:47:14 AEDT
+# Added initial Multipass cloud init support

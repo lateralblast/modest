@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      6.9.8
+# Version:      6.9.9
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -1330,7 +1330,7 @@ if options['os-type'] == options['empty']
   if options['vm'] != options['empty']
     if options['action'].to_s.match(/add|create/)
       if options['method'] == options['empty']
-        if !options['vm'].to_s.match(/ldom|cdom|gdom|aws/) && !options['type'].to_s.match(/network/)
+        if !options['vm'].to_s.match(/ldom|cdom|gdom|aws|mp|multipass/) && !options['type'].to_s.match(/network/)
           handle_output(options,"Warning:\tNo OS or install method specified when creating VM")
           quit(options)
         end
@@ -1866,7 +1866,7 @@ if options['action'] != options['empty']
       if options['service'] == options['empty'] && options['vm'] == options['empty']
         if options['vm'] == options['empty']
           options['vm'] = get_client_vm_type(options)
-          if options['vm'].to_s.match(/vbox|fusion|parallels/)
+          if options['vm'].to_s.match(/vbox|fusion|parallels|mp|multipass/)
             options['sudo'] = false
             delete_vm(options)
           else
@@ -1894,10 +1894,15 @@ if options['action'] != options['empty']
           if options['vm'].to_s.match(/ldom|gdom/)
             unconfigure_gdom(options)
           else
-            remove_hosts_entry(options)
-            remove_dhcp_client(options)
-            if options['yes'] == true
-              delete_client_dir(options)
+            if options['vm'].to_s.match(/mp|multipass/)
+              delete_multipass_vm(options)
+              quit(options)
+            else
+              remove_hosts_entry(options)
+              remove_dhcp_client(options)
+              if options['yes'] == true
+                delete_client_dir(options)
+              end
             end
           end
         end
@@ -1997,6 +2002,10 @@ if options['action'] != options['empty']
       end
     end
   when /add|create/
+    if options['vm'].to_s.match(/mp|multipass/)
+      configure_multipass_vm(options)
+      quit(options)
+    end
     if options['type'] == options['empty'] && options['vm'] == options['empty'] && options['service'] == options['empty']
       handle_output(options,"Warning:\tNo service type or VM specified")
       quit(options)

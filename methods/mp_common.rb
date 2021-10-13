@@ -53,7 +53,7 @@ end
 
 def check_multipass_vm_exists(options)
   exists = "no"
-  if option['name'] == options['empty']
+  if options['name'] == options['empty']
     handle_output(options,"Warning:\tNo client name specified")
     quit(options)
   end
@@ -77,11 +77,22 @@ def configure_multipass_vm(options)
   else
     message = "Information:\tCreating Multipass VM #{vm_name}"
     if options['method'].to_s.match(/ci/)
-      command = "multipass launch --name #{vm_name} --cloud-init #{option['file'].to_s}"
+      if not options['file'] == options['empty']
+        command = "multipass launch --name #{vm_name} --cloud-init #{option['file'].to_s}"
+      else
+        configure_ps_client(options)
+      end
     else
-      command = "multipass launch --name #{vm_name}"
+      no_cpus = options['vcpu'].to_s
+      vm_size = options['size'].to_s
+      memory  = options['memory'].to_s
+      command = "multipass launch --cpus #{no_cpus} --disk #{vm_size} --mem #{memory} --name #{vm_name}"
     end
-    execute_command(options,message,command)
+    if not options['release'] == options['empty']
+      command = command+" "+options['release'].to_s
+    end
+    puts command
+    # execute_command(options,message,command)
   end
   return
 end

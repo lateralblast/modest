@@ -404,7 +404,7 @@ def configure_vm(options)
     configure_cdom_vm(options)
   when /gdom/
     configure_cdom_vm(options)
-  when /multipass/
+  when /multipass|mp/
     configure_multipass_vm(options)
   end
   return
@@ -440,7 +440,7 @@ def delete_vm(options)
     unconfigure_cdom_vm(options)
   when /gdom/
     unconfigure_cdom_vm(options)
-  when /multipass/
+  when /multipass|mp/
     unconfigure_multipass_vm(options)
   end
   return
@@ -499,7 +499,7 @@ def list_vms(options)
     list_kvm_vms(options)
   when /docker/
     list_docker_vms(options)
-  when /multipass/
+  when /multipass|mp/
     list_multipass_vms(options)
   else
     list_all_vms(options)

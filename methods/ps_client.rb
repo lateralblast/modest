@@ -47,7 +47,7 @@ end
 # Populate first boot commands
 
 def populate_ps_first_boot_list(options)
-  if options['service'].to_s.match(/live/)
+  if options['service'].to_s.match(/live/) || options['vm'].to_s.match(/mp|multipass/)
     install_target = "/target"
   else
     install_target = ""
@@ -112,7 +112,7 @@ def populate_ps_first_boot_list(options)
   post_list.push("")
   post_list.push("# Fix ethernet names to be ethX style and enable serial")
   post_list.push("")
-  if options['service'].to_s.match(/live/)
+  if options['service'].to_s.match(/live/) || options['vm'].to_s.match(/mp|multipass/)
     if options['biosdevnames'] == true
       post_list.push("echo 'GRUB_CMDLINE_LINUX=\"net.ifnames=0 biosdevname=0 console=tty0 console=ttyS0\"' >> #{install_target}/etc/default/grub")
     else
@@ -253,7 +253,7 @@ def populate_ps_first_boot_list(options)
     post_list.push("echo 'Port 2222' >> #{install_target}/etc/ssh/sshd_config")
     post_list.push("")
   end
-  if options['service'].to_s.match(/live/)
+  if options['service'].to_s.match(/live/) || options['vm'].to_s.match(/mp|multipass/)
     post_list.push("curtin in-target --target=/target -- apt install setserial net-tools")
   else
     if options['vmnetwork'].to_s.match(/hostonly|bridged/)
