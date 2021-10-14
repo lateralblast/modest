@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      7.0.2
+# Version:      7.0.3
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -1680,9 +1680,12 @@ if options['action'] != options['empty']
     if options['check'].to_s.match(/tftp/)
       check_tftpd_config(options)
     end
-  when /execute/
-    if options['type'].to_s.match(/docker/)
+  when /execute|shell/
+    if options['type'].to_s.match(/docker/) or options['vm'].to_s.match(/docker/)
       execute_docker_command(options)
+    end
+    if options['vm'].to_s.match(/mp|multipass/)
+      execute_multipass_command(options)
     end
   when /screen/
     if options['vm'] != options['empty']

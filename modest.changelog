@@ -1405,3 +1405,5 @@
 # Bugfixes for default Multipass instance creation
 # 7.0.2: Thu 14 Oct 2021 22:03:24 AEDT
 # Fixed cloud-init code for Multipass
+# 7.0.3: Thu 14 Oct 2021 22:53:55 AEDT
+# Added exec support to Multipass

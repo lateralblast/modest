@@ -2,10 +2,11 @@
 
 # Execute command on docker client
 
-def execute_docker_command(options,guest_command)
-	exists = check_docker_vm_exists(options)
+def execute_docker_command(options)
+  command = options['command'].to_s 
+	exists  = check_docker_vm_exists(options)
 	if exists == "yes"
-		output = %x[docker-machine ssh #{options['name']} "#{guest_command}']
+		output = %x[docker-machine ssh #{options['name']} "#{command}']
 		handle_output(options,output)
 	else
 		handle_output(options,"Information:\tDocker instance #{options['name']} does not exist")

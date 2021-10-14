@@ -89,6 +89,21 @@ def check_multipass_vm_exists(options)
   return exists
 end
 
+# Execute command in Multipass VM
+
+def execute_multipass_command(options)
+  command = options['command'].to_s 
+	exists  = check_multipass_vm_exists(options)
+	if exists == "yes"
+    command = "multipass exec #{options['name']} -- bash -c \"#{command}\""
+		output  = %x[#{command}]
+		handle_output(options,output)
+	else
+		handle_output(options,"Information:\tMultipass instance #{options['name']} does not exist")
+	end
+  return
+end
+
 # Create Multipass VM
 
 def configure_multipass_vm(options)
