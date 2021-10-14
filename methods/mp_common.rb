@@ -76,6 +76,7 @@ end
 def configure_multipass_vm(options)
   exists  = check_multipass_vm_exists(options)
   vm_name = options['name'].to_s
+  options = process_memory_value(options)
   if exists == "yes"
     handle_output(options,"Warning:\tMultipass VM #{vm_name} already exists")
   else
@@ -95,8 +96,7 @@ def configure_multipass_vm(options)
     if not options['release'] == options['empty']
       command = command+" "+options['release'].to_s
     end
-    puts command
-    # execute_command(options,message,command)
+    execute_command(options,message,command)
   end
   return
 end
@@ -127,6 +127,11 @@ def get_multipass_vm_info(options)
 end
 
 # Delete Multipass VM
+
+def delete_multipass_vm(options)
+  unconfigure_multipass_vm(options)
+  return
+end
 
 def unconfigure_multipass_vm(options)
   exists  = check_multipass_vm_exists(options)

@@ -506,14 +506,16 @@ def reset_defaults(options,defaults)
     options['vm'] = "aws"
   end
   defaults['timeserver'] = "0."+defaults['country'].to_s.downcase+".pool.ntp.org"
-  if options['vm']
-    vm_type = options['vm']
+  if options['vm'] != options['empty']
+    vm_type = options['vm'].to_s
   else
-    vm_type = defaults['vm']
+    vm_type = defaults['vm'].to_s
   end
   case vm_type
   when /mp|multipass/
-    defaults['dhcp'] = true
+    defaults['size']   = "20G"
+    defaults['memory'] = "1G"
+    defaults['dhcp']   = true
     defaults['vmgateway']  = "192.168.64.1"
     defaults['hostonlyip'] = "192.168.64.1"
   when /parallels/
@@ -546,9 +548,6 @@ def reset_defaults(options,defaults)
     defaults['vmnet'] = "virbr0"
   when /vbox/
     defaults['vmnet'] = "vboxnet0"
-  when /mp|multipass/
-    defaults['size']   = "20G"
-    defaults['memory'] = "1G"
   when /dom/
     defaults['vmnet']  = "net0"
     defaults['mau']    = "1"
@@ -811,6 +810,21 @@ def get_arch_from_model(options)
   else
     options['arch'] = "sun4u"
   end
+  return options
+end
+
+# Parse memory
+
+def process_memory_value(options)
+  memory = options['memory'].to_s
+  if not memory.match(/[A-Z]$|[a-z]$/)
+    if memory.to_i < 100
+      memory = memory+"G"
+    else
+      memory = memory+"M"
+    end
+  end
+  options['memory'] = memory
   return options
 end
 
