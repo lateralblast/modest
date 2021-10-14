@@ -17,6 +17,10 @@ end
 # List Multipass instances
 
 def list_multipass_vms(options)
+  if options['name'] != options['empty']
+    get_multipass_vm_info(options)
+    return
+  end
   if options['search'] != options['empty'] or options['search'].to_s.match(/all/)
     search_string = options['search'].to_s
     command = "multipass list |grep #{search_string} |grep -v ^Name"
@@ -93,6 +97,31 @@ def configure_multipass_vm(options)
     end
     puts command
     # execute_command(options,message,command)
+  end
+  return
+end
+
+# Get Multipass VM info
+
+def get_multipass_vm_info(options)
+  exists  = check_multipass_vm_exists(options)
+  vm_name = options['name'].to_s
+  if exists == "yes" && !options['action'].to_s.match(/list/)
+    handle_output(options,"Warning:\tMultipass VM #{vm_name} already exists")
+  else
+    message = "Information:\Getting information for Multipass VM #{vm_name}"
+    command = "multipass info #{vm_name}"
+    output  = execute_command(options,message,command)
+    lines   = output.split("\n")
+    lines.each do |line|
+      if options['search'] != options['empty']
+        if line.downcase.match(/#{options['search'].to_s.downcase}/)
+          handle_output(options,line)
+        end
+      else
+        handle_output(options,line)
+      end
+    end
   end
   return
 end

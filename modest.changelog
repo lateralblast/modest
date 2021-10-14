@@ -1399,3 +1399,5 @@
 # Added Multipass list routines
 # 6.9.9: Thu 14 Oct 2021 00:47:14 AEDT
 # Added initial Multipass cloud init support
+# 7.0.0: Thu 14 Oct 2021 18:57:14 AED
+# Added function to get Mutipass instance information
