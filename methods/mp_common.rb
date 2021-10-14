@@ -53,6 +53,24 @@ def get_multipass_iso_list(options)
   return iso_list
 end
 
+# Get service name from release name
+
+def get_multipass_service_from_release(options)
+  release = options['release'].to_s
+  machine = options['host-os-machine'].to_s
+  if options['service'] == options['empty']
+    message = "Information:\tDetermining service name"
+    command = "multipass find |grep '^#{release}'"
+    output  = execute_command(options,message,command)
+    output  = output.chomp.gsub(/ LTS/,"")
+  else
+    if release.match(/^[0-9]/)
+      options['service'] = "ubuntu_"+release.gsub(/\./,"_")+"_"+machine
+    end
+  end
+  return options
+end
+
 # Check if Multipass instance exists
 
 def check_multipass_vm_exists(options)
@@ -79,13 +97,17 @@ def configure_multipass_vm(options)
   options = process_memory_value(options)
   if exists == "yes"
     handle_output(options,"Warning:\tMultipass VM #{vm_name} already exists")
+    quit(options)
   else
     message = "Information:\tCreating Multipass VM #{vm_name}"
     if options['method'].to_s.match(/ci/)
-      if not options['file'] == options['empty']
-        command = "multipass launch --name #{vm_name} --cloud-init #{option['file'].to_s}"
+      if options['file'] != options['empty']
+        command = "multipass launch --name #{vm_name} --cloud-init #{options['file'].to_s}"
       else
         configure_ps_client(options)
+        options = get_multipass_service_from_release(options)
+        options['file'] = options['clientdir'].to_s+"/user-data"
+        command = "multipass launch --name #{vm_name} --cloud-init #{options['file'].to_s}"
       end
     else
       no_cpus = options['vcpu'].to_s

@@ -513,9 +513,10 @@ def reset_defaults(options,defaults)
   end
   case vm_type
   when /mp|multipass/
-    defaults['size']   = "20G"
-    defaults['memory'] = "1G"
-    defaults['dhcp']   = true
+    defaults['size'] = "20G"
+    defaults['dhcp'] = true
+    defaults['memory']  = "1G"
+    defaults['release'] = "20.04"
     defaults['vmgateway']  = "192.168.64.1"
     defaults['hostonlyip'] = "192.168.64.1"
   when /parallels/

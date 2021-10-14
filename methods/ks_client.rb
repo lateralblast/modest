@@ -392,6 +392,9 @@ def configure_ks_client(options)
       list_ks_services()
       quit(options)
     end
+  else
+    options = get_multipass_service_from_release(options)
+    options['clientdir'] = options['clientdir']+"/"+options['service']+"/"+options['name']
   end
   check_dir_exists(options,options['clientdir'])
   check_dir_owner(options,options['clientdir'],options['uid'])
