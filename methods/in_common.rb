@@ -517,8 +517,13 @@ def reset_defaults(options,defaults)
     defaults['dhcp'] = true
     defaults['memory']  = "1G"
     defaults['release'] = "20.04"
-    defaults['vmgateway']  = "192.168.64.1"
-    defaults['hostonlyip'] = "192.168.64.1"
+    if defaults['host-os-name'].to_s.match(/Darwin/) && defaults['host-os-version'].to_i > 11
+      defaults['vmgateway']  = "192.168.64.1"
+      defaults['hostonlyip'] = "192.168.64.1"
+    else
+      defaults['vmgateway']  = "172.16.10.1"
+      defaults['hostonlyip'] = "172.16.10.1"
+    end
   when /parallels/
     if defaults['host-os-name'].to_s.match(/Darwin/) && defaults['host-os-version'].to_i > 10
       defaults['vmgateway']  = "10.211.55.1"
@@ -1216,7 +1221,7 @@ end
 
 # Check VNC is installed
 
-def check_vnc_install()
+def check_vnc_install(options)
   if not File.directory?(options['novncdir'])
     message = "Information:\tCloning noVNC from "+$novnc_url
     command = "git clone #{$novnc_url}"
@@ -1226,7 +1231,7 @@ end
 
 # Get Windows default interface name
 
-def get_win_default_if_name()
+def get_win_default_if_name(options)
   message = "Information:\tDeterming default interface name"
   command = "wmic nic where NetConnectionStatus=2 get NetConnectionID |grep -v NetConnectionID |head -1"
   default = execute_command(options,message,command)
@@ -1237,7 +1242,7 @@ end
 
 # Get Windows interface MAC address
 
-def get_win_if_mac(if_name)
+def get_win_if_mac(options,if_name)
   if options['host-os-name'].to_s.match(/NT/) and if_name.match(/\s+/)
     if_name = if_name.split(/\s+/)[0]
     if_name = if_name.gsub(/"/,"")
@@ -1254,7 +1259,7 @@ end
 
 # Get Windows IP from MAC
 
-def get_win_ip_form_mac(nic_mac)
+def get_win_ip_form_mac(options,nic_mac)
   message = "Information:\tDeterming IP address from MAC address '#{nic_mac}'"
   command = "wmic nicconfig get macaddress,ipaddress |grep \"#{nic_mac}\""
   host_ip = execute_command(options,message,command)
@@ -1266,18 +1271,18 @@ end
 
 # Get Windows default host IP
 
-def get_win_default_host()
-  if_name = get_win_default_if_name
-  nic_mac = get_win_if_mac(if_name)
-  host_ip = get_win_ip_form_mac(nic_mac)
+def get_win_default_host(options)
+  if_name = get_win_default_if_name(options)
+  nic_mac = get_win_if_mac(options,if_name)
+  host_ip = get_win_ip_form_mac(options,nic_mac)
   return host_ip
 end
 
 # Get Windows IP from interface name
 
 def get_win_ip_from_if_name(if_name)
-  nic_mac = get_win_if_mac(if_name)
-  host_ip = get_win_ip_form_mac(nic_mac)
+  nic_mac = get_win_if_mac(options,if_name)
+  host_ip = get_win_ip_form_mac(options,nic_mac)
   return host_ip
 end
 
@@ -1339,7 +1344,7 @@ end
 
 def get_gw_if_name(options)
   if options['host-os-name'].to_s.match(/NT/)
-    gw_if_ip = get_win_default_if_name
+    gw_if_ip = get_win_default_if_name(options)
   else
     message = "Information:\tGetting interface name of default router"
     if options['host-os-name'].to_s.match(/Linux/)
@@ -3822,6 +3827,22 @@ def check_tftpd_dir(options)
       command = "svccfg -s svc:network/tftp/udp setprop inetd_start/exec = astring: \"/usr/sbin/in.tftpd\\ -s\\ /etc/netboot\""
       execute_command(options,message,command)
     end
+  end
+  return
+end
+
+# Check NAT
+
+def check_nat(options,gw_if_name,if_name)
+  case options['host-os-name'].to_s
+  when /Darwin/
+    if options['host-os-release'].split(".")[0].to_i < 14
+      check_osx_nat(gw_if_name,if_name)
+    else
+      check_osx_pfctl(options,gw_if_name,if_name)
+    end
+  when /Linux/
+    check_linux_nat(options,gw_if_name,if_name)
   end
   return
 end

@@ -14,6 +14,14 @@ def check_multipass_is_installed(options)
   return
 end
 
+# Check Multipass hostonly network
+
+def check_multipass_hostonly_network(if_name)
+  gw_if_name = get_gw_if_name(options)
+  check_nat(options,gw_if_name,if_name)
+  return
+end
+
 # List Multipass instances
 
 def list_multipass_vms(options)

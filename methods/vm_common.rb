@@ -130,7 +130,7 @@ end
 def vnc_to_vm(options)
   options['ip'] = single_install_ip(options)
   novnc_dir = options['novncdir']
-  check_vnc_install()
+  check_vnc_install(options)
   exists = check_vm_exists(options)
   if exists.match(/yes/)
     if File.directory?(options['novncdir'])

@@ -2,15 +2,15 @@
 
 # Check KVM NAT
 
-def check_kvm_natd(if_name,options)
+def check_kvm_natd(options,if_name)
   return
 end
 
 # Check KVM hostonly network
 
-def check_kvm_hostonly_network(if_name)
+def check_kvm_hostonly_network(options,if_name)
   gw_if_name = get_gw_if_name(options)
-  check_linux_nat(gw_if_name,if_name)
+  check_nat(options,gw_if_name,if_name)
   return
 end
 
@@ -41,6 +41,10 @@ end
 # Check KVM is installed
 
 def check_kvm_is_installed(options)
+  if_name = get_vm_if_name(options)
+  if options['vmnet'].to_s.match(/hostonly/)
+    check_kvm_hostonly_network(options,if_name)
+  end
   if not options['host-os-name'].match(/Linux/)
     handle_output(options,"Warning:\tPlatform does not support KVM")
     quit(options)
@@ -212,10 +216,6 @@ def configure_kvm_import_client(options)
     options = get_install_service_from_file(options)
   end
   check_kvm_is_installed(options)
-  if_name = get_vm_if_name(options)
-  if options['vmnet'].to_s.match(/hostonly/)
-    check_kvm_hostonly_network(if_name)
-  end
   if !options['disk1'] == options['none']
     options['disk'] = options['disk1'].to_s+" "+options['disk2'].to_s
   else

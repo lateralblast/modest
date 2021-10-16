@@ -876,7 +876,7 @@ def check_fusion_hostonly_network(options,if_name)
     config_file = "/cygdrive/c/ProgramData/VMware/vmnetdhcp.conf"
   end 
   network_address = options['hostonlyip'].split(/\./)[0..2].join(".")+".0"
-  gw_if_name      = get_gw_if_name(options)
+  gw_if_name = get_gw_if_name(options)
   dhcp_test  = 0
   vmnet_test = 0
   copy = []
@@ -973,16 +973,7 @@ def check_fusion_hostonly_network(options,if_name)
     end
     execute_command(options,message,command)
   end
-  case options['host-os-name']
-  when /Darwin/
-    if options['host-os-release'].split(".")[0].to_i < 14
-      check_osx_nat(gw_if_name,if_name)
-    else
-      check_osx_pfctl(options,gw_if_name,if_name)
-    end
-  when /Linux/
-    check_linux_nat(options,gw_if_name,if_name)
-  end
+  check_nat(options,gw_if_name,if_name)
   return
 end
 

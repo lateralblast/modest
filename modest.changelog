@@ -1407,3 +1407,5 @@
 # Fixed cloud-init code for Multipass
 # 7.0.3: Thu 14 Oct 2021 22:53:55 AEDT
 # Added exec support to Multipass
+# 7.0.4: Sat 16 Oct 2021 11:58:53 AEDT
+# Bugfixes and general cleanup

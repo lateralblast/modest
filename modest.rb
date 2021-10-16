@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      7.0.3
+# Version:      7.0.4
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -240,6 +240,7 @@ begin
     ['--from', REQUIRED],             # From
     ['--fusiondir', REQUIRED],        # VMware Fusion Directory
     ['--gateway', REQUIRED],          # Gateway IP
+    ['--gwifname', REQUIRED],         # Gateway Interface name
     ['--gatewaynode', REQUIRED],      # Gateway Node
     ['--graphics', REQUIRED],         # Graphics (KVM)
     ['--grant', REQUIRED],            # AWS ACL grant
@@ -265,7 +266,7 @@ begin
     ['--initrd-inject', REQUIRED],    # Inject initrd (KVM)
     ['--inputfile', REQUIRED],        # Input file (KVM)
     ['--install', REQUIRED],          # Install (KVM)
-    ['--interface', REQUIRED],        # Interface number / name
+    ['--ifname', REQUIRED],           # Interface number / name
     ['--iothreads', REQUIRED],        # IO threads (KVM)
     ['--ip', REQUIRED],               # IP Address of client
     ['--ipfamily', REQUIRED],         # IP family (e.g. IPv4 or IPv6)
