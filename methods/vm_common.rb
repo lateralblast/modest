@@ -208,6 +208,8 @@ def check_vm_network(options)
     options = check_vbox_natd(options,vm_if_name)
   when /fusion/
     options = check_fusion_natd(options,vm_if_name)
+  when /mp|multipass/
+    options = check_multipass_natd(options,vm_if_name)
   end
   if options['host-os-name'].to_s.match(/NT/)
     output = get_win_ip_from_if_name(vm_if_name)

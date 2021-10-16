@@ -11,12 +11,23 @@ def check_multipass_is_installed(options)
       install_snap_pkg(options,"multipass")
     end
   end
+  if_name = get_vm_if_name(options)
+  check_multipass_hostonly_network(options,if_name)
   return
+end
+
+# Check Multipass NATd
+
+def check_multipass_natd(options,vm_if_name)
+  if options['vmnetwork'].to_s.match(/hostonly/)
+    check_multipass_hostonly_network(options,if_name)
+  end
+  return options
 end
 
 # Check Multipass hostonly network
 
-def check_multipass_hostonly_network(if_name)
+def check_multipass_hostonly_network(options,if_name)
   gw_if_name = get_gw_if_name(options)
   check_nat(options,gw_if_name,if_name)
   return

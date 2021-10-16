@@ -1409,3 +1409,5 @@
 # Added exec support to Multipass
 # 7.0.4: Sat 16 Oct 2021 11:58:53 AEDT
 # Bugfixes and general cleanup
+# 7.0.5: Sat 16 Oct 2021 21:23:19 AEDT
+# Added code to check multipass NAT/firewall port redirection

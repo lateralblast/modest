@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      7.0.4
+# Version:      7.0.5
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -2098,7 +2098,7 @@ if options['action'] != options['empty']
       end
       configure_server(options)
     else
-      if options['vm'].to_s.match(/fusion|vbox|kvm/)
+      if options['vm'].to_s.match(/fusion|vbox|kvm|mp|multipass/)
         check_vm_network(options)
       end
       if options['name'] != options['empty']

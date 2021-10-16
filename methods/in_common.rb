@@ -513,10 +513,12 @@ def reset_defaults(options,defaults)
   end
   case vm_type
   when /mp|multipass/
-    defaults['size'] = "20G"
-    defaults['dhcp'] = true
+    defaults['size']  = "20G"
+    defaults['dhcp']  = true
+    defaults['vmnet'] = "bridge100"
     defaults['memory']  = "1G"
     defaults['release'] = "20.04"
+    defaults['vmnetwork'] = "hostonly"
     if defaults['host-os-name'].to_s.match(/Darwin/) && defaults['host-os-version'].to_i > 11
       defaults['vmgateway']  = "192.168.64.1"
       defaults['hostonlyip'] = "192.168.64.1"
@@ -1384,7 +1386,7 @@ def get_vm_if_name(options)
     else
       if_name = options['vmnet'].to_s
     end
-  when /kvm/
+  when /kvm|mp|multipass/
     if_name = options['vmnet'].to_s
   end
   return if_name
