@@ -4311,7 +4311,13 @@ def execute_command(options,message,command)
         if command.match(/ifconfig/) && command.match(/up$/)
           command = "sudo sh -c '"+command+"'"
         end
-        if command.match(/virt-install|snap/)
+        if command.match(/virt-install/)
+          command = "sudo sh -c '"+command+"'"
+        end
+        if command.match(/snap/)
+          if !File.exist?("/usr/bin/snap")
+            check_apt_package(options,"snapd")
+          end
           command = "sudo sh -c '"+command+"'"
         end
         if command.match(/qemu/) && command.match(/chmod|chgrp/)
