@@ -291,10 +291,14 @@ def populate_ps_questions(options)
       nic_name = get_nic_name_from_install_service(options)
     end
   else
-    if options['nic'] != options['empty']
-      nic_name = options['nic']
-    else
+    if options['vmnic'] != options['empty']
       nic_name = options['vmnic'].to_s
+    else
+      if options['nic'] != options['empty']
+        nic_name = options['nic']
+      else
+        nic_name = options['vmnic'].to_s
+      end
     end
   end
 

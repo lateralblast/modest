@@ -514,6 +514,9 @@ def reset_defaults(options,defaults)
   end
   case vm_type
   when /mp|multipass/
+    if options['biosdevnames'] == true
+      options['vmnic'] = "eth0"
+    end
     defaults['size']  = "20G"
     defaults['dhcp']  = true
     if options['host-os-name'].to_s.match(/Darwin/)

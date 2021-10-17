@@ -1415,3 +1415,5 @@
 # Fix for network determination when Multipass and VMware Fusion both installed on MacOS
 # 7.0.7: Sun 17 Oct 2021 16:39:21 AEDT
 # Initial support for Multipass on Linux
+# 7.0.8: Sun 17 Oct 2021 21:59:38 AEDT
+# Fixes for Multipass on Linux

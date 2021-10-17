@@ -138,12 +138,12 @@ def configure_multipass_vm(options)
     message = "Information:\tCreating Multipass VM #{vm_name}"
     if options['method'].to_s.match(/ci/)
       if options['file'] != options['empty']
-        command = "multipass launch --name #{vm_name} --cloud-init #{options['file'].to_s}"
+        command = "cat #{options['file'].to_s} |multipass launch --name #{vm_name} --cloud-init -"
       else
         configure_ps_client(options)
         options = get_multipass_service_from_release(options)
         options['file'] = options['clientdir'].to_s+"/user-data"
-        command = "multipass launch --name #{vm_name} --cloud-init #{options['file'].to_s}"
+        command = "cat #{options['file'].to_s} |multipass launch --name #{vm_name} --cloud-init -"
       end
     else
       no_cpus = options['vcpu'].to_s

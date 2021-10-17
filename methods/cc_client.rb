@@ -15,7 +15,6 @@ def populate_cc_userdata(options)
   end
   install_nameserver = $q_struct['nameserver'].value
   install_base_url   = "http://"+options['hostip']+"/"+options['name']
-  install_target  = "/target"
   install_layout  = install_locale.split("_")[0]
   install_variant = install_locale.split("_")[1].downcase
   install_gateway = $q_struct['gateway'].value
@@ -38,7 +37,6 @@ def populate_cc_userdata(options)
   ssh_dir   = "#{install_target}/home/#{admin_user}/.ssh"
   auth_file = "#{ssh_dir}/authorized_keys"
   sudo_file = "#{install_target}/etc/sudoers.d/#{admin_user}"
-  in_target = "curtin in-target --target=/target --"
   if options['vmnetwork'].to_s.match(/hostonly/)
     ks_ip = options['hostonlyip']
   else
@@ -64,35 +62,36 @@ def populate_cc_userdata(options)
   user_data = []
   exec_data = []
   user_data.push("#cloud-config")
-  user_data.push("autoinstall:")
-  user_data.push("  version: 1")
-  user_data.push("  apt:")
-  user_data.push("    geoip: true")
-  user_data.push("    preserve_sources_list: false")
-  user_data.push("    primary:")
-  user_data.push("    - arches: [amd64, i386]")
-  user_data.push("      uri: http://archive.ubuntu.com/ubuntu")
-  user_data.push("    - arches: [default]")
-  user_data.push("      uri: http://ports.ubuntu.com/ubuntu-ports")
-  user_data.push("  identity:")
-  user_data.push("    hostname: #{install_name}")
-  user_data.push("    password: #{admin_crypt}")
-  user_data.push("    realname: #{admin_user}")
-  user_data.push("    username: #{admin_user}")
-  user_data.push("  keyboard:")
-  user_data.push("    layout: #{install_layout}")
-  user_data.push("    variant: #{install_variant}")
-  user_data.push("  locale: #{install_locale}.UTF-8")
-  user_data.push("  network:")
-  user_data.push("    network:")
-  user_data.push("      version: 2")
-  user_data.push("      ethernets:")
-  user_data.push("        #{install_nic}:")
-  user_data.push("          dhcp4: #{install_dhcp}")
-  user_data.push("  ssh:")
-  user_data.push("    install-server: true")
-  user_data.push("    allow-pw: true")
   if !options['vm'].to_s.match(/mp|multipass/)
+    in_target = "curtin in-target --target=/target -- "
+    user_data.push("autoinstall:")
+    user_data.push("  version: 1")
+    user_data.push("  apt:")
+    user_data.push("    geoip: true")
+    user_data.push("    preserve_sources_list: false")
+    user_data.push("    primary:")
+    user_data.push("    - arches: [amd64, i386]")
+    user_data.push("      uri: http://archive.ubuntu.com/ubuntu")
+    user_data.push("    - arches: [default]")
+    user_data.push("      uri: http://ports.ubuntu.com/ubuntu-ports")
+    user_data.push("  identity:")
+    user_data.push("    hostname: #{install_name}")
+    user_data.push("    password: #{admin_crypt}")
+    user_data.push("    realname: #{admin_user}")
+    user_data.push("    username: #{admin_user}")
+    user_data.push("  keyboard:")
+    user_data.push("    layout: #{install_layout}")
+    user_data.push("    variant: #{install_variant}")
+    user_data.push("  locale: #{install_locale}.UTF-8")
+    user_data.push("  network:")
+    user_data.push("    network:")
+    user_data.push("      version: 2")
+    user_data.push("      ethernets:")
+    user_data.push("        #{install_nic}:")
+    user_data.push("          dhcp4: #{install_dhcp}")
+    user_data.push("  ssh:")
+    user_data.push("    install-server: true")
+    user_data.push("    allow-pw: true")
     user_data.push("  storage:")
     user_data.push("    config:")
     user_data.push("    - grub_device: true")
@@ -133,58 +132,59 @@ def populate_cc_userdata(options)
     user_data.push("      id: mount-0")
     user_data.push("      path: /")
     user_data.push("      type: mount")
+    user_data.push("  updates: security")
+    user_data.push("  user-data:")
+    user_data.push("    disable-root: false")
+    if disable_dhcp.match(/true/)
+      exec_data.push("ip addr add #{install_ip}/#{install_cidr} dev #{install_nic}")
+    end
+    exec_data.push("ip link set #{install_nic} up")
+    exec_data.push("ip route add default via #{install_gateway}")
+    exec_data.push("echo 'DNS=#{install_nameserver}' >> #{resolved_conf}")
+    exec_data.push("systemctl restart systemd-resolved")
+  else
+    in_target = ""
   end
-  user_data.push("  updates: security")
-  user_data.push("  user-data:")
-  user_data.push("    disable-root: false")
-  if options['vm'].to_s.match(/mp|multipass/)
-    return user_data,exec_data
-  end
-  if disable_dhcp.match(/true/)
-    exec_data.push("ip addr add #{install_ip}/#{install_cidr} dev #{install_nic}")
-  end
-  exec_data.push("ip link set #{install_nic} up")
-  exec_data.push("ip route add default via #{install_gateway}")
-  exec_data.push("echo 'DNS=#{install_nameserver}' >> #{resolved_conf}")
   exec_data.push("echo 'DNS=#{install_nameserver}' >> #{install_target}#{resolved_conf}")
-  exec_data.push("systemctl restart systemd-resolved")
-  exec_data.push("#{in_target} /usr/sbin/locale-gen #{install_locale}.UTF-8")
+  exec_data.push("#{in_target}/usr/sbin/locale-gen #{install_locale}.UTF-8")
   exec_data.push("echo 'LC_ALL=en_US.UTF-8' > #{locale_file}")
   exec_data.push("echo 'LANG=en_US.UTF-8' >> #{locale_file}")
   if options['copykeys'] == true and File.exist?(ssh_keyfile)
-    exec_data.push("#{in_target} groupadd #{admin_user}")
-    exec_data.push("#{in_target} useradd -p '#{admin_crypt}' -g #{admin_user} -G #{admin_group} -d #{admin_home} -s /usr/bin/bash -m #{admin_user}")
+    exec_data.push("#{in_target}groupadd #{admin_user}")
+    exec_data.push("#{in_target}useradd -p '#{admin_crypt}' -g #{admin_user} -G #{admin_group} -d #{admin_home} -s /usr/bin/bash -m #{admin_user}")
     exec_data.push("mkdir -p #{ssh_dir}")
     exec_data.push("echo '#{ssh_key}'  > #{auth_file}")
     exec_data.push("chmod 600 #{auth_file}")
     exec_data.push("chmod 700 #{ssh_dir}")
-    exec_data.push("#{in_target} chown -R #{admin_user}:#{admin_user} #{admin_home}")
+    exec_data.push("#{in_target}chown -R #{admin_user}:#{admin_user} #{admin_home}")
   end
   exec_data.push("echo '#{admin_user} ALL=(ALL) NOPASSWD:ALL' > #{sudo_file}")
   if options['serial'] == true
     if options['biosdevnames'] == true
-      exec_data.push("echo 'GRUB_CMDLINE_LINUX=\\\"net.ifnames=0 biosdevname=0 console=tty0 console=ttyS0\\\"' >> #{grub_file}")
+      exec_data.push("echo 'GRUB_CMDLINE_LINUX=\"net.ifnames=0 biosdevname=0 console=tty0 console=ttyS0\"' >> #{grub_file}")
     else
-      exec_data.push("echo 'GRUB_CMDLINE_LINUX=\\\"console=tty0 console=ttyS0\\\"' >> #{grub_file}")
+      exec_data.push("echo 'GRUB_CMDLINE_LINUX=\"console=tty0 console=ttyS0\"' >> #{grub_file}")
     end
-    exec_data.push("echo 'GRUB_TERMINAL_INPUT=\\\"console serial\\\"' >> #{grub_file}")
-    exec_data.push("echo 'GRUB_TERMINAL_OUTPUT=\\\"console serial\\\"' >> #{grub_file}")
+    exec_data.push("echo 'GRUB_TERMINAL_INPUT=\"console serial\"' >> #{grub_file}")
+    exec_data.push("echo 'GRUB_TERMINAL_OUTPUT=\"console serial\"' >> #{grub_file}")
   else
     if options['biosdevnames'] == true
-      exec_data.push("echo 'GRUB_CMDLINE_LINUX=\\\"net.ifnames=0 biosdevname=0\\\"' >> #{grub_file}")
+      exec_data.push("echo 'GRUB_CMDLINE_LINUX=\"net.ifnames=0 biosdevname=0\"' >> #{grub_file}")
     end
   end
-  exec_data.push("#{in_target} update-grub")
+  exec_data.push("#{in_target}update-grub")
+  exec_data.push("echo '# This file describes the network interfaces available on your system' > #{netplan_file}")
+  exec_data.push("echo '# For more information, see netplan(5).' >> #{netplan_file}")
+  exec_data.push("echo 'network:' >> #{netplan_file}")
+  exec_data.push("echo '  version: 2' >> #{netplan_file}")
+  exec_data.push("echo '  renderer: networkd' >> #{netplan_file}")
+  exec_data.push("echo '  ethernets:' >> #{netplan_file}")
+  exec_data.push("echo '    #{install_nic}:' >> #{netplan_file}")
   if disable_dhcp.match(/true/)
-    exec_data.push("echo '# This file describes the network interfaces available on your system' > #{netplan_file}")
-    exec_data.push("echo '# For more information, see netplan(5).' >> #{netplan_file}")
-    exec_data.push("echo 'network:' >> #{netplan_file}")
-    exec_data.push("echo '  version: 2' >> #{netplan_file}")
-    exec_data.push("echo '  renderer: networkd' >> #{netplan_file}")
-    exec_data.push("echo '  ethernets:' >> #{netplan_file}")
-    exec_data.push("echo '    #{install_nic}:' >> #{netplan_file}")
     exec_data.push("echo '      addresses: [#{install_ip}/#{install_cidr}]' >> #{netplan_file}")
     exec_data.push("echo '      gateway4: #{install_gateway}' >> #{netplan_file}")
+  else
+    exec_data.push("echo '      dhcp4: true' >> #{netplan_file}")
   end
   return user_data,exec_data
 end
@@ -192,7 +192,11 @@ end
 # Output Cloud Config/Init user data
 
 def output_cc_user_data(options,user_data,exec_data,output_file)
-  in_target = "curtin in-target --target=/target --"
+  if !options['vm'].to_s.match(/mp|multipass/)
+    in_target = "curtin in-target --target=/target -- "
+  else
+    in_target = ""
+  end
   check_dir = File.dirname(output_file)
   check_dir_exists(options,check_dir)
   tmp_file  = "/tmp/user_data_"+options['name']
@@ -202,18 +206,32 @@ def output_cc_user_data(options,user_data,exec_data,output_file)
     output = line+end_char
     file.write(output)
   end
-  end_char = ""
   pkg_list = $q_struct['additional_packages'].value
-  file.write("  late-commands:\n")
-  file.write("    [")
-  exec_data.each do |line|
-    output = " \""+line+"\","+end_char
+  if options['vm'].to_s.match(/mp|multipass/)
+    file.write("packages:\n")
+    pkg_list.split(" ").each do |line|
+      output = "  - "+line+"\n"
+      file.write(output)
+    end
+    file.write("\n")
+    file.write("runcmd:\n")
+    exec_data.each do |line|
+      output = "  - "+line+"\n"
+      file.write(output)
+    end
+  else
+    end_char = ""
+    file.write("  late-commands:\n")
+    file.write("    [")
+    exec_data.each do |line|
+      output = " \""+line+"\","+end_char
+      file.write(output)
+    end
+    file.write(" \"#{in_target}apt update\",")
+    output = " \"#{in_target}apt install -y "+pkg_list+"\","+end_char
     file.write(output)
+    file.write(" \"date\" ]\n\n")
   end
-  file.write(" \"#{in_target} apt update\",")
-  output = " \"#{in_target} apt install -y "+pkg_list+"\","+end_char
-  file.write(output)
-  file.write(" \"date\" ]\n\n")
   file.close
   message = "Creating:\tCloud user-data file "+output_file
   command = "cat #{tmp_file} >> #{output_file} ; rm #{tmp_file}"
