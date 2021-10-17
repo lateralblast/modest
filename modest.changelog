@@ -1411,3 +1411,5 @@
 # Bugfixes and general cleanup
 # 7.0.5: Sat 16 Oct 2021 21:23:19 AEDT
 # Added code to check multipass NAT/firewall port redirection
+# 7.0.6: Sun 17 Oct 2021 15:20:42 AEDT
+# Fix for network determination when Multipass and VMware Fusion both installed on MacOS

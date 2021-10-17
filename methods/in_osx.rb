@@ -26,7 +26,7 @@ def check_osx_ip_forwarding(options,gw_if_name)
     handle_output(options,message)
     handle_output(options,"Executing:\t"+command)
   end
-  output  = %x[#{command}]
+  output = %x[#{command}]
   return output
 end
 

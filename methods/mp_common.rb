@@ -152,7 +152,12 @@ def configure_multipass_vm(options)
     if not options['release'] == options['empty']
       command = command+" "+options['release'].to_s
     end
-    execute_command(options,message,command)
+    if options['nobuild'] == false
+      execute_command(options,message,command)
+    else
+      handle_output(options,"Build Command:")
+      handle_output(options,command)
+    end
   end
   return
 end

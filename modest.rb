@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      7.0.5
+# Version:      7.0.6
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -319,6 +319,7 @@ begin
     ['--nokeys', BOOLEAN],            # Don't copy SSH Keys
     ['--nosudo', BOOLEAN],            # Use sudo
     ['--noreboot', BOOLEAN],          # Don't reboot as part of post script (used for troubleshooting) 
+    ['--nobuild', BOOLEAN],           # Create configs but don't build
     ['--reboot', BOOLEAN],            # Reboot as part of post script
     ['--nosuffix', BOOLEAN],          # Don't add suffix to AWS AMI names
     ['--novncdir', REQUIRED],         # NoVNC directory

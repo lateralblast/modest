@@ -359,6 +359,7 @@ def set_defaults(options,defaults)
   defaults['nomirror']       = true
   defaults['nosuffix']       = false
   defaults['noreboot']       = false
+  defaults['nobuild']        = false
   defaults['reboot']         = true
   defaults['novncdir']       = "/usr/local/novnc"
   defaults['number']         = "1,1"
@@ -548,7 +549,11 @@ def reset_defaults(options,defaults)
           defaults['hostonlyip'] = "192.168.104.1"
         end
       end
-      defaults['vmnet'] = "bridge100"
+      if File.exist?("/usr/local/bin/multipass")
+        defaults['vmnet'] = "bridge101"
+      else
+        defaults['vmnet'] = "bridge100"
+      end
     else
       defaults['vmnet'] = "vmnet1"
     end
