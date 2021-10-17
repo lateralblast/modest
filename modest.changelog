@@ -1417,3 +1417,7 @@
 # Initial support for Multipass on Linux
 # 7.0.8: Sun 17 Oct 2021 21:59:38 AEDT
 # Fixes for Multipass on Linux
+# 7.0.9: Mon 18 Oct 2021 07:15:02 AEDT
+# Added reboot to Multipass cloud init
+# 7.1.0: Mon 18 Oct 2021 09:16:35 AEDT
+# Fixed Multipass cloud init

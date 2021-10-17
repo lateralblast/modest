@@ -31,7 +31,8 @@ def populate_cc_userdata(options)
   end
   install_cidr  = $q_struct['cidr'].value
   install_disk  = $q_struct['partition_disk'].value
-  netplan_file  = "#{install_target}/etc/netplan/01-netcfg.yaml"
+  #netplan_file  = "#{install_target}/etc/netplan/01-netcfg.yaml"
+  netplan_file  = "#{install_target}/etc/netplan/50-cloud-init.yaml"
   locale_file   = "#{install_target}/etc/default/locales"
   grub_file = "#{install_target}/etc/default/grub"
   ssh_dir   = "#{install_target}/home/#{admin_user}/.ssh"
@@ -158,33 +159,40 @@ def populate_cc_userdata(options)
     exec_data.push("chmod 700 #{ssh_dir}")
     exec_data.push("#{in_target}chown -R #{admin_user}:#{admin_user} #{admin_home}")
   end
-  exec_data.push("echo '#{admin_user} ALL=(ALL) NOPASSWD:ALL' > #{sudo_file}")
-  if options['serial'] == true
-    if options['biosdevnames'] == true
-      exec_data.push("echo 'GRUB_CMDLINE_LINUX=\"net.ifnames=0 biosdevname=0 console=tty0 console=ttyS0\"' >> #{grub_file}")
+  if !options['vm'].to_s.match(/mp|multipass/)
+    exec_data.push("echo '#{admin_user} ALL=(ALL) NOPASSWD:ALL' > #{sudo_file}")
+    if options['serial'] == true
+      if options['biosdevnames'] == true
+        exec_data.push("echo 'GRUB_CMDLINE_LINUX=\"net.ifnames=0 biosdevname=0 console=tty0 console=ttyS0\"' >> #{grub_file}")
+      else
+        exec_data.push("echo 'GRUB_CMDLINE_LINUX=\"console=tty0 console=ttyS0\"' >> #{grub_file}")
+      end
+      exec_data.push("echo 'GRUB_TERMINAL_INPUT=\"console serial\"' >> #{grub_file}")
+      exec_data.push("echo 'GRUB_TERMINAL_OUTPUT=\"console serial\"' >> #{grub_file}")
     else
-      exec_data.push("echo 'GRUB_CMDLINE_LINUX=\"console=tty0 console=ttyS0\"' >> #{grub_file}")
+      if options['biosdevnames'] == true
+        exec_data.push("echo 'GRUB_CMDLINE_LINUX=\"net.ifnames=0 biosdevname=0\"' >> #{grub_file}")
+      end
     end
-    exec_data.push("echo 'GRUB_TERMINAL_INPUT=\"console serial\"' >> #{grub_file}")
-    exec_data.push("echo 'GRUB_TERMINAL_OUTPUT=\"console serial\"' >> #{grub_file}")
-  else
-    if options['biosdevnames'] == true
-      exec_data.push("echo 'GRUB_CMDLINE_LINUX=\"net.ifnames=0 biosdevname=0\"' >> #{grub_file}")
+    exec_data.push("echo '# This file describes the network interfaces available on your system' > #{netplan_file}")
+    exec_data.push("echo '# For more information, see netplan(5).' >> #{netplan_file}")
+    exec_data.push("echo 'network:' >> #{netplan_file}")
+    exec_data.push("echo '  version: 2' >> #{netplan_file}")
+    exec_data.push("echo '  renderer: networkd' >> #{netplan_file}")
+    exec_data.push("echo '  ethernets:' >> #{netplan_file}")
+    exec_data.push("echo '    #{install_nic}:' >> #{netplan_file}")
+    if disable_dhcp.match(/true/)
+      exec_data.push("echo '      addresses: [#{install_ip}/#{install_cidr}]' >> #{netplan_file}")
+      exec_data.push("echo '      gateway4: #{install_gateway}' >> #{netplan_file}")
+    else
+      exec_data.push("echo '      dhcp4: true' >> #{netplan_file}")
     end
-  end
-  exec_data.push("#{in_target}update-grub")
-  exec_data.push("echo '# This file describes the network interfaces available on your system' > #{netplan_file}")
-  exec_data.push("echo '# For more information, see netplan(5).' >> #{netplan_file}")
-  exec_data.push("echo 'network:' >> #{netplan_file}")
-  exec_data.push("echo '  version: 2' >> #{netplan_file}")
-  exec_data.push("echo '  renderer: networkd' >> #{netplan_file}")
-  exec_data.push("echo '  ethernets:' >> #{netplan_file}")
-  exec_data.push("echo '    #{install_nic}:' >> #{netplan_file}")
-  if disable_dhcp.match(/true/)
-    exec_data.push("echo '      addresses: [#{install_ip}/#{install_cidr}]' >> #{netplan_file}")
-    exec_data.push("echo '      gateway4: #{install_gateway}' >> #{netplan_file}")
-  else
-    exec_data.push("echo '      dhcp4: true' >> #{netplan_file}")
+    if options['serial'] == true || options['biosdevnames'] == true
+      exec_data.push("#{in_target}update-grub")
+    end
+    if options['reboot'] == true
+      exec_data.push("#{in_target}reboot")
+    end
   end
   return user_data,exec_data
 end
