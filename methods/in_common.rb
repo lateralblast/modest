@@ -516,7 +516,13 @@ def reset_defaults(options,defaults)
   when /mp|multipass/
     defaults['size']  = "20G"
     defaults['dhcp']  = true
-    defaults['vmnet'] = "bridge100"
+    if options['host-os-name'].to_s.match(/Darwin/)
+      defaults['vmnet'] = "bridge100"
+    else
+      defaults['vmnet'] = "mpqemubr0"
+      defaults['vmgateway']  = "10.251.24.1"
+      defaults['hostonlyip'] = "10.251.24.1"
+    end
     defaults['memory']  = "1G"
     defaults['release'] = "20.04"
     defaults['vmnetwork'] = "hostonly"

@@ -3,11 +3,13 @@
 # Check Multipass is installed
 
 def check_multipass_is_installed(options)
-  if !File.exist?("/usr/local/bin/multipass")
-    case options['host-os-name'].to_s
-    when /Darwin/
+  case options['host-os-name'].to_s
+  when /Darwin/
+    if !File.exist?("/usr/local/bin/multipass")
       install_brew_pkg(options,"multipass")
-    when /Linux/
+    end
+  when /Linux/
+    if !File.exist?("/snap/bin/multipass")
       install_snap_pkg(options,"multipass")
     end
   end

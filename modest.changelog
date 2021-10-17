@@ -1413,3 +1413,5 @@
 # Added code to check multipass NAT/firewall port redirection
 # 7.0.6: Sun 17 Oct 2021 15:20:42 AEDT
 # Fix for network determination when Multipass and VMware Fusion both installed on MacOS
+# 7.0.7: Sun 17 Oct 2021 16:39:21 AEDT
+# Initial support for Multipass on Linux
