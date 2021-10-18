@@ -143,7 +143,10 @@ def configure_multipass_vm(options)
         configure_ps_client(options)
         options = get_multipass_service_from_release(options)
         options['file'] = options['clientdir'].to_s+"/user-data"
-        command = "cat #{options['file'].to_s} |multipass launch --name #{vm_name} --cloud-init -"
+        no_cpus = options['vcpu'].to_s
+        vm_size = options['size'].to_s
+        memory  = options['memory'].to_s
+        command = "cat #{options['file'].to_s} |multipass launch --cpus #{no_cpus} --disk #{vm_size} --mem #{memory} --name #{vm_name} --cloud-init -"
       end
     else
       no_cpus = options['vcpu'].to_s

@@ -519,7 +519,7 @@ def reset_defaults(options,defaults)
     end
     defaults['size']  = "20G"
     defaults['dhcp']  = true
-    if options['host-os-name'].to_s.match(/Darwin/)
+    if defaults['host-os-name'].to_s.match(/Darwin/)
       defaults['vmnet'] = "bridge100"
     else
       defaults['vmnet'] = "mpqemubr0"
