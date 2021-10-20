@@ -3,8 +3,8 @@
 # Populate AWS questions
 
 def populate_aws_questions(options,user_data_file)
-  # $q_struct = {}
-  # $q_order  = []
+  # options['q_struct'] = {}
+  # options['q_order']  = []
 
   if options['type'].to_s.match(/packer|ansible/)
 
@@ -18,8 +18,8 @@ def populate_aws_questions(options,user_data_file)
       valid     = "",
       eval      = "no"
       )
-    $q_struct[name] = config
-    $q_order.push(name)
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
   
     name   = "access_key"
     config = Ks.new(
@@ -31,8 +31,8 @@ def populate_aws_questions(options,user_data_file)
       valid     = "",
       eval      = "no"
       )
-    $q_struct[name] = config
-    $q_order.push(name)
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
 
     if options['unmasked'] == true
 
@@ -46,8 +46,8 @@ def populate_aws_questions(options,user_data_file)
         valid     = "",
         eval      = "no"
         )
-      $q_struct[name] = config
-      $q_order.push(name)
+      options['q_struct'][name] = config
+      options['q_order'].push(name)
 
       name   = "keyfile"
       config = Ks.new(
@@ -59,8 +59,8 @@ def populate_aws_questions(options,user_data_file)
         valid     = "",
         eval      = "no"
         )
-      $q_struct[name] = config
-      $q_order.push(name)
+      options['q_struct'][name] = config
+      options['q_order'].push(name)
 
     else
 
@@ -74,8 +74,8 @@ def populate_aws_questions(options,user_data_file)
         valid     = "",
         eval      = "no"
         )
-      $q_struct[name] = config
-      $q_order.push(name)
+      options['q_struct'][name] = config
+      options['q_order'].push(name)
 
       name   = "keyfile"
       config = Ks.new(
@@ -87,8 +87,8 @@ def populate_aws_questions(options,user_data_file)
         valid     = "",
         eval      = "no"
         )
-      $q_struct[name] = config
-      $q_order.push(name)
+      options['q_struct'][name] = config
+      options['q_order'].push(name)
 
     end
 
@@ -102,8 +102,8 @@ def populate_aws_questions(options,user_data_file)
       valid     = "",
       eval      = "no"
       )
-    $q_struct[name] = config
-    $q_order.push(name)
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
 
     name   = "region"
     config = Ks.new(
@@ -115,8 +115,8 @@ def populate_aws_questions(options,user_data_file)
       valid     = "",
       eval      = "no"
     )
-    $q_struct[name] = config
-    $q_order.push(name) 
+    options['q_struct'][name] = config
+    options['q_order'].push(name) 
 
     name   = "ssh_username"
     config = Ks.new(
@@ -128,8 +128,8 @@ def populate_aws_questions(options,user_data_file)
       valid     = "",
       eval      = "no"
     )
-    $q_struct[name] = config
-    $q_order.push(name)
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
 
     name   = "ami_name"
     config = Ks.new(
@@ -141,8 +141,8 @@ def populate_aws_questions(options,user_data_file)
       valid     = "",
       eval      = "no"
     )
-    $q_struct[name] = config
-    $q_order.push(name)
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
 
   end
 
@@ -158,8 +158,8 @@ def populate_aws_questions(options,user_data_file)
       valid     = "",
       eval      = "no"
     )
-    $q_struct[name] = config
-    $q_order.push(name)
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
     
   else
 
@@ -173,8 +173,8 @@ def populate_aws_questions(options,user_data_file)
       valid     = "",
       eval      = "no"
     )
-    $q_struct[name] = config
-    $q_order.push(name)  
+    options['q_struct'][name] = config
+    options['q_order'].push(name)  
 
     name   = "max_count"
     config = Ks.new(
@@ -186,8 +186,8 @@ def populate_aws_questions(options,user_data_file)
       valid     = "",
       eval      = "no"
     )
-    $q_struct[name] = config
-    $q_order.push(name)  
+    options['q_struct'][name] = config
+    options['q_order'].push(name)  
 
     name   = "key_name"
     config = Ks.new(
@@ -199,8 +199,8 @@ def populate_aws_questions(options,user_data_file)
       valid     = "",
       eval      = "no"
     )
-    $q_struct[name] = config
-    $q_order.push(name)  
+    options['q_struct'][name] = config
+    options['q_order'].push(name)  
 
     name   = "security_group"
     config = Ks.new(
@@ -212,8 +212,8 @@ def populate_aws_questions(options,user_data_file)
       valid     = "",
       eval      = "no"
     )
-    $q_struct[name] = config
-    $q_order.push(name) 
+    options['q_struct'][name] = config
+    options['q_order'].push(name) 
 
     name   = "dry_run"
     config = Ks.new(
@@ -225,8 +225,8 @@ def populate_aws_questions(options,user_data_file)
       valid     = "",
       eval      = "no"
     )
-    $q_struct[name] = config
-    $q_order.push(name)  
+    options['q_struct'][name] = config
+    options['q_order'].push(name)  
 
   end
 
@@ -240,8 +240,8 @@ def populate_aws_questions(options,user_data_file)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "instance_type"
   config = Ks.new(
@@ -253,8 +253,8 @@ def populate_aws_questions(options,user_data_file)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "open_ports"
   config = Ks.new(
@@ -266,8 +266,8 @@ def populate_aws_questions(options,user_data_file)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "default_cidr"
   config = Ks.new(
@@ -279,8 +279,8 @@ def populate_aws_questions(options,user_data_file)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   return
 end

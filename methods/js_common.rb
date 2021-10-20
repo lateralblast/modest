@@ -5,17 +5,16 @@
 
 Js = Struct.new(:type, :question, :ask, :parameter, :value, :valid, :eval)
 
-# UFS filesystems
-
-Fs = Struct.new(:name, :mount, :slice, :mirror, :size)
 
 def populate_js_fs_list(options)
+  # UFS filesystems
+  fs = Struct.new(:name, :mount, :slice, :mirror, :size)
 
   f_struct = {}
   f_order  = []
 
   name = "root"
-  config = Fs.new(
+  config = fs.new(
     name   = "root",
     mount  = "/",
     slice  = "0",
@@ -26,7 +25,7 @@ def populate_js_fs_list(options)
   f_order.push(name)
 
   name = "swap"
-  config = Fs.new(
+  config = fs.new(
     name   = "swap",
     mount  = "/",
     slice  = "1",
@@ -37,7 +36,7 @@ def populate_js_fs_list(options)
   f_order.push(name)
 
   name = "var"
-  config = Fs.new(
+  config = fs.new(
     name   = "var",
     mount  = "/var",
     slice  = "3",
@@ -48,7 +47,7 @@ def populate_js_fs_list(options)
   f_order.push(name)
 
   name = "opt"
-  config = Fs.new(
+  config = fs.new(
     name   = "opt",
     mount  = "/opt",
     slice  = "4",
@@ -59,7 +58,7 @@ def populate_js_fs_list(options)
   f_order.push(name)
 
   name = "export"
-  config = Fs.new(
+  config = fs.new(
     name   = "export",
     mount  = "/home/home",
     slice  = "5",

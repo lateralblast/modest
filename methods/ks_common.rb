@@ -1,10 +1,6 @@
 
 # Common routines for server and client configuration
 
-# Question/config structure
-
-Ks = Struct.new(:type, :question, :ask, :parameter, :value, :valid, :eval)
-
 # Client Linux distribution
 
 def check_linux_distro(linux_distro)

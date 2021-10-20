@@ -10,8 +10,8 @@ end
 # Configure Preseed client
 
 def configure_ps_client(options)
-  configure_ks_client(options)
-  return
+  options = configure_ks_client(options)
+  return options
 end
 
 # Unconfigure Preseed client
@@ -29,9 +29,9 @@ def output_ps_header(options,output_file)
   check_dir_owner(options,dir_name,options['uid'])
   tmp_file = "/tmp/preseed_"+options['name'].to_s
   file = File.open(tmp_file, 'w')
-  $q_order.each do |key|
-    if $q_struct[key].parameter.match(/[a-z,A-Z]/)
-      output = "d-i "+$q_struct[key].parameter+" "+$q_struct[key].type+" "+$q_struct[key].value+"\n"
+  options['q_order'].each do |key|
+    if options['q_struct'][key].parameter.match(/[a-z,A-Z]/)
+      output = "d-i "+options['q_struct'][key].parameter+" "+options['q_struct'][key].type+" "+options['q_struct'][key].value+"\n"
       file.write(output)
     end
   end
@@ -53,8 +53,8 @@ def populate_ps_first_boot_list(options)
     install_target = ""
   end
   post_list  = []
-  admin_user = $q_struct['admin_username'].value
-  options['ip'] = $q_struct['ip'].value
+  admin_user = options['q_struct']['admin_username'].value
+  options['ip'] = options['q_struct']['ip'].value
   if options['copykeys'] == true
     ssh_keyfile = options['sshkeyfile']
     if File.exist?(ssh_keyfile)
@@ -66,18 +66,18 @@ def populate_ps_first_boot_list(options)
     if options['service'].to_s.match(/16_10|18_|19_|20_/)
       client_nic = "eth0"
     else
-      client_nic = $q_struct['nic'].value
+      client_nic = options['q_struct']['nic'].value
     end
   else
-    client_nic = $q_struct['nic'].value
+    client_nic = options['q_struct']['nic'].value
   end
-  client_gateway    = $q_struct['gateway'].value
-  client_netmask    = $q_struct['netmask'].value
-  client_network    = $q_struct['network_address'].value
-  client_broadcast  = $q_struct['broadcast'].value
-  client_nameserver = $q_struct['nameserver'].value
-  client_domain     = $q_struct['domain'].value
-  client_mirrorurl  = $q_struct['mirror_hostname'].value+$q_struct['mirror_directory'].value
+  client_gateway    = options['q_struct']['gateway'].value
+  client_netmask    = options['q_struct']['netmask'].value
+  client_network    = options['q_struct']['network_address'].value
+  client_broadcast  = options['q_struct']['broadcast'].value
+  client_nameserver = options['q_struct']['nameserver'].value
+  client_domain     = options['q_struct']['domain'].value
+  client_mirrorurl  = options['q_struct']['mirror_hostname'].value+options['q_struct']['mirror_directory'].value
   post_list.push("")
   post_list.push("export TERM=vt100")
   post_list.push("export LANGUAGE=en_US.UTF-8")
@@ -195,8 +195,8 @@ def populate_ps_first_boot_list(options)
     post_list.push("echo 'dns-search #{client_domain}' >> #{net_config}")
     post_list.push("echo 'dns-nameservers #{client_nameserver}' >> #{net_config}")
     if options['service'].to_s.match(/purity/)
-      if $q_struct['eth1_ip'].value.match(/0-9/)
-        options['ip'] = $q_struct['eth1_ip'].value
+      if options['q_struct']['eth1_ip'].value.match(/0-9/)
+        options['ip'] = options['q_struct']['eth1_ip'].value
         post_list.push("echo 'auto #{client_nic}' >> #{net_config}")
         post_list.push("echo 'iface #{client_nic} inet static' >> #{net_config}")
         post_list.push("echo 'address #{options['ip']}' >> #{net_config}")
@@ -205,8 +205,8 @@ def populate_ps_first_boot_list(options)
         post_list.push("echo 'network #{client_network}' >> #{net_config}")
         post_list.push("echo 'broadcast #{client_broadcast}' >> #{net_config}") 
       end
-      if $q_struct['eth2_ip'].value.match(/0-9/)
-        options['ip'] = $q_struct['eth2_ip'].value
+      if options['q_struct']['eth2_ip'].value.match(/0-9/)
+        options['ip'] = options['q_struct']['eth2_ip'].value
         post_list.push("echo 'auto #{client_nic}' >> #{net_config}")
         post_list.push("echo 'iface #{client_nic} inet static' >> #{net_config}")
         post_list.push("echo 'address #{options['ip']}' >> #{net_config}")
@@ -215,8 +215,8 @@ def populate_ps_first_boot_list(options)
         post_list.push("echo 'network #{client_network}' >> #{net_config}")
         post_list.push("echo 'broadcast #{client_broadcast}' >> #{net_config}") 
       end
-      if $q_struct['eth3_ip'].value.match(/0-9/)
-        options['ip'] = $q_struct['eth3_ip'].value
+      if options['q_struct']['eth3_ip'].value.match(/0-9/)
+        options['ip'] = options['q_struct']['eth3_ip'].value
         post_list.push("echo 'auto #{client_nic}' >> #{net_config}")
         post_list.push("echo 'iface #{client_nic} inet static' >> #{net_config}")
         post_list.push("echo 'address #{options['ip']}' >> #{net_config}")
@@ -225,8 +225,8 @@ def populate_ps_first_boot_list(options)
         post_list.push("echo 'network #{client_network}' >> #{net_config}")
         post_list.push("echo 'broadcast #{client_broadcast}' >> #{net_config}") 
       end
-      if $q_struct['eth4_ip'].value.match(/0-9/)
-        options['ip'] = $q_struct['eth4_ip'].value
+      if options['q_struct']['eth4_ip'].value.match(/0-9/)
+        options['ip'] = options['q_struct']['eth4_ip'].value
         post_list.push("echo 'auto #{client_nic}' >> #{net_config}")
         post_list.push("echo 'iface #{client_nic} inet static' >> #{net_config}")
         post_list.push("echo 'address #{options['ip']}' >> #{net_config}")
@@ -235,8 +235,8 @@ def populate_ps_first_boot_list(options)
         post_list.push("echo 'network #{client_network}' >> #{net_config}")
         post_list.push("echo 'broadcast #{client_broadcast}' >> #{net_config}") 
       end
-      if $q_struct['eth5_ip'].value.match(/0-9/)
-        options['ip'] = $q_struct['eth5_ip'].value
+      if options['q_struct']['eth5_ip'].value.match(/0-9/)
+        options['ip'] = options['q_struct']['eth5_ip'].value
         post_list.push("echo 'auto #{client_nic}' >> #{net_config}")
         post_list.push("echo 'iface #{client_nic} inet static' >> #{net_config}")
         post_list.push("echo 'address #{options['ip']}' >> #{net_config}")
@@ -304,7 +304,7 @@ end
 
 def populate_ps_post_list(options)
   post_list = []
-  gateway   = $q_struct['gateway'].value
+  gateway   = options['q_struct']['gateway'].value
   if options['type'].to_s.match(/packer/)
     if options['vmnetwork'].to_s.match(/hostonly|bridged/)
       if options['host-os-name'].to_s.match(/Darwin/) && options['host-os-version'].to_i > 10 

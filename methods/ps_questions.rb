@@ -3,8 +3,7 @@
 
 def populate_ps_questions(options)
 
-  # $q_struct = {}
-  # $q_order  = []
+  qs = Struct.new(:type, :question, :ask, :parameter, :value, :valid, :eval)
 
   install_ip1 = "none"
   install_ip2 = "none"
@@ -61,7 +60,7 @@ def populate_ps_questions(options)
   if options['service'].to_s != "purity"
 
     name = "headless_mode"
-    config = Ks.new(
+    config = qs.new( 
       type      = "",
       question  = "Headless mode",
       ask       = "yes",
@@ -70,8 +69,9 @@ def populate_ps_questions(options)
       valid     = "",
       eval      = "no"
       )
-    $q_struct[name] = config
-    $q_order.push(name)
+
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
 
     if options['service'].match(/ubuntu_20/)
       language = options['language']
@@ -83,7 +83,7 @@ def populate_ps_questions(options)
     end
 
     name = "language"
-    config = Ks.new(
+    config = qs.new(
       type      = "string",
       question  = "Language",
       ask       = "yes",
@@ -92,11 +92,11 @@ def populate_ps_questions(options)
       valid     = "",
       eval      = "no"
       )
-    $q_struct[name] = config
-    $q_order.push(name)
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
 
     name = "country"
-    config = Ks.new(
+    config = qs.new(
       type      = "string",
       question  = "Country",
       ask       = "yes",
@@ -105,11 +105,11 @@ def populate_ps_questions(options)
       valid     = "",
       eval      = "no"
       )
-    $q_struct[name] = config
-    $q_order.push(name)
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
 
     name = "locale"
-    config = Ks.new(
+    config = qs.new(
       type      = "string",
       question  = "Locale",
       ask       = "yes",
@@ -118,11 +118,11 @@ def populate_ps_questions(options)
       valid     = "",
       eval      = "no"
       )
-    $q_struct[name] = config
-    $q_order.push(name)
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
 
     name = "console"
-    config = Ks.new(
+    config = qs.new(
       type      = "boolean",
       question  = "Enable keymap detection",
       ask       = "no",
@@ -131,11 +131,11 @@ def populate_ps_questions(options)
       valid     = "",
       eval      = "no"
       )
-    $q_struct[name] = config
-    $q_order.push(name)
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
   
     name = "layout"
-    config = Ks.new(
+    config = qs.new(
       type      = "string",
       question  = "Keyboard layout",
       ask       = "no",
@@ -144,11 +144,11 @@ def populate_ps_questions(options)
       valid     = "",
       eval      = "no"
       )
-    $q_struct[name] = config
-    $q_order.push(name)
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
 
     name = "disable_autoconfig"
-    config = Ks.new(
+    config = qs.new(
       type      = "boolean",
       question  = "Disable network autoconfig",
       ask       = "yes",
@@ -157,8 +157,8 @@ def populate_ps_questions(options)
       valid     = "",
       eval      = "no"
       )
-    $q_struct[name] = config
-    $q_order.push(name)
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
   
     if options['vm'].to_s.match(/vbox/) && options['type'].to_s.match(/packer/)
       disable_dhcp = "false"
@@ -175,7 +175,7 @@ def populate_ps_questions(options)
     end
 
     name = "disable_dhcp"
-    config = Ks.new(
+    config = qs.new(
       type      = "boolean",
       question  = "Disable DHCP",
       ask       = "yes",
@@ -184,13 +184,13 @@ def populate_ps_questions(options)
       valid     = "",
       eval      = "no"
       )
-    $q_struct[name] = config
-    $q_order.push(name)
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
 
   end
 
   name = "admin_fullname"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "User full name",
     ask       = "yes",
@@ -199,11 +199,11 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "admin_username"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "Username",
     ask       = "yes",
@@ -212,11 +212,11 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "admin_password"
-  config = Ks.new(
+  config = qs.new(
     type      = "",
     question  = "User password",
     ask       = "yes",
@@ -225,11 +225,11 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "admin_crypt"
-  config = Ks.new(
+  config = qs.new(
     type      = "password",
     question  = "User Password Crypt",
     ask       = "yes",
@@ -238,11 +238,11 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "get_password_crypt(answer)"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "admin_groups"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "User groups",
     ask       = "yes",
@@ -251,13 +251,13 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = ""
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   if !options['method'] == "ci"
 
     name = "admin_home_encrypt"
-    config = Ks.new(
+    config = qs.new(
       type      = "boolean",
       question  = "Encrypt user home directory",
       ask       = "yes",
@@ -266,13 +266,13 @@ def populate_ps_questions(options)
       valid     = "",
       eval      = ""
       )
-    $q_struct[name] = config
-    $q_order.push(name)
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
   
   end
 
   name = "locale"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "Locale",
     ask       = "yes",
@@ -281,8 +281,8 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   if options['vmnic'] == options['empty']
     if options['nic'] != options['empty']
@@ -303,7 +303,7 @@ def populate_ps_questions(options)
   end
 
   name = "interface"
-  config = Ks.new(
+  config = qs.new(
     type      = "select",
     question  = "Network interface",
     ask       = "yes",
@@ -312,14 +312,14 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
-  $q_struct['nic'] = $q_struct['interface']
-  $q_order.push(name)
+  options['q_struct']['nic'] = options['q_struct']['interface']
+  options['q_order'].push(name)
 
   name = "nameserver"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "Nameservers",
     ask       = "yes",
@@ -328,13 +328,13 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
-  if $q_struct['disable_dhcp'].value.match(/true/)
+  if options['q_struct']['disable_dhcp'].value.match(/true/)
 
     name = "ip"
-    config = Ks.new(
+    config = qs.new(
       type      = "string",
       question  = "IP address",
       ask       = "yes",
@@ -343,11 +343,11 @@ def populate_ps_questions(options)
       valid     = "",
       eval      = "no"
       )
-    $q_struct[name] = config
-    $q_order.push(name)
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
 
     name = "netmask"
-    config = Ks.new(
+    config = qs.new(
       type      = "string",
       question  = "Netmask",
       ask       = "yes",
@@ -356,15 +356,15 @@ def populate_ps_questions(options)
       valid     = "",
       eval      = "no"
       )
-    $q_struct[name] = config
-    $q_order.push(name)
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
 
   end
 
   if options['service'].to_s.match(/live/) || options['vm'].to_s.match(/mp|multipass/)
 
     name = "cidr"
-    config = Ks.new(
+    config = qs.new(
       type      = "string",
       question  = "CIDR",
       ask       = "yes",
@@ -373,8 +373,8 @@ def populate_ps_questions(options)
       valid     = "",
       eval      = "no"
       )
-    $q_struct[name] = config
-    $q_order.push(name)
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
 
   end 
 
@@ -401,7 +401,7 @@ def populate_ps_questions(options)
   end
 
   name = "gateway"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "Gateway",
     ask       = "yes",
@@ -410,15 +410,15 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
-  if $q_struct['disable_dhcp'].value.match(/true/)
+  if options['q_struct']['disable_dhcp'].value.match(/true/)
 
     broadcast = options['ip'].split(/\./)[0..2].join(".")+".255"
 
     name = "broadcast"
-    config = Ks.new(
+    config = qs.new(
       type      = "",
       question  = "Broadcast",
       ask       = "yes",
@@ -427,13 +427,13 @@ def populate_ps_questions(options)
       valid     = "",
       eval      = "no"
       )
-    $q_struct[name] = config
-    $q_order.push(name)
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
   
     network_address = options['ip'].split(/\./)[0..2].join(".")+".0"
 
     name = "network_address"
-    config = Ks.new(
+    config = qs.new(
       type      = "",
       question  = "Network Address",
       ask       = "yes",
@@ -442,8 +442,8 @@ def populate_ps_questions(options)
       valid     = "",
       eval      = "no"
       )
-    $q_struct[name] = config
-    $q_order.push(name)
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
 
   end
 
@@ -454,7 +454,7 @@ def populate_ps_questions(options)
   end
 
   name = "static"
-  config = Ks.new(
+  config = qs.new(
     type      = "boolean",
     question  = "Confirm Static",
     ask       = "yes",
@@ -463,11 +463,11 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "hostname"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "Hostname",
     ask       = "yes",
@@ -476,8 +476,8 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   #if options['service'].to_s.match(/ubuntu/)
   #  if options['service'].to_s.match(/18_04/) and options['vm'].to_s.match(/vbox/)
@@ -498,7 +498,7 @@ def populate_ps_questions(options)
   #end
 
 #  name = "nic"
-#  config = Ks.new(
+#  config = qs.new(
 #    type      = "",
 #    question  = "NIC",
 #    ask       = "yes",
@@ -507,13 +507,13 @@ def populate_ps_questions(options)
 #    valid     = "",
 #    eval      = "no"
 #    )
-#  $q_struct[name] = config
-#  $q_order.push(name)
+#  options['q_struct'][name] = config
+#  options['q_order'].push(name)
 
   client_domain = options['domainname'].to_s
 
   name = "domain"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "Domainname",
     ask       = "yes",
@@ -522,11 +522,11 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "timezone"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "Timezone",
     ask       = "yes",
@@ -535,11 +535,11 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "timeserver"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "Timeserer",
     ask       = "yes",
@@ -548,15 +548,15 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   if options['service'].to_s.match(/purity/)
 
     if install_ip1.match(/[0-9]/)
 
       name = "eth1_ip"
-      config = Ks.new(
+      config = qs.new(
         type      = "string",
         question  = "IP address for eth1",
         ask       = "yes",
@@ -565,11 +565,11 @@ def populate_ps_questions(options)
         valid     = "",
         eval      = "no"
       )
-      $q_struct[name] = config
-      $q_order.push(name)
+      options['q_struct'][name] = config
+      options['q_order'].push(name)
 
       name = "eth1_service"
-      config = Ks.new(
+      config = qs.new(
         type      = "string",
         question  = "Service for eth1",
         ask       = "yes",
@@ -578,15 +578,15 @@ def populate_ps_questions(options)
         valid     = "",
         eval      = "no"
       )
-      $q_struct[name] = config
-      $q_order.push(name)
+      options['q_struct'][name] = config
+      options['q_order'].push(name)
 
     end
     
     if install_ip2.match(/[0-9]/)
 
       name = "eth2_ip"
-      config = Ks.new(
+      config = qs.new(
         type      = "string",
         question  = "IP address for eth2",
         ask       = "yes",
@@ -595,11 +595,11 @@ def populate_ps_questions(options)
         valid     = "",
         eval      = "no"
       )
-      $q_struct[name] = config
-      $q_order.push(name)
+      options['q_struct'][name] = config
+      options['q_order'].push(name)
 
       name = "eth2_service"
-      config = Ks.new(
+      config = qs.new(
         type      = "string",
         question  = "Service for eth2",
         ask       = "yes",
@@ -608,15 +608,15 @@ def populate_ps_questions(options)
         valid     = "",
         eval      = "no"
       )
-      $q_struct[name] = config
-      $q_order.push(name)
+      options['q_struct'][name] = config
+      options['q_order'].push(name)
 
     end
 
     if install_ip3.match(/[0-9]/)
 
       name = "eth3_ip"
-      config = Ks.new(
+      config = qs.new(
         type      = "string",
         question  = "IP address for eth3",
         ask       = "yes",
@@ -625,11 +625,11 @@ def populate_ps_questions(options)
         valid     = "",
         eval      = "no"
       )
-      $q_struct[name] = config
-      $q_order.push(name)
+      options['q_struct'][name] = config
+      options['q_order'].push(name)
 
       name = "eth3_service"
-      config = Ks.new(
+      config = qs.new(
         type      = "string",
         question  = "Service for eth3",
         ask       = "yes",
@@ -638,15 +638,15 @@ def populate_ps_questions(options)
         valid     = "",
         eval      = "no"
       )
-      $q_struct[name] = config
-      $q_order.push(name)
+      options['q_struct'][name] = config
+      options['q_order'].push(name)
 
     end
 
     if install_ip4.match(/[0-9]/)
 
       name = "eth4_ip"
-      config = Ks.new(
+      config = qs.new(
         type      = "string",
         question  = "IP address for eth4",
         ask       = "yes",
@@ -655,11 +655,11 @@ def populate_ps_questions(options)
         valid     = "",
         eval      = "no"
       )
-      $q_struct[name] = config
-      $q_order.push(name) 
+      options['q_struct'][name] = config
+      options['q_order'].push(name) 
 
       name = "eth4_service"
-      config = Ks.new(
+      config = qs.new(
         type      = "string",
         question  = "Service for eth4",
         ask       = "yes",
@@ -668,15 +668,15 @@ def populate_ps_questions(options)
         valid     = "",
         eval      = "no"
       )
-      $q_struct[name] = config
-      $q_order.push(name)
+      options['q_struct'][name] = config
+      options['q_order'].push(name)
 
     end
     
     if install_ip5.match(/[0-9]/)
 
       name = "eth5_ip"
-      config = Ks.new(
+      config = qs.new(
         type      = "string",
         question  = "IP address for eth5",
         ask       = "yes",
@@ -685,11 +685,11 @@ def populate_ps_questions(options)
         valid     = "",
         eval      = "no"
       )
-      $q_struct[name] = config
-      $q_order.push(name) 
+      options['q_struct'][name] = config
+      options['q_order'].push(name) 
 
       name = "eth5_service"
-      config = Ks.new(
+      config = qs.new(
         type      = "string",
         question  = "Service for eth5",
         ask       = "yes",
@@ -698,8 +698,8 @@ def populate_ps_questions(options)
         valid     = "",
         eval      = "no"
       )
-      $q_struct[name] = config
-      $q_order.push(name)
+      options['q_struct'][name] = config
+      options['q_order'].push(name)
 
     end
 
@@ -709,7 +709,7 @@ def populate_ps_questions(options)
   if !options['method'].to_s.match(/ci/)
 
     name = "firmware"
-    config = Ks.new(
+    config = qs.new(
       type      = "boolean",
       question  = "Prompt for firmware",
       ask       = "no",
@@ -718,11 +718,11 @@ def populate_ps_questions(options)
       valid     = "",
       eval      = "no"
       )
-    $q_struct[name] = config
-    $q_order.push(name)
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
 
     name = "clock"
-    config = Ks.new(
+    config = qs.new(
       type      = "string",
       question  = "Hardware clock set to UTC",
       ask       = "yes",
@@ -731,13 +731,13 @@ def populate_ps_questions(options)
       valid     = "false,true",
       eval      = "no"
       )
-    $q_struct[name] = config
-    $q_order.push(name)
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
   
   end
 
 #  name = "use_mirror"
-#  config = Ks.new(
+#  config = qs.new(
 #    type      = "boolean",
 #    question  = "Use Mirror",
 #    ask       = "no",
@@ -746,11 +746,11 @@ def populate_ps_questions(options)
 #    valid     = "",
 #    eval      = "no"
 #    )
-#  $q_struct[name] = config
-#  $q_order.push(name)
+#  options['q_struct'][name] = config
+#  options['q_order'].push(name)
 
   name = "mirror_country"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "Mirror country",
     ask       = "no",
@@ -759,11 +759,11 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "mirror_hostname"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "Mirror hostname",
     ask       = "no",
@@ -773,11 +773,11 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "mirror_directory"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "Mirror directory",
     ask       = "no",
@@ -787,11 +787,11 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   #name = "mirror_url"
-  #config = Ks.new(
+  #config = qs.new(
   #  type      = "string",
   #  question  = "Mirror URL",
   #  ask       = "no",
@@ -801,13 +801,13 @@ def populate_ps_questions(options)
   #  valid     = "",
   #  eval      = "no"
   #  )
-  #$q_struct[name] = config
-  #$q_order.push(name)
+  #options['q_struct'][name] = config
+  #options['q_order'].push(name)
 
   if !options['method'].to_s.match(/ci/)
 
     name = "mirror_proxy"
-    config = Ks.new(
+    config = qs.new(
       type      = "string",
       question  = "Mirror country",
       ask       = "no",
@@ -816,11 +816,11 @@ def populate_ps_questions(options)
       valid     = "",
       eval      = "no"
       )
-    $q_struct[name] = config
-    $q_order.push(name)
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
 
     name = "updates"
-    config = Ks.new(
+    config = qs.new(
       type      = "select",
       question  = "Update policy",
       ask       = "yes",
@@ -829,8 +829,8 @@ def populate_ps_questions(options)
       valid     = "",
       eval      = "no"
       )
-    $q_struct[name] = config
-    $q_order.push(name)
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
 
   end
 
@@ -841,7 +841,7 @@ def populate_ps_questions(options)
   end
 
   name = "software"
-  config = Ks.new(
+  config = qs.new(
     type      = "multiselect",
     question  = "Software",
     ask       = "yes",
@@ -850,13 +850,13 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   if !options['method'].to_s.match(/ci/)
 
     name = "additional_packages"
-    config = Ks.new(
+    config = qs.new(
       type      = "string",
       question  = "Additional packages",
       ask       = "yes",
@@ -865,13 +865,13 @@ def populate_ps_questions(options)
       valid     = "",
       eval      = "no"
       )
-    $q_struct[name] = config
-    $q_order.push(name)
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
 
   end
 
   name = "exit"
-  config = Ks.new(
+  config = qs.new(
     type      = "boolean",
     question  = "Exit installer",
     ask       = "yes",
@@ -880,11 +880,11 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "basicfilesystem_choose_label"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "Basic Filesystem Chose Label",
     ask       = "no",
@@ -893,11 +893,11 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "basicfilesystem_default_label"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "Basic Filesystem Default Label",
     ask       = "no",
@@ -906,11 +906,11 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "partition_choose_label"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "Partition Chose Label",
     ask       = "no",
@@ -919,11 +919,11 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "partition_default_label"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "Partition Default Label",
     ask       = "no",
@@ -932,11 +932,11 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "choose_label"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "Partition Chose Label",
     ask       = "no",
@@ -945,11 +945,11 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "default_label"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "Partition Default Label",
     ask       = "no",
@@ -958,11 +958,11 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "partition_disk"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "Parition disk",
     ask       = "yes",
@@ -971,11 +971,11 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "partition_method"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "Parition method",
     ask       = "yes",
@@ -984,11 +984,11 @@ def populate_ps_questions(options)
     valid     = "regular,lvm,crypto",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "remove_existing_lvm"
-  config = Ks.new(
+  config = qs.new(
     type      = "boolean",
     question  = "Remove existing LVM devices",
     ask       = "yes",
@@ -997,11 +997,11 @@ def populate_ps_questions(options)
     valid     = "true,false",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "remove_existing_md"
-  config = Ks.new(
+  config = qs.new(
     type      = "boolean",
     question  = "Remove existing MD devices",
     ask       = "yes",
@@ -1010,11 +1010,11 @@ def populate_ps_questions(options)
     valid     = "true,false",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "partition_write"
-  config = Ks.new(
+  config = qs.new(
     type      = "boolean",
     question  = "Write parition",
     ask       = "yes",
@@ -1023,11 +1023,11 @@ def populate_ps_questions(options)
     valid     = "true,false",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "partition_overwrite"
-  config = Ks.new(
+  config = qs.new(
     type      = "boolean",
     question  = "Overwrite existing parition",
     ask       = "yes",
@@ -1036,11 +1036,11 @@ def populate_ps_questions(options)
     valid     = "true,false",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name) 
+  options['q_struct'][name] = config
+  options['q_order'].push(name) 
 
   name = "partition_size"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "Partition size",
     ask       = "yes",
@@ -1049,11 +1049,11 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name) 
+  options['q_struct'][name] = config
+  options['q_order'].push(name) 
 
   name = "filesystem_type"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "Write partition label",
     ask       = "yes",
@@ -1062,11 +1062,11 @@ def populate_ps_questions(options)
     valid     = "ext3,ext4,xfs",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "volume_name"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "Volume name",
     ask       = "yes",
@@ -1075,13 +1075,13 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   if options['splitvols'] == true
 
     name = "filesystem_layout"
-    config = Ks.new(
+    config = qs.new(
       type      = "select",
       question  = "Filesystem recipe",
       ask       = "yes",
@@ -1090,11 +1090,11 @@ def populate_ps_questions(options)
       valid     = "",
       eval      = "no"
       )
-    $q_struct[name] = config
-    $q_order.push(name)
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
 
     name = "filesystem_recipe"
-    config = Ks.new(
+    config = qs.new(
       type      = "string",
       question  = "Filesystem layout",
       ask       = "yes",
@@ -1210,13 +1210,13 @@ def populate_ps_questions(options)
       valid     = "",
       eval      = "no"
       )
-    $q_struct[name] = config
-    $q_order.push(name)
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
   
   else
 
     name = "filesystem_layout"
-    config = Ks.new(
+    config = qs.new(
       type      = "select",
       question  = "Filesystem layout",
       ask       = "yes",
@@ -1225,13 +1225,13 @@ def populate_ps_questions(options)
       valid     = "string,atomic,home,multi",
       eval      = "no"
       )
-    $q_struct[name] = config
-    $q_order.push(name)
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
 
   end
 
   name = "partition_label"
-  config = Ks.new(
+  config = qs.new(
     type      = "boolean",
     question  = "Write partition label",
     ask       = "no",
@@ -1240,11 +1240,11 @@ def populate_ps_questions(options)
     valid     = "true,false",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "partition_finish"
-  config = Ks.new(
+  config = qs.new(
     type      = "select",
     question  = "Finish partition",
     ask       = "no",
@@ -1253,11 +1253,11 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "partition_confirm"
-  config = Ks.new(
+  config = qs.new(
     type      = "boolean",
     question  = "Confirm partition",
     ask       = "no",
@@ -1266,11 +1266,11 @@ def populate_ps_questions(options)
     valid     = "true,faule",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "partition_nooverwrite"
-  config = Ks.new(
+  config = qs.new(
     type      = "boolean",
     question  = "Don't overwrite partition",
     ask       = "no",
@@ -1279,11 +1279,11 @@ def populate_ps_questions(options)
     valid     = "true,false",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "kernel_image"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "Kernel image",
     ask       = "yes",
@@ -1292,11 +1292,11 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "additional_packages"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "Additional packages",
     ask       = "yes",
@@ -1305,11 +1305,11 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "root_login"
-  config = Ks.new(
+  config = qs.new(
     type      = "boolean",
     question  = "Root login",
     ask       = "yes",
@@ -1318,11 +1318,11 @@ def populate_ps_questions(options)
     valid     = "true,false",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "make_user"
-  config = Ks.new(
+  config = qs.new(
     type      = "boolean",
     question  = "Create user",
     ask       = "yes",
@@ -1331,11 +1331,11 @@ def populate_ps_questions(options)
     valid     = "true,false",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "root_password"
-  config = Ks.new(
+  config = qs.new(
     type      = "",
     question  = "Root password",
     ask       = "yes",
@@ -1344,11 +1344,11 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "root_crypt"
-  config = Ks.new(
+  config = qs.new(
     type      = "password",
     question  = "Root Password Crypt",
     ask       = "yes",
@@ -1357,11 +1357,11 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "get_password_crypt(answer)"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "install_grub_mbr"
-  config = Ks.new(
+  config = qs.new(
     type      = "boolean",
     question  = "Install grub",
     ask       = "yes",
@@ -1370,11 +1370,11 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = ""
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "install_grub_bootdev"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "Install grub to device",
     ask       = "yes",
@@ -1383,11 +1383,11 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "reboot_note"
-  config = Ks.new(
+  config = qs.new(
     type      = "note",
     question  = "Install grub",
     ask       = "no",
@@ -1396,8 +1396,8 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = ""
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   if options['type'].to_s.match(/packer/)
     if options['vmnetwork'].to_s.match(/hostonly|bridged/)
@@ -1424,7 +1424,7 @@ def populate_ps_questions(options)
 #  if not options['type'].to_s.match(/packer/)
 
     name = "late_command"
-    config = Ks.new(
+    config = qs.new(
       type      = "string",
       question  = "Post install commands",
       ask       = "yes",
@@ -1433,8 +1433,8 @@ def populate_ps_questions(options)
       valid     = "",
       eval      = ""
       )
-    $q_struct[name] = config
-    $q_order.push(name)
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
 
 #  end
 

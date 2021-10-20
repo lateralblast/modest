@@ -5,8 +5,8 @@
 
 def populate_vcsa_questions(options)
 
-  # $q_struct = {}
-  # $q_order  = []
+  # options['q_struct'] = {}
+  # options['q_order']  = []
 
   options['ip'] = single_install_ip(options)
 
@@ -20,8 +20,8 @@ def populate_vcsa_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "esx.hostname"
   config = Ks.new(
@@ -33,8 +33,8 @@ def populate_vcsa_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "esx.datastore"
   config = Ks.new(
@@ -46,8 +46,8 @@ def populate_vcsa_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "esx.username"
   config = Ks.new(
@@ -59,8 +59,8 @@ def populate_vcsa_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "esx.password"
   config = Ks.new(
@@ -72,8 +72,8 @@ def populate_vcsa_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "deployment.option"
   config = Ks.new(
@@ -85,8 +85,8 @@ def populate_vcsa_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "deployment.network"
   config = Ks.new(
@@ -98,8 +98,8 @@ def populate_vcsa_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "appliance.name"
   config = Ks.new(
@@ -111,8 +111,8 @@ def populate_vcsa_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "appliance.thin.disk.mode"
   config = Ks.new(
@@ -124,8 +124,8 @@ def populate_vcsa_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "root.password"
   config = Ks.new(
@@ -137,8 +137,8 @@ def populate_vcsa_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "ssh.enable"
   config = Ks.new(
@@ -150,8 +150,8 @@ def populate_vcsa_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "ntp.servers"
   config = Ks.new(
@@ -163,8 +163,8 @@ def populate_vcsa_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "password"
   config = Ks.new(
@@ -176,8 +176,8 @@ def populate_vcsa_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "domain-name"
   config = Ks.new(
@@ -189,8 +189,8 @@ def populate_vcsa_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "site-name"
   config = Ks.new(
@@ -202,8 +202,8 @@ def populate_vcsa_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "ip.family"
   config = Ks.new(
@@ -215,8 +215,8 @@ def populate_vcsa_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "mode"
   config = Ks.new(
@@ -228,8 +228,8 @@ def populate_vcsa_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "ip"
   config = Ks.new(
@@ -241,8 +241,8 @@ def populate_vcsa_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "prefix"
   config = Ks.new(
@@ -254,8 +254,8 @@ def populate_vcsa_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   gateway = options['ip'].split(/\./)[0..2].join(".")+"."+options['gatewaynode']
 
@@ -269,8 +269,8 @@ def populate_vcsa_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "dns.servers"
   config = Ks.new(
@@ -282,8 +282,8 @@ def populate_vcsa_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "system.name"
   config = Ks.new(
@@ -295,8 +295,8 @@ def populate_vcsa_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   return
 end

@@ -140,7 +140,7 @@ def configure_multipass_vm(options)
       if options['file'] != options['empty']
         command = "cat #{options['file'].to_s} |multipass launch --name #{vm_name} --cloud-init -"
       else
-        configure_ps_client(options)
+        options = configure_ps_client(options)
         options = get_multipass_service_from_release(options)
         options['file'] = options['clientdir'].to_s+"/user-data"
         no_cpus = options['vcpu'].to_s

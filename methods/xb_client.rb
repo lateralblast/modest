@@ -114,15 +114,15 @@ def output_coreos_client_profile(options)
   options['clientdir'] = options['clientdir']+"/"+options['service']+"/"+options['name']
   check_dir_exists(options,options['clientdir'])
   output_file   = options['clientdir']+"/"+options['name']+".yml"
-  root_crypt    = $q_struct['root_crypt'].value
-  admin_group   = $q_struct['admin_group'].value
-  admin_user    = $q_struct['admin_user'].value
-  admin_crypt   = $q_struct['admin_crypt'].value
-  admin_home    = $q_struct['admin_home'].value
-  admin_uid     = $q_struct['admin_uid'].value
-  admin_gid     = $q_struct['admin_gid'].value
-  options['ip'] = $q_struct['ip'].value
-  client_nic    = $q_struct['nic'].value
+  root_crypt    = options['q_struct']['root_crypt'].value
+  admin_group   = options['q_struct']['admin_group'].value
+  admin_user    = options['q_struct']['admin_user'].value
+  admin_crypt   = options['q_struct']['admin_crypt'].value
+  admin_home    = options['q_struct']['admin_home'].value
+  admin_uid     = options['q_struct']['admin_uid'].value
+  admin_gid     = options['q_struct']['admin_gid'].value
+  options['ip'] = options['q_struct']['ip'].value
+  client_nic    = options['q_struct']['nic'].value
   network_ip    = options['ip'].split(".")[0..2].join(".")+".0"
   broadcast_ip  = options['ip'].split(".")[0..2].join(".")+".255"
   gateway_ip    = options['ip'].split(".")[0..2].join(".")+"."+options['gatewaynode']

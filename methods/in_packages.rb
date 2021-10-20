@@ -3,7 +3,7 @@
 
 # Create struct for package information
 
-Pkg=Struct.new(:info, :type, :version, :depend, :base_url)
+# Pkg=Struct.new(:info, :type, :version, :depend, :base_url)
 
 # Code to fetch a source file
 

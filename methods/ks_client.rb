@@ -157,13 +157,13 @@ def configure_ks_pxe_client(options)
     end
   end
   if options['service'].to_s.match(/ubuntu/)
-    options['ip']         = $q_struct['ip'].value
-    install_domain        = $q_struct['domain'].value
-    install_nic           = $q_struct['nic'].value
-    options['vmgateway']  = $q_struct['gateway'].value
-    options['netmask']    = $q_struct['netmask'].value
-    options['vmnetwork']  = $q_struct['network_address'].value
-    disable_dhcp          = $q_struct['disable_dhcp'].value
+    options['ip']         = options['q_struct']['ip'].value
+    install_domain        = options['q_struct']['domain'].value
+    install_nic           = options['q_struct']['nic'].value
+    options['vmgateway']  = options['q_struct']['gateway'].value
+    options['netmask']    = options['q_struct']['netmask'].value
+    options['vmnetwork']  = options['q_struct']['network_address'].value
+    disable_dhcp          = options['q_struct']['disable_dhcp'].value
     if disable_dhcp.match(/true/)
       if options['biostype'].to_s.match(/efi/)
         if options['service'].to_s.match(/live/)
@@ -425,7 +425,7 @@ def configure_ks_client(options)
     else
       if options['service'].to_s.match(/live/) || options['vm'].to_s.match(/mp|multipass/)
         options = populate_ps_questions(options)
-        process_questions(options)
+        options = process_questions(options)
         (user_data,exec_data) = populate_cc_userdata(options)
         output_cc_user_data(options,user_data,exec_data,output_file)
         FileUtils.touch(meta_file)
@@ -452,7 +452,7 @@ def configure_ks_client(options)
     add_apache_alias(options,options['clientdir'])
     add_hosts_entry(options)
   end
-  return
+  return options
 end
 
 # Unconfigure Kickstart client
@@ -468,13 +468,13 @@ end
 def populate_ks_post_list(options)
   gateway_ip  = options['vmgateway']
   post_list   = []
-  admin_group = $q_struct['admin_group'].value
-  admin_user  = $q_struct['admin_username'].value
-  admin_crypt = $q_struct['admin_crypt'].value
-  admin_home  = $q_struct['admin_home'].value
-  admin_uid   = $q_struct['admin_uid'].value
-  admin_gid   = $q_struct['admin_gid'].value
-  nic_name    = $q_struct['nic'].value
+  admin_group = options['q_struct']['admin_group'].value
+  admin_user  = options['q_struct']['admin_username'].value
+  admin_crypt = options['q_struct']['admin_crypt'].value
+  admin_home  = options['q_struct']['admin_home'].value
+  admin_uid   = options['q_struct']['admin_uid'].value
+  admin_gid   = options['q_struct']['admin_gid'].value
+  nic_name    = options['q_struct']['nic'].value
   epel_file   = "/etc/yum.repos.d/epel.repo"
   beta_file   = "/etc/yum.repos.d/public-yum-ol6-beta.repo"
   post_list.push("")
@@ -825,12 +825,12 @@ end
 def output_ks_header(options,output_file)
   tmp_file = "/tmp/ks_"+options['name']
   file=File.open(tmp_file, 'w')
-  $q_order.each do |key|
-    if $q_struct[key].type.match(/output/)
-      if not $q_struct[key].parameter.match(/[a-z,A-Z]/)
-        output = $q_struct[key].value+"\n"
+  options['q_order'].each do |key|
+    if options['q_struct'][key].type.match(/output/)
+      if not options['q_struct'][key].parameter.match(/[a-z,A-Z]/)
+        output = options['q_struct'][key].value+"\n"
       else
-        output = $q_struct[key].parameter+" "+$q_struct[key].value+"\n"
+        output = options['q_struct'][key].parameter+" "+options['q_struct'][key].value+"\n"
       end
       file.write(output)
     end

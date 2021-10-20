@@ -63,23 +63,23 @@ def output_pe_client_profile(options,output_file)
   userinput       = ""
   counter         = 1
   number          = ""
-  locale          = $q_struct['locale'].value
-  timezone        = $q_struct['timezone'].value
-  boot_disk_size  = $q_struct['boot_disk_size'].value
-  admin_fullname  = $q_struct['admin_fullname'].value
-  admin_username  = $q_struct['admin_username'].value
-  admin_password  = $q_struct['admin_password'].value
-  organisation    = $q_struct['organisation'].value
-  cpu_arch        = $q_struct['cpu_arch'].value
-  options['license']   = $q_struct['license_key'].value
-  options['vmnetwork'] = $q_struct['network_type'].value
+  locale          = options['q_struct']['locale'].value
+  timezone        = options['q_struct']['timezone'].value
+  boot_disk_size  = options['q_struct']['boot_disk_size'].value
+  admin_fullname  = options['q_struct']['admin_fullname'].value
+  admin_username  = options['q_struct']['admin_username'].value
+  admin_password  = options['q_struct']['admin_password'].value
+  organisation    = options['q_struct']['organisation'].value
+  cpu_arch        = options['q_struct']['cpu_arch'].value
+  options['license']   = options['q_struct']['license_key'].value
+  options['vmnetwork'] = options['q_struct']['network_type'].value
   if options['vmnetwork'].to_s.match(/hostonly|bridged/)
-    network_name  = $q_struct['network_name'].value
-    network_cidr  = $q_struct['network_cidr'].value
-    network_ip    = $q_struct['ip_address'].value
-    gateway_ip    = $q_struct['gateway_address'].value
-    nameserver_ip = $q_struct['nameserver_ip'].value
-    search_domain = $q_struct['search_domain'].value
+    network_name  = options['q_struct']['network_name'].value
+    network_cidr  = options['q_struct']['network_cidr'].value
+    network_ip    = options['q_struct']['ip_address'].value
+    gateway_ip    = options['q_struct']['gateway_address'].value
+    nameserver_ip = options['q_struct']['nameserver_ip'].value
+    search_domain = options['q_struct']['search_domain'].value
   end
   # Put in some Microsoft Eval Keys if no license specified
   if not options['license'].to_s.match(/[0-9]/)

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      7.1.1
+# Version:      7.1.2
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -101,11 +101,8 @@ end
 
 options = {}
 options['stdout']   = []
-
-# Declare global structure for questions
-
-$q_struct = {}
-$q_order  = []
+options['q_struct'] = {}
+options['q_order'] = []
 
 # Load methods
 
@@ -458,6 +455,20 @@ rescue
   print_help(options)
   quit(options)
 end
+
+# Set up question associative array
+
+options['q_struct'] = {}
+options['q_order']  = []
+
+options['i_struct'] = {}
+options['i_order']  = []
+
+options['u_struct'] = {}
+options['u_order']  = []
+
+options['g_struct'] = {}
+options['g_order']  = []
 
 # Handle method switch
 

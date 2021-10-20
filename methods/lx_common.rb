@@ -1,12 +1,8 @@
 # Code to manage Linux containers
 
-# Structure for questions
-
-Lx = Struct.new(:question, :ask, :value, :valid, :eval)
-
 # Check LXC install
 
-def check_lxc_is_installed()
+def check_lxc_is_installed(options)
   message = "Information:\tChecking LXC Packages are installed"
   if options['host-os-uname'].match(/Ubuntu/)
     command = "dpkg -l lxc"

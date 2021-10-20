@@ -1,9 +1,5 @@
 # Solaris LDoms support code
 
-# Question/config structure
-
-Ld = Struct.new(:question, :ask, :value, :valid, :eval)
-
 def list_ldoms(options)
   case options['vm']
   when /ldom/

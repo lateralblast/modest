@@ -23,23 +23,23 @@ end
 def deploy_vcsa_vm(options)
   populate_vcsa_questions(options)
   process_questions(options)
-  options['server']         = $q_struct['esx.hostname'].value
-  options['datastore']      = $q_struct['esx.datastore'].value
-  options['serveradmin']    = $q_struct['esx.username'].value
-  options['serverpassword'] = $q_struct['esx.password'].value
-  options['size']           = $q_struct['deployment.option'].value
-  options['servernetmask']  = $q_struct['deployment.network'].value
-  options['name']           = $q_struct['appliance.name'].value
-  options['rootpassword']   = $q_struct['root.password'].value
-  options['timeserver']     = $q_struct['ntp.servers'].value
-  options['adminpassword']  = $q_struct['password'].value
-  options['domainname']     = $q_struct['domain-name'].value
-  options['sitename']       = $q_struct['site-name'].value
-  options['ipfamil']        = $q_struct['ip.family'].value
-  options['ip']             = $q_struct['ip'].value
-  options['netmask']        = $q_struct['prefix'].value
-  options['vmgateway']      = $q_struct['gateway'].value
-  options['nameserver']     = $q_struct['dns.servers'].value
+  options['server']         = options['q_struct']['esx.hostname'].value
+  options['datastore']      = options['q_struct']['esx.datastore'].value
+  options['serveradmin']    = options['q_struct']['esx.username'].value
+  options['serverpassword'] = options['q_struct']['esx.password'].value
+  options['size']           = options['q_struct']['deployment.option'].value
+  options['servernetmask']  = options['q_struct']['deployment.network'].value
+  options['name']           = options['q_struct']['appliance.name'].value
+  options['rootpassword']   = options['q_struct']['root.password'].value
+  options['timeserver']     = options['q_struct']['ntp.servers'].value
+  options['adminpassword']  = options['q_struct']['password'].value
+  options['domainname']     = options['q_struct']['domain-name'].value
+  options['sitename']       = options['q_struct']['site-name'].value
+  options['ipfamil']        = options['q_struct']['ip.family'].value
+  options['ip']             = options['q_struct']['ip'].value
+  options['netmask']        = options['q_struct']['prefix'].value
+  options['vmgateway']      = options['q_struct']['gateway'].value
+  options['nameserver']     = options['q_struct']['dns.servers'].value
   vcsa_json_file = create_vcsa_json(options)
   #create_vcsa_deploy_script(options)
   options['repodir'] = options['baserepodir']+"/"+options['service']

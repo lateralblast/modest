@@ -12,8 +12,8 @@ def populate_pe_questions(options)
     network_name = "Local Area Connection"
   end
 
-  # $q_struct = {}
-  # $q_order  = []
+  # options['q_struct'] = {}
+  # options['q_order']  = []
 
   name = "headless_mode"
   config = Js.new(
@@ -25,8 +25,8 @@ def populate_pe_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "options['label']"
   config = Ks.new(
@@ -38,8 +38,8 @@ def populate_pe_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "cpu_arch"
   config = Ks.new(
@@ -51,8 +51,8 @@ def populate_pe_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "boot_disk_size"
   config = Ks.new(
@@ -64,8 +64,8 @@ def populate_pe_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "language"
   config = Ks.new(
@@ -77,8 +77,8 @@ def populate_pe_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "locale"
   config = Ks.new(
@@ -90,8 +90,8 @@ def populate_pe_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "organisation"
   config = Ks.new(
@@ -103,8 +103,8 @@ def populate_pe_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "timezone"
   config = Ks.new(
@@ -116,8 +116,8 @@ def populate_pe_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "admin_username"
   config = Ks.new(
@@ -129,8 +129,8 @@ def populate_pe_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "admin_fullname"
   config = Ks.new(
@@ -142,8 +142,8 @@ def populate_pe_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "admin_password"
   config = Ks.new(
@@ -155,8 +155,8 @@ def populate_pe_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "license_key"
   config = Ks.new(
@@ -168,8 +168,8 @@ def populate_pe_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "search_domain"
   config = Ks.new(
@@ -181,8 +181,8 @@ def populate_pe_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "options['shell']"
   config = Ks.new(
@@ -194,8 +194,8 @@ def populate_pe_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "network_type"
   config = Ks.new(
@@ -207,10 +207,10 @@ def populate_pe_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
-  options['vmnetwork'] = $q_struct['network_type'].value
+  options['vmnetwork'] = options['q_struct']['network_type'].value
 
   if options['vmnetwork'].to_s.match(/hostonly|bridged/)
 
@@ -224,8 +224,8 @@ def populate_pe_questions(options)
       valid     = "",
       eval      = "no"
       )
-    $q_struct[name] = config
-    $q_order.push(name)
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
 
     name = "ip_address"
     config = Ks.new(
@@ -237,8 +237,8 @@ def populate_pe_questions(options)
       valid     = "",
       eval      = "no"
       )
-    $q_struct[name] = config
-    $q_order.push(name)
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
 
     name = "gateway_address"
     config = Ks.new(
@@ -250,8 +250,8 @@ def populate_pe_questions(options)
       valid     = "",
       eval      = "no"
       )
-    $q_struct[name] = config
-    $q_order.push(name)
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
 
     name = "network_cidr"
     config = Ks.new(
@@ -263,8 +263,8 @@ def populate_pe_questions(options)
       valid     = "",
       eval      = "no"
       )
-    $q_struct[name] = config
-    $q_order.push(name)
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
 
     name = "nameserver_ip"
     config = Ks.new(
@@ -276,8 +276,8 @@ def populate_pe_questions(options)
       valid     = "",
       eval      = "no"
       )
-    $q_struct[name] = config
-    $q_order.push(name)
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
 
   end
   return

@@ -6,12 +6,12 @@
 def create_js_sysid_file(options)
   tmp_file = "/tmp/sysid_"+options['name']
   file=File.open(tmp_file,"w")
-  $q_order.each do |key|
-    if $q_struct[key].type == "output"
-      if $q_struct[key].parameter == ""
-        output = $q_struct[key].value+"\n"
+  options['q_order'].each do |key|
+    if options['q_struct'][key].type == "output"
+      if options['q_struct'][key].parameter == ""
+        output = options['q_struct'][key].value+"\n"
       else
-        output = $q_struct[key].parameter+"="+$q_struct[key].value+"\n"
+        output = options['q_struct'][key].parameter+"="+options['q_struct'][key].value+"\n"
       end
     end
     file.write(output)
@@ -29,13 +29,13 @@ end
 def create_js_machine_file(options)
   tmp_file = "/tmp/machine_"+options['name']
   file=File.open(tmp_file,"w")
-  $q_order.each do |key|
-    if $q_struct[key].parameter.to_s.match(/install_type|system_type|cluster|partitioning|pool|bootenv/)
-      if $q_struct[key].type == "output" 
-        if $q_struct[key].parameter == ""
-          output = $q_struct[key].value+"\n"
+  options['q_order'].each do |key|
+    if options['q_struct'][key].parameter.to_s.match(/install_type|system_type|cluster|partitioning|pool|bootenv/)
+      if options['q_struct'][key].type == "output" 
+        if options['q_struct'][key].parameter == ""
+          output = options['q_struct'][key].value+"\n"
         else
-          output = $q_struct[key].parameter+" "+$q_struct[key].value+"\n"
+          output = options['q_struct'][key].parameter+" "+options['q_struct'][key].value+"\n"
         end
       end
     end
@@ -332,7 +332,7 @@ def configure_js_client(options)
   if options['arch'].to_s.match(/i386/)
     options['karch'] = options['arch']
   else
-    options['karch'] = $q_struct['system_karch'].value
+    options['karch'] = options['q_struct']['system_karch'].value
   end
   # Create sysid file
   options['sysid'] = options['clientdir']+"/sysidcfg"

@@ -82,8 +82,8 @@ end
 # Create Guest domain disk
 
 def create_gdom_disk(options)
-  client_disk = $q_struct['gdom_disk'].value
-  disk_size   = $q_struct['gdom_size'].value
+  client_disk = options['q_struct']['gdom_disk'].value
+  disk_size   = options['q_struct']['gdom_size'].value
   disk_size   = disk_size.downcase
   vds_disk    = options['name']+"_vdisk0"
   if not client_disk.match(/\/dev/)
@@ -207,8 +207,8 @@ end
 # Create Guest domain
 
 def create_gdom(options)
-  memory   = $q_struct['gdom_memory'].value
-  vcpu     = $q_struct['gdom_vcpu'].value
+  memory   = options['q_struct']['gdom_memory'].value
+  vcpu     = options['q_struct']['gdom_vcpu'].value
   vds_disk = options['name']+"_vdisk0"
   message  = "Information:\tCreating guest domain "+options['name']
   command  = "ldm add-domain #{options['name']}"
@@ -247,7 +247,7 @@ def configure_gdom(options)
     command = "zfs set mountpoint=#{gdom_dir} #{options['zpoolname']}#{gdom_dir}"
     execute_command(options,message,command)
   end
-  populate_gdom_questions(options)
+  options = populate_gdom_questions(options)
   process_questions(options)
   create_gdom_disk(options)
   create_gdom(options)

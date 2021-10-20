@@ -290,10 +290,10 @@ end
 
 def populate_vs_firstboot_list(options)
   post_list = []
-  vm_network_name    = $q_struct['vm_network_name'].value 
-  vm_network_vswitch = $q_struct['vm_network_vswitch'].value
-  vm_network_vlanid  = $q_struct['vm_network_vlanid'].value
-  datastore_name     = $q_struct['datastore'].value
+  vm_network_name    = options['q_struct']['vm_network_name'].value 
+  vm_network_vswitch = options['q_struct']['vm_network_vswitch'].value
+  vm_network_vlanid  = options['q_struct']['vm_network_vlanid'].value
+  datastore_name     = options['q_struct']['datastore'].value
   #post_list.push("%pre --interpreter=busybox")
   #post_list.push("echo '127.0.0.1 localhost' >> /etc/resolv.conf")
   #post_list.push("")
@@ -426,12 +426,12 @@ def output_vs_header(options,output_file)
   check_dir_exists(options,dir_name)
   check_dir_owner(options,dir_name,options['uid'])
   file = File.open(output_file, 'w')
-  $q_order.each do |key|
-    if $q_struct[key].type.match(/output/)
-      if not $q_struct[key].parameter.match(/[a-z,A-Z]/)
-        output=$q_struct[key].value+"\n"
+  options['q_order'].each do |key|
+    if options['q_struct'][key].type.match(/output/)
+      if not options['q_struct'][key].parameter.match(/[a-z,A-Z]/)
+        output=options['q_struct'][key].value+"\n"
       else
-        output=$q_struct[key].parameter+" "+$q_struct[key].value+"\n"
+        output=options['q_struct'][key].parameter+" "+options['q_struct'][key].value+"\n"
         if options['verbose'] == true
           handle_output(options,output)
         end

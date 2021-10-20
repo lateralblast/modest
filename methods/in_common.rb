@@ -757,8 +757,8 @@ end
 # Set up some global variables/defaults
 
 def set_global_vars(options)
-  $q_struct                  = {}
-  $q_order                   = []
+  options['q_struct']                  = {}
+  options['q_order']                   = []
   options['backupdir']       = ""
   $openssh_win_url           = "http://www.mls-software.com/files/setupssh-7.2p2-1-v1.exe"
   $openbsd_base_url          = "http://ftp.openbsd.org/pub/OpenBSD"
@@ -3382,7 +3382,7 @@ end
 # Get root password crypt
 
 def get_root_password_crypt(options)
-  password = $q_struct['root_password'].value
+  password = options['q_struct']['root_password'].value
   result   = get_password_crypt(password)
   return result
 end
@@ -3390,7 +3390,7 @@ end
 # Get account password crypt
 
 def get_admin_password_crypt(options)
-  password = $q_struct['admin_password'].value
+  password = options['q_struct']['admin_password'].value
   result   = get_password_crypt(password)
   return result
 end

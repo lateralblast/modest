@@ -4,7 +4,7 @@
 # Populate Cloud Config/Init User data file
 
 def populate_cc_userdata(options)
-  install_locale = $q_struct['locale'].value
+  install_locale = options['q_struct']['locale'].value
   if install_locale.match(/\./)
     install_locale = install_locale.split(".")[0]
   end
@@ -13,24 +13,24 @@ def populate_cc_userdata(options)
   else
     install_target  = ""
   end
-  install_nameserver = $q_struct['nameserver'].value
+  install_nameserver = options['q_struct']['nameserver'].value
   install_base_url   = "http://"+options['hostip']+"/"+options['name']
   install_layout  = install_locale.split("_")[0]
   install_variant = install_locale.split("_")[1].downcase
-  install_gateway = $q_struct['gateway'].value
-  disable_dhcp  = $q_struct['disable_dhcp'].value
-  install_name  = $q_struct['hostname'].value
+  install_gateway = options['q_struct']['gateway'].value
+  disable_dhcp  = options['q_struct']['disable_dhcp'].value
+  install_name  = options['q_struct']['hostname'].value
   resolved_conf = "/etc/systemd/resolved.conf"
-  admin_user    = $q_struct['admin_username'].value
-  admin_group   = $q_struct['admin_username'].value
-  admin_home    = "/home/"+$q_struct['admin_username'].value
-  admin_crypt   = $q_struct['admin_crypt'].value
-  install_nic   = $q_struct['interface'].value
+  admin_user    = options['q_struct']['admin_username'].value
+  admin_group   = options['q_struct']['admin_username'].value
+  admin_home    = "/home/"+options['q_struct']['admin_username'].value
+  admin_crypt   = options['q_struct']['admin_crypt'].value
+  install_nic   = options['q_struct']['interface'].value
   if disable_dhcp.match(/true/)
-    install_ip    = $q_struct['ip'].value
+    install_ip    = options['q_struct']['ip'].value
   end
-  install_cidr  = $q_struct['cidr'].value
-  install_disk  = $q_struct['partition_disk'].value
+  install_cidr  = options['q_struct']['cidr'].value
+  install_disk  = options['q_struct']['partition_disk'].value
   #netplan_file  = "#{install_target}/etc/netplan/01-netcfg.yaml"
   netplan_file  = "#{install_target}/etc/netplan/50-cloud-init.yaml"
   locale_file   = "#{install_target}/etc/default/locales"
@@ -214,7 +214,7 @@ def output_cc_user_data(options,user_data,exec_data,output_file)
     output = line+end_char
     file.write(output)
   end
-  pkg_list = $q_struct['additional_packages'].value
+  pkg_list = options['q_struct']['additional_packages'].value
   if options['vm'].to_s.match(/mp|multipass/)
     file.write("packages:\n")
     pkg_list.split(" ").each do |line|

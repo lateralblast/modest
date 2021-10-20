@@ -246,13 +246,13 @@ end
 # Create AWS instance string
 
 def create_aws_instance(options)
-  image_id        = $q_struct['source_ami'].value
-  min_count       = $q_struct['min_count'].value
-  max_count       = $q_struct['max_count'].value
-  dry_run         = $q_struct['dry_run'].value
-  instance_type   = $q_struct['instance_type'].value
-  key_name        = $q_struct['key_name'].value
-  security_groups = $q_struct['security_group'].value
+  image_id        = options['q_struct']['source_ami'].value
+  min_count       = options['q_struct']['min_count'].value
+  max_count       = options['q_struct']['max_count'].value
+  dry_run         = options['q_struct']['dry_run'].value
+  instance_type   = options['q_struct']['instance_type'].value
+  key_name        = options['q_struct']['key_name'].value
+  security_groups = options['q_struct']['security_group'].value
   if security_groups.match(/,/)
     security_groups = security_groups.split(/,/)
   else

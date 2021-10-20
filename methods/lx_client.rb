@@ -85,11 +85,11 @@ def create_ubuntu_lxc_config(options)
   execute_command(options,message,command)
   print_contents_of_file(options,"",config_file)
   file = File.open(tmp_file,"w")
-  gateway    = $q_struct['gateway'].value
-  broadcast  = $q_struct['broadcast'].value
-  netmask    = $q_struct['netmask'].value
-  network    = $q_struct['network_address'].value
-  nameserver = $q_struct['nameserver'].value
+  gateway    = options['q_struct']['gateway'].value
+  broadcast  = options['q_struct']['broadcast'].value
+  netmask    = options['q_struct']['netmask'].value
+  network    = options['q_struct']['network_address'].value
+  nameserver = options['q_struct']['nameserver'].value
   file.write("# The loopback network interface\n")
   file.write("auto lo\n")
   file.write("iface lo inet loopback\n")
@@ -110,14 +110,14 @@ def create_ubuntu_lxc_config(options)
   message    = "Information:\tCreating network interface file "+net_file
   command    = "cp #{tmp_file} #{net_file} ; rm #{tmp_file}"
   execute_command(options,message,command)
-  user_username = $q_struct['user_username'].value
-  user_uid      = $q_struct['user_uid'].value
-  user_gid      = $q_struct['user_gid'].value
-  user_crypt    = $q_struct['user_crypt'].value
-  root_crypt    = $q_struct['root_crypt'].value
-  user_fullname = $q_struct['user_fullname'].value
-  user_home     = $q_struct['user_home'].value
-  user_shell    = $q_struct['user_shell'].value
+  user_username = options['q_struct']['user_username'].value
+  user_uid      = options['q_struct']['user_uid'].value
+  user_gid      = options['q_struct']['user_gid'].value
+  user_crypt    = options['q_struct']['user_crypt'].value
+  root_crypt    = options['q_struct']['root_crypt'].value
+  user_fullname = options['q_struct']['user_fullname'].value
+  user_home     = options['q_struct']['user_home'].value
+  user_shell    = options['q_struct']['user_shell'].value
   passwd_file   = options['clientdir']+"/etc/passwd"
   shadow_file   = options['clientdir']+"/etc/shadow"
   info          = IO.readlines(passwd_file)
@@ -273,7 +273,7 @@ end
 
 # Populate post install list
 
-def populate_lxc_post()
+def populate_lxc_post(options)
   post_list = []
   post_list.push("#!/bin/sh")
   post_list.push("# Install additional pacakges")
@@ -349,7 +349,7 @@ def configure_lxc(options)
     handle_output(options,"Warning:\tIf this is the first time you have run this command it may take a while")
     handle_output(options,"Information:\tCreating standard container")
     options['ip'] = single_install_ip(options)
-    populate_lxc_client_questions(options)
+    options = populate_lxc_client_questions(options)
     process_questions(options)
     create_standard_lxc(options)
     if options['host-os-uname'].match(/Ubuntu/)

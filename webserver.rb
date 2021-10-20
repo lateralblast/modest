@@ -330,8 +330,8 @@ get '/add/client' do
   foot = []
   head = File.readlines("./views/layout.html")
   head = html_header(head,"Mode")
-  # $q_order  = []
-  # $q_struct = {}
+  # options['q_order']  = []
+  # options['q_struct'] = {}
   if params['client']
     options['name'] = params['client'] 
   else
@@ -354,8 +354,8 @@ get '/add/client' do
   end
   eval"[populate_#{options['method']}_questions(options['service'],options['name'],options['ip'])]"
   options['stdout'].push("<form action=\"/add/client\" method=\"post\">")
-  $q_order.each do |key|
-    options['stdout'].push($q_struct[key].question)
+  options['q_order'].each do |key|
+    options['stdout'].push(options['q_struct'][key].question)
     options['stdout'].push("<input type=\"text\" name = \"#{key}\">")
   end
   options['stdout'].push("<input type=\"submit\" value=\"Submit\">")
@@ -373,8 +373,8 @@ get '/add/fusion' do
   foot = []
   head = File.readlines("./views/layout.html")
   head = html_header(head,"Mode")
-  # $q_order  = []
-  # $q_struct = {}
+  # options['q_order']  = []
+  # options['q_struct'] = {}
   if params['client']
     options['name'] = params['client'] 
   else

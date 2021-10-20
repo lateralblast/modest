@@ -74,10 +74,10 @@ def configure_ubuntu_lxc_server(server_type)
     if not output.match(/bridge_ports/)
       tmp_file   = "/tmp/interfaces"
       server_ip  = options['hostip']
-      gateway    = $q_struct['gateway'].value
-      broadcast  = $q_struct['broadcast'].value
-      network    = $q_struct['network_address'].value
-      nameserver = $q_struct['nameserver'].value
+      gateway    = options['q_struct']['gateway'].value
+      broadcast  = options['q_struct']['broadcast'].value
+      network    = options['q_struct']['network_address'].value
+      nameserver = options['q_struct']['nameserver'].value
       file = File.open(tmp_file,"w")
       file.write("# The loopback network interface\n")
       file.write("auto lo\n")
@@ -121,7 +121,7 @@ end
 
 def configure_lxc_server(server_type)
   options['service'] = ""
-  populate_lxc_server_questions()
+  options = populate_lxc_server_questions()
   process_questions(options)
   if options['host-os-uname'].match(/Ubuntu/)
     configure_ubuntu_lxc_server(server_type)

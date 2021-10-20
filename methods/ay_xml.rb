@@ -1,12 +1,6 @@
 
 # Do Autoyast XML
 
-# Create a struct for users
-
-User  = Struct.new(:fullname, :gid, :home, :expire, :flag, :inact, :max, :min, :warn, :shell, :uid, :user_password, :username)
-Group = Struct.new(:gid, :group_password, :groupname, :userlist)
-Inetd = Struct.new(:enabled, :iid, :protocol, :script, :server, :service)
-
 # Populate hosts
 
 def populate_ay_hosts(options)
@@ -24,12 +18,11 @@ end
 
 # Populate inetd information
 
-def populate_ay_inetd()
-  $i_struct = {}
-  $i_order  = []
+def populate_ay_inetd(options)
+  inetd = Struct.new(:enabled, :iid, :protocol, :script, :server, :service)
 
   service = "chargen"
-  config  = Inetd.new(
+  config  = inetd.new(
     enabled  = "false",
     iid      = "1:/etc/xinetd.d/"+service,
     protocol = "tcp",
@@ -37,11 +30,11 @@ def populate_ay_inetd()
     server   = "",
     service  = service
     )
-  $i_order.push(service)
-  $i_struct[service] = config
+  options['i_order'].push(service)
+  options['i_struct'][service] = config
 
   service = "chargen-udp"
-  config  = Inetd.new(
+  config  = inetd.new(
     enabled  = "false",
     iid      = "1:/etc/xinetd.d/"+service,
     protocol = "udp",
@@ -49,11 +42,11 @@ def populate_ay_inetd()
     server   = "",
     service  = "chargen"
     )
-  $i_order.push(service)
-  $i_struct[service] = config
+  options['i_order'].push(service)
+  options['i_struct'][service] = config
 
   service = "cups-lpd"
-  config  = Inetd.new(
+  config  = inetd.new(
     enabled  = "false",
     iid      = "1:/etc/xinetd.d/"+service,
     protocol = "tcp",
@@ -61,11 +54,11 @@ def populate_ay_inetd()
     server   = "/usr/lib64/cups/daemon/cups-lpd",
     service  = "printer"
     )
-  $i_order.push(service)
-  $i_struct[service] = config
+  options['i_order'].push(service)
+  options['i_struct'][service] = config
 
   service = "cvs"
-  config  = Inetd.new(
+  config  = inetd.new(
     enabled  = "false",
     iid      = "1:/etc/xinetd.d/"+service,
     protocol = "tcp",
@@ -73,11 +66,11 @@ def populate_ay_inetd()
     server   = "/usr/bin/cvs",
     service  = "cvspserver"
     )
-  $i_order.push(service)
-  $i_struct[service] = config
+  options['i_order'].push(service)
+  options['i_struct'][service] = config
 
   service = "daytime"
-  config  = Inetd.new(
+  config  = inetd.new(
     enabled  = "false",
     iid      = "1:/etc/xinetd.d/"+service,
     protocol = "tcp",
@@ -85,11 +78,11 @@ def populate_ay_inetd()
     server   = "",
     service  = service
     )
-  $i_order.push(service)
-  $i_struct[service] = config
+  options['i_order'].push(service)
+  options['i_struct'][service] = config
 
   service = "daytime-udp"
-  config  = Inetd.new(
+  config  = inetd.new(
     enabled  = "false",
     iid      = "1:/etc/xinetd.d/"+service,
     protocol = "udp",
@@ -97,11 +90,11 @@ def populate_ay_inetd()
     server   = "",
     service  = "daytime"
     )
-  $i_order.push(service)
-  $i_struct[service] = config
+  options['i_order'].push(service)
+  options['i_struct'][service] = config
 
   service = "discard"
-  config  = Inetd.new(
+  config  = inetd.new(
     enabled  = "false",
     iid      = "1:/etc/xinetd.d/"+service,
     protocol = "tcp",
@@ -109,11 +102,11 @@ def populate_ay_inetd()
     server   = "",
     service  = service
     )
-  $i_order.push(service)
-  $i_struct[service] = config
+  options['i_order'].push(service)
+  options['i_struct'][service] = config
 
   service = "discard-udp"
-  config  = Inetd.new(
+  config  = inetd.new(
     enabled  = "false",
     iid      = "1:/etc/xinetd.d/"+service,
     protocol = "udp",
@@ -121,11 +114,11 @@ def populate_ay_inetd()
     server   = "",
     service  = "discard"
     )
-  $i_order.push(service)
-  $i_struct[service] = config
+  options['i_order'].push(service)
+  options['i_struct'][service] = config
 
   service = "echo"
-  config  = Inetd.new(
+  config  = inetd.new(
     enabled  = "false",
     iid      = "1:/etc/xinetd.d/"+service,
     protocol = "tcp",
@@ -133,11 +126,11 @@ def populate_ay_inetd()
     server   = "",
     service  = service
     )
-  $i_order.push(service)
-  $i_struct[service] = config
+  options['i_order'].push(service)
+  options['i_struct'][service] = config
 
   service = "echo-udp"
-  config  = Inetd.new(
+  config  = inetd.new(
     enabled  = "false",
     iid      = "1:/etc/xinetd.d/"+service,
     protocol = "udp",
@@ -145,11 +138,11 @@ def populate_ay_inetd()
     server   = "",
     service  = "echo-udp"
     )
-  $i_order.push(service)
-  $i_struct[service] = config
+  options['i_order'].push(service)
+  options['i_struct'][service] = config
 
   service = "netstat"
-  config  = Inetd.new(
+  config  = inetd.new(
     enabled  = "false",
     iid      = "1:/etc/xinetd.d/"+service,
     protocol = "tcp",
@@ -157,11 +150,11 @@ def populate_ay_inetd()
     server   = "/bin/"+service,
     service  = service
     )
-  $i_order.push(service)
-  $i_struct[service] = config
+  options['i_order'].push(service)
+  options['i_struct'][service] = config
 
   service = "rsync"
-  config  = Inetd.new(
+  config  = inetd.new(
     enabled  = "false",
     iid      = "1:/etc/xinetd.d/"+service,
     protocol = "tcp",
@@ -169,11 +162,11 @@ def populate_ay_inetd()
     server   = "/usr/sbin/"+service+"d",
     service  = service
     )
-  $i_order.push(service)
-  $i_struct[service] = config
+  options['i_order'].push(service)
+  options['i_struct'][service] = config
 
   service = "servers"
-  config  = Inetd.new(
+  config  = inetd.new(
     enabled  = "false",
     iid      = "1:/etc/xinetd.d/"+service,
     protocol = "tcp",
@@ -181,11 +174,11 @@ def populate_ay_inetd()
     server   = "",
     service  = service
     )
-  $i_order.push(service)
-  $i_struct[service] = config
+  options['i_order'].push(service)
+  options['i_struct'][service] = config
 
   service = "services"
-  config  = Inetd.new(
+  config  = inetd.new(
     enabled  = "false",
     iid      = "1:/etc/xinetd.d/"+service,
     protocol = "tcp",
@@ -193,11 +186,11 @@ def populate_ay_inetd()
     server   = "",
     service  = service
     )
-  $i_order.push(service)
-  $i_struct[service] = config
+  options['i_order'].push(service)
+  options['i_struct'][service] = config
 
   service = "swat"
-  config  = Inetd.new(
+  config  = inetd.new(
     enabled  = "false",
     iid      = "1:/etc/xinetd.d/"+service,
     protocol = "tcp",
@@ -205,11 +198,11 @@ def populate_ay_inetd()
     server   = "/usr/sbin/"+service,
     service  = service
     )
-  $i_order.push(service)
-  $i_struct[service] = config
+  options['i_order'].push(service)
+  options['i_struct'][service] = config
 
   service = "systat"
-  config  = Inetd.new(
+  config  = inetd.new(
     enabled  = "false",
     iid      = "1:/etc/xinetd.d/"+service,
     protocol = "tcp",
@@ -217,11 +210,11 @@ def populate_ay_inetd()
     server   = "/bin/ps",
     service  = service
     )
-  $i_order.push(service)
-  $i_struct[service] = config
+  options['i_order'].push(service)
+  options['i_struct'][service] = config
 
   service = "time"
-  config  = Inetd.new(
+  config  = inetd.new(
     enabled  = "false",
     iid      = "1:/etc/xinetd.d/"+service,
     protocol = "tcp",
@@ -229,11 +222,11 @@ def populate_ay_inetd()
     server   = "",
     service  = service
     )
-  $i_order.push(service)
-  $i_struct[service] = config
+  options['i_order'].push(service)
+  options['i_struct'][service] = config
 
   service = "time-udp"
-  config  = Inetd.new(
+  config  = inetd.new(
     enabled  = "false",
     iid      = "1:/etc/xinetd.d/"+service,
     protocol = "udp",
@@ -241,11 +234,11 @@ def populate_ay_inetd()
     server   = "",
     service  = "time"
     )
-  $i_order.push(service)
-  $i_struct[service] = config
+  options['i_order'].push(service)
+  options['i_struct'][service] = config
 
   service = "vnc1"
-  config  = Inetd.new(
+  config  = inetd.new(
     enabled  = "false",
     iid      = "1:/etc/xinetd.d/vnc",
     protocol = "tcp",
@@ -253,11 +246,11 @@ def populate_ay_inetd()
     server   = "/usr/bin/Xvnc",
     service  = "vnc1"
     )
-  $i_order.push(service)
-  $i_struct[service] = config
+  options['i_order'].push(service)
+  options['i_struct'][service] = config
 
   service = "vnc2"
-  config  = Inetd.new(
+  config  = inetd.new(
     enabled  = "false",
     iid      = "16:/etc/xinetd.d/vnc",
     protocol = "tcp",
@@ -265,11 +258,11 @@ def populate_ay_inetd()
     server   = "/usr/bin/Xvnc",
     service  = "vnc2"
     )
-  $i_order.push(service)
-  $i_struct[service] = config
+  options['i_order'].push(service)
+  options['i_struct'][service] = config
 
   service = "vnc3"
-  config  = Inetd.new(
+  config  = inetd.new(
     enabled  = "false",
     iid      = "31:/etc/xinetd.d/vnc3",
     protocol = "tcp",
@@ -277,11 +270,11 @@ def populate_ay_inetd()
     server   = "/usr/bin/Xvnc",
     service  = "vnc3"
     )
-  $i_order.push(service)
-  $i_struct[service] = config
+  options['i_order'].push(service)
+  options['i_struct'][service] = config
 
   service = "vnchttpd1"
-  config  = Inetd.new(
+  config  = inetd.new(
     enabled  = "false",
     iid      = "46:/etc/xinetd.d/vnc",
     protocol = "tcp",
@@ -289,11 +282,11 @@ def populate_ay_inetd()
     server   = "/usr/bin/vnc_inetd_httpd",
     service  = "vnchttpd1"
     )
-  $i_order.push(service)
-  $i_struct[service] = config
+  options['i_order'].push(service)
+  options['i_struct'][service] = config
 
   service = "vnchttpd2"
-  config  = Inetd.new(
+  config  = inetd.new(
     enabled  = "false",
     iid      = "61:/etc/xinetd.d/vnchttpd2",
     protocol = "tcp",
@@ -301,11 +294,11 @@ def populate_ay_inetd()
     server   = "/usr/bin/vnc_inetd_httpd",
     service  = "vnchttpd2"
     )
-  $i_order.push(service)
-  $i_struct[service] = config
+  options['i_order'].push(service)
+  options['i_struct'][service] = config
 
   service = "vnchttpd3"
-  config  = Inetd.new(
+  config  = inetd.new(
     enabled  = "false",
     iid      = "76:/etc/xinetd.d/vnchttpd3",
     protocol = "tcp",
@@ -313,8 +306,8 @@ def populate_ay_inetd()
     server   = "/usr/bin/vnc_inetd_httpd",
     service  = "vnchttpd3"
     )
-  $i_order.push(service)
-  $i_struct[service] = config
+  options['i_order'].push(service)
+  options['i_struct'][service] = config
 
   return
 end
@@ -323,679 +316,678 @@ end
 # Populate Group information
 
 def populate_ay_groups(options)
-  $g_struct = {}
-  $g_order  = []
+  group = Struct.new(:gid, :group_password, :groupname, :userlist)
 
   group  = "users"
-  config = Group.new(
+  config = group.new(
     gid            = "100",
     group_password = "x",
     groupname      = group,
     userlist       = ""
     )
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "floppy"
-  config = Group.new(
+  config = group.new(
     gid            = "19",
     group_password = "x",
     groupname      = group,
     userlist       = ""
     )
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "bin"
-  config = Group.new(
+  config = group.new(
     gid            = "1",
     group_password = "x",
     groupname      = group,
     userlist       = "daemon"
     )
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "xok"
-  config = Group.new(
+  config = group.new(
     gid            = "41",
     group_password = "x",
     groupname      = group,
     userlist       = ""
     )
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "nobody"
-  config = Group.new(
+  config = group.new(
     gid            = "65535",
     group_password = "x",
     groupname      = group,
     userlist       = ""
     )
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "modem"
-  config = Group.new(
+  config = group.new(
     gid            = "43",
     group_password = "x",
     groupname      = group,
     userlist       = ""
     )
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "lp"
-  config = Group.new(
+  config = group.new(
     gid            = "7",
     group_password = "x",
     groupname      = group,
     userlist       = ""
     )
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "tty"
-  config = Group.new(
+  config = group.new(
     gid            = "5",
     group_password = "x",
     groupname      = group,
     userlist       = ""
     )
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "postfix"
   if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-    config = Group.new(
+    config = group.new(
       gid            = "51",
       group_password = "x",
       groupname      = group,
       userlist       = ""
       )
   else
-    config = Group.new(
+    config = group.new(
       gid            = "51",
       group_password = "!",
       groupname      = group,
       userlist       = ""
       )
   end
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "uuid"
-  config = Group.new(
+  config = group.new(
     gid            = "104",
     group_password = "!",
     groupname      = group,
     userlist       = ""
     )
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "gdm"
   if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-    config = Group.new(
+    config = group.new(
       gid            = "485",
       group_password = "x",
       groupname      = group,
       userlist       = ""
       )
   else
-    config = Group.new(
+    config = group.new(
       gid            = "111",
       group_password = "!",
       groupname      = group,
       userlist       = ""
       )
   end
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "nogroup"
-  config = Group.new(
+  config = group.new(
     gid            = "65534",
     group_password = "x",
     groupname      = group,
     userlist       = "nobody"
     )
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "maildrop"
   if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-    config = Group.new(
+    config = group.new(
       gid            = "59",
       group_password = "x",
       groupname      = group,
       userlist       = ""
       )
   else
-    config = Group.new(
+    config = group.new(
       gid            = "59",
       group_password = "!",
       groupname      = group,
       userlist       = ""
       )
   end
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "messagebus"
   if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-    config = Group.new(
+    config = group.new(
       gid            = "499",
       group_password = "x",
       groupname      = group,
       userlist       = ""
       )
   else
-    config = Group.new(
+    config = group.new(
       gid            = "101",
       group_password = "!",
       groupname      = group,
       userlist       = ""
       )
   end
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "video"
-  config = Group.new(
+  config = group.new(
     gid            = "33",
     group_password = "x",
     groupname      = group,
     userlist       = ""
     )
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "sys"
-  config = Group.new(
+  config = group.new(
     gid            = "3",
     group_password = "x",
     groupname      = group,
     userlist       = ""
     )
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "shadow"
-  config = Group.new(
+  config = group.new(
     gid            = "15",
     group_password = "x",
     groupname      = group,
     userlist       = ""
     )
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "console"
-  config = Group.new(
+  config = group.new(
     gid            = "21",
     group_password = "x",
     groupname      = group,
     userlist       = ""
     )
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "cdrom"
-  config = Group.new(
+  config = group.new(
     gid            = "20",
     group_password = "x",
     groupname      = group,
     userlist       = ""
     )
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "haldaemon"
-  config = Group.new(
+  config = group.new(
     gid            = "102",
     group_password = "!",
     groupname      = group,
     userlist       = ""
     )
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "trusted"
-  config = Group.new(
+  config = group.new(
     gid            = "42",
     group_password = "x",
     groupname      = group,
     userlist       = ""
     )
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "puppet"
-  config = Group.new(
+  config = group.new(
     gid            = "105",
     group_password = "!",
     groupname      = group,
     userlist       = ""
     )
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "dialout"
-  config = Group.new(
+  config = group.new(
     gid            = "16",
     group_password = "x",
     groupname      = group,
     userlist       = ""
     )
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
 
     group  = "polkitd"
-    config = Group.new(
+    config = group.new(
       gid            = "496",
       group_password = "x",
       groupname      = group,
       userlist       = ""
       )
-    $g_order.push(group)
-    $g_struct[group] = config
+    options['g_order'].push(group)
+    options['g_struct'][group] = config
 
   else
 
     group  = "polkituser"
-    config = Group.new(
+    config = group.new(
       gid            = "106",
       group_password = "!",
       groupname      = group,
       userlist       = ""
       )
-    $g_order.push(group)
-    $g_struct[group] = config
+    options['g_order'].push(group)
+    options['g_struct'][group] = config
 
   end
 
   group  = "pulse"
   if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-    config = Group.new(
+    config = group.new(
       gid            = "489",
       group_password = "x",
       groupname      = group,
       userlist       = ""
       )
   else
-    config = Group.new(
+    config = group.new(
       gid            = "100",
       group_password = "!",
       groupname      = group,
       userlist       = ""
       )
   end
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "wheel"
-  config = Group.new(
+  config = group.new(
     gid            = "10",
     group_password = "x",
     groupname      = group,
     userlist       = ""
     )
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "www"
-  config = Group.new(
+  config = group.new(
     gid            = "8",
     group_password = "x",
     groupname      = group,
     userlist       = ""
     )
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "games"
-  config = Group.new(
+  config = group.new(
     gid            = "40",
     group_password = "x",
     groupname      = group,
     userlist       = ""
     )
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "disk"
-  config = Group.new(
+  config = group.new(
     gid            = "6",
     group_password = "x",
     groupname      = group,
     userlist       = ""
     )
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "audio"
-  config = Group.new(
+  config = group.new(
     gid            = "17",
     group_password = "x",
     groupname      = group,
     userlist       = "pulse"
     )
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "suse-ncc"
-  config = Group.new(
+  config = group.new(
     gid            = "110",
     group_password = "!",
     groupname      = group,
     userlist       = ""
     )
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "ftp"
-  config = Group.new(
+  config = group.new(
     gid            = "49",
     group_password = "x",
     groupname      = group,
     userlist       = ""
     )
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "at"
   if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-    config = Group.new(
+    config = group.new(
       gid            = "25",
       group_password = "x",
       groupname      = group,
       userlist       = ""
       )
   else
-    config = Group.new(
+    config = group.new(
       gid            = "25",
       group_password = "!",
       groupname      = group,
       userlist       = ""
       )
   end
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "tape"
   if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-    config = Group.new(
+    config = group.new(
       gid            = "497",
       group_password = "x",
       groupname      = group,
       userlist       = ""
       )
   else
-    config = Group.new(
+    config = group.new(
       gid            = "103",
       group_password = "!",
       groupname      = group,
       userlist       = ""
       )
   end
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "kmem"
-  config = Group.new(
+  config = group.new(
     gid            = "9",
     group_password = "x",
     groupname      = group,
     userlist       = ""
     )
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "public"
-  config = Group.new(
+  config = group.new(
     gid            = "32",
     group_password = "x",
     groupname      = group,
     userlist       = ""
     )
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "root"
-  config = Group.new(
+  config = group.new(
     gid            = "0",
     group_password = "x",
     groupname      = group,
     userlist       = ""
     )
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "mail"
-  config = Group.new(
+  config = group.new(
     gid            = "12",
     group_password = "x",
     groupname      = group,
     userlist       = "postfix"
     )
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "daemon"
-  config = Group.new(
+  config = group.new(
     gid            = "2",
     group_password = "x",
     groupname      = group,
     userlist       = ""
     )
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "ntp"
   if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-    config = Group.new(
+    config = group.new(
       gid            = "492",
       group_password = "x",
       groupname      = group,
       userlist       = ""
       )
   else
-    config = Group.new(
+    config = group.new(
       gid            = "107",
       group_password = "!",
       groupname      = group,
       userlist       = ""
       )
   end
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
 
     group  = "scard"
-    config = Group.new(
+    config = group.new(
       gid            = "487",
       group_password = "x",
       groupname      = group,
       userlist       = ""
       )
-    $g_order.push(group)
-    $g_struct[group] = config
+    options['g_order'].push(group)
+    options['g_struct'][group] = config
 
     group  = "lock"
-    config = Group.new(
+    config = group.new(
       gid            = "54",
       group_password = "x",
       groupname      = group,
       userlist       = ""
       )
-    $g_order.push(group)
-    $g_struct[group] = config
+    options['g_order'].push(group)
+    options['g_struct'][group] = config
 
     group  = "winbind"
-    config = Group.new(
+    config = group.new(
       gid            = "486",
       group_password = "x",
       groupname      = group,
       userlist       = ""
       )
-    $g_order.push(group)
-    $g_struct[group] = config
+    options['g_order'].push(group)
+    options['g_struct'][group] = config
 
     group  = "vnc"
-    config = Group.new(
+    config = group.new(
       gid            = "491",
       group_password = "x",
       groupname      = group,
       userlist       = ""
       )
-    $g_order.push(group)
-    $g_struct[group] = config
+    options['g_order'].push(group)
+    options['g_struct'][group] = config
 
     group  = "rtkit"
-    config = Group.new(
+    config = group.new(
       gid            = "490",
       group_password = "x",
       groupname      = group,
       userlist       = ""
       )
-    $g_order.push(group)
-    $g_struct[group] = config
+    options['g_order'].push(group)
+    options['g_struct'][group] = config
 
     group  = "systemd-journal"
-    config = Group.new(
+    config = group.new(
       gid            = "493",
       group_password = "x",
       groupname      = group,
       userlist       = ""
       )
-    $g_order.push(group)
-    $g_struct[group] = config
+    options['g_order'].push(group)
+    options['g_struct'][group] = config
 
     group  = "nscd"
-    config = Group.new(
+    config = group.new(
       gid            = "495",
       group_password = "x",
       groupname      = group,
       userlist       = ""
       )
-    $g_order.push(group)
-    $g_struct[group] = config
+    options['g_order'].push(group)
+    options['g_struct'][group] = config
 
     group  = "brlapi"
-    config = Group.new(
+    config = group.new(
       gid            = "494",
       group_password = "x",
       groupname      = group,
       userlist       = ""
       )
-    $g_order.push(group)
-    $g_struct[group] = config
+    options['g_order'].push(group)
+    options['g_struct'][group] = config
 
   end
 
   group  = "uucp"
-  config = Group.new(
+  config = group.new(
     gid            = "14",
     group_password = "x",
     groupname      = group,
     userlist       = ""
     )
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "pulse-access"
   if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-    config = Group.new(
+    config = group.new(
       gid            = "488",
       group_password = "x",
       groupname      = group,
       userlist       = ""
       )
   else
-    config = Group.new(
+    config = group.new(
       gid            = "109",
       group_password = "!",
       groupname      = group,
       userlist       = ""
       )
   end
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "ntadmin"
   if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-    config = Group.new(
+    config = group.new(
       gid            = "71",
       group_password = "x",
       groupname      = group,
       userlist       = ""
       )
   else
-    config = Group.new(
+    config = group.new(
       gid            = "72",
       group_password = "!",
       groupname      = group,
       userlist       = ""
       )
   end
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "man"
-  config = Group.new(
+  config = group.new(
     gid            = "62",
     group_password = "x",
     groupname      = group,
     userlist       = ""
     )
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "utmp"
-  config = Group.new(
+  config = group.new(
     gid            = "22",
     group_password = "x",
     groupname      = group,
     userlist       = ""
     )
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "news"
-  config = Group.new(
+  config = group.new(
     gid            = "13",
     group_password = "x",
     groupname      = group,
     userlist       = ""
     )
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
   group  = "sshd"
   if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-    config = Group.new(
+    config = group.new(
       gid            = "498",
       group_password = "x",
       groupname      = group,
       userlist       = ""
       )
   else
-    config = Group.new(
+    config = group.new(
       gid            = "65",
       group_password = "!",
       groupname      = group,
       userlist       = ""
       )
   end
-  $g_order.push(group)
-  $g_struct[group] = config
+  options['g_order'].push(group)
+  options['g_struct'][group] = config
 
-  return
+  return options
 end
 
 # Populate list of packages to add
@@ -1117,12 +1109,10 @@ end
 # Populate users
 
 def populate_ay_users(options)
-
-  $u_struct = {}
-  $u_order  = []
+  user  = Struct.new(:fullname, :gid, :home, :expire, :flag, :inact, :max, :min, :warn, :shell, :uid, :user_password, :username)
 
   user   = options['adminuser']
-  config = User.new(
+  config = user.new(
     fullname      = options['adminname'],
     gid           = "100",
     home          = options['adminhome'],
@@ -1134,14 +1124,14 @@ def populate_ay_users(options)
     warn          = "7",
     shell         = options['adminshell'],
     uid           = "1000",
-    user_password = $q_struct['admin_crypt'].value,
+    user_password = options['q_struct']['admin_crypt'].value,
     username      = options['adminuser']
     )
-  $u_struct[user]=config
-  $u_order.push(user)
+  options['u_struct'][user]=config
+  options['u_order'].push(user)
 
   user   = "games"
-  config = User.new(
+  config = user.new(
     fullname      = "Games account",
     gid           = "100",
     home          = "/var/games",
@@ -1156,11 +1146,11 @@ def populate_ay_users(options)
     user_password = "*",
     username      = user
     )
-  $u_struct[user]=config
-  $u_order.push(user)
+  options['u_struct'][user]=config
+  options['u_order'].push(user)
 
   user   = "bin"
-  config = User.new(
+  config = user.new(
     fullname      = "bin",
     gid           = "1",
     home          = "/bin",
@@ -1175,11 +1165,11 @@ def populate_ay_users(options)
     user_password = "*",
     username      = user
     )
-  $u_struct[user]=config
-  $u_order.push(user)
+  options['u_struct'][user]=config
+  options['u_order'].push(user)
 
   user   = "nobody"
-  config = User.new(
+  config = user.new(
     fullname      = "nobody",
     gid           = "65533",
     home          = "/var/lib/nobody",
@@ -1194,11 +1184,11 @@ def populate_ay_users(options)
     user_password = "",
     username      = user
     )
-  $u_struct[user]=config
-  $u_order.push(user)
+  options['u_struct'][user]=config
+  options['u_order'].push(user)
 
   user   = "lp"
-  config = User.new(
+  config = user.new(
     fullname      = "Printing daemon",
     gid           = "7",
     home          = "/var/spool/lpd",
@@ -1213,11 +1203,11 @@ def populate_ay_users(options)
     user_password = "*",
     username      = user
     )
-  $u_struct[user]=config
-  $u_order.push(user)
+  options['u_struct'][user]=config
+  options['u_order'].push(user)
 
   user   = "uuid"
-  config = User.new(
+  config = user.new(
     fullname      = "User for uuid",
     gid           = "104",
     home          = "/var/run/uuid",
@@ -1232,11 +1222,11 @@ def populate_ay_users(options)
     user_password = "*",
     username      = user
     )
-  $u_struct[user]=config
-  $u_order.push(user)
+  options['u_struct'][user]=config
+  options['u_order'].push(user)
 
   user = "postfix"
-  config = User.new(
+  config = user.new(
     fullname      = "Postfix Daemon",
     gid           = "51",
     home          = "/var/spool/postfix",
@@ -1251,11 +1241,11 @@ def populate_ay_users(options)
     user_password = "*",
     username      = user
     )
-  $u_struct[user]=config
-  $u_order.push(user)
+  options['u_struct'][user]=config
+  options['u_order'].push(user)
 
   user   = "suse-ncc"
-  config = User.new(
+  config = user.new(
     fullname      = "Novell Customer Center User",
     gid           = "110",
     home          = "/var/lib/YaST2/suse-ncc-fakehome",
@@ -1270,11 +1260,11 @@ def populate_ay_users(options)
     user_password = "*",
     username      = user
     )
-  $u_struct[user]=config
-  $u_order.push(user)
+  options['u_struct'][user]=config
+  options['u_order'].push(user)
 
   user   = "ftp"
-  config = User.new(
+  config = user.new(
     fullname      = "FTP account",
     gid           = "49",
     home          = "/srv/ftp",
@@ -1289,13 +1279,13 @@ def populate_ay_users(options)
     user_password = "*",
     username      = user
     )
-  $u_struct[user]=config
-  $u_order.push(user)
+  options['u_struct'][user]=config
+  options['u_order'].push(user)
 
   if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
 
     user   = "gdm"
-    config = User.new(
+    config = user.new(
       fullname      = "Gnome Display Manager daemon",
       gid           = "485",
       home          = "/var/lib/gdm",
@@ -1310,13 +1300,13 @@ def populate_ay_users(options)
       user_password = "!",
       username      = user
       )
-    $u_struct[user]=config
-    $u_order.push(user)
+    options['u_struct'][user]=config
+    options['u_order'].push(user)
 
   else
 
     user   = "gdm"
-    config = User.new(
+    config = user.new(
       fullname      = "Gnome Display Manager daemon",
       gid           = "111",
       home          = "/var/lib/gdm",
@@ -1331,13 +1321,13 @@ def populate_ay_users(options)
       user_password = "*",
       username      = user
       )
-    $u_struct[user]=config
-    $u_order.push(user)
+    options['u_struct'][user]=config
+    options['u_order'].push(user)
 
   end
 
   user   = "at"
-  config = User.new(
+  config = user.new(
     fullname      = "Batch job daemon",
     gid           = "25",
     home          = "/var/spool/atjobs",
@@ -1352,12 +1342,12 @@ def populate_ay_users(options)
     user_password = "*",
     username      = user
     )
-  $u_struct[user]=config
-  $u_order.push(user)
+  options['u_struct'][user]=config
+  options['u_order'].push(user)
 
 
   user  = "root"
-  config = User.new(
+  config = user.new(
     fullname      = "root",
     gid           = "0",
     home          = "/root",
@@ -1369,14 +1359,14 @@ def populate_ay_users(options)
     warn          = "",
     shell         = "/bin/bash",
     uid           = "0",
-    user_password = $q_struct['root_crypt'].value,
+    user_password = options['q_struct']['root_crypt'].value,
     username      = user
     )
-  $u_struct[user]=config
-  $u_order.push(user)
+  options['u_struct'][user]=config
+  options['u_order'].push(user)
 
   user   = "mail"
-  config = User.new(
+  config = user.new(
     fullname      = "Mailer daemon",
     gid           = "12",
     home          = "",
@@ -1391,13 +1381,13 @@ def populate_ay_users(options)
     user_password = "*",
     username      = user
     )
-  $u_struct[user]=config
-  $u_order.push(user)
+  options['u_struct'][user]=config
+  options['u_order'].push(user)
 
   if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
 
     user   = "openslp"
-    config = User.new(
+    config = user.new(
       fullname      = "openslp daemon",
       gid           = "2",
       home          = "/var/lib/empty",
@@ -1412,11 +1402,11 @@ def populate_ay_users(options)
       user_password = "!",
       username      = user
       )
-    $u_struct[user]=config
-    $u_order.push(user)
+    options['u_struct'][user]=config
+    options['u_order'].push(user)
 
     user   = "usbmuxd"
-    config = User.new(
+    config = user.new(
       fullname      = "usbmuxd daemon",
       gid           = "65534",
       home          = "/var/lib/usbmuxd",
@@ -1431,11 +1421,11 @@ def populate_ay_users(options)
       user_password = "!",
       username      = user
       )
-    $u_struct[user]=config
-    $u_order.push(user)
+    options['u_struct'][user]=config
+    options['u_order'].push(user)
 
     user   = "statd"
-    config = User.new(
+    config = user.new(
       fullname      = "NFS statd daemon",
       gid           = "65534",
       home          = "/var/lib/nfs",
@@ -1450,11 +1440,11 @@ def populate_ay_users(options)
       user_password = "!",
       username      = user
       )
-    $u_struct[user]=config
-    $u_order.push(user)
+    options['u_struct'][user]=config
+    options['u_order'].push(user)
 
     user   = "scard"
-    config = User.new(
+    config = user.new(
       fullname      = "Smart Card Reader",
       gid           = "487",
       home          = "/var/run/pcscd",
@@ -1469,11 +1459,11 @@ def populate_ay_users(options)
       user_password = "!",
       username      = user
       )
-    $u_struct[user]=config
-    $u_order.push(user)
+    options['u_struct'][user]=config
+    options['u_order'].push(user)
 
     user   = "vnc"
-    config = User.new(
+    config = user.new(
       fullname      = "user for VNC",
       gid           = "491",
       home          = "/var/lib/empty",
@@ -1488,11 +1478,11 @@ def populate_ay_users(options)
       user_password = "!",
       username      = user
       )
-    $u_struct[user]=config
-    $u_order.push(user)
+    options['u_struct'][user]=config
+    options['u_order'].push(user)
 
     user   = "sshd"
-    config = User.new(
+    config = user.new(
       fullname      = "SSH daemon",
       gid           = "498",
       home          = "/var/lib/sshd",
@@ -1507,11 +1497,11 @@ def populate_ay_users(options)
       user_password = "!",
       username      = user
       )
-    $u_struct[user]=config
-    $u_order.push(user)
+    options['u_struct'][user]=config
+    options['u_order'].push(user)
 
     user   = "nscd"
-    config = User.new(
+    config = user.new(
       fullname      = "User for nscd",
       gid           = "495",
       home          = "/run/nscd",
@@ -1526,11 +1516,11 @@ def populate_ay_users(options)
       user_password = "!",
       username      = user
       )
-    $u_struct[user]=config
-    $u_order.push(user)
+    options['u_struct'][user]=config
+    options['u_order'].push(user)
 
     user   = "rtkit"
-    config = User.new(
+    config = user.new(
       fullname      = "RealtimeKit",
       gid           = "490",
       home          = "/proc",
@@ -1545,11 +1535,11 @@ def populate_ay_users(options)
       user_password = "!",
       username      = user
       )
-    $u_struct[user]=config
-    $u_order.push(user)
+    options['u_struct'][user]=config
+    options['u_order'].push(user)
 
     user   = "ftpsecure"
-    config = User.new(
+    config = user.new(
       fullname      = "Secure FTP User",
       gid           = "65534",
       home          = "/var/lib/empty",
@@ -1564,11 +1554,11 @@ def populate_ay_users(options)
       user_password = "!",
       username      = user
       )
-    $u_struct[user]=config
-    $u_order.push(user)
+    options['u_struct'][user]=config
+    options['u_order'].push(user)
 
     user   = "rpc"
-    config = User.new(
+    config = user.new(
       fullname      = "user for rpcbind",
       gid           = "65534",
       home          = "/var/lib/empty",
@@ -1583,13 +1573,13 @@ def populate_ay_users(options)
       user_password = "!",
       username      = user
       )
-    $u_struct[user]=config
-    $u_order.push(user)
+    options['u_struct'][user]=config
+    options['u_order'].push(user)
 
   end
 
   user   = "daemon"
-  config = User.new(
+  config = user.new(
     fullname      = "Daemon",
     gid           = "2",
     home          = "/sbin",
@@ -1604,12 +1594,12 @@ def populate_ay_users(options)
     user_password = "*",
     username      = user
     )
-  $u_struct[user]=config
-  $u_order.push(user)
+  options['u_struct'][user]=config
+  options['u_order'].push(user)
 
 
   user   = "ntp"
-  config = User.new(
+  config = user.new(
     fullname      = "NTP daemon",
     gid           = "107",
     home          = "/var/lib/ntp",
@@ -1624,12 +1614,12 @@ def populate_ay_users(options)
     user_password = "*",
     username      = user
     )
-  $u_struct[user]=config
-  $u_order.push(user)
+  options['u_struct'][user]=config
+  options['u_order'].push(user)
 
 
   user   = "uucp"
-  config = User.new(
+  config = user.new(
     fullname      = "Unix-to-Unix CoPy system",
     gid           = "14",
     home          = "/etc/uucp",
@@ -1644,13 +1634,13 @@ def populate_ay_users(options)
     user_password = "*",
     username      = user
     )
-  $u_struct[user]=config
-  $u_order.push(user)
+  options['u_struct'][user]=config
+  options['u_order'].push(user)
 
   if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
 
     user   = "messagebus"
-    config = User.new(
+    config = user.new(
       fullname      = "User for D-Bus",
       gid           = "499",
       home          = "/var/run/dbus",
@@ -1665,13 +1655,13 @@ def populate_ay_users(options)
       user_password = "!",
       username      = user
       )
-    $u_struct[user]=config
-    $u_order.push(user)
+    options['u_struct'][user]=config
+    options['u_order'].push(user)
 
   else
 
     user   = "messagebus"
-    config = User.new(
+    config = user.new(
       fullname      = "User for D-Bus",
       gid           = "101",
       home          = "/var/run/dbus",
@@ -1686,13 +1676,13 @@ def populate_ay_users(options)
       user_password = "*",
       username      = user
       )
-    $u_struct[user]=config
-    $u_order.push(user)
+    options['u_struct'][user]=config
+    options['u_order'].push(user)
 
   end
 
   user   = "haldaemon"
-  config = User.new(
+  config = user.new(
     fullname      = "User for haldaemon",
     gid           = "102",
     home          = "/var/run/hald",
@@ -1707,11 +1697,11 @@ def populate_ay_users(options)
     user_password = "*",
     username      = user
     )
-  $u_struct[user]=config
-  $u_order.push(user)
+  options['u_struct'][user]=config
+  options['u_order'].push(user)
 
   user   = "wwwrun"
-  config = User.new(
+  config = user.new(
     fullname      = "WWW daemon apache",
     gid           = "8",
     home          = "/var/lib/wwwrun",
@@ -1726,11 +1716,11 @@ def populate_ay_users(options)
     user_password = "*",
     username      = user
     )
-  $u_struct[user]=config
-  $u_order.push(user)
+  options['u_struct'][user]=config
+  options['u_order'].push(user)
 
   user   = "puppet"
-  config = User.new(
+  config = user.new(
     fullname      = "Puppet daemon",
     gid           = "105",
     home          = "/var/lib/puppet",
@@ -1745,11 +1735,11 @@ def populate_ay_users(options)
     user_password = "*",
     username      = user
     )
-  $u_struct[user]=config
-  $u_order.push(user)
+  options['u_struct'][user]=config
+  options['u_order'].push(user)
 
   user   = "man"
-  config = User.new(
+  config = user.new(
     fullname      = "Manual pages viewer",
     gid           = "62",
     home          = "/var/cache/man",
@@ -1764,13 +1754,13 @@ def populate_ay_users(options)
     user_password = "*",
     username      = user
     )
-  $u_struct[user]=config
-  $u_order.push(user)
+  options['u_struct'][user]=config
+  options['u_order'].push(user)
 
   if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
 
     user   = "polkitd"
-    config = User.new(
+    config = user.new(
       fullname      = "User for polkitd",
       gid           = "496",
       home          = "/var/lib/polkitd",
@@ -1785,13 +1775,13 @@ def populate_ay_users(options)
       user_password = "*",
       username      = user
       )
-    $u_struct[user]=config
-    $u_order.push(user)
+    options['u_struct'][user]=config
+    options['u_order'].push(user)
 
   else
 
     user   = "polkituser"
-    config = User.new(
+    config = user.new(
       fullname      = "PolicyKit",
       gid           = "106",
       home          = "/var/run/PolicyKit",
@@ -1806,13 +1796,13 @@ def populate_ay_users(options)
       user_password = "*",
       username      = user
       )
-    $u_struct[user]=config
-    $u_order.push(user)
+    options['u_struct'][user]=config
+    options['u_order'].push(user)
 
   end
 
   user   = "news"
-  config = User.new(
+  config = user.new(
     fullname      = "News system",
     gid           = "13",
     home          = "/etc/news",
@@ -1827,13 +1817,13 @@ def populate_ay_users(options)
     user_password = "*",
     username      = user
     )
-  $u_struct[user]=config
-  $u_order.push(user)
+  options['u_struct'][user]=config
+  options['u_order'].push(user)
 
   if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
 
     user   = "pulse"
-    config = User.new(
+    config = user.new(
       fullname      = "PulseAudio daemon",
       gid           = "489",
       home          = "/var/lib/pulseaudio",
@@ -1848,13 +1838,13 @@ def populate_ay_users(options)
       user_password = "*",
       username      = user
       )
-    $u_struct[user]=config
-    $u_order.push(user)
+    options['u_struct'][user]=config
+    options['u_order'].push(user)
 
   else
 
     user   = "pulse"
-    config = User.new(
+    config = user.new(
       fullname      = "PulseAudio daemon",
       gid           = "100",
       home          = "/var/lib/pulseaudio",
@@ -1869,12 +1859,12 @@ def populate_ay_users(options)
       user_password = "*",
       username      = user
       )
-    $u_struct[user]=config
-    $u_order.push(user)
+    options['u_struct'][user]=config
+    options['u_order'].push(user)
 
   end
 
-  return
+  return options
 end
 
 # Populate disabled http modules
@@ -1954,17 +1944,17 @@ end
 # Output client profile file
 
 def output_ay_client_profile(options,output_file)
-  populate_ay_users(options)
-  populate_ay_groups(options)
-  populate_ay_inetd()
-  gateway               = get_ipv4_default_route(options)
-  xml_output            = []
-  hosts                 = populate_ay_hosts(options)
-  add_packages          = populate_ay_add_packages(options)
-  remove_packages       = populate_ay_remove_packages(options)
-  patterns              = populate_ay_patterns(options)
-  disabled_services     = populate_ay_disabled_services()
-  enabled_services      = populate_ay_enabled_services()
+  options = populate_ay_users(options)
+  options = populate_ay_groups(options)
+  options = populate_ay_inetd(options)
+  gateway = get_ipv4_default_route(options)
+  hosts   = populate_ay_hosts(options)
+  xml_output = []
+  add_packages    = populate_ay_add_packages(options)
+  remove_packages = populate_ay_remove_packages(options)
+  patterns        = populate_ay_patterns(options)
+  disabled_services = populate_ay_disabled_services()
+  enabled_services  = populate_ay_enabled_services()
   disabled_http_modules = populate_ay_disabled_http_modules()
   enabled_http_modules  = populate_ay_enabled_http_modules()
   xml = Builder::XmlMarkup.new(:target => xml_output, :indent => 2)
@@ -2289,14 +2279,14 @@ def output_ay_client_profile(options,output_file)
       end
     }
     xml.groups(:"config:type" => "list") {
-      $g_order.each do |group|
+      options['g_order'].each do |group|
         xml.group {
           xml.encrypted("true", :"config:type" => "boolean")
-          xml.gid($g_struct[group].gid)
-          xml.group_password($g_struct[group].group_password)
-          xml.groupname($g_struct[group].groupname)
-          if $g_struct[group].userlist.match(/[a-z]/)
-            xml.userlist($g_struct[group].userlist)
+          xml.gid(options['g_struct'][group].gid)
+          xml.group_password(options['g_struct'][group].group_password)
+          xml.groupname(options['g_struct'][group].groupname)
+          if options['g_struct'][group].userlist.match(/[a-z]/)
+            xml.userlist(options['g_struct'][group].userlist)
           else
             xml.userlist
           end
@@ -2340,14 +2330,14 @@ def output_ay_client_profile(options,output_file)
       xml.inetd {
         xml.last_created("0", :"config:type" => "integer")
         xml.netd_conf(:"config:type" => "list") {
-          $i_order.each do |service|
+          options['i_order'].each do |service|
             xml.conf {
-              xml.enabled($i_struct[service].enabled, :"config:type" => "boolean")
-              xml.iid($i_struct[service].iid)
-              xml.protocol($i_struct[service].protocol)
-              xml.script($i_struct[service].script)
-              xml.server($i_struct[service].server)
-              xml.service($i_struct[service].service)
+              xml.enabled(options['i_struct'][service].enabled, :"config:type" => "boolean")
+              xml.iid(options['i_struct'][service].iid)
+              xml.protocol(options['i_struct'][service].protocol)
+              xml.script(options['i_struct'][service].script)
+              xml.server(options['i_struct'][service].server)
+              xml.service(options['i_struct'][service].service)
             }
           end
         }
@@ -2466,7 +2456,7 @@ def output_ay_client_profile(options,output_file)
     if not options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
       xml.mail {
         xml.aliases(:"config:type" => "list") {
-          $u_order.each do |user|
+          options['u_order'].each do |user|
             xml.alias {
               xml.alias(user)
               xml.comment
@@ -2509,11 +2499,11 @@ def output_ay_client_profile(options,output_file)
         xml.interface {
           xml.bootproto("static")
           if options['service'].to_s.match(/sles_11/)
-            if $q_struct['nic'].value.match(/eth0/)
+            if options['q_struct']['nic'].value.match(/eth0/)
               xml.device("eth1")
             end
           else
-            xml.device($q_struct['nic'].value)
+            xml.device(options['q_struct']['nic'].value)
           end
           xml.firewall("no")
           xml.ipaddr(options['ip'])
@@ -2557,7 +2547,7 @@ def output_ay_client_profile(options,output_file)
       xml.managed("false", :"config:type" => "boolean")
       xml.tag!("net-udev", :"config:type" => "list") {
         xml.rule {
-          xml.name($q_struct['nic'].value)
+          xml.name(options['q_struct']['nic'].value)
           xml.rule("ATTR{address}")
           xml.value(options['mac'])
         }
@@ -2690,7 +2680,7 @@ def output_ay_client_profile(options,output_file)
                 xml.raid_options()
               end
               xml.resize("false",:"config:type" => "boolean")
-              swap_size = Integer($q_struct['swapmax'].value)*1000*1000
+              swap_size = Integer(options['q_struct']['swapmax'].value)*1000*1000
               swap_size = swap_size.to_s
               xml.size(swap_size)
             }
@@ -2719,7 +2709,7 @@ def output_ay_client_profile(options,output_file)
                 xml.raid_options()
               end
               xml.resize("false",:"config:type" => "boolean")
-              root_size = Integer($q_struct['rootsize'].value)*1000*1000*10
+              root_size = Integer(options['q_struct']['rootsize'].value)*1000*1000*10
               root_size = root_size.to_s
               xml.size(root_size)
               if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
@@ -2935,7 +2925,7 @@ def output_ay_client_profile(options,output_file)
     end
     xml.timezone {
       xml.hwclock("UTC")
-      xml.timezone($q_struct['timezone'].value)
+      xml.timezone(options['q_struct']['timezone'].value)
     }
     xml.user_defaults {
       xml.expire
@@ -2955,48 +2945,48 @@ def output_ay_client_profile(options,output_file)
       xml.umask("022")
     }
     xml.users(:"config:type" => "list") {
-      $u_order.each do |user|
+      options['u_order'].each do |user|
         xml.user {
           xml.encrypted("true", :"config:type" => "boolean")
-          xml.fullname($u_struct[user].fullname)
-          xml.gid($u_struct[user].gid)
-          xml.home($u_struct[user].home)
+          xml.fullname(options['u_struct'][user].fullname)
+          xml.gid(options['u_struct'][user].gid)
+          xml.home(options['u_struct'][user].home)
           xml.password_settings {
-            if $u_struct[user].expire.match(/[a-z,0-9]/)
-              xml.expire($u_struct[user].expire)
+            if options['u_struct'][user].expire.match(/[a-z,0-9]/)
+              xml.expire(options['u_struct'][user].expire)
             else
               xml.expire
             end
-            if $u_struct[user].flag.match(/[a-z,0-9]/)
-              xml.flag($u_struct[user].flag)
+            if options['u_struct'][user].flag.match(/[a-z,0-9]/)
+              xml.flag(options['u_struct'][user].flag)
             else
               xml.flag
             end
-            if $u_struct[user].inact.match(/[a-z,0-9]/)
-              xml.inact($u_struct[user].inact)
+            if options['u_struct'][user].inact.match(/[a-z,0-9]/)
+              xml.inact(options['u_struct'][user].inact)
             else
               xml.inact
             end
-            if $u_struct[user].max.match(/[a-z,0-9]/)
-              xml.max($u_struct[user].max)
+            if options['u_struct'][user].max.match(/[a-z,0-9]/)
+              xml.max(options['u_struct'][user].max)
             else
               xml.max
             end
-            if $u_struct[user].min.match(/[a-z,0-9]/)
-              xml.max($u_struct[user].min)
+            if options['u_struct'][user].min.match(/[a-z,0-9]/)
+              xml.max(options['u_struct'][user].min)
             else
               xml.min
             end
-            if $u_struct[user].warn.match(/[a-z,0-9]/)
-              xml.warn($u_struct[user].warn)
+            if options['u_struct'][user].warn.match(/[a-z,0-9]/)
+              xml.warn(options['u_struct'][user].warn)
             else
               xml.warn
             end
           }
-          xml.shell($u_struct[user].shell)
-          xml.uid($u_struct[user].uid)
-          xml.user_password($u_struct[user].user_password)
-          xml.username($u_struct[user].username)
+          xml.shell(options['u_struct'][user].shell)
+          xml.uid(options['u_struct'][user].uid)
+          xml.user_password(options['u_struct'][user].user_password)
+          xml.username(options['u_struct'][user].username)
         }
       end
     }

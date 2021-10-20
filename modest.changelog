@@ -1423,3 +1423,5 @@
 # Fixed Multipass cloud init
 # 7.1.1: Mon 18 Oct 2021 21:05:37 AEDT
 # Bug fix for default network interface on Multipass
+# 7.1.2: Wed 20 Oct 2021 22:22:01 AEDT
+# Initial cleanup of questions code

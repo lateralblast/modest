@@ -3,8 +3,8 @@
 # Populate AWS CF questions
 
 def populate_aws_cf_questions(options)
-  # $q_struct = {}
-  # $q_order  = []
+  # options['q_struct'] = {}
+  # options['q_order']  = []
 
   name   = "stack_name"
   config = Ks.new(
@@ -16,8 +16,8 @@ def populate_aws_cf_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "instance_type"
   config = Ks.new(
@@ -29,8 +29,8 @@ def populate_aws_cf_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "key_name"
   config = Ks.new(
@@ -42,8 +42,8 @@ def populate_aws_cf_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "ssh_location"
   config = Ks.new(
@@ -55,8 +55,8 @@ def populate_aws_cf_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "template_url"
   config = Ks.new(
@@ -68,8 +68,8 @@ def populate_aws_cf_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "security_groups"
   config = Ks.new(
@@ -81,8 +81,8 @@ def populate_aws_cf_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   return
 end

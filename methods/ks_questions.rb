@@ -4,34 +4,34 @@
 # Construct ks language line
 
 def get_ks_language(options)
-  result = "--default="+$q_struct['install_language'].value+" "+$q_struct['install_language'].value
+  result = "--default="+options['q_struct']['install_language'].value+" "+options['q_struct']['install_language'].value
   return result
 end
 
 # Construct ks xconfig line
 
 def get_ks_xconfig(options)
-  result = "--card "+$q_struct['videocard'].value+" --videoram "+$q_struct['videoram'].value+" --hsync "+$q_struct['hsync'].value+" --vsync "+$q_struct['vsync'].value+" --resolution "+$q_struct['resolution'].value+" --depth "+$q_struct['depth'].value
+  result = "--card "+options['q_struct']['videocard'].value+" --videoram "+options['q_struct']['videoram'].value+" --hsync "+options['q_struct']['hsync'].value+" --vsync "+options['q_struct']['vsync'].value+" --resolution "+options['q_struct']['resolution'].value+" --depth "+options['q_struct']['depth'].value
   return result
 end
 
 # Construct ks network line
 
 def get_ks_network(options)
-  if $q_struct['bootproto'].value == "dhcp"
-    result = "--device="+$q_struct['nic'].value+" --bootproto="+$q_struct['bootproto'].value
+  if options['q_struct']['bootproto'].value == "dhcp"
+    result = "--device="+options['q_struct']['nic'].value+" --bootproto="+options['q_struct']['bootproto'].value
   else
     if options['service'].to_s.match(/fedora_20/)
-      result = "--bootproto="+$q_struct['bootproto'].value+" --ip="+$q_struct['ip'].value+" --netmask="+$q_struct['netmask'].value+" --gateway "+$q_struct['gateway'].value+" --nameserver="+$q_struct['nameserver'].value+" --hostname="+$q_struct['hostname'].value
+      result = "--bootproto="+options['q_struct']['bootproto'].value+" --ip="+options['q_struct']['ip'].value+" --netmask="+options['q_struct']['netmask'].value+" --gateway "+options['q_struct']['gateway'].value+" --nameserver="+options['q_struct']['nameserver'].value+" --hostname="+options['q_struct']['hostname'].value
     else
       if options['service'].to_s.match(/rhel_5/)
-        result = "--device "+$q_struct['nic'].value+" --bootproto "+$q_struct['bootproto'].value+" --ip "+$q_struct['ip'].value
+        result = "--device "+options['q_struct']['nic'].value+" --bootproto "+options['q_struct']['bootproto'].value+" --ip "+options['q_struct']['ip'].value
       else
-        result = "--device="+$q_struct['nic'].value+" --bootproto="+$q_struct['bootproto'].value+" --ip="+$q_struct['ip'].value+" --netmask="+$q_struct['netmask'].value+" --gateway="+$q_struct['gateway'].value+" --nameserver="+$q_struct['nameserver'].value+" --hostname="+$q_struct['hostname'].value
+        result = "--device="+options['q_struct']['nic'].value+" --bootproto="+options['q_struct']['bootproto'].value+" --ip="+options['q_struct']['ip'].value+" --netmask="+options['q_struct']['netmask'].value+" --gateway="+options['q_struct']['gateway'].value+" --nameserver="+options['q_struct']['nameserver'].value+" --hostname="+options['q_struct']['hostname'].value
       end
     end
   end
-  if $q_struct['install_service'].value.match(/oel/)
+  if options['q_struct']['install_service'].value.match(/oel/)
     result = result+" --onboot=on"
   end
   return result
@@ -40,11 +40,11 @@ end
 # Set network
 
 def set_ks_network(options)
-  if $q_struct['bootproto'].value == "dhcp6"
-    $q_struct['ip'].ask = "no"
-    $q_struct['ip'].type = ""
-    $q_struct['hostname'].ask = "no"
-    $q_struct['hostname'].type = ""
+  if options['q_struct']['bootproto'].value == "dhcp6"
+    options['q_struct']['ip'].ask = "no"
+    options['q_struct']['ip'].type = ""
+    options['q_struct']['hostname'].ask = "no"
+    options['q_struct']['hostname'].type = ""
   end
   return options
 end
@@ -52,84 +52,84 @@ end
 # Construct ks password line
 
 def get_ks_root_password(options)
-  result = "--iscrypted "+$q_struct['root_crypt'].value.to_s
+  result = "--iscrypted "+options['q_struct']['root_crypt'].value.to_s
   return result
 end
 
 # Construct admin ks password line
 
 def get_ks_admin_password(options)
-  result = "--name = "+$q_struct['admin_username'].value+" --groups="+$q_struct['admin_group'].value+" --homedir="+$q_struct['admin_home'].value+" --password="+$q_struct['admin_crypt'].value.to_s+" --iscrypted --shell="+$q_struct['admin_shell'].value+" --uid="+$q_struct['admin_uid'].value
+  result = "--name = "+options['q_struct']['admin_username'].value+" --groups="+options['q_struct']['admin_group'].value+" --homedir="+options['q_struct']['admin_home'].value+" --password="+options['q_struct']['admin_crypt'].value.to_s+" --iscrypted --shell="+options['q_struct']['admin_shell'].value+" --uid="+options['q_struct']['admin_uid'].value
   return result
 end
 
 # Construct ks bootloader line
 
 def get_ks_bootloader(options)
-  result = "--location="+$q_struct['bootstrap'].value
+  result = "--location="+options['q_struct']['bootstrap'].value
   return result
 end
 
 # Construct ks clear partition line
 
 def get_ks_clearpart(options)
-  result = "--all --drives="+$q_struct['bootdevice'].value+" --initlabel"
+  result = "--all --drives="+options['q_struct']['bootdevice'].value+" --initlabel"
   return result
 end
 
 # Construct ks services line
 
 def get_ks_services(options)
-  result = "--enabled="+$q_struct['enabled_services'].value+" --disabled="+$q_struct['disabled_services'].value
+  result = "--enabled="+options['q_struct']['enabled_services'].value+" --disabled="+options['q_struct']['disabled_services'].value
   return result
 end
 
 # Construct ks boot partition line
 
 def get_ks_bootpart(options)
-  result = "/boot --fstype "+$q_struct['bootfs'].value+" --size="+$q_struct['bootsize'].value+" --ondisk="+$q_struct['bootdevice'].value
+  result = "/boot --fstype "+options['q_struct']['bootfs'].value+" --size="+options['q_struct']['bootsize'].value+" --ondisk="+options['q_struct']['bootdevice'].value
   return result
 end
 
 # Construct ks root partition line
 
 def get_ks_swappart(options)
-  result = "swap --size="+$q_struct['swapmax'].value
+  result = "swap --size="+options['q_struct']['swapmax'].value
   return result
 end
 
 # Construct ks root partition line
 
 def get_ks_rootpart(options)
-  result = "/ --fstype "+$q_struct['rootfs'].value+" --size=1 --grow --asprimary"
+  result = "/ --fstype "+options['q_struct']['rootfs'].value+" --size=1 --grow --asprimary"
   return result
 end
 
 # Construct ks volume partition line
 
 def get_ks_volpart(options)
-  result = $q_struct['volname'].value+" --size="+$q_struct['volsize'].value+" --grow --ondisk="+$q_struct['bootdevice'].value
+  result = options['q_struct']['volname'].value+" --size="+options['q_struct']['volsize'].value+" --grow --ondisk="+options['q_struct']['bootdevice'].value
   return result
 end
 
 # Construct ks volume group line
 
 def get_ks_volgroup(options)
-  result = $q_struct['volgroupname'].value+" --pesize="+$q_struct['pesize'].value+" "+$q_struct['volname'].value
+  result = options['q_struct']['volgroupname'].value+" --pesize="+options['q_struct']['pesize'].value+" "+options['q_struct']['volname'].value
   return result
 end
 
 # Construct ks log swap line
 
 def get_ks_logswap(options)
-  result = "swap --fstype swap --name="+$q_struct['swapvol'].value+" --vgname="+$q_struct['volgroupname'].value+" --size="+$q_struct['swapmin'].value+" --grow --maxsize="+$q_struct['swapmax'].value
+  result = "swap --fstype swap --name="+options['q_struct']['swapvol'].value+" --vgname="+options['q_struct']['volgroupname'].value+" --size="+options['q_struct']['swapmin'].value+" --grow --maxsize="+options['q_struct']['swapmax'].value
   return result
 end
 
 # Construct ks log root line
 
 def get_ks_logroot(options)
-  result = "/ --fstype "+$q_struct['rootfs'].value+" --name="+$q_struct['rootvol'].value+" --vgname="+$q_struct['volgroupname'].value+" --size="+$q_struct['rootsize'].value+" --grow"
+  result = "/ --fstype "+options['q_struct']['rootfs'].value+" --name="+options['q_struct']['rootvol'].value+" --vgname="+options['q_struct']['volgroupname'].value+" --size="+options['q_struct']['rootsize'].value+" --grow"
   return result
 end
 
@@ -165,8 +165,8 @@ def populate_ks_questions(options)
     disk_dev = options['rootdisk'].split(/\//)[2] 
   end
 
-  # $q_struct = {}
-  # $q_order  = []
+  # options['q_struct'] = {}
+  # options['q_order']  = []
 
   name = "headless_mode"
   config = Ks.new(
@@ -178,8 +178,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "install_service"
   config = Ks.new(
@@ -191,8 +191,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   if options['service'].to_s.match(/rhel_5/)
     name   = "options['key']"
@@ -205,8 +205,8 @@ def populate_ks_questions(options)
       valid     = "",
       eval      = "no"
       )
-    $q_struct[name] = config
-    $q_order.push(name)
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
   end
 
   name   = "ks_header"
@@ -219,8 +219,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "firewall"
   if options['service'].to_s.match(/rhel_5/)
@@ -244,8 +244,8 @@ def populate_ks_questions(options)
       eval      = "no"
       )
   end
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "console"
   config = Ks.new(
@@ -257,8 +257,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "options['type']"
   config = Ks.new(
@@ -270,8 +270,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "options['method']"
   config = Ks.new(
@@ -283,8 +283,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   if not options['type'].to_s.match(/packer/)
     name   = "url"
@@ -297,8 +297,8 @@ def populate_ks_questions(options)
       valid     = "",
       eval      = "no"
       )
-    $q_struct[name] = config
-    $q_order.push(name)
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
   end
 
   name   = "install_language"
@@ -311,8 +311,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   if not options['service'].to_s.match(/fedora|centos_[6,7,8]|sl_[6,7,8]|el_[6,7,8]/)
     name   = "support_language"
@@ -325,8 +325,8 @@ def populate_ks_questions(options)
       valid     = "",
       eval      = "get_ks_language(options)"
       )
-    $q_struct[name] = config
-    $q_order.push(name)
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
   end
 
   name   = "keyboard"
@@ -339,8 +339,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "videocard"
   config = Ks.new(
@@ -352,8 +352,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "videoram"
   config = Ks.new(
@@ -365,8 +365,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "hsync"
   config = Ks.new(
@@ -378,7 +378,7 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
+  options['q_struct'][name] = config
 
   name   = "vsync"
   config = Ks.new(
@@ -390,8 +390,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "resolution"
   config = Ks.new(
@@ -403,8 +403,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "depth"
   config = Ks.new(
@@ -416,8 +416,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "xconfig"
   config = Ks.new(
@@ -429,8 +429,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "get_ks_xconfig(options)"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   nic_name = get_nic_name_from_install_service(options)
 
@@ -444,8 +444,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "bootproto"
   config = Ks.new(
@@ -457,8 +457,8 @@ def populate_ks_questions(options)
     valid     = "static,dhcp",
     eval      = "options = set_ks_network(options)"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "hostname"
   config = Ks.new(
@@ -470,8 +470,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "ip"
   config = Ks.new(
@@ -483,8 +483,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "netmask"
   config = Ks.new(
@@ -496,8 +496,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "nameserver"
   config = Ks.new(
@@ -509,8 +509,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "gateway"
   config = Ks.new(
@@ -522,8 +522,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   broadcast = options['ip'].split(/\./)[0..2].join(".")+".255"
 
@@ -537,8 +537,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   network_address = options['ip'].split(/\./)[0..2].join(".")+".0"
 
@@ -552,8 +552,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "network"
   config = Ks.new(
@@ -565,8 +565,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "get_ks_network(options)"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "root_password"
   config = Ks.new(
@@ -578,8 +578,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "root_crypt"
   config = Ks.new(
@@ -591,8 +591,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "rootpw"
   config = Ks.new(
@@ -604,8 +604,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "get_ks_root_password(options)"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   if options['service'].to_s.match(/el_8|centos_8/)
     enabled_services = ""
@@ -623,8 +623,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = ""
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "disabled_services"
   config = Ks.new(
@@ -636,8 +636,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = ""
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   if not options['service'].to_s.match(/fedora|el_8|centos_8/)
 
@@ -651,8 +651,8 @@ def populate_ks_questions(options)
       valid     = "",
       eval      = ""
       )
-    $q_struct[name] = config
-    $q_order.push(name)
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
 
   end
 
@@ -666,8 +666,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "admin_uid"
   config = Ks.new(
@@ -679,8 +679,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "admin_shell"
   config = Ks.new(
@@ -691,8 +691,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "admin_home"
   config = Ks.new(
@@ -704,8 +704,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "admin_group"
   config = Ks.new(
@@ -717,8 +717,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "admin_gid"
   config = Ks.new(
@@ -730,8 +730,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "admin_password"
   config = Ks.new(
@@ -743,8 +743,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "admin_crypt"
   config = Ks.new(
@@ -756,8 +756,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "selinux"
   config = Ks.new(
@@ -769,8 +769,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "authconfig"
   config = Ks.new(
@@ -782,8 +782,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "timezone"
   config = Ks.new(
@@ -795,8 +795,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "bootstrap"
   config = Ks.new(
@@ -808,8 +808,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "bootloader"
   config = Ks.new(
@@ -821,8 +821,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "get_ks_bootloader(options)"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name = "zerombr"
   if options['service'].to_s.match(/fedora|el_[7,8]|centos_[7,8]|sl_[7,8]/)
@@ -846,8 +846,8 @@ def populate_ks_questions(options)
       eval      = ""
       )
   end
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "bootdevice"
   config = Ks.new(
@@ -859,8 +859,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "clearpart"
   config = Ks.new(
@@ -872,8 +872,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "get_ks_clearpart(options)"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "bootfs"
   config = Ks.new(
@@ -885,8 +885,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "bootsize"
   config = Ks.new(
@@ -898,8 +898,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "bootpart"
   config = Ks.new(
@@ -911,8 +911,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "get_ks_bootpart(options)"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "volname"
   config = Ks.new(
@@ -924,8 +924,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "volsize"
   config = Ks.new(
@@ -937,8 +937,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "volpart"
   config = Ks.new(
@@ -950,8 +950,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "get_ks_volpart(options)"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "volgroupname"
   config = Ks.new(
@@ -963,8 +963,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "pesize"
   config = Ks.new(
@@ -976,8 +976,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "volgroup"
   config = Ks.new(
@@ -989,8 +989,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "get_ks_volgroup(options)"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "swapmin"
   config = Ks.new(
@@ -1002,8 +1002,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "swapmax"
   config = Ks.new(
@@ -1015,8 +1015,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "swapvol"
   config = Ks.new(
@@ -1028,8 +1028,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "logswap"
   config = Ks.new(
@@ -1041,8 +1041,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "get_ks_logswap(options)"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "rootfs"
   config = Ks.new(
@@ -1054,8 +1054,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "rootvol"
   config = Ks.new(
@@ -1067,8 +1067,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "rootsize"
   config = Ks.new(
@@ -1080,8 +1080,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
 
   name   = "logroot"
@@ -1094,8 +1094,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "get_ks_logroot(options)"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   if options['reboot'] == true
     reboot_line = "reboot"
@@ -1113,8 +1113,8 @@ def populate_ks_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   return options
 end

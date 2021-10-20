@@ -3,18 +3,18 @@
 # Create Ansible YAML file
 
 def create_ansible_aws_yaml(options)
-  options['access']    = $q_struct['access_key'].value
-  options['secret']    = $q_struct['secret_key'].value
-  options['ami']       = $q_struct['source_ami'].value
-  options['region']    = $q_struct['region'].value
-  options['size']      = $q_struct['instance_type'].value
-  options['adminuser'] = $q_struct['ssh_username'].value
-  options['key']       = $q_struct['key_name'].value
-  options['ports']     = $q_struct['open_ports'].value
-  options['group']     = $q_struct['security_group'].value
-  options['keyfile']   = File.basename($q_struct['keyfile'].value,".pem")+".key.pub"
-  options['name']      = $q_struct['ami_name'].value
-  options['cidr']      = $q_struct['default_cidr'].value
+  options['access']    = options['q_struct']['access_key'].value
+  options['secret']    = options['q_struct']['secret_key'].value
+  options['ami']       = options['q_struct']['source_ami'].value
+  options['region']    = options['q_struct']['region'].value
+  options['size']      = options['q_struct']['instance_type'].value
+  options['adminuser'] = options['q_struct']['ssh_username'].value
+  options['key']       = options['q_struct']['key_name'].value
+  options['ports']     = options['q_struct']['open_ports'].value
+  options['group']     = options['q_struct']['security_group'].value
+  options['keyfile']   = File.basename(options['q_struct']['keyfile'].value,".pem")+".key.pub"
+  options['name']      = options['q_struct']['ami_name'].value
+  options['cidr']      = options['q_struct']['default_cidr'].value
   tmp_keyfile = "/tmp/"+options['keyfile']
   ansible_dir = options['clientdir']+"/ansible"
   options['clientdir']  = ansible_dir+"/aws/"+options['name']

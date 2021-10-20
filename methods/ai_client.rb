@@ -89,14 +89,14 @@ end
 # Get the user home directory ZFS dataset name
 
 def get_account_home_zfs_dataset()
-  account_home_zfs_dataset = "/export/home/"+$q_struct['account_login'].value
+  account_home_zfs_dataset = "/export/home/"+options['q_struct']['account_login'].value
   return account_home_zfs_dataset
 end
 
 # Get the user home directory mount point
 
 def get_account_home_mountpoint()
-  account_home_mountpoint = "/export/home/"+$q_struct['account_login'].value
+  account_home_mountpoint = "/export/home/"+options['q_struct']['account_login'].value
   return account_home_mountpoint
 end
 

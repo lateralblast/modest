@@ -1,10 +1,6 @@
 
 # Common routines for server and client configuration
 
-# Question/config structure
-
-Ai=Struct.new(:question, :ask, :value, :valid, :eval)
-
 # Get the running repository version
 # If running in test mode use a default version so client creation
 # code can be tested

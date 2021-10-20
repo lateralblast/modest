@@ -4,13 +4,13 @@
 # Construct ks network line
 
 def get_vs_network(options)
-  if $q_struct['bootproto'].value.match(/dhcp/)
-    result = "--netdevice "+$q_struct['nic'].value+" --bootproto "+$q_struct['bootproto'].value
+  if options['q_struct']['bootproto'].value.match(/dhcp/)
+    result = "--netdevice "+options['q_struct']['nic'].value+" --bootproto "+options['q_struct']['bootproto'].value
   else
-    options['ip'] = $q_struct['ip'].value
-    options['name'] = $q_struct['hostname'].value
+    options['ip'] = options['q_struct']['ip'].value
+    options['name'] = options['q_struct']['hostname'].value
     gateway = get_ipv4_default_route(options)
-    result = "--device="+$q_struct['nic'].value+" --bootproto="+$q_struct['bootproto'].value+" --ip="+options['ip']+" --netmask="+options['netmask']+" --gateway="+gateway+" --nameserver="+options['nameserver']+" --hostname="+options['name']+" --addvmportgroup=0"
+    result = "--device="+options['q_struct']['nic'].value+" --bootproto="+options['q_struct']['bootproto'].value+" --ip="+options['ip']+" --netmask="+options['netmask']+" --gateway="+gateway+" --nameserver="+options['nameserver']+" --hostname="+options['name']+" --addvmportgroup=0"
   end
   return result
 end
@@ -18,11 +18,11 @@ end
 # Set network
 
 def set_vs_network(options)
-  if $q_struct['bootproto'].value.match(/dhcp/)
-    $q_struct['ip'].ask = "no"
-    $q_struct['ip'].type = ""
-    $q_struct['hostname'].ask = "no"
-    $q_struct['hostname'].type = ""
+  if options['q_struct']['bootproto'].value.match(/dhcp/)
+    options['q_struct']['ip'].ask = "no"
+    options['q_struct']['ip'].type = ""
+    options['q_struct']['hostname'].ask = "no"
+    options['q_struct']['hostname'].type = ""
   end
   return options
 end
@@ -30,7 +30,7 @@ end
 # Construct ks password line
 
 def get_vs_password(options)
-  result = "--iscrypted "+$q_struct['root_crypt'].value.to_s
+  result = "--iscrypted "+options['q_struct']['root_crypt'].value.to_s
   return result
 end
 
@@ -53,14 +53,12 @@ end
 # Populate ks questions
 
 def populate_vs_questions(options)
-
-  # $q_struct = {}
-  # $q_order  = []
+  vs = Struct.new(:type, :question, :ask, :parameter, :value, :valid, :eval)
 
   options['ip'] = single_install_ip(options)
 
   name = "headless_mode"
-  config = Js.new(
+  config = vs.new(
     type      = "",
     question  = "Headless mode",
     ask       = "yes",
@@ -69,11 +67,11 @@ def populate_vs_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "ks_header"
-  config = Vs.new(
+  config = vs.new(
     type      = "output",
     question  = "VSphere file header comment",
     ask       = "yes",
@@ -82,11 +80,11 @@ def populate_vs_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "vmaccepteula"
-  config = Vs.new(
+  config = vs.new(
     type      = "output",
     question  = "Accept EULA",
     ask       = "yes",
@@ -95,11 +93,11 @@ def populate_vs_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "install"
-  config = Vs.new(
+  config = vs.new(
     type      = "output",
     question  = "Install type",
     ask       = "yes",
@@ -108,11 +106,11 @@ def populate_vs_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "nic"
-  config = Vs.new(
+  config = vs.new(
     type      = "",
     question  = "Primary Network Interface",
     ask       = "yes",
@@ -121,11 +119,11 @@ def populate_vs_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "bootproto"
-  config = Vs.new(
+  config = vs.new(
     type      = "",
     question  = "Boot Protocol",
     ask       = "yes",
@@ -134,11 +132,11 @@ def populate_vs_questions(options)
     valid     = "static,dhcp",
     eval      = "options = set_vs_network(options)"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "hostname"
-  config = Vs.new(
+  config = vs.new(
     type      = "",
     question  = "Hostname",
     ask       = "yes",
@@ -147,11 +145,11 @@ def populate_vs_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "ip"
-  config = Vs.new(
+  config = vs.new(
     type      = "",
     question  = "IP",
     ask       = "yes",
@@ -160,11 +158,11 @@ def populate_vs_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "network"
-  config = Vs.new(
+  config = vs.new(
     type      = "output",
     question  = "Network Configuration",
     ask       = "yes",
@@ -173,11 +171,11 @@ def populate_vs_questions(options)
     valid     = "",
     eval      = "get_vs_network(options)"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "datastore"
-  config = Vs.new(
+  config = vs.new(
     type      = "",
     question  = "Local datastore name",
     ask       = "yes",
@@ -186,11 +184,11 @@ def populate_vs_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "vm_network_name"
-  config = Vs.new(
+  config = vs.new(
     type      = "",
     question  = "VM network name",
     ask       = "yes",
@@ -199,11 +197,11 @@ def populate_vs_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "vm_network_vlanid"
-  config = Vs.new(
+  config = vs.new(
     type      = "",
     question  = "VM network VLAN ID",
     ask       = "yes",
@@ -212,11 +210,11 @@ def populate_vs_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "vm_network_vswitch"
-  config = Vs.new(
+  config = vs.new(
     type      = "",
     question  = "VM network vSwitch",
     ask       = "yes",
@@ -225,11 +223,11 @@ def populate_vs_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "root_password"
-  config = Vs.new(
+  config = vs.new(
     type      = "",
     question  = "Root Password",
     ask       = "yes",
@@ -238,11 +236,11 @@ def populate_vs_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "root_crypt"
-  config = Vs.new(
+  config = vs.new(
     type      = "",
     question  = "Root Password Crypt",
     ask       = "yes",
@@ -251,11 +249,11 @@ def populate_vs_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "rootpw"
-  config = Vs.new(
+  config = vs.new(
     type      = "output",
     question  = "Root Password Configuration",
     ask       = "yes",
@@ -264,11 +262,11 @@ def populate_vs_questions(options)
     valid     = "",
     eval      = "get_vs_password(options)"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
 
   name   = "finish"
-  config = Vs.new(
+  config = vs.new(
     type      = "output",
     question  = "Finish Command",
     ask       = "yes",
@@ -277,7 +275,7 @@ def populate_vs_questions(options)
     valid     = "",
     eval      = "no"
     )
-  $q_struct[name] = config
-  $q_order.push(name)
+  options['q_struct'][name] = config
+  options['q_order'].push(name)
   return options
 end
