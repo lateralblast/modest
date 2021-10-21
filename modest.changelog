@@ -1425,3 +1425,5 @@
 # Bug fix for default network interface on Multipass
 # 7.1.2: Wed 20 Oct 2021 22:22:01 AEDT
 # Initial cleanup of questions code
+# 7.1.3: Fri 22 Oct 2021 10:52:30 AEDT
+# Added code to enable console on KVM

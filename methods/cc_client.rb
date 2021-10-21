@@ -150,6 +150,7 @@ def populate_cc_userdata(options)
   exec_data.push("#{in_target}/usr/sbin/locale-gen #{install_locale}.UTF-8")
   exec_data.push("echo 'LC_ALL=en_US.UTF-8' > #{locale_file}")
   exec_data.push("echo 'LANG=en_US.UTF-8' >> #{locale_file}")
+  exec_data.push("echo '#{admin_user} ALL=(ALL) NOPASSWD:ALL' > #{sudo_file}")
   if options['copykeys'] == true and File.exist?(ssh_keyfile)
     exec_data.push("#{in_target}groupadd #{admin_user}")
     exec_data.push("#{in_target}useradd -p '#{admin_crypt}' -g #{admin_user} -G #{admin_group} -d #{admin_home} -s /usr/bin/bash -m #{admin_user}")
@@ -160,18 +161,22 @@ def populate_cc_userdata(options)
     exec_data.push("#{in_target}chown -R #{admin_user}:#{admin_user} #{admin_home}")
   end
   if !options['vm'].to_s.match(/mp|multipass/)
-    exec_data.push("echo '#{admin_user} ALL=(ALL) NOPASSWD:ALL' > #{sudo_file}")
-    if options['serial'] == true
-      if options['biosdevnames'] == true
-        exec_data.push("echo 'GRUB_CMDLINE_LINUX=\"net.ifnames=0 biosdevname=0 console=tty0 console=ttyS0\"' >> #{grub_file}")
-      else
-        exec_data.push("echo 'GRUB_CMDLINE_LINUX=\"console=tty0 console=ttyS0\"' >> #{grub_file}")
-      end
-      exec_data.push("echo 'GRUB_TERMINAL_INPUT=\"console serial\"' >> #{grub_file}")
-      exec_data.push("echo 'GRUB_TERMINAL_OUTPUT=\"console serial\"' >> #{grub_file}")
+    if options['vm'].to_s.match(/kvm/)
+      exec_data.push("systemctl enable serial-getty@ttyS0.service")
+      exec_data.push("systemctl start serial-getty@ttyS0.service")
     else
-      if options['biosdevnames'] == true
-        exec_data.push("echo 'GRUB_CMDLINE_LINUX=\"net.ifnames=0 biosdevname=0\"' >> #{grub_file}")
+      if options['serial'] == true
+        if options['biosdevnames'] == true
+          exec_data.push("echo 'GRUB_CMDLINE_LINUX=\"net.ifnames=0 biosdevname=0 console=tty0 console=ttyS0\"' >> #{grub_file}")
+        else
+          exec_data.push("echo 'GRUB_CMDLINE_LINUX=\"console=tty0 console=ttyS0\"' >> #{grub_file}")
+        end
+        exec_data.push("echo 'GRUB_TERMINAL_INPUT=\"console serial\"' >> #{grub_file}")
+        exec_data.push("echo 'GRUB_TERMINAL_OUTPUT=\"console serial\"' >> #{grub_file}")
+      else
+        if options['biosdevnames'] == true
+          exec_data.push("echo 'GRUB_CMDLINE_LINUX=\"net.ifnames=0 biosdevname=0\"' >> #{grub_file}")
+        end
       end
     end
     exec_data.push("echo '# This file describes the network interfaces available on your system' > #{netplan_file}")
