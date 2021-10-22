@@ -202,6 +202,7 @@ end
 # List vSphere kickstart services
 
 def list_vs_services(options)
+  options['method'] = "vs"
   dir_list = get_dir_item_list(options)
   message  = "vSphere Services:"
   handle_output(options,message)

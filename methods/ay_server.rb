@@ -20,6 +20,7 @@ end
 # List AutoYast services
 
 def list_ay_services(options)
+  options['method'] = "ay"
   dir_list = get_dir_item_list(options)
   message  = "AutoYast Services:"
   handle_output(options,message)

@@ -357,6 +357,7 @@ end
 
 def list_ai_services(options)
   if options['host-os-name'].to_s.match(/SunOS/) and options['host-os-version'].to_i > 10
+    options['method'] = "ai"
     message = "AI Services:"
     command = "installadm list |grep auto_install |grep -v default |awk \"{print \\\$1}\""
     output  = execute_command(options,message,command)

@@ -335,6 +335,7 @@ end
 # List kickstart services
 
 def list_ks_services(options)
+  options['method'] = "ks"
   dir_list = get_dir_item_list(options)
   message  = "Kickstart Services"
   handle_output(options,message)

@@ -2324,6 +2324,7 @@ end
 # List all services
 
 def list_all_services(options)
+  handle_output(options,"")
   list_ai_services(options)
   list_ay_services(options)
   list_image_services(options)
@@ -2338,7 +2339,6 @@ def list_all_services(options)
   list_zone_services(options)
   list_vs_services(options)
   list_xb_services(options)
-  handle_output(options,"")
   return
 end
 
@@ -2358,127 +2358,119 @@ end
 
 def get_dir_item_list(options)
   full_list = get_base_dir_list(options)
-  if options['search'].to_s.match(/all/)
-    return full_list
-  end
   if options['os-type'] == options['empty'] && options['search'] == options['empty'] && options['method'] == options['empty']
     return full_list
   end
+  if options['search'] != options['empty']
+    other_search = options['search']
+  end
   temp_list = []
   iso_list  = []
-  case options['os-type'].downcase
-  when /pe|win/
-    options['os-type'] = "OEM|win|Win|EVAL|eval"
-  when /oel|oraclelinux/
-    options['os-type'] = "OracleLinux"
-  when /sles/
-    options['os-type'] = "SLES"
-  when /centos/
-    options['os-type'] = "CentOS"
-  when /suse/
-    options['os-type'] = "openSUSE"
-  when /ubuntu/
-    if options['vm'].to_s.match(/kvm/)
-      options['os-type'] = "linux"
-    else
-      options['os-type'] = "ubuntu"
+  if options['os-type'] != options['empty']
+    case options['os-type'].downcase
+    when /pe|win/
+      os_search = "OEM|win|Win|EVAL|eval"
+    when /oel|oraclelinux/
+      os_search = "OracleLinux"
+    when /sles/
+      os_search = "SLES"
+    when /centos/
+      os_search = "CentOS"
+    when /suse/
+      os_search = "openSUSE"
+    when /ubuntu/
+      if options['vm'].to_s.match(/kvm/)
+        os_search = "linux"
+      else
+        os_search = "ubuntu"
+      end
+    when /debian/
+      os_search = "debian"
+    when /purity/
+      os_search = "purity"
+    when /fedora/
+      os_search = "Fedora"
+    when /scientific|sl/
+      os_search = "SL"
+    when /redhat|rhel/
+      os_search = "rhel"
+    when /sol/
+      os_search = "sol"
+    when /^linux/
+      os_search = "CentOS|OracleLinux|SLES|openSUSE|ubuntu|debian|Fedora|rhel|SL"
+    when /vmware|vsphere|esx/
+      os_search = "VMware-VMvisor"
     end
-  when /debian/
-    options['os-type'] = "debian"
-  when /purity/
-    options['os-type'] = "purity"
-  when /fedora/
-    options['os-type'] = "Fedora"
-  when /scientific|sl/
-    options['os-type'] = "SL"
-  when /redhat|rhel/
-    options['os-type'] = "rhel"
-  when /sol/
-    options['os-type'] = "sol"
-  when /^linux/
-    options['os-type'] = "CentOS|OracleLinux|SLES|openSUSE|ubuntu|debian|Fedora|rhel|SL"
-  when /vmware|vsphere|esx/
-    options['os-type'] = "VMware-VMvisor"
   end
-  case options['method']
-  when /kick|ks/
-    other_search = "CentOS|OracleLinux|Fedora|rhel|SL|VMware"
-  when /jump|js/
-    other_search = "sol-10"
-  when /ai/
-    other_search = "sol-11"
-  when /yast|ay/
-    other_search = "SLES|openSUSE"
-  when /preseed|ps/
-    other_search = "debian|ubuntu|purity"
-  when /ci/
-    other_search = "live"
+  if options['method'] != options['empty']
+    case options['method'].to_s
+    when /kick|ks/
+      method_search = "CentOS|OracleLinux|Fedora|rhel|SL|VMware"
+    when /jump|js/
+      method_search = "sol-10"
+    when /ai/
+      method_search = "sol-11"
+    when /yast|ay/
+      method_search = "SLES|openSUSE"
+    when /preseed|ps/
+      method_search = "debian|ubuntu|purity"
+    when /ci/
+      method_search = "live"
+    when /vs/
+      method_search = "VMvisor"
+    when /xb/
+      method_search = "FreeBSD|install"
+    end
   end
   if options['release'].to_s.match(/[0-9]/)
     case options['os-type']
     when "OracleLinux"
       if options['release'].to_s.match(/\./)
         (major,minor)   = options['release'].split(/\./)
-        options['release'] = "-R"+major+"-U"+minor
+        release_search = "-R"+major+"-U"+minor
       else
-        options['release'] = "-R"+options['release']
+        release_search = "-R"+options['release']
       end
     when /sol/
       if options['release'].to_s.match(/\./)
         (major,minor)   = options['release'].split(/\./)
         if options['release'].to_s.match(/^10/)
-          options['release'] = major+"-u"+minor
+          release_search = major+"-u"+minor
         else
-          options['release'] = major+"_"+minor
+          release_search = major+"_"+minor
         end
       end
-      options['release'] = "-"+options['release']
+      release_search = "-"+options['release']
     else
-      options['release'] = "-"+options['release']
+      release_search = "-"+options['release']
     end
   end
-  if options['arch'].to_s.match(/[a-z,A-Z]/)
-    if options['os-type'].to_s.match(/sol/)
-      options['arch'] = options['arch'].gsub(/i386|x86_64/,"x86")
-    end
-    if options['os-type'].to_s.match(/ubuntu/)
-      options['arch'] = options['arch'].gsub(/x86_64/,"amd64")
-    else
-      options['arch'] = options['arch'].gsub(/amd64/,"x86_64")
+  if options['arch'] != options['empty']
+    if options['arch'].to_s.match(/[a-z,A-Z]/)
+     if options['os-type'].to_s.match(/sol/)
+        arch_search = options['arch'].gsub(/i386|x86_64/,"x86")
+      end
+      if options['os-type'].to_s.match(/ubuntu/)
+        arch_search = options['arch'].gsub(/x86_64/,"amd64")
+      else
+        arch_search = options['arch'].gsub(/amd64/,"x86_64")
+      end
     end
   end
-  search_strings = []
-  [ options['os-type'], options['release'], options['arch'], other_search ].each do |search_string|
+  results_list = full_list 
+  [ os_search, method_search, release_search, arch_search, other_search ].each do |search_string|
     if search_string
-      if not search_string == options['empty']
+      if search_string != options['empty']
         if search_string.match(/[a-z,A-Z,0-9]/)
-          search_strings.push(search_string)
+          results_list = results_list.grep(/#{search_string}/)
         end
       end
     end
   end
-  search_strings.each do |search_string|
-    search_list = full_list.grep(/#{search_string}/)
-    if search_list
-      search_list.each do |item|
-        if options['method'].to_s.match(/ps/)
-          if !item.to_s.match(/live/)
-            temp_list.push(item)
-          end
-        else
-          temp_list.push(item)
-        end
-      end
-    end
+  if options['method'].to_s.match(/ps/)
+    results_list = results_list.grep_v(/live/)
   end
-  if not options['search'] == options['empty'] 
-    search_string = options['search'].to_s
-    temp_list = temp_list.grep(/#{search_string}/)
-  end
-  if temp_list.length > 0
-    iso_list = temp_list
-  end
-  return iso_list
+  return results_list
 end
 
 # Get item version information (e.g. ISOs, images, etc)

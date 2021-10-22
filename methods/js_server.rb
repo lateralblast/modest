@@ -227,6 +227,7 @@ end
 # List Jumpstart services
 
 def list_js_services(options)
+  options['method'] = "js"
   dir_list = get_dir_item_list(options)
   message  = "Jumpstart Services:"
   handle_output(options,message)

@@ -12,6 +12,7 @@ end
 # List Ubuntu Subiquity / Cloud Config services
 
 def list_cc_services(options)
+  options['method'] = "ci"
   dir_list = get_dir_item_list(options)
   message  = "Ubuntu Subiquity or Cloud Config/Init Services:"
   handle_output(options,message)

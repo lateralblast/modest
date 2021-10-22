@@ -12,6 +12,7 @@ end
 # List Preseed services
 
 def list_ps_services(options)
+  options['method'] = "ps"
   dir_list = get_dir_item_list(options)
   message  = "Preseed Services:"
   handle_output(options,message)
