@@ -1429,3 +1429,5 @@
 # Added code to enable console on KVM
 # 7.1.4: Fri 22 Oct 2021 14:31:34 AEDT
 # Fixed service list function
+# 7.1.5: Sat 23 Oct 2021 00:12:21 AEDT
+# Bug fixes for cloud-init

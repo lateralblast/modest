@@ -167,15 +167,15 @@ def populate_cc_userdata(options)
     else
       if options['serial'] == true
         if options['biosdevnames'] == true
-          exec_data.push("echo 'GRUB_CMDLINE_LINUX=\"net.ifnames=0 biosdevname=0 console=tty0 console=ttyS0\"' >> #{grub_file}")
+          exec_data.push("echo 'GRUB_CMDLINE_LINUX=\\\"net.ifnames=0 biosdevname=0 console=tty0 console=ttyS0\\\"' >> #{grub_file}")
         else
-          exec_data.push("echo 'GRUB_CMDLINE_LINUX=\"console=tty0 console=ttyS0\"' >> #{grub_file}")
+          exec_data.push("echo 'GRUB_CMDLINE_LINUX=\\\"console=tty0 console=ttyS0\\\"' >> #{grub_file}")
         end
-        exec_data.push("echo 'GRUB_TERMINAL_INPUT=\"console serial\"' >> #{grub_file}")
-        exec_data.push("echo 'GRUB_TERMINAL_OUTPUT=\"console serial\"' >> #{grub_file}")
+        exec_data.push("echo 'GRUB_TERMINAL_INPUT=\\\"console serial\\\"' >> #{grub_file}")
+        exec_data.push("echo 'GRUB_TERMINAL_OUTPUT=\\\"console serial\\\"' >> #{grub_file}")
       else
         if options['biosdevnames'] == true
-          exec_data.push("echo 'GRUB_CMDLINE_LINUX=\"net.ifnames=0 biosdevname=0\"' >> #{grub_file}")
+          exec_data.push("echo 'GRUB_CMDLINE_LINUX=\\\"net.ifnames=0 biosdevname=0\\\"' >> #{grub_file}")
         end
       end
     end

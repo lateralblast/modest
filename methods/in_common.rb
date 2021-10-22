@@ -465,6 +465,9 @@ end
 # Set some parameter once we have more details
 
 def reset_defaults(options,defaults)
+  if options['service'].to_s.match(/live/) or options['file'].to_s.match(/live/)
+    defaults['livecd'] = true
+  end
   if options['ip'].to_s.match(/[0-9]/)
     defaults['dhcp'] = false
   else
@@ -3491,7 +3494,7 @@ def check_dhcpd_config(options)
 
       end
       if options['dhcpdrange'] == options['empty']
-        options['dhcpdrange'] = network_address.split(".")[0..-2].join(".")+".200"+" "+network_address.split(".")[0..-2].join(".")+"250"
+        options['dhcpdrange'] = network_address.split(".")[0..-2].join(".")+".200"+" "+network_address.split(".")[0..-2].join(".")+".250"
       end
       file.write("  range #{options['dhcpdrange']};\n")
       file.write("  option broadcast-address #{broadcast_address};\n")
