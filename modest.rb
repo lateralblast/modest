@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      7.1.5
+# Version:      7.1.6
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -179,6 +179,7 @@ begin
     ['--bootsize', REQUIRED],         # Set boot fs size
     ['--bridge', REQUIRED],           # Set bridge
     ['--bucket', REQUIRED],           # AWS S3 bucket
+    ['--build', BOOLEAN],             # Build (Packer)
     ['--changelog', BOOLEAN],         # Print changelog
     ['--channel', BOOLEAN],           # Channel (KVM)
     ['--check', REQUIRED],            # Check
@@ -202,6 +203,7 @@ begin
     ['--country', REQUIRED],          # Country
     ['--cpu', REQUIRED],              # Type of CPU (e.g. KVM CPU type)
     ['--cputune', REQUIRED],          # CPU tune (KVM)
+    ['--create', BOOLEAN],            # Create client / service
     ['--creds', REQUIRED],            # Credentials file
     ['--crypt', REQUIRED],            # Password crypt
     ['--datastore', REQUIRED],        # Datastore to deploy to on remote server
@@ -210,6 +212,7 @@ begin
     ['--dhcpdfile', REQUIRED],        # DHCP Config file
     ['--dhcpdrange', REQUIRED],       # Set DHCP range
     ['--defaults', BOOLEAN],          # Answer yes to all questions (accept defaults)
+    ['--delete', BOOLEAN],            # Delete client / service
     ['--destory-on-exit', BOOLEAN],   # Destroy on exit (KVM)
     ['--dir', REQUIRED],              # Directory / Direction
     ['--disk', REQUIRED],             # Disk file
@@ -281,6 +284,7 @@ begin
     ['--kvmgid', REQUIRED],           # Set KVM gid
     ['--launchSecurity', REQUIRED],   # Launch Security (KVM)
     ['--license', REQUIRED],          # License key (e.g. ESX)
+    ['--list', BOOLEAN],              # List items
     ['--livecd', BOOLEAN],            # Specify Live CD (Changes install method)
     ['--locale', REQUIRED],           # Select language/language (e.g. en_US)
     ['--localfs', REQUIRED],          # Set local fs 
@@ -354,6 +358,7 @@ begin
     ['--region', REQUIRED],           # AWS Region
     ['--repo', REQUIRED],             # Set repository
     ['--repodir', REQUIRED],          # Base Repository Directory
+    ['--restart', BOOLEAN],           # Re-start VM
     ['--resource', REQUIRED],         # Resource (KVM)
     ['--rng', REQUIRED],              # RNG (KVM)
     ['--rootdisk', REQUIRED],         # Set root device to install to
@@ -391,7 +396,9 @@ begin
     ['--sshport', REQUIRED],          # SSH Port
     ['--ssopassword', REQUIRED],      # SSO password
     ['--stack', REQUIRED],            # AWS CF Stack
+    ['--start', BOOLEAN],             # Start VM
     ['--strict', BOOLEAN],            # Ignore SSH keys
+    ['--stop', BOOLEAN],              # Stop VM
     ['--sudo', BOOLEAN],              # Use sudo
     ['--sudogroup', REQUIRED],        # Set Sudo group
     ['--suffix', REQUIRED],           # AWS AMI Name suffix
@@ -454,6 +461,14 @@ rescue
   options['stdout'] = []
   print_help(options)
   quit(options)
+end
+
+# Handle alternate options
+
+[ "list", "create", "delete", "start", "stop", "restart", "build" ].each do |switch|
+  if options[switch] == true 
+    options['action'] = switch
+  end
 end
 
 # Set up question associative array
@@ -592,6 +607,16 @@ defaults.each do |param, value|
         handle_output(options,"Information:\tParameter #{param} is #{options[param]}")
         options['verbose'] = false
       end
+    end
+  end
+end
+
+# Check some actions - We may be able to process without action switch
+
+[ "info", "check" ].each do |action|
+  if options['action'] == options['empty']
+    if options[action] != options['empty']
+      options['action'] = action
     end
   end
 end

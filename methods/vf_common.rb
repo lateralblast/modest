@@ -335,6 +335,9 @@ end
 
 def list_fusion_vms(options)
   search_string = options['search']
+  if search_string == options['empty']
+    search_string = "all"
+  end
   file_list   = Dir.entries(options['fusiondir'])
   if search_string == "all"
     type_string = options['vmapp']
@@ -356,11 +359,11 @@ def list_fusion_vms(options)
       handle_output(options,"")
     end
     file_list.each do |entry|
-      if entry.match(/[a-z]|[A-Z]/)
+      if entry.match(/^[a-z]|^[A-Z]/)
         vm_name = entry.gsub(/\.vmwarevm/,"")
         options['name'] = vm_name
-        vm_mac  = get_fusion_vm_mac(options)
-        vm_os   = get_fusion_vm_os(options)
+        vm_mac = get_fusion_vm_mac(options)
+        vm_os  = get_fusion_vm_os(options)
         if search_string == "all" || entry.match(/#{search_string}/) || options['os-type'].to_s.match(/#{search_string}/)
           if options['output'].to_s.match(/html/)
             handle_output(options,"<tr>")
