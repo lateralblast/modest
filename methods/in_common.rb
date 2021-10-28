@@ -243,10 +243,10 @@ def set_defaults(options,defaults)
   defaults['scriptfile']      = Pathname.new(defaults['script'].to_s).realpath
   defaults['scriptdir']       = File.dirname(defaults['scriptfile'].to_s)
   defaults['admingid']        = "200"
-  defaults['adminuser']       = "administrator"
+  defaults['adminuser']       = "modest"
   defaults['admingroup']      = "wheel"
   defaults['adminhome']       = "/home/"+defaults['adminuser'].to_s
-  defaults['adminname']       = "Sys Admin"
+  defaults['adminname']       = "modest"
   defaults['adminpassword']   = "P455w0rd"
   defaults['adminuid']        = "200"
   defaults['adminshell']      = "/bin/bash"
@@ -364,7 +364,8 @@ def set_defaults(options,defaults)
   defaults['novncdir']       = "/usr/local/novnc"
   defaults['number']         = "1,1"
   defaults['object']         = "uploads"
-  defaults['opencsw']        = 'http://mirror.opencsw.org/opencsw/'
+  defaults['opencsw']        = "http://mirror.opencsw.org/opencsw/"
+  defaults['opensshwinurl']  = "http://www.mls-software.com/files/setupssh-7.2p2-1-v1.exe"
   defaults['organisation']   = "Multi OS Deployment Server"
   defaults['output']         = 'text'
   defaults['ovftarurl']      = "https://github.com/richardatlateralblast/ottar/blob/master/vmware-ovftools.tar.gz?raw=true"
@@ -444,6 +445,7 @@ def set_defaults(options,defaults)
   defaults['vswitch']        = "vSwitch0"
   defaults['wikidir']        = defaults['scriptdir'].to_s+"/"+File.basename(defaults['script'],".rb")+".wiki"
   defaults['wikiurl']        = "https://github.com/lateralblast/mode.wiki.git"
+  defaults['winshell']       = "winrm"
   defaults['workdir']        = defaults['home'].to_s+"/.modest"
   defaults['backupdir']      = defaults['workdir'].to_s+"/backup"
   defaults['bindir']         = defaults['workdir'].to_s+"/bin"
@@ -557,8 +559,13 @@ def reset_defaults(options,defaults)
           defaults['vmgateway']  = "192.168.2.1"
           defaults['hostonlyip'] = "192.168.2.1"
         else
-          defaults['vmgateway']  = "192.168.104.1"
-          defaults['hostonlyip'] = "192.168.104.1"
+          if options['vmnetwork'].to_s.match(/bridged/)
+            defaults['vmgateway']  = get_ipv4_default_route(options)
+            defaults['hostonlyip'] = defaults['hostip']
+          else
+            defaults['vmgateway']  = "192.168.104.1"
+            defaults['hostonlyip'] = "192.168.104.1"
+          end
         end
       end
       if File.exist?("/usr/local/bin/multipass")
@@ -755,76 +762,6 @@ def set_ssh_port(options)
     end
   end
   return options
-end
-
-# Set up some global variables/defaults
-
-def set_global_vars(options)
-  options['q_struct']                  = {}
-  options['q_order']                   = []
-  options['backupdir']       = ""
-  $openssh_win_url           = "http://www.mls-software.com/files/setupssh-7.2p2-1-v1.exe"
-  $openbsd_base_url          = "http://ftp.openbsd.org/pub/OpenBSD"
-  $centos_rpm_base_url       = "http://"+$local_centos_mirror+"/centos"
-  $default_options           = ""
-  options['size']            = "500"
-  options['stdout']          = []
-  $default_aws_centos_ami    = "ami-fedafc9d"
-
-  # Some general defaults
-
-  # New defaults (cleaning up after commandline handling cleanup)
-
-  $default_aws_admin      = "ec2-user"
-
-
-  # Docker server defaulta
-
-  $docker_host_base_dir   = options['exportdir']+"/docker"
-  $docker_host_file_dir   = $docker_host_base_dir+"/"+options['scriptname']
-  $docker_host_tftp_dir   = options['exportdir']+"/tftpboot"
-
-  # OS specific defaults
-
-  options['nic'] = "net0"
-
-  # VMware Fusion Global variables
-
-  options['vmrun'] = ""
-  options['vmapp'] = ""
-
-  # Declare some package versions
-
-  $vagrant_version = "1.8.1"
-
-  # Set some global OS types
-
-  if options['verbose'] == true
-    handle_output(options,"Information:\tFound OS #{options['host-os-name']}")
-    handle_output(options,"Information:\tFound Architecture #{options['host-os-arch']}")
-    handle_output(options,"Information:\tFound Machine #{options['host-os-machine']}")
-  end
-  if options['host-os-name'].to_s.match(/SunOS|Darwin|NT/)
-    options['host-os-uname'] = %x[uname -a].chomp
-    options['host-os-release']  = %x[uname -r].chomp
-    if options['host-os-name'].to_s.match(/SunOS/)
-      options['host-os-version'] = options['host-os-release'].to_s.split(/\./)[1]
-      $os_rev = options['host-os-release'].split(/\./)[1]
-    else
-      options['host-os-version'] = options['host-os-release'].to_s.split(/\./)[0]
-      if File.exist?("/et/release")
-        $os_rev = %x[cat /etc/release |grep Solaris |head -1].chomp
-        if $os_rev.match(/Oracle/)
-          options['host-os-version'] = $os_rev.split(/\s+/)[3].split(/\./)[1]
-        end
-      end
-    end
-    if options['host-os-release'].match(/5\.11/) && options['host-os-name'].to_s.match(/SunOS/)
-      options['update'] = %x[uname -v].chomp
-      options['nic']    = "net0"
-    end
-    return options
-  end
 end
 
 # Get architecture from model
@@ -1701,7 +1638,7 @@ end
 
 # Copy packages to local packages directory
 
-def download_pkg(remote_file)
+def download_pkg(options,remote_file)
   local_file = File.basename(remote_file)
   if not File.exist?(local_file)
     message = "Information:\tFetching "+remote_file+" to "+local_file
@@ -4378,9 +4315,9 @@ end
 # Convert current date to a string that can be used in file names
 
 def get_date_string(options)
-  time        = Time.new
-  time        = time.to_a
-  date        = Time.utc(*time)
+  time = Time.new
+  time = time.to_a
+  date = Time.utc(*time)
   date_string = date.to_s.gsub(/\s+/,"_")
   date_string = date_string.gsub(/:/,"_")
   date_string = date_string.gsub(/-/,"_")
@@ -4528,9 +4465,16 @@ end
 
 def get_ipv4_default_route(options)
   if !options['gateway'].to_s.match(/[0-9]/)
-    octets    = options['ip'].split(/\./)
-    octets[3] = options['gatewaynode']
-    ipv4_default_route = octets.join(".")
+    if options['host-os-name'].to_s.match(/Darwin/)
+      message = "Information:\tDetermining default route"
+      command = "route -n get default |grep gateway |cut -f2 -d:"
+      output  = execute_command(options,message,command)
+      ipv4_default_route = output.chomp.gsub(/\s+/,"")
+    else
+      octets    = options['ip'].split(/\./)
+      octets[3] = options['gatewaynode']
+      ipv4_default_route = octets.join(".")
+    end
   else
     ipv4_default_route = options['gateway']
   end

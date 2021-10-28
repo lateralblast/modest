@@ -23,11 +23,11 @@ end
 
 def configure_xb_repo(options)
   check_fs_exists(options,options['repodir'])
-  case options['service']
+  case options['service'].to_s
   when /openbsd|freebsd/
-    check_dir = options['repodir']+"/etc"
+    check_dir = options['repodir'].to_s+"/etc"
   when /coreos/
-    check_dir = options['repodir']+"/coreos"
+    check_dir = options['repodir'].to_s+"/coreos"
   end
   if options['verbose'] == true
     handle_output(options,"Checking:\tDirectory #{check_dir} exits")
@@ -45,9 +45,9 @@ end
 def configure_xb_pxe_boot(iso_arch,iso_version,options)
   if options['service'].to_s.match(/openbsd/)
     iso_arch = iso_arch.gsub(/x86_64/,"amd64")
-    pxe_boot_file = options['pxebootdir']+"/"+iso_version+"/"+iso_arch+"/pxeboot"
+    pxe_boot_file = options['pxebootdir'].to_s+"/"+iso_version+"/"+iso_arch+"/pxeboot"
     if !File.exist?(pxe_boot_file)
-      pxe_boot_url = $openbsd_base_url+"/"+iso_version+"/"+iso_arch+"/pxeboot"
+      pxe_boot_url = options['openbsdurl'].to_s+"/"+iso_version+"/"+iso_arch+"/pxeboot"
       wget_file(options,pxe_boot_url,pxe_boot_file)
     end
   end
@@ -58,8 +58,8 @@ end
 
 def unconfigure_xb_server(options)
   remove_apache_alias(options)
-  options['pxebootdir']     = options['tftpdir']+"/"+options['service']
-  options['repodir'] = options['baserepodir']+"/"+options['service']
+  options['pxebootdir'] = options['tftpdir'].to_s.+"/"+options['service'].to_s
+  options['repodir'] = options['baserepodir'].to_s.+"/"+options['service'].to_s
   destroy_zfs_fs(options['repodir'])
   if File.symlink?(options['repodir'])
     File.delete(options['repodir'])
@@ -91,14 +91,14 @@ def configure_other_server(options,search_string)
   end
   if iso_list[0]
     iso_list.each do |file_name|
-      file_name = file_name.chomp
+      options['file'] = file_name.chomp
       (other_distro,iso_version,iso_arch) = get_other_version_info(file_name)
       options['service'] = other_distro.downcase+"_"+iso_version.gsub(/\./,"_")+"_"+iso_arch
-      options['pxebootdir'] = options['tftpdir']+"/"+options['service']
-      options['repodir']  = options['baserepodir']+"/"+options['service']
+      options['pxebootdir'] = options['tftpdir'].to_s+"/"+options['service'].to_s
+      options['repodir']  = options['baserepodir'].to_s+"/"+options['service'].to_s
       add_apache_alias(options,options['service'])
-      configure_xb_repo(file_name,options['repodir'],options)
-      configure_xb_pxe_boot(iso_arch,iso_version,options,options['pxebootdir'],options['repodir'])
+      configure_xb_repo(options)
+      configure_xb_pxe_boot(iso_arch,iso_version,options)
     end
   else
     if options['service'].to_s.match(/[a-z,A-Z]/)

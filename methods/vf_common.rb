@@ -509,10 +509,14 @@ def get_fusion_version(options)
       if vf_version >= 8
         if vf_version >= 10
           if vf_version >= 11
-            if vf_dotver >= 1
-              hw_version = "18"
+            if vf_version >= 12 and vf_dotver >= 2
+              hw_version = "19"
             else
-              hw_version = "16"
+              if vf_dotver >= 1
+                hw_version = "18"
+              else
+                hw_version = "16"
+              end
             end
           else
             hw_version = "14"
@@ -1669,7 +1673,11 @@ def populate_fusion_vm_vmx_info(options)
   if options['dhcp'] == false
     vmx_info.push("ethernet0.addressType,static")
   else
-    vmx_info.push("ethernet0.addressType,vpx")
+    if options['service'].to_s.match(/vmware|vsphere|esx/)
+      vmx_info.push("ethernet0.addressType,vpx")
+    else
+      vmx_info.push("ethernet0.addressType,generated")
+    end
   end
   if !options['mac'] == options['empty']
     if options['dhcp'] == false

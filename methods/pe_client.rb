@@ -14,11 +14,11 @@ def populate_pe_post_list(admin_username,admin_password,options)
   post_list = []
   post_list.push("cmd.exe /c powershell -Command \"Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force\",Set Execution Policy 64 Bit,true")
   post_list.push("C:\\Windows\\SysWOW64\\cmd.exe /c powershell -Command \"Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force\",Set Execution Policy 32 Bit,true")
-  if options['shell'].to_s.match(/winrm/)
+  if options['winshell'].to_s.match(/winrm/)
     post_list.push("cmd.exe /c winrm quickconfig -q,winrm quickconfig -q,true")
     post_list.push("cmd.exe /c winrm quickconfig -transport:http,winrm quickconfig -transport:http,true")
     post_list.push("cmd.exe /c winrm set winrm/config @{MaxTimeoutms=\"1800000\"},Win RM MaxTimoutms,true")
-    if options['label'].to_s.match(/201[0-9]/)
+    if options['label'].to_s.match(/20[1,2][0-9]/)
       post_list.push("cmd.exe /c winrm set winrm/config/winrs '@{MaxMemoryPerShellMB=\"800\"}',Win RM MaxMemoryPerShellMB,true")
     else
       post_list.push("cmd.exe /c winrm set winrm/config/winrs '@{MaxMemoryPerShellMB=\"0\"}',Win RM MaxMemoryPerShellMB,true")
@@ -36,7 +36,7 @@ def populate_pe_post_list(admin_username,admin_password,options)
     post_list.push("cmd.exe /c sc config winrm start= auto,Win RM Autostart,true")
     post_list.push("cmd.exe /c net start winrm,Start Win RM Service,true")
   end
-  if options['shell'].to_s.match(/ssh/)
+  if options['winshell'].to_s.match(/ssh/)
     post_list.push("cmd.exe /c netsh advfirewall firewall add rule name=\"INSTALL-HTTP\" dir=out localport=8888 protocol=TCP action=allow,Allow WinRM HTTP,true")
     post_list.push("cmd.exe /c C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -File  A:\\openssh.ps1,Install OpenSSH,true")
   end
@@ -46,7 +46,7 @@ def populate_pe_post_list(admin_username,admin_password,options)
   post_list.push("%SystemRoot%\\System32\\reg.exe ADD HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\\ /v StartMenuAdminTools /t REG_DWORD /d 1 /f,Show Administrative Tools in Start Menu,false")
   post_list.push("%SystemRoot%\\System32\\reg.exe ADD HKLM\\SYSTEM\\CurrentControlSet\\Control\\Power\\ /v HibernateFileSizePercent /t REG_DWORD /d 0 /f,Zero Hibernation File,false")
   post_list.push("%SystemRoot%\\System32\\reg.exe ADD HKLM\\SYSTEM\\CurrentControlSet\\Control\\Power\\ /v HibernateEnabled /t REG_DWORD /d 0 /f,Zero Hibernation File,false")
-  if options['label'].to_s.match(/201[0-9]/)
+  if options['label'].to_s.match(/20[1,2][0-9]/)
     post_list.push("cmd.exe /c reg add \"HKLM\\SYSTEM\\CurrentControlSet\\Control\\Network\\NewNetworkWindowOff\",Turn off Network Location Wizard,false")
     post_list.push("%SystemRoot%\\System32\\reg.exe ADD HKLM\\SYSTEM\\CurrentControlSet\\Control\\Network\\NetworkLocationWizard\\ /t REG_DWORD /d 1 /f,Hide Network Wizard,false")
   end
@@ -96,7 +96,7 @@ def output_pe_client_profile(options,output_file)
       else
         options['license'] = "BN3D2-R7TKB-3YPBD-8DRP2-27GG4"
       end
-    when /2016|2019/
+    when /2016|2019|2020/
       options['license'] = ""
     end
   end
@@ -104,7 +104,7 @@ def output_pe_client_profile(options,output_file)
   xml       = Builder::XmlMarkup.new(:target => xml_output, :indent => 2)
   xml.instruct! :xml, :version => "1.0", :encoding => "UTF-8"
   xml.unattend(:xmlns => "urn:schemas-microsoft-com:unattend") {
-    if options['label'].to_s.match(/201[0-9]/)
+    if options['label'].to_s.match(/20[1,2][0-9]/)
       xml.settings(:pass => "windowsPE") {
         xml.component(:"xmlns:wcm" => "http://schemas.microsoft.com/WMIConfig/2002/State", :"xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance", :name => "Microsoft-Windows-International-Core-WinPE", :processorArchitecture => "#{cpu_arch}", :publicKeyToken => "31bf3856ad364e35", :language => "neutral", :versionScope => "nonSxS") {
           xml.SetupUILanguage {

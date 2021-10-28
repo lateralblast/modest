@@ -1433,3 +1433,5 @@
 # Bug fixes for cloud-init
 # 7.1.6: Wed 27 Oct 2021 10:40:51 AEDT
 # Fixed listing Fusion VMs
+# 7.1.7: Fri 29 Oct 2021 05:50:44 AEDT
+# Fixed Packer Windows builds and bridged networking for VMware Fusion

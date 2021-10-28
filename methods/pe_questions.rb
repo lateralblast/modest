@@ -1,8 +1,11 @@
 # Preseed configuration questions for Windows
 
 def populate_pe_questions(options)
+
+  qs = Struct.new(:type, :question, :ask, :parameter, :value, :valid, :eval)
+
   options['ip'] = single_install_ip(options)
-  if options['label'].to_s.match(/201[0-9]/)
+  if options['label'].to_s.match(/20[1,2][0-9]/)
     if options['vm'].to_s.match(/fusion/)
       network_name = "Ethernet0"
     else
@@ -16,7 +19,7 @@ def populate_pe_questions(options)
   # options['q_order']  = []
 
   name = "headless_mode"
-  config = Js.new(
+  config = qs.new(
     type      = "",
     question  = "Headless mode",
     ask       = "yes",
@@ -29,7 +32,7 @@ def populate_pe_questions(options)
   options['q_order'].push(name)
 
   name = "options['label']"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "Installation Label",
     ask       = "yes",
@@ -42,7 +45,7 @@ def populate_pe_questions(options)
   options['q_order'].push(name)
 
   name = "cpu_arch"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "CPU Architecture",
     ask       = "yes",
@@ -55,7 +58,7 @@ def populate_pe_questions(options)
   options['q_order'].push(name)
 
   name = "boot_disk_size"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "Boot disk size",
     ask       = "yes",
@@ -68,7 +71,7 @@ def populate_pe_questions(options)
   options['q_order'].push(name)
 
   name = "language"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "Language",
     ask       = "yes",
@@ -81,7 +84,7 @@ def populate_pe_questions(options)
   options['q_order'].push(name)
 
   name = "locale"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "Locale",
     ask       = "yes",
@@ -94,7 +97,7 @@ def populate_pe_questions(options)
   options['q_order'].push(name)
 
   name = "organisation"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "Organisation",
     ask       = "yes",
@@ -107,7 +110,7 @@ def populate_pe_questions(options)
   options['q_order'].push(name)
 
   name = "timezone"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "Time Zone",
     ask       = "yes",
@@ -120,7 +123,7 @@ def populate_pe_questions(options)
   options['q_order'].push(name)
 
   name = "admin_username"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "Admin Username",
     ask       = "yes",
@@ -133,7 +136,7 @@ def populate_pe_questions(options)
   options['q_order'].push(name)
 
   name = "admin_fullname"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "Admin Fullname",
     ask       = "yes",
@@ -146,7 +149,7 @@ def populate_pe_questions(options)
   options['q_order'].push(name)
 
   name = "admin_password"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "Admin Password",
     ask       = "yes",
@@ -159,7 +162,7 @@ def populate_pe_questions(options)
   options['q_order'].push(name)
 
   name = "license_key"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "License Key",
     ask       = "yes",
@@ -172,7 +175,7 @@ def populate_pe_questions(options)
   options['q_order'].push(name)
 
   name = "search_domain"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "Search Domain",
     ask       = "yes",
@@ -184,13 +187,13 @@ def populate_pe_questions(options)
   options['q_struct'][name] = config
   options['q_order'].push(name)
 
-  name = "options['shell']"
-  config = Ks.new(
+  name = "install_shell"
+  config = qs.new(
     type      = "string",
     question  = "Install Shell",
     ask       = "yes",
     parameter = "",
-    value     = options['shell'],
+    value     = options['winshell'],
     valid     = "",
     eval      = "no"
     )
@@ -198,7 +201,7 @@ def populate_pe_questions(options)
   options['q_order'].push(name)
 
   name = "network_type"
-  config = Ks.new(
+  config = qs.new(
     type      = "string",
     question  = "Network Type",
     ask       = "yes",
@@ -215,7 +218,7 @@ def populate_pe_questions(options)
   if options['vmnetwork'].to_s.match(/hostonly|bridged/)
 
     name = "network_name"
-    config = Ks.new(
+    config = qs.new(
       type      = "string",
       question  = "Network Name",
       ask       = "yes",
@@ -228,7 +231,7 @@ def populate_pe_questions(options)
     options['q_order'].push(name)
 
     name = "ip_address"
-    config = Ks.new(
+    config = qs.new(
       type      = "string",
       question  = "IP Address",
       ask       = "yes",
@@ -241,7 +244,7 @@ def populate_pe_questions(options)
     options['q_order'].push(name)
 
     name = "gateway_address"
-    config = Ks.new(
+    config = qs.new(
       type      = "string",
       question  = "Gateway Address",
       ask       = "yes",
@@ -254,7 +257,7 @@ def populate_pe_questions(options)
     options['q_order'].push(name)
 
     name = "network_cidr"
-    config = Ks.new(
+    config = qs.new(
       type      = "string",
       question  = "Network CIDR",
       ask       = "yes",
@@ -267,7 +270,7 @@ def populate_pe_questions(options)
     options['q_order'].push(name)
 
     name = "nameserver_ip"
-    config = Ks.new(
+    config = qs.new(
       type      = "string",
       question  = "Nameserver IP Address",
       ask       = "yes",

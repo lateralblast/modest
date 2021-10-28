@@ -67,7 +67,11 @@ def create_packer_json(options)
   end
   if options['dhcp'] == true 
     if options['vm'].to_s.match(/fusion/)
-      ethernet_type = "vpx"
+      if options['service'].to_s.match(/vmware|vsphere|esx/)
+        ethernet_type = "vpx"
+      else
+        ethernet_type = "generated"
+      end
     else
       ethernet_type = "dhcp"
     end
@@ -121,7 +125,7 @@ def create_packer_json(options)
     vnc_port_min = "5900"
     vnc_port_max = "5980"
   end
-  case options['vm']
+  case options['vm'].to_s
   when /vbox/
     output_format = "ova"
     if options['service'].to_s.match(/win/)
@@ -225,18 +229,23 @@ def create_packer_json(options)
     shutdown_command = "shutdown /s /t 1 /c \"Packer Shutdown\" /f /d p:4:1"
     unattended_xml   = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/Autounattend.xml"
     post_install_psh = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/post_install.ps1"
-    if options['label'].to_s.match(/20[0-2][0-9]/)
+    if options['label'].to_s.match(/20[0,1][0-8]/)
       if options['vm'].to_s.match(/fusion/)
-        virtual_dev   = "lsisas1068"
         options['guest'] = "windows8srv-64"
-        hw_version    = "12"
+        virtual_dev = "lsisas1068"
+        hw_version  = "12"
       end
       if options['memory'].to_i < 2000
         options['memory'] = "2048"
       end
     else
       if options['vm'].to_s.match(/fusion/)
-        options['guest'] = "windows7srv-64"
+        if options['label'].to_s.match(/20[1,2][0-9]/)
+          options['guest'] = "windows9srv-64"
+          virtual_dev = "lsisas1068"
+        else
+          options['guest'] = "windows7srv-64"
+        end
       end
     end
   when /sol_11_[2-3]/

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      7.1.6
+# Version:      7.1.7
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -440,6 +440,7 @@ begin
     ['--vmdkfile', REQUIRED],         # VMDK file
     ['--vmnet',  REQUIRED],           # VM Network (e.g. vmnet1 or vboxnet0)
     ['--vmnetdhcp',  BOOLEAN],        # VM Network DHCP
+    ['--vmgateway', REQUIRED],        # Set VM network gateway
     ['--vmnetwork', REQUIRED],        # Set network type (e.g. hostonly, bridged, nat)
     ['--vmnic',  REQUIRED],           # VM NIC (e.g. eth0)
     ['--vmtools', REQUIRED],          # Install VM tools or Guest Additions
@@ -468,6 +469,18 @@ end
 [ "list", "create", "delete", "start", "stop", "restart", "build" ].each do |switch|
   if options[switch] == true 
     options['action'] = switch
+  end
+end
+
+# Handle import
+
+if options['import'] == true
+  if options['vm']
+    if not options['vm'].to_s.match(/kvm/)
+      options['action'] = "import" 
+    end
+  else
+    options['action'] = "import" 
   end
 end
 

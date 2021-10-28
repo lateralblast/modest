@@ -402,8 +402,10 @@ def create_packer_ks_install_files(options)
   output_ks_header(options,output_file)
   pkg_list = populate_ks_pkg_list(options)
   output_ks_pkg_list(options,pkg_list,output_file)
+  print_contents_of_file(options,"",output_file)
   post_list = populate_ks_post_list(options)
   output_ks_post_list(options,post_list,output_file)
+  print_contents_of_file(options,"",output_file)
   return options
 end
 
@@ -418,14 +420,15 @@ def create_packer_pe_install_files(options)
   populate_pe_questions(options)
   process_questions(options)
   output_pe_client_profile(options,output_file)
+  print_contents_of_file(options,"",output_file)
   output_file = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/post_install.ps1"
   if File.exist?(output_file)
     %x[rm #{output_file}]
     %x[touch #{output_file}]
   end
-  if options['shell'].to_s.match(/ssh/)
-    download_pkg($openssh_win_url)
-    openssh_pkg = File.basename($openssh_win_url)
+  if options['winshell'].to_s.match(/ssh/)
+    download_pkg(options,options['opensshwinurl'])
+    openssh_pkg = File.basename(options['opensshwinurl'])
     copy_pkg_to_packer_client(openssh_package,options)
     openssh_psh = populate_openssh_psh()
     output_psh(options['name'],openssh_psh,output_file)
@@ -435,6 +438,7 @@ def create_packer_pe_install_files(options)
     vmtools_psh = populate_vmtools_psh(options)
     output_psh(options['name'],vmtools_psh,output_file)
   end
+  print_contents_of_file(options,"",output_file)
   return options
 end
 
@@ -451,6 +455,7 @@ def create_packer_ay_install_files(options)
   options = populate_ks_questions(options)
   process_questions(options)
   output_ay_client_profile(options,output_file)
+  print_contents_of_file(options,"",output_file)
   return options
 end
 
@@ -470,6 +475,7 @@ def create_packer_ps_install_files(options)
     output_file = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/"+options['name']+"_first_boot.sh"
     post_list   = populate_ps_first_boot_list(options)
     output_ks_post_list(options,post_list,output_file)
+    print_contents_of_file(options,"",output_file)
     if options['livecd'] == true
       output_file = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/subiquity/http/user-data"
       user_data   = populate_packer_ps_user_data(options)
@@ -497,6 +503,7 @@ def create_packer_js_install_files(options)
   options['update']  = options['service'].split(/_/)[2]
   options['model']   = "vm"
   options = populate_js_sysid_questions(options)
+  print_contents_of_file(options,"",output_file)
   process_questions(options)
   options['sysid'] = options['packerdir']+"/sysidcfg"
 #  options['sysid'] = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/sysidcfg"
@@ -560,6 +567,7 @@ end
 def create_packer_vagrant_sh(options,file_name)
   file_array = populate_packer_vagrant_sh(options)
   write_array_to_file(options,file_array,file_name,"w")
+  print_contents_of_file(options,"",file_name)
   return
 end
 
@@ -664,11 +672,11 @@ def build_packer_aws_config(options)
     handle_output(options,"Warning:\tPacker AWS key file '#{key_file}' does not exist")
     quit(options)
   end
-  message    = "Information:\tCodesigning /usr/local/bin/packer"
-  command    = "/usr/bin/codesign --verify /usr/local/bin/packer"
+  message = "Information:\tCodesigning /usr/local/bin/packer"
+  command = "/usr/bin/codesign --verify /usr/local/bin/packer"
   execute_command(options,message,command)
-  message    = "Information:\tBuilding Packer AWS instance using AMI name '#{options['name']}' using '#{json_file}'"
-  command    = "cd #{options['clientdir']} ; /usr/local/bin/packer build #{json_file}"
+  message = "Information:\tBuilding Packer AWS instance using AMI name '#{options['name']}' using '#{json_file}'"
+  command = "cd #{options['clientdir']} ; /usr/local/bin/packer build #{json_file}"
   execute_command(options,message,command)
   return
 end
