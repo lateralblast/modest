@@ -1604,7 +1604,7 @@ def populate_fusion_vm_vmx_info(options)
   if options['uuid'] == options['empty'] or !options['uuid'].to_s.match(/[0-9]/)
     options['uuid'] = options['mac'].to_s.downcase.gsub(/\:/," ")+" 00 00-00 00 "+options['mac'].to_s.downcase.gsub(/\:/," ")
   end
-  version  = get_fusion_version(options)
+  version  = options['hwversion'].to_s
   version  = version.to_i
   vmx_info = []
   vmx_info.push(".encoding,UTF-8")

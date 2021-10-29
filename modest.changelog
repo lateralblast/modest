@@ -1437,3 +1437,5 @@
 # Fixed Packer Windows builds and bridged networking for VMware Fusion
 # 7.1.8: Fri Oct 29 04:05:27 AM UTC 2021
 # Improved wimlib/wimtools package check
+# 7.1.9: Sat 30 Oct 2021 09:56:29 AEDT
+# Started cleanup of Packer support for KVM

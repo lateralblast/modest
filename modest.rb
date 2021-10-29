@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      7.1.8
+# Version:      7.1.9
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -151,6 +151,7 @@ include Getopt
 begin
   options = Long.getopts(
     ['--access', REQUIRED],           # AWS Access Key
+    ['--accelerator', REQUIRED],      # Packer accelerator
     ['--acl', REQUIRED],              # AWS ACL
     ['--action', REQUIRED],           # Action (e.g. boot, stop, create, delete, list, etc)
     ['--admingid', REQUIRED],         # Admin user GID for client VM to be created
@@ -174,9 +175,11 @@ begin
     ['--biostype', REQUIRED],         # BIOS boot type (bios/uefi)
     ['--blkiotune', REQUIRED],        # Block IO tune (KVM)
     ['--boot', REQUIRED],             # Set boot device
+    ['--bootcommand', REQUIRED],      # Packer Boot command
     ['--bootproto', REQUIRED],        # Set boot protocol
     ['--bootfs', REQUIRED],           # Set boot fs 
     ['--bootsize', REQUIRED],         # Set boot fs size
+    ['--bootwait', REQUIRED],         # Packer Boot wait
     ['--bridge', REQUIRED],           # Set bridge
     ['--bucket', REQUIRED],           # AWS S3 bucket
     ['--build', BOOLEAN],             # Build (Packer)
@@ -216,6 +219,7 @@ begin
     ['--destory-on-exit', BOOLEAN],   # Destroy on exit (KVM)
     ['--dir', REQUIRED],              # Directory / Direction
     ['--disk', REQUIRED],             # Disk file
+    ['--disksize', REQUIRED],         # Packer Disk size
     ['--disk1', REQUIRED],            # Disk file
     ['--disk2', REQUIRED],            # Disk file
     ['--diskmode', REQUIRED],         # Disk mode (e.g. thin)
@@ -225,6 +229,8 @@ begin
     ['--epel', REQUIRED],             # EPEL Mirror
     ['--empty', REQUIRED],            # Empty / Null value
     ['--enable', REQUIRED],           # Enable flag
+    ['--enablevnc', BOOLEAN],         # Enable VNC flag
+    ['--enablevhv', BOOLEAN],         # Enable VHV flag
     ['--environment', REQUIRED],      # Environment
     ['--events', REQUIRED],           # Events (KVM)
     ['--exportdir', REQUIRED],        # Export directory
@@ -257,7 +263,12 @@ begin
     ['--hostdev', REQUIRED],          # Host device (KVM)
     ['--hostonlyip', REQUIRED],       # Hostonly IP
     ['--hosts', REQUIRED],            # Set default hosts resolution entry, eg "files"
+    ['--httpbindaddress', REQUIRED],  # Packer HTTP bind address
+    ['--httpdirectory', REQUIRED],    # Packer HTTP directory
+    ['--httpportmax', REQUIRED],      # Packer HTTP port max
+    ['--httpportmin', REQUIRED],      # Packer HTTP port min
     ['--hvm', BOOLEAN],               # HVM (KVM)
+    ['--hwversion', BOOLEAN],         # VMware Hardware Version
     ['--imagedir', REQUIRED],         # Base Image Directory
     ['--id', REQUIRED],               # AWS Instance ID
     ['--idmap', REQUIRED],            # ID map (KVM) 
@@ -272,6 +283,8 @@ begin
     ['--ipfamily', REQUIRED],         # IP family (e.g. IPv4 or IPv6)
     ['--ips', REQUIRED],              # IP Addresses of client
     ['--isodir', REQUIRED],           # ISO Directory
+    ['--isourl', REQUIRED],           # Packer ISO URL
+    ['--isochecksum', REQUIRED],      # Packer ISO checksum
     ['--ldomdir', REQUIRED],          # Base LDom Directory
     ['--jsonfile', REQUIRED],         # JSON file
     ['--karch', REQUIRED],            # Solaris Jumpstart karch
@@ -312,6 +325,8 @@ begin
     ['--nameserver', REQUIRED],       # Delete client or VM
     ['--net', REQUIRED],              # Default Solaris Network (Solaris 11) 
     ['--netbootdir', REQUIRED],       # Netboot directory (Solaris 11 tftpboot directory)
+    ['--netbridge', REQUIRED],        # Packer Net bridge
+    ['--netdevice', REQUIRED],        # Packer Net device
     ['--netmask', REQUIRED],          # Set netmask
     ['--network', REQUIRED],          # Network (KVM)
     ['--networkfile', REQUIRED],      # Network config file (KVM)
@@ -330,6 +345,7 @@ begin
     ['--os-type', REQUIRED],          # OS Type 
     ['--os-variant', REQUIRED],       # OS Variant 
     ['--output', REQUIRED],           # Output format (e.g. text/html)
+    ['--outputdirectory', REQUIRED],  # Packer output directory
     ['--outputfile', REQUIRED],       # Output file (KVM)
     ['--packages', REQUIRED],         # Specify additional packages to install
     ['--packer', REQUIRED],           # Packer binary
@@ -386,6 +402,8 @@ begin
     ['--service', REQUIRED],          # Service name
     ['--setup', REQUIRED],            # Setup script
     ['--share', REQUIRED],            # Shared folder
+    ['--shutdowncommand', REQUIRED],  # Packer Shutdown command
+    ['--shutdowntimeout', REQUIRED],  # Packer Shutdown timeout
     ['--sitename', REQUIRED],         # Sitename for VCSA
     ['--smartcard', REQUIRED],        # Smartcard (KVM)
     ['--snapshot', REQUIRED],         # AWS snapshot
@@ -394,6 +412,10 @@ begin
     ['--splitvols', BOOLEAN],         # Split volumes, e.g. seperate /, /var, etc
     ['--sshkeyfile', REQUIRED],       # SSH Keyfile
     ['--sshport', REQUIRED],          # SSH Port
+    ['--sshportmax', REQUIRED],       # Packer SSH Port max
+    ['--sshportmin', REQUIRED],       # Packer SSH Port min
+    ['--sshusername', REQUIRED],      # Packer SSH Port min
+    ['--sshpassword', REQUIRED],      # Packer SSH Port min
     ['--ssopassword', REQUIRED],      # SSO password
     ['--stack', REQUIRED],            # AWS CF Stack
     ['--start', BOOLEAN],             # Start VM
@@ -450,6 +472,10 @@ begin
     ['--vsock',  REQUIRED],           # vSock (KVM)
     ['--vswitch',  REQUIRED],         # vSwitch
     ['--wait', REQUIRED],             # Wait (KVM)
+    ['--winshell', REQUIRED],         # Packer Windows remote action shell (e.g. winrm)
+    ['--winrminsecure', BOOLEAN],     # Packer winrm insecure
+    ['--winrmport', REQUIRED],        # Packer winrm port
+    ['--winrmusessl', BOOLEAN],       # Packer winrm use SSL
     ['--watchdog', REQUIRED],         # Watchdog (KVM)
     ['--workdir', REQUIRED],          # Base Work Directory
     ['--yes', REQUIRED],              # Answer yes to questions
@@ -470,6 +496,14 @@ end
   if options[switch] == true 
     options['action'] = switch
   end
+end
+
+if options['netbridge']
+  options['bridge'] = options['netbridge']
+end
+
+if options['disksize']
+  options['size'] = options['disksize']
 end
 
 # Handle import
