@@ -2127,9 +2127,12 @@ def get_install_service_from_file(options)
     if File.exist?(wim_file)
       wiminfo_bin = %x[which wiminfo]
       if not wiminfo_bin.match(/wiminfo/)
-        message = "Information:\tInstall wiminfo (wimlib)"
-        command = "brew install wimlib"
-        execute_command(options,message,command)
+        message = "Information:\tInstall wiminfo (wimlib/wimtools)"
+        if options['host-os-name'].to_s.match(/Darwin/)
+          install_package(options,"wimlib")
+        else
+          install_package(options,"wimtools")
+        end
         wiminfo_bin = %x[which wiminfo]
         if not wiminfo_bin.match(/wiminfo/)
           handle_output(options,"Warning:\tCannnot find wiminfo (required to determine version of windows from ISO)")
@@ -4784,6 +4787,10 @@ def remove_apache_alias(service_base_name)
   remove_apache_proxy(service_base_name)
 end
 
+def mount_udf(options)
+  return
+end
+
 # Mount full repo isos under iso directory
 # Eg /export/isos
 # An example full repo file name
@@ -4814,14 +4821,27 @@ def mount_iso(options)
     end
     disk_id = %x[#{command}]
     disk_id = disk_id.chomp
-    command = "mount -t cd9660 -o ro "+disk_id+" "+options['mountdir']
+    file_du = %x[du "#{options['file'].to_s}" |awk '{print $1}']
+    file_du = file_du.chomp.to_i
+    if file_du < 700000
+      command = "mount -t cd9660 -o ro "+disk_id+" "+options['mountdir']
+    else
+      command = "sudo mount -t udf -o ro "+disk_id+" "+options['mountdir']
+    end
   end
   if options['host-os-name'].to_s.match(/Linux/)
-    command = "mount -t iso9660 -o loop "+options['file']+" "+options['mountdir']
+    file_du = %x[du "#{options['file'].to_s}" |awk '{print $1}']
+    file_du = file_du.chomp.to_i
+    if file_du < 700000
+      command = "mount -t iso9660 -o loop "+options['file']+" "+options['mountdir']
+    else
+      command = "sudo mount -t udf -o ro "+options['file']+" "+options['mountdir']
+    end
   end
-  output = execute_command(options,message,command)
-  readme = options['mountdir']+"/README.TXT"
-  if File.exist?(readme)
+  output  = execute_command(options,message,command)
+  readme1 = options['mountdir']+"/README.TXT"
+  readme2 = options['mountdir']+"/readme.txt"
+  if File.exist?(readme1) || File.exist?(readme2)
     text = IO.readlines(readme)
     if text.grep(/UDF/)
       umount_iso(options)
