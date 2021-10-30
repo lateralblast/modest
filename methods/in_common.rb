@@ -208,6 +208,7 @@ def set_defaults(options,defaults)
   end
   # Set up some volume information
   defaults['accelerator']     = "kvm"
+  defaults['audio']           = "none"
   defaults['auditfs']         = "ext4"
   defaults['auditsize']       = "8192"
   defaults['bootfs']          = "ext4"
@@ -281,13 +282,18 @@ def set_defaults(options,defaults)
   defaults['dhcp']            = false
   defaults['disableautoconf'] = "true"
   defaults['diskmode']        = "thin"
+  defaults['diskinterface']   = "ide"
   defaults['domainname']      = "lab.net"
   defaults['download']        = false
   defaults['dpool']           = "dpool"
   defaults['dryrun']          = false
-  defaults['empty']           = 'none'
+  defaults['empty']           = "none"
+  defaults['enableethernet']  = true
+  defaults['enablevnc']       = true
+  defaults['enablevhv']       = true
   defaults['environment']     = "en_US.UTF-8"
   defaults['exportdir']       = defaults['basedir'].to_s+"/export/"+defaults['scriptname'].to_s
+  defaults['ethernetdevice']  = "e1000e"
   defaults['executehost']     = "localhost"
   defaults['files']           = "files"
   defaults['force']           = false
@@ -306,6 +312,7 @@ def set_defaults(options,defaults)
   defaults['httpport']        = "8888"
   defaults['httpportmax']     = defaults['httpport']
   defaults['httpportmin']     = defaults['httpport']
+  defaults['hwvirtex']        = "on"
   defaults['imagedir']        = defaults['basedir'].to_s+'/export/images'
   defaults['install']         = "initial_install"
   defaults['instances']       = "1,1"
@@ -356,6 +363,7 @@ def set_defaults(options,defaults)
   defaults['mirrorurl']       = defaults['mirror'].to_s+defaults['mirrordir'].to_s
   defaults['mirrordisk']      = false   
   defaults['mode']            = 'client'
+  defaults['mouse']           = "ps2"
   defaults['nameserver']      = "8.8.8.8"
   defaults['nameservice']     = "none"
   defaults['net']             = "net0"
@@ -387,6 +395,7 @@ def set_defaults(options,defaults)
   defaults['rootdisk']        = "/dev/sda"
   defaults['rootpassword']    = "P455w0rd"
   defaults['rpm2cpiobin']     = ""
+  defaults['rtcuseutc']       = "on"
   defaults['search']          = ""
   defaults['security']        = "none"
   defaults['server']          = defaults['hostip'].to_s
@@ -408,6 +417,7 @@ def set_defaults(options,defaults)
   defaults['sshkeydir']       = defaults['home'].to_s+"/.ssh"
   defaults['sshkeyfile']      = defaults['home'].to_s+"/.ssh/id_rsa.pub"
   defaults['sshport']         = "22"
+  defaults['sshpty']          = true
   defaults['sshtimeout']      = "20m"
   defaults['sudo']            = true
   defaults['sudogroup']       = "sudo"
@@ -439,6 +449,7 @@ def set_defaults(options,defaults)
   defaults['vgname']          = "vg01"
   defaults['vnc']             = true
   defaults['verbose']         = "false"
+  defaults['virtualdevice']   = "lsilogic"
   defaults['vmntools']        = false
   defaults['vmnetwork']       = "hostonly"
   defaults['vncpassword']     = "P455w0rd"
@@ -451,6 +462,8 @@ def set_defaults(options,defaults)
   defaults['vmnetwork']       = "hostonly"
   defaults['vmtools']         = "disable"
   defaults['vswitch']         = "vSwitch0"
+  defaults['vtxvpid']         = "on"
+  defaults['vtxux']           = "on"
   defaults['wikidir']         = defaults['scriptdir'].to_s+"/"+File.basename(defaults['script'],".rb")+".wiki"
   defaults['wikiurl']         = "https://github.com/lateralblast/mode.wiki.git"
   defaults['winrmport']       = "5985"

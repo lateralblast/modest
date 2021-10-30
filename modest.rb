@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      7.1.9
+# Version:      7.2.0
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -162,6 +162,7 @@ begin
     ['--adminuser', REQUIRED],        # Admin username for client VM to be created
     ['--adminpassword', REQUIRED],    # Client admin password
     ['--auditsize', REQUIRED],        # Set audit fs size
+    ['--audio', REQUIRED],            # Audio
     ['--auditfs', REQUIRED],          # Set audit fs
     ['--aidir', REQUIRED],            # Solaris AI Directory
     ['--aiport', REQUIRED],           # Solaris AI Port 
@@ -220,6 +221,7 @@ begin
     ['--dir', REQUIRED],              # Directory / Direction
     ['--disk', REQUIRED],             # Disk file
     ['--disksize', REQUIRED],         # Packer Disk size
+    ['--disknterface', REQUIRED],     # Disk interface
     ['--disk1', REQUIRED],            # Disk file
     ['--disk2', REQUIRED],            # Disk file
     ['--diskmode', REQUIRED],         # Disk mode (e.g. thin)
@@ -229,10 +231,12 @@ begin
     ['--epel', REQUIRED],             # EPEL Mirror
     ['--empty', REQUIRED],            # Empty / Null value
     ['--enable', REQUIRED],           # Enable flag
+    ['--enableethernet', BOOLEAN],    # Enable ethernet flag
     ['--enablevnc', BOOLEAN],         # Enable VNC flag
     ['--enablevhv', BOOLEAN],         # Enable VHV flag
     ['--environment', REQUIRED],      # Environment
-    ['--events', REQUIRED],           # Events (KVM)
+    ['--ethernetdevice', REQUIRED],   # Ethernet device (e.g. e1000)
+    ['--events', REQUIRED],           # Events (KVM))
     ['--exportdir', REQUIRED],        # Export directory
     ['--extra-args', REQUIRED],       # Extra args (KVM)
     ['--features',  REQUIRED],        # Features (KVM)
@@ -268,7 +272,8 @@ begin
     ['--httpportmax', REQUIRED],      # Packer HTTP port max
     ['--httpportmin', REQUIRED],      # Packer HTTP port min
     ['--hvm', BOOLEAN],               # HVM (KVM)
-    ['--hwversion', BOOLEAN],         # VMware Hardware Version
+    ['--hwvirtex', REQUIRED],          # hwvirtex (on/off)
+    ['--hwversion', REQUIRED],         # VMware Hardware Version
     ['--imagedir', REQUIRED],         # Base Image Directory
     ['--id', REQUIRED],               # AWS Instance ID
     ['--idmap', REQUIRED],            # ID map (KVM) 
@@ -320,6 +325,7 @@ begin
     ['--mirrordisk', BOOLEAN],        # Mirror disk as part of post install
     ['--mode', REQUIRED],             # Set mode to client or server
     ['--model', REQUIRED],            # Model
+    ['--mouse', REQUIRED],            # Mouse
     ['--mountdir', REQUIRED],         # Mount point
     ['--name', REQUIRED],             # Client / AWS Name
     ['--nameserver', REQUIRED],       # Delete client or VM
@@ -383,6 +389,7 @@ begin
     ['--rootuser', REQUIRED],         # Set root user name
     ['--rootpassword', REQUIRED],     # Client root password
     ['--rpoolname', REQUIRED],        # Solaris rpool name
+    ['--rtcuseutc', REQUIRED],        # rtcuseutc
     ['--rules', REQUIRED],            # Solaris Jumpstart rules file
     ['--scratchfs', REQUIRED],        # Set root fs
     ['--scratchsize', REQUIRED],      # Set root device size in M
@@ -416,6 +423,7 @@ begin
     ['--sshportmin', REQUIRED],       # Packer SSH Port min
     ['--sshusername', REQUIRED],      # Packer SSH Port min
     ['--sshpassword', REQUIRED],      # Packer SSH Port min
+    ['--sshpty', BOOLEAN],            # Packer SSH PTY
     ['--ssopassword', REQUIRED],      # SSO password
     ['--stack', REQUIRED],            # AWS CF Stack
     ['--start', BOOLEAN],             # Start VM
@@ -455,6 +463,7 @@ begin
     ['--version', BOOLEAN],           # Display version information
     ['--video', BOOLEAN],             # Video (KVM)
     ['--virtdir', REQUIRED],          # Base Client Directory
+    ['--virtualdevice', REQUIRED],    # Virtual disk device (e.g. lsilogic)
     ['--virt-type', BOOLEAN],         # Virtualisation type (KVM)
     ['--vlanid',  REQUIRED],          # VLAN ID
     ['--vm',  REQUIRED],              # VM type
@@ -471,6 +480,8 @@ begin
     ['--vncpassword', REQUIRED],      # VNC password
     ['--vsock',  REQUIRED],           # vSock (KVM)
     ['--vswitch',  REQUIRED],         # vSwitch
+    ['--vtxvpid',  REQUIRED],         # vtxvpid
+    ['--vtxux',  REQUIRED],           # vtxux
     ['--wait', REQUIRED],             # Wait (KVM)
     ['--winshell', REQUIRED],         # Packer Windows remote action shell (e.g. winrm)
     ['--winrminsecure', BOOLEAN],     # Packer winrm insecure

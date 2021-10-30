@@ -15,26 +15,26 @@ def create_packer_json(options)
   hw_version        = options['hwversion'].to_s
   winrm_use_ssl     = options['winrmusessl'].to_s
   winrm_insecure    = options['winrminsecure'].to_s
-  virtual_dev       = "lsilogic"
-  ethernet_dev      = "e1000e"
+  virtual_dev       = options['virtualdevice'].to_s
+  ethernet_dev      = options['ethernetdevice'].to_s
   vnc_enabled       = options['enablevnc'].to_s
-  vhv_enabled       = "TRUE"
-  ethernet_enabled  = "TRUE"
+  vhv_enabled       = options['enablevhv'].to_s
+  ethernet_enabled  = options['enableethernet'].to_s
   boot_wait         = options['bootwait'].to_s
   shutdown_timeout  = options['shutdowntimeout'].to_s
   ssh_port          = options['sshport'].to_s
   ssh_timeout       = options['sshtimeout'].to_s
-  hwvirtex          = "on"
-  vtxvpid           = "on"
-  vtxux             = "on"
-  rtcuseutc         = "on"
-  audio             = "none"
-  mouse             = "ps2"
-  ssh_pty           = "true"
+  hwvirtex          = options['hwvirtex'].to_s
+  vtxvpid           = options['vtxvpid'].to_s
+  vtxux             = options['vtxux'].to_s
+  rtcuseutc         = options['rtcuseutc'].to_s
+  audio             = options['audio'].to_s
+  mouse             = options['mouse'].to_s
+  ssh_pty           = options['sshpty'].to_s
   winrm_port        = options['winrmport'].to_s
   format            = options['format'].to_s
   accelerator       = options['accelerator'].to_s
-  disk_interface    = ""
+  disk_interface    = options['diskinterface'].to_s
   net_device        = options['netdevice'].to_s
   natpf_ssh_rule    = ""
   ssh_host_port_min = options['sshportmin'].to_s
@@ -99,18 +99,25 @@ def create_packer_json(options)
     guest_additions_mode = options['vmtools']
   end
   if options['vmnetwork'].to_s.match(/hostonly/)
-    if options['host-os-name'].to_s.match(/Darwin/) && options['host-os-version'].to_i > 10 
-      ks_ip = options['hostip']
+    if options['httpbindaddress'] != options['empty']
+      ks_ip = options['httpbindaddress']
     else
-      ks_ip = options['vmgateway']
+      if options['host-os-name'].to_s.match(/Darwin/) && options['host-os-version'].to_i > 10 
+        ks_ip = options['hostip']
+      else
+        ks_ip = options['vmgateway']
+      end
     end
-    http_bind_ip = 
     natpf_ssh_rule = "packerssh,tcp,"+options['ip']+",2222,"+options['ip']+",22"
   else
-    if options['vm'].to_s.match(/fusion/) and options['dhcp'] == true
-      ks_ip = options['vmgateway']
+    if options['httpbindaddress'] != options['empty']
+      ks_ip = options['httpbindaddress']
     else
-      ks_ip = options['hostip']
+      if options['vm'].to_s.match(/fusion/) and options['dhcp'] == true
+        ks_ip = options['vmgateway']
+      else
+        ks_ip = options['hostip']
+      end
     end
     natpf_ssh_rule = ""
   end
@@ -161,7 +168,11 @@ def create_packer_json(options)
     end
     nic_command3 = "--hostonlyadapter1"
     nic_config3  = "#{nic_name}"
-    ks_ip        = options['vmgateway']
+    if options['httpbindaddress'] != options['empty']
+      ks_ip = options['httpbindaddress']
+    else
+      ks_ip = options['vmgateway']
+    end
   end
   if options['vmnetwork'].to_s.match(/bridged/) and options['vm'].to_s.match(/vbox/)
     nic_name = get_bridged_vbox_nic()
@@ -658,18 +669,22 @@ def create_packer_json(options)
   when /debian|ubuntu/
     tools_upload_flavor = ""
     tools_upload_path   = ""
-    if !options['host-os-name'].to_s.match(/Darwin/) && options['host-os-version'].to_i > 10 
-      if options['vmnetwork'].to_s.match(/nat/)
-        if options['dhcp'] == true
-          ks_ip = options['hostonlyip'].to_s
+    if options['httpbindaddress'] != options['empty']
+      ks_ip = options['httpbindaddress']
+    else
+      if !options['host-os-name'].to_s.match(/Darwin/) && options['host-os-version'].to_i > 10 
+        if options['vmnetwork'].to_s.match(/nat/)
+          if options['dhcp'] == true
+            ks_ip = options['hostonlyip'].to_s
+          else
+            ks_ip = options['hostip'].to_s
+          end
         else
-          ks_ip = options['hostip'].to_s
+          ks_ip = options['hostonlyip'].to_s
         end
       else
-        ks_ip = options['hostonlyip'].to_s
+        ks_ip = options['hostip'].to_s
       end
-    else
-      ks_ip = options['hostip'].to_s
     end
     ks_file = options['vm']+"/"+options['name']+"/"+options['name']+".cfg"
     if options['livecd'] == true

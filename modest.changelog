@@ -1439,3 +1439,5 @@
 # Improved wimlib/wimtools package check
 # 7.1.9: Sat 30 Oct 2021 09:56:29 AEDT
 # Started cleanup of Packer support for KVM
+# 7.2.0: Sat 30 Oct 2021 15:20:41 AEDT
+# Further clean up of Packer support for KVM
