@@ -461,6 +461,7 @@ def set_defaults(options,defaults)
   defaults['vmnetdhcp']       = false
   defaults['vmnetwork']       = "hostonly"
   defaults['vmtools']         = "disable"
+  defaults['vmtype']          = ""
   defaults['vswitch']         = "vSwitch0"
   defaults['vtxvpid']         = "on"
   defaults['vtxux']           = "on"

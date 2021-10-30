@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      7.2.0
+# Version:      7.2.1
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -202,7 +202,7 @@ begin
     ['--console', REQUIRED],          # Select console type (e.g. text, serial, x11) (default is text)
     ['--container', BOOLEAN],         # AWS AMI export container
     ['--containertype', REQUIRED],    # AWS AMI export container
-    ['--controller', REQUIRED],       # Specify controller
+    ['--controller', REQUIRED],       # Specify disk controller
     ['--copykeys', BOOLEAN],          # Copy SSH Keys (default)
     ['--country', REQUIRED],          # Country
     ['--cpu', REQUIRED],              # Type of CPU (e.g. KVM CPU type)
@@ -475,6 +475,7 @@ begin
     ['--vmnetwork', REQUIRED],        # Set network type (e.g. hostonly, bridged, nat)
     ['--vmnic',  REQUIRED],           # VM NIC (e.g. eth0)
     ['--vmtools', REQUIRED],          # Install VM tools or Guest Additions
+    ['--vmtype',  REQUIRED],          # VM type
     ['--vmxfile', REQUIRED],          # VMX file
     ['--vnc', BOOLEAN],               # Enable VNC mode
     ['--vncpassword', REQUIRED],      # VNC password

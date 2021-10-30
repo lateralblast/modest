@@ -12,6 +12,7 @@ def create_packer_json(options)
   nic_config2       = ""
   nic_config3       = ""
   communicator      = options['communicator'].to_s
+  controller        = options['controller'].to_s
   hw_version        = options['hwversion'].to_s
   winrm_use_ssl     = options['winrmusessl'].to_s
   winrm_insecure    = options['winrminsecure'].to_s
@@ -23,6 +24,8 @@ def create_packer_json(options)
   boot_wait         = options['bootwait'].to_s
   shutdown_timeout  = options['shutdowntimeout'].to_s
   ssh_port          = options['sshport'].to_s
+  ssh_host          = options['ip'].to_s
+  winrm_host        = options['ip'].to_s
   ssh_timeout       = options['sshtimeout'].to_s
   hwvirtex          = options['hwvirtex'].to_s
   vtxvpid           = options['vtxvpid'].to_s
@@ -32,10 +35,12 @@ def create_packer_json(options)
   mouse             = options['mouse'].to_s
   ssh_pty           = options['sshpty'].to_s
   winrm_port        = options['winrmport'].to_s
-  format            = options['format'].to_s
+  disk_format       = options['format'].to_s
   accelerator       = options['accelerator'].to_s
   disk_interface    = options['diskinterface'].to_s
   net_device        = options['netdevice'].to_s
+  guest_os_type     = options['guest'].to_s
+  disk_size         = options['size'].to_s
   natpf_ssh_rule    = ""
   ssh_host_port_min = options['sshportmin'].to_s
   ssh_host_port_max = options['sshportmax'].to_s
@@ -45,6 +50,13 @@ def create_packer_json(options)
   packer_dir        = options['clientdir'].to_s+"/packer"
   image_dir         = options['clientdir'].to_s+"/images"
   http_dir          = packer_dir
+  http_port_max     = options['httpportmax'].to_s
+  http_port_min     = options['httpportmin'].to_s
+  vm_name           = options['name'].to_s
+  vm_type           = options['vmtype'].to_s
+  memsize           = options['memory'].to_s
+  numvcpus          = options['vcpus'].to_s
+  mac_address       = options['mac'].to_s
   if options['q_struct']['admin_password']
     install_password  = options['q_struct']['admin_password'].value
   else
@@ -143,8 +155,8 @@ def create_packer_json(options)
   when /fusion/
     hw_version = get_fusion_version(options)
   when /kvm|xen|qemu/
-    options['type'] = "qemu"
-    format = "qcow2"
+    vm_type = "qemu"
+    disk_format = "qcow2"
     if options['vm'].to_s.match(/kvm/)
       accelerator    = "kvm"
       disk_interface = "virtio"
@@ -211,8 +223,8 @@ def create_packer_json(options)
     root_password = options['q_struct']['root_password'].value
   end
   shutdown_command = ""
-  if not options['mac'].to_s.match(/[0-9]/)
-    options['mac'] = generate_mac_address(options['vm'])
+  if not mac_address.to_s.match(/[0-9]/)
+    mac_address = generate_mac_address(options['vm'])
   end
   if options['guest'].class == Array
     options['guest'] = options['guest'].join
@@ -246,8 +258,8 @@ def create_packer_json(options)
         virtual_dev = "lsisas1068"
         hw_version  = "12"
       end
-      if options['memory'].to_i < 2000
-        options['memory'] = "2048"
+      if memsize.to_i < 2000
+        memsize = "2048"
       end
     else
       if options['vm'].to_s.match(/fusion/)
@@ -267,8 +279,8 @@ def create_packer_json(options)
       wait_time1 = "<wait160>"
       wait_time2 = "<wait120>"
     end
-    if options['memory'].to_i < 2048
-      options['memory'] = "2048"
+    if memsize.to_i < 2048
+      memsize = "2048"
     end
     ssh_port            = "22"
     ssh_host_port_max   = "22"
@@ -335,8 +347,8 @@ def create_packer_json(options)
       wait_time1 = "<wait160>"
       wait_time2 = "<wait120>"
     end
-    if options['memory'].to_i < 2048
-      options['memory'] = "2048"
+    if memsize.to_i < 2048
+      memsize = "2048"
     end
     ssh_port            = "22"
     ssh_host_port_max   = "22"
@@ -814,15 +826,15 @@ def create_packer_json(options)
       shutdown_command = "sudo /usr/sbin/shutdown -P now"
     end
   end
-	options['controller'] = options['controller'].gsub(/sas/,"scsi")
+	controller = controller.gsub(/sas/,"scsi")
 	case options['vm']
 	when /vbox|virtualbox/
-		options['type'] = "virtualbox-iso"
-    options['mac']  = options['mac'].gsub(/:/,"")
+		vm_type = "virtualbox-iso"
+    mac_address = mac_address.gsub(/:/,"")
 	when /fusion|vmware/
-		options['type'] = "vmware-iso"
+		vm_type = "vmware-iso"
   when /parallels/
-    options['type'] = "parallels-iso"
+    vm_type = "parallels-iso"
 	end
 	if options['checksum'] == true
 		md5_file = options['file']+".md5"
@@ -872,16 +884,16 @@ def create_packer_json(options)
             :net_config => net_config
         	},
         	:builders => [
-            :name                 => options['name'],
+            :name                 => vm_name,
+            :vm_name              => vm_name,
             :guest_additions_mode => guest_additions_mode,
-            :vm_name              => options['name'],
-            :type                 => options['type'],
+            :type                 => vm_type,
             :headless             => headless_mode,
-            :guest_os_type        => options['guest'],
+            :guest_os_type        => guest_os_type,
             :output_directory     => image_dir,
-            :disk_size            => options['size'],
+            :disk_size            => disk_size,
             :iso_url              => iso_url,
-            :ssh_host             => options['ip'],
+            :ssh_host             => ssh_host,
             :ssh_port             => ssh_port,
             :ssh_username         => ssh_username,
             :ssh_password         => ssh_password,
@@ -891,24 +903,24 @@ def create_packer_json(options)
             :shutdown_command     => shutdown_command,
             :iso_checksum         => install_checksum,
             :http_directory       => http_dir,
-            :http_port_min        => options['httpport'],
-            :http_port_max        => options['httpport'],
+            :http_port_min        => http_port_min,
+            :http_port_max        => http_port_max,
             :boot_wait            => boot_wait,
             :boot_command         => boot_command,
             :format               => output_format,
       			:vboxmanage => [
-      				[ "modifyvm", "{{.Name}}", "--memory", options['memory'] ],
+      				[ "modifyvm", "{{.Name}}", "--memory", memsize ],
               [ "modifyvm", "{{.Name}}", "--audio", audio ],
               [ "modifyvm", "{{.Name}}", "--mouse", mouse ],
               [ "modifyvm", "{{.Name}}", "--hwvirtex", hwvirtex ],
               [ "modifyvm", "{{.Name}}", "--rtcuseutc", rtcuseutc ],
               [ "modifyvm", "{{.Name}}", "--vtxvpid", vtxvpid ],
               [ "modifyvm", "{{.Name}}", "--vtxux", vtxux ],
-      				[ "modifyvm", "{{.Name}}", "--cpus", options['vcpus'] ],
+      				[ "modifyvm", "{{.Name}}", "--cpus", numvcpus ],
               [ "modifyvm", "{{.Name}}", nic_command1, nic_config1 ],
               [ "modifyvm", "{{.Name}}", nic_command2, nic_config2 ],
               [ "modifyvm", "{{.Name}}", nic_command3, nic_config3 ],
-              [ "modifyvm", "{{.Name}}", "--macaddress1", options['mac'] ],
+              [ "modifyvm", "{{.Name}}", "--macaddress1", mac_address ],
       			]
       		]
         }
@@ -919,15 +931,15 @@ def create_packer_json(options)
             :net_config => net_config
           },
           :builders => [
-            :name                 => options['name'],
+            :name                 => vm_name,
+            :vm_name              => vm_name,
             :guest_additions_mode => guest_additions_mode,
-            :vm_name              => options['name'],
-            :type                 => options['type'],
+            :type                 => vm_type,
             :headless             => headless_mode,
-            :guest_os_type        => options['guest'],
-            :hard_drive_interface => options['controller'],
+            :guest_os_type        => guest_os_type,
+            :hard_drive_interface => controller,
             :output_directory     => image_dir,
-            :disk_size            => options['size'],
+            :disk_size            => disk_size,
             :iso_url              => iso_url,
             :ssh_port             => ssh_port,
             :ssh_timeout          => ssh_timeout,
@@ -936,20 +948,20 @@ def create_packer_json(options)
             :ssh_pty              => ssh_pty,
             :iso_checksum         => install_checksum,
             :http_directory       => http_dir,
-            :http_port_min        => options['httpport'],
-            :http_port_max        => options['httpport'],
+            :http_port_min        => http_port_min,
+            :http_port_max        => http_port_max,
             :boot_wait            => boot_wait,
             :boot_command         => boot_command,
             :vboxmanage => [
-              [ "modifyvm", "{{.Name}}", "--memory", options['memory'] ],
+              [ "modifyvm", "{{.Name}}", "--memory", memsize ],
               [ "modifyvm", "{{.Name}}", "--audio", audio ],
               [ "modifyvm", "{{.Name}}", "--mouse", mouse ],
               [ "modifyvm", "{{.Name}}", "--hwvirtex", hwvirtex ],
               [ "modifyvm", "{{.Name}}", "--rtcuseutc", rtcuseutc ],
               [ "modifyvm", "{{.Name}}", "--vtxvpid", vtxvpid ],
               [ "modifyvm", "{{.Name}}", "--vtxux", vtxux ],
-              [ "modifyvm", "{{.Name}}", "--cpus", options['vcpus'] ],
-              [ "modifyvm", "{{.Name}}", "--macaddress1", options['mac'] ],
+              [ "modifyvm", "{{.Name}}", "--cpus", numvcpus ],
+              [ "modifyvm", "{{.Name}}", "--macaddress1", mac_address ],
             ]
           ]
         }
@@ -962,15 +974,15 @@ def create_packer_json(options)
             :net_config => net_config
           },
           :builders => [
-            :name                 => options['name'],
-            :vm_name              => options['name'],
-            :type                 => options['type'],
+            :name                 => vm_name,
+            :vm_name              => vm_name,
+            :type                 => vm_type,
             :headless             => headless_mode,
-            :guest_os_type        => options['guest'],
+            :guest_os_type        => guest_os_type,
             :output_directory     => image_dir,
-            :disk_size            => options['size'],
+            :disk_size            => disk_size,
             :iso_url              => iso_url,
-            :ssh_host             => options['ip'],
+            :ssh_host             => ssh_host,
             :ssh_port             => ssh_port,
             :ssh_username         => ssh_username,
             :ssh_password         => ssh_password,
@@ -980,8 +992,8 @@ def create_packer_json(options)
             :ssh_pty              => ssh_pty,
             :iso_checksum         => install_checksum,
             :http_directory       => http_dir,
-            :http_port_min        => options['httpport'],
-            :http_port_max        => options['httpport'],
+            :http_port_min        => http_port_min,
+            :http_port_max        => http_port_max,
             :http_bind_address    => ks_ip,
             :boot_wait            => boot_wait,
             :boot_command         => boot_command,
@@ -990,14 +1002,14 @@ def create_packer_json(options)
             :vmx_data => {
               :"virtualHW.version"                => hw_version,
               :"RemoteDisplay.vnc.enabled"        => vnc_enabled,
-              :memsize                            => options['memory'],
-              :numvcpus                           => options['vcpus'],
+              :memsize                            => memsize,
+              :numvcpus                           => numvcpus,
               :"vhv.enable"                       => vhv_enabled,
               :"ethernet0.present"                => ethernet_enabled,
               :"ethernet0.connectionType"         => options['vmnetwork'],
               :"ethernet0.virtualDev"             => ethernet_dev,
               :"ethernet0.addressType"            => ethernet_type,
-              :"ethernet0.address"                => options['mac'],
+              :"ethernet0.address"                => mac_address,
               :"scsi0.virtualDev"                 => virtual_dev
             }
           ]
@@ -1009,13 +1021,13 @@ def create_packer_json(options)
             :net_config => net_config
           },
           :builders => [
-            :name                 => options['name'],
-            :vm_name              => options['name'],
-            :type                 => options['type'],
+            :name                 => vm_name,
+            :vm_name              => vm_name,
+            :type                 => vm_type,
             :headless             => headless_mode,
-            :guest_os_type        => options['guest'],
+            :guest_os_type        => guest_os_type,
             :output_directory     => image_dir,
-            :disk_size            => options['size'],
+            :disk_size            => disk_size,
             :iso_url              => iso_url,
             :ssh_port             => ssh_port,
             :ssh_username         => ssh_username,
@@ -1026,8 +1038,8 @@ def create_packer_json(options)
             :ssh_pty              => ssh_pty,
             :iso_checksum         => install_checksum,
             :http_directory       => http_dir,
-            :http_port_min        => options['httpport'],
-            :http_port_max        => options['httpport'],
+            :http_port_min        => http_port_min,
+            :http_port_max        => http_port_max,
             :boot_wait            => boot_wait,
             :boot_command         => boot_command,
             :tools_upload_flavor  => tools_upload_flavor,
@@ -1035,14 +1047,14 @@ def create_packer_json(options)
             :vmx_data => {
               :"virtualHW.version"                => hw_version,
               :"RemoteDisplay.vnc.enabled"        => vnc_enabled,
-              :memsize                            => options['memory'],
-              :numvcpus                           => options['vcpus'],
+              :memsize                            => memsize,
+              :numvcpus                           => numvcpus,
               :"vhv.enable"                       => vhv_enabled,
               :"ethernet0.present"                => ethernet_enabled,
               :"ethernet0.connectionType"         => options['vmnetwork'],
               :"ethernet0.virtualDev"             => ethernet_dev,
               :"ethernet0.addressType"            => ethernet_type,
-              :"ethernet0.address"                => options['mac'],
+              :"ethernet0.address"                => mac_address,
               :"scsi0.virtualDev"                 => virtual_dev
             }
           ]
@@ -1057,14 +1069,14 @@ def create_packer_json(options)
               :net_config => net_config
             },
             :builders => [
-              :name                 => options['name'],
-              :vm_name              => options['name'],
-              :type                 => options['type'],
+              :name                 => vm_name,
+              :vm_name              => vm_name,
+              :type                 => vm_type,
               :headless             => headless_mode,
               :output_directory     => image_dir,
-              :disk_size            => options['size'],
+              :disk_size            => disk_size,
               :iso_url              => iso_url,
-              :ssh_host             => options['ip'],
+              :ssh_host             => ssh_host,
               :ssh_port             => ssh_port,
               :ssh_host_port_min    => ssh_host_port_min,
               :ssh_host_port_max    => ssh_host_port_max,
@@ -1076,12 +1088,12 @@ def create_packer_json(options)
               :ssh_pty              => ssh_pty,
               :iso_checksum         => install_checksum,
               :http_directory       => http_dir,
-              :http_port_min        => options['httpport'],
-              :http_port_max        => options['httpport'],
+              :http_port_min        => http_port_min,
+              :http_port_max        => http_port_max,
               :http_bind_address    => ks_ip,
               :boot_wait            => boot_wait,
               :boot_command         => boot_command,
-              :format               => format,
+              :format               => disk_format,
               :accelerator          => accelerator,
               :disk_interface       => disk_interface,
               :net_device           => net_device,
@@ -1090,8 +1102,8 @@ def create_packer_json(options)
                 [ "-nographic" ],
                 [ "-serial", "stdio" ],
                 [ "-cpu", "host" ],
-                [ "-m", options['memory'] ],
-                [ "-smp", "cpus="+options['vcpus'] ]
+                [ "-m", memsize ],
+                [ "-smp", "cpus="+numvcpus ]
               ]
             ]
           }
@@ -1102,14 +1114,14 @@ def create_packer_json(options)
               :net_config => net_config
             },
             :builders => [
-              :name                 => options['name'],
-              :vm_name              => options['name'],
-              :type                 => options['type'],
+              :name                 => vm_name,
+              :vm_name              => vm_name,
+              :type                 => vm_type,
               :headless             => headless_mode,
               :output_directory     => image_dir,
-              :disk_size            => options['size'],
+              :disk_size            => disk_size,
               :iso_url              => iso_url,
-              :ssh_host             => options['ip'],
+              :ssh_host             => ssh_host,
               :ssh_port             => ssh_port,
               :ssh_host_port_min    => ssh_host_port_min,
               :ssh_host_port_max    => ssh_host_port_max,
@@ -1121,11 +1133,11 @@ def create_packer_json(options)
               :ssh_pty              => ssh_pty,
               :iso_checksum         => install_checksum,
               :http_directory       => http_dir,
-              :http_port_min        => options['httpport'],
-              :http_port_max        => options['httpport'],
+              :http_port_min        => http_port_min,
+              :http_port_max        => http_port_max,
               :boot_wait            => boot_wait,
               :boot_command         => boot_command,
-              :format               => format,
+              :format               => disk_format,
               :accelerator          => accelerator,
               :disk_interface       => disk_interface,
               :net_device           => net_device,
@@ -1133,8 +1145,8 @@ def create_packer_json(options)
               :qemuargs             => [
                 [ "-serial", "stdio" ],
                 [ "-cpu", "host" ],
-                [ "-m", options['memory'] ],
-                [ "-smp", "cpus="+options['vcpus'] ]
+                [ "-m", memsize ],
+                [ "-smp", "cpus="+numvcpus ]
               ]
             ]
           }
@@ -1147,12 +1159,12 @@ def create_packer_json(options)
               :net_config => net_config
             },
             :builders => [
-              :name                 => options['name'],
-              :vm_name              => options['name'],
-              :type                 => options['type'],
+              :name                 => vm_name,
+              :vm_name              => vm_name,
+              :type                 => vm_type,
               :headless             => headless_mode,
               :output_directory     => image_dir,
-              :disk_size            => options['size'],
+              :disk_size            => disk_size,
               :iso_url              => iso_url,
               :ssh_port             => ssh_port,
               :ssh_host_port_min    => ssh_host_port_min,
@@ -1165,11 +1177,11 @@ def create_packer_json(options)
               :ssh_pty              => ssh_pty,
               :iso_checksum         => install_checksum,
               :http_directory       => http_dir,
-              :http_port_min        => options['httpport'],
-              :http_port_max        => options['httpport'],
+              :http_port_min        => http_port_min,
+              :http_port_max        => http_port_max,
               :boot_wait            => boot_wait,
               :boot_command         => boot_command,
-              :format               => format,
+              :format               => disk_format,
               :accelerator          => accelerator,
               :disk_interface       => disk_interface,
               :net_device           => net_device,
@@ -1177,8 +1189,8 @@ def create_packer_json(options)
                 [ "-nographic" ],
                 [ "-serial", "stdio" ],
                 [ "-cpu", "host" ],
-                [ "-m", options['memory']+"M" ],
-                [ "-smp", "cpus="+options['vcpus'] ]
+                [ "-m", memsize+"M" ],
+                [ "-smp", "cpus="+numvcpus ]
               ]
             ]
           }
@@ -1189,12 +1201,12 @@ def create_packer_json(options)
               :net_config => net_config
             },
             :builders => [
-              :name                 => options['name'],
-              :vm_name              => options['name'],
-              :type                 => options['type'],
+              :name                 => vm_name,
+              :vm_name              => vm_name,
+              :type                 => vm_type,
               :headless             => headless_mode,
               :output_directory     => image_dir,
-              :disk_size            => options['size'],
+              :disk_size            => disk_size,
               :iso_url              => iso_url,
               :ssh_port             => ssh_port,
               :ssh_host_port_min    => ssh_host_port_min,
@@ -1207,19 +1219,19 @@ def create_packer_json(options)
               :ssh_pty              => ssh_pty,
               :iso_checksum         => install_checksum,
               :http_directory       => http_dir,
-              :http_port_min        => options['httpport'],
-              :http_port_max        => options['httpport'],
+              :http_port_min        => http_port_max,
+              :http_port_max        => http_port_min,
               :boot_wait            => boot_wait,
               :boot_command         => boot_command,
-              :format               => format,
+              :format               => disk_format,
               :accelerator          => accelerator,
               :disk_interface       => disk_interface,
               :net_device           => net_device,
               :qemuargs             => [
                 [ "-serial", "stdio" ],
                 [ "-cpu", "host" ],
-                [ "-m", options['memory']+"M" ],
-                [ "-smp", "cpus="+options['vcpus'] ]
+                [ "-m", memsize+"M" ],
+                [ "-smp", "cpus="+numvcpus ]
               ]
             ]
           }
@@ -1235,16 +1247,16 @@ def create_packer_json(options)
           :net_config => net_config
         },
         :builders => [
-          :name                 => options['name'],
+          :name                 => vm_name,
+          :vm_name              => vm_name,
           :guest_additions_mode => guest_additions_mode,
-          :vm_name              => options['name'],
-          :type                 => options['type'],
+          :type                 => vm_type,
           :headless             => headless_mode,
-          :guest_os_type        => options['guest'],
+          :guest_os_type        => guest_os_type,
           :output_directory     => image_dir,
-          :disk_size            => options['size'],
+          :disk_size            => disk_size,
           :iso_url              => iso_url,
-          :ssh_host             => options['ip'],
+          :ssh_host             => ssh_host,
           :ssh_port             => ssh_port,
           :ssh_username         => ssh_username,
           :ssh_password         => ssh_password,
@@ -1254,25 +1266,25 @@ def create_packer_json(options)
           :ssh_pty              => ssh_pty,
           :iso_checksum         => install_checksum,
           :http_directory       => http_dir,
-          :http_port_min        => options['httpport'],
-          :http_port_max        => options['httpport'],
+          :http_port_min        => http_port_min,
+          :http_port_max        => http_port_max,
           :boot_wait            => boot_wait,
           :boot_command         => boot_command,
           :tools_upload_flavor  => tools_upload_flavor,
           :tools_upload_path    => tools_upload_path,
           :vboxmanage => [
-            [ "modifyvm", "{{.Name}}", "--memory", options['memory'] ],
+            [ "modifyvm", "{{.Name}}", "--memory", memsize ],
             [ "modifyvm", "{{.Name}}", "--audio", audio ],
             [ "modifyvm", "{{.Name}}", "--mouse", mouse ],
             [ "modifyvm", "{{.Name}}", "--hwvirtex", hwvirtex ],
             [ "modifyvm", "{{.Name}}", "--rtcuseutc", rtcuseutc ],
             [ "modifyvm", "{{.Name}}", "--vtxvpid", vtxvpid ],
             [ "modifyvm", "{{.Name}}", "--vtxux", vtxux ],
-            [ "modifyvm", "{{.Name}}", "--cpus", options['vcpus'] ],
+            [ "modifyvm", "{{.Name}}", "--cpus", numvcpus ],
             [ "modifyvm", "{{.Name}}", nic_command1, nic_config1 ],
             [ "modifyvm", "{{.Name}}", nic_command2, nic_config2 ],
             [ "modifyvm", "{{.Name}}", nic_command3, nic_config3 ],
-            [ "modifyvm", "{{.Name}}", "--macaddress1", options['mac'] ],
+            [ "modifyvm", "{{.Name}}", "--macaddress1", mac_address ],
           ]
         ]
       }
@@ -1283,15 +1295,15 @@ def create_packer_json(options)
           :net_config => net_config
         },
         :builders => [
-          :name                 => options['name'],
-          :vm_name              => options['name'],
-          :type                 => options['type'],
+          :name                 => vm_name,
+          :vm_name              => vm_name,
+          :type                 => vm_type,
           :headless             => headless_mode,
-          :guest_os_type        => options['guest'],
+          :guest_os_type        => guest_os_type,
           :output_directory     => image_dir,
-          :disk_size            => options['size'],
+          :disk_size            => disk_size,
           :iso_url              => iso_url,
-          :ssh_host             => options['ip'],
+          :ssh_host             => ssh_host,
           :ssh_port             => ssh_port,
           :ssh_username         => ssh_username,
           :ssh_password         => ssh_password,
@@ -1301,8 +1313,8 @@ def create_packer_json(options)
           :ssh_pty              => ssh_pty,
           :iso_checksum         => install_checksum,
           :http_directory       => http_dir,
-          :http_port_min        => options['httpport'],
-          :http_port_max        => options['httpport'],
+          :http_port_min        => http_port_min,
+          :http_port_max        => http_port_max,
           :boot_wait            => boot_wait,
           :boot_command         => boot_command,
           :tools_upload_flavor  => tools_upload_flavor,
@@ -1310,8 +1322,8 @@ def create_packer_json(options)
           :vmx_data => {
             :"virtualHW.version"                => hw_version,
             :"RemoteDisplay.vnc.enabled"        => vnc_enabled,
-            :memsize                            => options['memory'],
-            :numvcpus                           => options['vcpus'],
+            :memsize                            => memsize,
+            :numvcpus                           => numvcpus,
             :"vhv.enable"                       => vhv_enabled,
             :"ethernet0.present"                => ethernet_enabled,
             :"ethernet0.connectionType"         => options['vmnetwork'],
@@ -1358,16 +1370,16 @@ def create_packer_json(options)
             :net_config => net_config
           },
           :builders => [
-            :name                 => options['name'],
+            :name                 => vm_name,
+            :vm_name              => vm_name,
             :guest_additions_mode => guest_additions_mode,
-            :vm_name              => options['name'],
-            :type                 => options['type'],
+            :type                 => vm_type,
             :headless             => headless_mode,
-            :guest_os_type        => options['guest'],
+            :guest_os_type        => guest_os_type,
             :output_directory     => image_dir,
-            :disk_size            => options['size'],
+            :disk_size            => disk_size,
             :iso_url              => iso_url,
-            :ssh_host             => options['ip'],
+            :ssh_host             => ssh_host,
             :ssh_port             => ssh_port,
             :ssh_username         => ssh_username,
             :ssh_password         => ssh_password,
@@ -1377,8 +1389,8 @@ def create_packer_json(options)
             :ssh_pty              => ssh_pty,
             :iso_checksum         => install_checksum,
             :http_directory       => http_dir,
-            :http_port_min        => options['httpport'],
-            :http_port_max        => options['httpport'],
+            :http_port_min        => http_port_min,
+            :http_port_max        => http_port_max,
             :http_bind_address    => ks_ip,
             :boot_wait            => boot_wait,
             :boot_command         => boot_command,
@@ -1391,18 +1403,18 @@ def create_packer_json(options)
               finish
             ],
             :vboxmanage => [
-              [ "modifyvm", "{{.Name}}", "--memory", options['memory'] ],
+              [ "modifyvm", "{{.Name}}", "--memory", memsize ],
               [ "modifyvm", "{{.Name}}", "--audio", audio ],
               [ "modifyvm", "{{.Name}}", "--mouse", mouse ],
               [ "modifyvm", "{{.Name}}", "--hwvirtex", hwvirtex ],
               [ "modifyvm", "{{.Name}}", "--rtcuseutc", rtcuseutc ],
               [ "modifyvm", "{{.Name}}", "--vtxvpid", vtxvpid ],
               [ "modifyvm", "{{.Name}}", "--vtxux", vtxux ],
-              [ "modifyvm", "{{.Name}}", "--cpus", options['vcpus'] ],
+              [ "modifyvm", "{{.Name}}", "--cpus", numvcpus ],
               [ "modifyvm", "{{.Name}}", nic_command1, nic_config1 ],
               [ "modifyvm", "{{.Name}}", nic_command2, nic_config2 ],
               [ "modifyvm", "{{.Name}}", nic_command3, nic_config3 ],
-              [ "modifyvm", "{{.Name}}", "--macaddress1", options['mac'] ],
+              [ "modifyvm", "{{.Name}}", "--macaddress1", mac_address ],
             ]
           ]
         }
@@ -1413,17 +1425,17 @@ def create_packer_json(options)
             :net_config => net_config
           },
           :builders => [
-            :name                 => options['name'],
+            :name                 => vm_name,
+            :vm_name              => vm_name,
             :guest_additions_mode => guest_additions_mode,
-            :vm_name              => options['name'],
-            :type                 => options['type'],
+            :type                 => vm_type,
             :headless             => headless_mode,
-            :guest_os_type        => options['guest'],
-            :hard_drive_interface => options['controller'],
+            :guest_os_type        => guest_os_type,
+            :hard_drive_interface => controller,
             :output_directory     => image_dir,
-            :disk_size            => options['size'],
+            :disk_size            => disk_size,
             :iso_url              => iso_url,
-            :ssh_host             => options['ip'],
+            :ssh_host             => ssh_host,
             :ssh_port             => ssh_port,
             :ssh_username         => ssh_username,
             :ssh_password         => ssh_password,
@@ -1433,8 +1445,8 @@ def create_packer_json(options)
             :shutdown_timeout     => shutdown_timeout,
             :iso_checksum         => install_checksum,
             :http_directory       => http_dir,
-            :http_port_min        => options['httpport'],
-            :http_port_max        => options['httpport'],
+            :http_port_min        => http_port_min,
+            :http_port_max        => http_port_max,
             :boot_wait            => boot_wait,
             :boot_command         => boot_command,
             :floppy_files         => [
@@ -1445,15 +1457,15 @@ def create_packer_json(options)
               finish
             ],
             :vboxmanage => [
-              [ "modifyvm", "{{.Name}}", "--memory", options['memory'] ],
+              [ "modifyvm", "{{.Name}}", "--memory", memsize ],
               [ "modifyvm", "{{.Name}}", "--audio", audio ],
               [ "modifyvm", "{{.Name}}", "--mouse", mouse ],
               [ "modifyvm", "{{.Name}}", "--hwvirtex", hwvirtex ],
               [ "modifyvm", "{{.Name}}", "--rtcuseutc", rtcuseutc ],
               [ "modifyvm", "{{.Name}}", "--vtxvpid", vtxvpid ],
               [ "modifyvm", "{{.Name}}", "--vtxux", vtxux ],
-              [ "modifyvm", "{{.Name}}", "--cpus", options['vcpus'] ],
-              [ "modifyvm", "{{.Name}}", "--macaddress1", options['mac'] ],
+              [ "modifyvm", "{{.Name}}", "--cpus", numvcpus ],
+              [ "modifyvm", "{{.Name}}", "--macaddress1", mac_address ],
             ]
           ]
         }
@@ -1467,14 +1479,14 @@ def create_packer_json(options)
               :net_config => net_config
             },
             :builders => [
-              :name                 => options['name'],
-              :vm_name              => options['name'],
-              :type                 => options['type'],
+              :name                 => vm_name,
+              :vm_name              => vm_name,
+              :type                 => vm_type,
               :headless             => headless_mode,
               :output_directory     => image_dir,
-              :disk_size            => options['size'],
+              :disk_size            => disk_size,
               :iso_url              => iso_url,
-              :ssh_host             => options['ip'],
+              :ssh_host             => ssh_host,
               :ssh_port             => ssh_port,
               :ssh_host_port_min    => ssh_host_port_min,
               :ssh_host_port_max    => ssh_host_port_max,
@@ -1486,12 +1498,12 @@ def create_packer_json(options)
               :ssh_pty              => ssh_pty,
               :iso_checksum         => install_checksum,
               :http_directory       => http_dir,
-              :http_port_min        => options['httpport'],
-              :http_port_max        => options['httpport'],
+              :http_port_min        => http_port_min,
+              :http_port_max        => http_port_max,
               :http_bind_address    => ks_ip,
               :boot_wait            => boot_wait,
               :boot_command         => boot_command,
-              :format               => format,
+              :format               => disk_format,
               :accelerator          => accelerator,
               :disk_interface       => disk_interface,
               :net_device           => net_device,
@@ -1500,8 +1512,8 @@ def create_packer_json(options)
                 [ "-nographic" ],
                 [ "-serial", "stdio" ],
                 [ "-cpu", "host" ],
-                [ "-m", options['memory'] ],
-                [ "-smp", "cpus="+options['vcpus'] ]
+                [ "-m", memsize ],
+                [ "-smp", "cpus="+numvcpus ]
               ],
               :floppy_files         => [
                 sysidcfg,
@@ -1519,14 +1531,14 @@ def create_packer_json(options)
               :net_config => net_config
             },
             :builders => [
-              :name                 => options['name'],
-              :vm_name              => options['name'],
-              :type                 => options['type'],
+              :name                 => vm_name,
+              :vm_name              => vm_name,
+              :type                 => vm_type,
               :headless             => headless_mode,
               :output_directory     => image_dir,
-              :disk_size            => options['size'],
+              :disk_size            => disk_size,
               :iso_url              => iso_url,
-              :ssh_host             => options['ip'],
+              :ssh_host             => ssh_host,
               :ssh_port             => ssh_port,
               :ssh_host_port_min    => ssh_host_port_min,
               :ssh_host_port_max    => ssh_host_port_max,
@@ -1538,12 +1550,12 @@ def create_packer_json(options)
               :ssh_pty              => ssh_pty,
               :iso_checksum         => install_checksum,
               :http_directory       => http_dir,
-              :http_port_min        => options['httpport'],
-              :http_port_max        => options['httpport'],
+              :http_port_min        => http_port_min,
+              :http_port_max        => http_port_max,
               :http_bind_address    => ks_ip,
               :boot_wait            => boot_wait,
               :boot_command         => boot_command,
-              :format               => format,
+              :format               => disk_format,
               :accelerator          => accelerator,
               :disk_interface       => disk_interface,
               :net_device           => net_device,
@@ -1551,8 +1563,8 @@ def create_packer_json(options)
               :qemuargs             => [
                 [ "-serial", "stdio" ],
                 [ "-cpu", "host" ],
-                [ "-m", options['memory'] ],
-                [ "-smp", "cpus="+options['vcpus'] ]
+                [ "-m", memsize ],
+                [ "-smp", "cpus="+numvcpus ]
               ],
               :floppy_files         => [
                 sysidcfg,
@@ -1572,12 +1584,12 @@ def create_packer_json(options)
               :net_config => net_config
             },
             :builders => [
-              :name                 => options['name'],
-              :vm_name              => options['name'],
-              :type                 => options['type'],
+              :name                 => vm_name,
+              :vm_name              => vm_name,
+              :type                 => vm_type,
               :headless             => headless_mode,
               :output_directory     => image_dir,
-              :disk_size            => options['size'],
+              :disk_size            => disk_size,
               :iso_url              => iso_url,
               :ssh_port             => ssh_port,
               :ssh_host_port_min    => ssh_host_port_min,
@@ -1590,11 +1602,11 @@ def create_packer_json(options)
               :ssh_pty              => ssh_pty,
               :iso_checksum         => install_checksum,
               :http_directory       => http_dir,
-              :http_port_min        => options['httpport'],
-              :http_port_max        => options['httpport'],
+              :http_port_min        => http_port_min,
+              :http_port_max        => http_port_max,
               :boot_wait            => boot_wait,
               :boot_command         => boot_command,
-              :format               => format,
+              :format               => disk_format,
               :accelerator          => accelerator,
               :disk_interface       => disk_interface,
               :net_device           => net_device,
@@ -1602,8 +1614,8 @@ def create_packer_json(options)
                 [ "-nographic" ],
                 [ "-serial", "stdio" ],
                 [ "-cpu", "host" ],
-                [ "-m", options['memory']+"M" ],
-                [ "-smp", "cpus="+options['vcpus'] ]
+                [ "-m", memsize+"M" ],
+                [ "-smp", "cpus="+numvcpus ]
               ],
               :floppy_files         => [
                 sysidcfg,
@@ -1621,12 +1633,12 @@ def create_packer_json(options)
               :net_config => net_config
             },
             :builders => [
-              :name                 => options['name'],
-              :vm_name              => options['name'],
-              :type                 => options['type'],
+              :name                 => vm_name,
+              :vm_name              => vm_name,
+              :type                 => vm_type,
               :headless             => headless_mode,
               :output_directory     => image_dir,
-              :disk_size            => options['size'],
+              :disk_size            => disk_size,
               :iso_url              => iso_url,
               :ssh_port             => ssh_port,
               :ssh_host_port_min    => ssh_host_port_min,
@@ -1639,19 +1651,19 @@ def create_packer_json(options)
               :ssh_pty              => ssh_pty,
               :iso_checksum         => install_checksum,
               :http_directory       => http_dir,
-              :http_port_min        => options['httpport'],
-              :http_port_max        => options['httpport'],
+              :http_port_min        => http_port_min,
+              :http_port_max        => http_port_max,
               :boot_wait            => boot_wait,
               :boot_command         => boot_command,
-              :format               => format,
+              :format               => disk_format,
               :accelerator          => accelerator,
               :disk_interface       => disk_interface,
               :net_device           => net_device,
               :qemuargs             => [
                 [ "-serial", "stdio" ],
                 [ "-cpu", "host" ],
-                [ "-m", options['memory']+"M" ],
-                [ "-smp", "cpus="+options['vcpus'] ]
+                [ "-m", memsize+"M" ],
+                [ "-smp", "cpus="+numvcpus ]
               ],
               :floppy_files         => [
                 sysidcfg,
@@ -1672,13 +1684,13 @@ def create_packer_json(options)
             :net_config => net_config
           },
           :builders => [
-            :name                 => options['name'],
-            :vm_name              => options['name'],
-            :type                 => options['type'],
+            :name                 => vm_name,
+            :vm_name              => vm_name,
+            :type                 => vm_type,
             :headless             => headless_mode,
-            :guest_os_type        => options['guest'],
+            :guest_os_type        => guest_os_type,
             :output_directory     => image_dir,
-            :disk_size            => options['size'],
+            :disk_size            => disk_size,
             :iso_url              => iso_url,
             :ssh_port             => ssh_port,
             :ssh_username         => ssh_username,
@@ -1689,8 +1701,8 @@ def create_packer_json(options)
             :ssh_pty              => ssh_pty,
             :iso_checksum         => install_checksum,
             :http_directory       => http_dir,
-            :http_port_min        => options['httpport'],
-            :http_port_max        => options['httpport'],
+            :http_port_min        => http_port_min,
+            :http_port_max        => http_port_max,
             :http_bind_address    => ks_ip,
             :boot_wait            => boot_wait,
             :boot_command         => boot_command,
@@ -1706,14 +1718,14 @@ def create_packer_json(options)
             :vmx_data => {
               :"virtualHW.version"                => hw_version,
               :"RemoteDisplay.vnc.enabled"        => vnc_enabled,
-              :memsize                            => options['memory'],
-              :numvcpus                           => options['vcpus'],
+              :memsize                            => memsize,
+              :numvcpus                           => numvcpus,
               :"vhv.enable"                       => vhv_enabled,
               :"ethernet0.present"                => ethernet_enabled,
               :"ethernet0.connectionType"         => options['vmnetwork'],
               :"ethernet0.virtualDev"             => ethernet_dev,
               :"ethernet0.addressType"            => ethernet_type,
-              :"ethernet0.address"                => options['mac'],
+              :"ethernet0.address"                => mac_address,
               :"scsi0.virtualDev"                 => virtual_dev
             }
           ]
@@ -1725,13 +1737,13 @@ def create_packer_json(options)
             :net_config => net_config
           },
           :builders => [
-            :name                 => options['name'],
-            :vm_name              => options['name'],
-            :type                 => options['type'],
+            :name                 => vm_name,
+            :vm_name              => vm_name,
+            :type                 => vm_type,
             :headless             => headless_mode,
-            :guest_os_type        => options['guest'],
+            :guest_os_type        => guest_os_type,
             :output_directory     => image_dir,
-            :disk_size            => options['size'],
+            :disk_size            => disk_size,
             :iso_url              => iso_url,
             :ssh_username         => ssh_username,
             :ssh_password         => ssh_password,
@@ -1741,8 +1753,8 @@ def create_packer_json(options)
             :ssh_pty              => ssh_pty,
             :iso_checksum         => install_checksum,
             :http_directory       => http_dir,
-            :http_port_min        => options['httpport'],
-            :http_port_max        => options['httpport'],
+            :http_port_min        => http_port_min,
+            :http_port_max        => http_port_max,
             :boot_wait            => boot_wait,
             :boot_command         => boot_command,
             :tools_upload_flavor  => tools_upload_flavor,
@@ -1757,14 +1769,14 @@ def create_packer_json(options)
             :vmx_data => {
               :"virtualHW.version"                => hw_version,
               :"RemoteDisplay.vnc.enabled"        => vnc_enabled,
-              :memsize                            => options['memory'],
-              :numvcpus                           => options['vcpus'],
+              :memsize                            => memsize,
+              :numvcpus                           => numvcpus,
               :"vhv.enable"                       => vhv_enabled,
               :"ethernet0.present"                => ethernet_enabled,
               :"ethernet0.connectionType"         => options['vmnetwork'],
               :"ethernet0.virtualDev"             => ethernet_dev,
               :"ethernet0.addressType"            => ethernet_type,
-              :"ethernet0.address"                => options['mac'],
+              :"ethernet0.address"                => mac_address,
               :"scsi0.virtualDev"                 => virtual_dev
             }
           ]
@@ -1781,20 +1793,21 @@ def create_packer_json(options)
             :net_config => net_config
           },
           :builders => [
-            :type                 => options['type'],
+            :name                 => vm_name,
+            :vm_name              => vm_name,
+            :type                 => vm_type,
             :guest_additions_mode => guest_additions_mode,
             :headless             => headless_mode,
-            :vm_name              => options['name'],
             :output_directory     => image_dir,
-            :disk_size            => options['size'],
+            :disk_size            => disk_size,
             :iso_url              => iso_url,
             :iso_checksum         => install_checksum,
-            :guest_os_type        => options['guest'],
+            :guest_os_type        => guest_os_type,
             :communicator         => communicator,
             :ssh_host_port_min    => ssh_host_port_min,
             :ssh_host_port_max    => ssh_host_port_max,
             :winrm_port           => winrm_port,
-            :winrm_host           => options['ip'],
+            :winrm_host           => winrm_host,
             :winrm_username       => ssh_username,
             :winrm_password       => ssh_password,
             :winrm_timeout        => ssh_timeout,
@@ -1809,18 +1822,18 @@ def create_packer_json(options)
               post_install_psh
             ],
             :vboxmanage => [
-              [ "modifyvm", "{{.Name}}", "--memory", options['memory'] ],
+              [ "modifyvm", "{{.Name}}", "--memory", memsize ],
               [ "modifyvm", "{{.Name}}", "--audio", audio ],
               [ "modifyvm", "{{.Name}}", "--mouse", mouse ],
               [ "modifyvm", "{{.Name}}", "--hwvirtex", hwvirtex ],
               [ "modifyvm", "{{.Name}}", "--rtcuseutc", rtcuseutc ],
               [ "modifyvm", "{{.Name}}", "--vtxvpid", vtxvpid ],
               [ "modifyvm", "{{.Name}}", "--vtxux", vtxux ],
-              [ "modifyvm", "{{.Name}}", "--cpus", options['vcpus'] ],
+              [ "modifyvm", "{{.Name}}", "--cpus", numvcpus ],
               [ "modifyvm", "{{.Name}}", nic_command1, nic_config1 ],
               [ "modifyvm", "{{.Name}}", nic_command2, nic_config2 ],
               [ "modifyvm", "{{.Name}}", nic_command3, nic_config3 ],
-              [ "modifyvm", "{{.Name}}", "--macaddress1", options['mac'] ],
+              [ "modifyvm", "{{.Name}}", "--macaddress1", mac_address ],
             ]
           ]
         }
@@ -1831,15 +1844,16 @@ def create_packer_json(options)
             :net_config => net_config
           },
           :builders => [
-              :type                 => options['type'],
+              :name                 => vm_name,
+              :vm_name              => vm_name,
+              :type                 => vm_type,
               :guest_additions_mode => guest_additions_mode,
               :headless             => headless_mode,
-              :vm_name              => options['name'],
               :output_directory     => image_dir,
-              :disk_size            => options['size'],
+              :disk_size            => disk_size,
               :iso_url              => iso_url,
               :iso_checksum         => install_checksum,
-              :guest_os_type        => options['guest'],
+              :guest_os_type        => guest_os_type,
               :communicator         => communicator,
               :winrm_username       => ssh_username,
               :winrm_password       => ssh_password,
@@ -1853,15 +1867,15 @@ def create_packer_json(options)
                 post_install_psh
             ],
             :vboxmanage => [
-              [ "modifyvm", "{{.Name}}", "--memory", options['memory'] ],
+              [ "modifyvm", "{{.Name}}", "--memory", memsize ],
               [ "modifyvm", "{{.Name}}", "--audio", audio ],
               [ "modifyvm", "{{.Name}}", "--mouse", mouse ],
               [ "modifyvm", "{{.Name}}", "--hwvirtex", hwvirtex ],
               [ "modifyvm", "{{.Name}}", "--rtcuseutc", rtcuseutc ],
               [ "modifyvm", "{{.Name}}", "--vtxvpid", vtxvpid ],
               [ "modifyvm", "{{.Name}}", "--vtxux", vtxux ],
-              [ "modifyvm", "{{.Name}}", "--cpus", options['vcpus'] ],
-              [ "modifyvm", "{{.Name}}", "--macaddress1", options['mac'] ],
+              [ "modifyvm", "{{.Name}}", "--cpus", numvcpus ],
+              [ "modifyvm", "{{.Name}}", "--macaddress1", mac_address ],
               [ "modifyvm", "{{.Name}}", "--natpf1", "guestwinrm,tcp,,5985,,5985" ]
             ]
           ]
@@ -1875,16 +1889,16 @@ def create_packer_json(options)
             :net_config => net_config
           },
           :builders => [
-            :name                 => options['name'],
-            :vm_name              => options['name'],
-            :type                 => options['type'],
+            :name                 => vm_name,
+            :vm_name              => vm_name,
+            :type                 => vm_type,
             :headless             => headless_mode,
-            :guest_os_type        => options['guest'],
+            :guest_os_type        => guest_os_type,
             :output_directory     => image_dir,
-            :disk_size            => options['size'],
+            :disk_size            => disk_size,
             :iso_url              => iso_url,
             :communicator         => communicator,
-            :winrm_host           => options['ip'],
+            :winrm_host           => winrm_host,
             :winrm_username       => ssh_username,
             :winrm_password       => ssh_password,
             :winrm_timeout        => ssh_timeout,
@@ -1895,8 +1909,8 @@ def create_packer_json(options)
             :shutdown_command     => shutdown_command,
             :iso_checksum         => install_checksum,
             :http_directory       => http_dir,
-            :http_port_min        => options['httpport'],
-            :http_port_max        => options['httpport'],
+            :http_port_min        => http_port_min,
+            :http_port_max        => http_port_max,
             :http_bind_address    => ks_ip,
             :boot_wait            => boot_wait,
             :boot_command         => boot_command,
@@ -1910,14 +1924,14 @@ def create_packer_json(options)
               :"virtualHW.version"                => hw_version,
               :"RemoteDisplay.vnc.enabled"        => vnc_enabled,
               :"RemoteDisplay.vnc.port"           => vnc_port_min,
-              :memsize                            => options['memory'],
-              :numvcpus                           => options['vcpus'],
+              :memsize                            => memsize,
+              :numvcpus                           => numvcpus,
               :"vhv.enable"                       => vhv_enabled,
               :"ethernet0.present"                => ethernet_enabled,
               :"ethernet0.connectionType"         => options['vmnetwork'],
               :"ethernet0.virtualDev"             => ethernet_dev,
               :"ethernet0.addressType"            => ethernet_type,
-              :"ethernet0.address"                => options['mac'],
+              :"ethernet0.address"                => mac_address,
               :"scsi0.virtualDev"                 => virtual_dev
             }
           ]
@@ -1929,13 +1943,13 @@ def create_packer_json(options)
             :net_config => net_config
           },
           :builders => [
-            :name                 => options['name'],
-            :vm_name              => options['name'],
-            :type                 => options['type'],
+            :name                 => vm_name,
+            :vm_name              => vm_name,
+            :type                 => vm_type,
             :headless             => headless_mode,
-            :guest_os_type        => options['guest'],
+            :guest_os_type        => guest_os_type,
             :output_directory     => image_dir,
-            :disk_size            => options['size'],
+            :disk_size            => disk_size,
             :iso_url              => iso_url,
             :communicator         => communicator,
             :winrm_username       => ssh_username,
@@ -1948,8 +1962,8 @@ def create_packer_json(options)
             :shutdown_command     => shutdown_command,
             :iso_checksum         => install_checksum,
             :http_directory       => http_dir,
-            :http_port_min        => options['httpport'],
-            :http_port_max        => options['httpport'],
+            :http_port_min        => http_port_min,
+            :http_port_max        => http_port_max,
             :boot_wait            => boot_wait,
             :boot_command         => boot_command,
             :tools_upload_flavor  => tools_upload_flavor,
@@ -1962,14 +1976,14 @@ def create_packer_json(options)
               :"virtualHW.version"                => hw_version,
               :"RemoteDisplay.vnc.enabled"        => vnc_enabled,
               :"RemoteDisplay.vnc.port"           => vnc_port_min,
-              :memsize                            => options['memory'],
-              :numvcpus                           => options['vcpus'],
+              :memsize                            => memsize,
+              :numvcpus                           => numvcpus,
               :"vhv.enable"                       => vhv_enabled,
               :"ethernet0.present"                => ethernet_enabled,
               :"ethernet0.connectionType"         => options['vmnetwork'],
               :"ethernet0.virtualDev"             => ethernet_dev,
               :"ethernet0.addressType"            => ethernet_type,
-              :"ethernet0.address"                => options['mac'],
+              :"ethernet0.address"                => mac_address,
               :"scsi0.virtualDev"                 => virtual_dev
             }
           ]
@@ -1984,14 +1998,22 @@ def create_packer_json(options)
               :net_config => net_config
             },
             :builders => [
-              :name                 => options['name'],
-              :vm_name              => options['name'],
-              :type                 => options['type'],
+              :name                 => vm_name,
+              :vm_name              => vm_name,
+              :type                 => vm_type,
               :headless             => headless_mode,
               :output_directory     => image_dir,
-              :disk_size            => options['size'],
+              :disk_size            => disk_size,
+              :communicator         => communicator,
               :iso_url              => iso_url,
-              :ssh_host             => options['ip'],
+              :winrm_port           => winrm_port,
+              :winrm_host           => winrm_host,
+              :winrm_username       => ssh_username,
+              :winrm_password       => ssh_password,
+              :winrm_timeout        => ssh_timeout,
+              :winrm_use_ssl        => winrm_use_ssl,
+              :winrm_insecure       => winrm_insecure,
+              :ssh_host             => ssh_host,
               :ssh_port             => ssh_port,
               :ssh_host_port_min    => ssh_host_port_min,
               :ssh_host_port_max    => ssh_host_port_max,
@@ -2003,12 +2025,12 @@ def create_packer_json(options)
               :ssh_pty              => ssh_pty,
               :iso_checksum         => install_checksum,
               :http_directory       => http_dir,
-              :http_port_min        => options['httpport'],
-              :http_port_max        => options['httpport'],
+              :http_port_min        => http_port_min,
+              :http_port_max        => http_port_max,
               :http_bind_address    => ks_ip,
               :boot_wait            => boot_wait,
               :boot_command         => boot_command,
-              :format               => format,
+              :format               => disk_format,
               :accelerator          => accelerator,
               :disk_interface       => disk_interface,
               :net_device           => net_device,
@@ -2017,8 +2039,8 @@ def create_packer_json(options)
                 [ "-nographic" ],
                 [ "-serial", "stdio" ],
                 [ "-cpu", "host" ],
-                [ "-m", options['memory'] ],
-                [ "-smp", "cpus="+options['vcpus'] ]
+                [ "-m", memsize ],
+                [ "-smp", "cpus="+numvcpus ]
               ],
               :floppy_files         => [
                 unattended_xml,
@@ -2033,14 +2055,22 @@ def create_packer_json(options)
               :net_config => net_config
             },
             :builders => [
-              :name                 => options['name'],
-              :vm_name              => options['name'],
-              :type                 => options['type'],
+              :name                 => vm_name,
+              :vm_name              => vm_name,
+              :type                 => vm_type,
               :headless             => headless_mode,
               :output_directory     => image_dir,
-              :disk_size            => options['size'],
+              :disk_size            => disk_size,
+              :communicator         => communicator,
               :iso_url              => iso_url,
-              :ssh_host             => options['ip'],
+              :winrm_port           => winrm_port,
+              :winrm_host           => winrm_host,
+              :winrm_username       => ssh_username,
+              :winrm_password       => ssh_password,
+              :winrm_timeout        => ssh_timeout,
+              :winrm_use_ssl        => winrm_use_ssl,
+              :winrm_insecure       => winrm_insecure,
+              :ssh_host             => ssh_host,
               :ssh_port             => ssh_port,
               :ssh_host_port_min    => ssh_host_port_min,
               :ssh_host_port_max    => ssh_host_port_max,
@@ -2052,12 +2082,12 @@ def create_packer_json(options)
               :ssh_pty              => ssh_pty,
               :iso_checksum         => install_checksum,
               :http_directory       => http_dir,
-              :http_port_min        => options['httpport'],
-              :http_port_max        => options['httpport'],
+              :http_port_min        => http_port_min,
+              :http_port_max        => http_port_max,
               :http_bind_address    => ks_ip,
               :boot_wait            => boot_wait,
               :boot_command         => boot_command,
-              :format               => format,
+              :format               => disk_format,
               :accelerator          => accelerator,
               :disk_interface       => disk_interface,
               :net_device           => net_device,
@@ -2065,8 +2095,8 @@ def create_packer_json(options)
               :qemuargs             => [
                 [ "-serial", "stdio" ],
                 [ "-cpu", "host" ],
-                [ "-m", options['memory'] ],
-                [ "-smp", "cpus="+options['vcpus'] ]
+                [ "-m", memsize ],
+                [ "-smp", "cpus="+numvcpus ]
               ],
               :floppy_files         => [
                 unattended_xml,
@@ -2083,13 +2113,21 @@ def create_packer_json(options)
               :net_config => net_config
             },
             :builders => [
-              :name                 => options['name'],
-              :vm_name              => options['name'],
-              :type                 => options['type'],
+              :name                 => vm_name,
+              :vm_name              => vm_name,
+              :type                 => vm_type,
               :headless             => headless_mode,
               :output_directory     => image_dir,
-              :disk_size            => options['size'],
+              :disk_size            => disk_size,
+              :communicator         => communicator,
               :iso_url              => iso_url,
+              :winrm_port           => winrm_port,
+              :winrm_host           => winrm_host,
+              :winrm_username       => ssh_username,
+              :winrm_password       => ssh_password,
+              :winrm_timeout        => ssh_timeout,
+              :winrm_use_ssl        => winrm_use_ssl,
+              :winrm_insecure       => winrm_insecure,
               :ssh_port             => ssh_port,
               :ssh_host_port_min    => ssh_host_port_min,
               :ssh_host_port_max    => ssh_host_port_max,
@@ -2101,11 +2139,11 @@ def create_packer_json(options)
               :ssh_pty              => ssh_pty,
               :iso_checksum         => install_checksum,
               :http_directory       => http_dir,
-              :http_port_min        => options['httpport'],
-              :http_port_max        => options['httpport'],
+              :http_port_min        => http_port_min,
+              :http_port_max        => http_port_max,
               :boot_wait            => boot_wait,
               :boot_command         => boot_command,
-              :format               => format,
+              :format               => disk_format,
               :accelerator          => accelerator,
               :disk_interface       => disk_interface,
               :net_device           => net_device,
@@ -2113,8 +2151,8 @@ def create_packer_json(options)
                 [ "-nographic" ],
                 [ "-serial", "stdio" ],
                 [ "-cpu", "host" ],
-                [ "-m", options['memory']+"M" ],
-                [ "-smp", "cpus="+options['vcpus'] ]
+                [ "-m", memsize+"M" ],
+                [ "-smp", "cpus="+numvcpus ]
               ],
               :floppy_files         => [
                 unattended_xml,
@@ -2129,13 +2167,21 @@ def create_packer_json(options)
               :net_config => net_config
             },
             :builders => [
-              :name                 => options['name'],
-              :vm_name              => options['name'],
-              :type                 => options['type'],
+              :name                 => vm_name,
+              :vm_name              => vm_name,
+              :type                 => vm_type,
               :headless             => headless_mode,
               :output_directory     => image_dir,
-              :disk_size            => options['size'],
+              :disk_size            => disk_size,
+              :communicator         => communicator,
               :iso_url              => iso_url,
+              :winrm_port           => winrm_port,
+              :winrm_host           => winrm_host,
+              :winrm_username       => ssh_username,
+              :winrm_password       => ssh_password,
+              :winrm_timeout        => ssh_timeout,
+              :winrm_use_ssl        => winrm_use_ssl,
+              :winrm_insecure       => winrm_insecure,
               :ssh_port             => ssh_port,
               :ssh_host_port_min    => ssh_host_port_min,
               :ssh_host_port_max    => ssh_host_port_max,
@@ -2147,19 +2193,19 @@ def create_packer_json(options)
               :ssh_pty              => ssh_pty,
               :iso_checksum         => install_checksum,
               :http_directory       => http_dir,
-              :http_port_min        => options['httpport'],
-              :http_port_max        => options['httpport'],
+              :http_port_min        => http_port_min,
+              :http_port_max        => http_port_max,
               :boot_wait            => boot_wait,
               :boot_command         => boot_command,
-              :format               => format,
+              :format               => disk_format,
               :accelerator          => accelerator,
               :disk_interface       => disk_interface,
               :net_device           => net_device,
               :qemuargs             => [
                 [ "-serial", "stdio" ],
                 [ "-cpu", "host" ],
-                [ "-m", options['memory']+"M" ],
-                [ "-smp", "cpus="+options['vcpus'] ]
+                [ "-m", memsize+"M" ],
+                [ "-smp", "cpus="+numvcpus ]
               ],
               :floppy_files         => [
                 unattended_xml,
@@ -2170,9 +2216,6 @@ def create_packer_json(options)
         end
       end
     end
-  
-  
-  
   else
     case options['vm']
     when /vbox/
@@ -2183,16 +2226,16 @@ def create_packer_json(options)
             :net_config => net_config
         	},
         	:builders => [
-            :name                 => options['name'],
+            :name                 => vm_name,
+            :vm_name              => vm_name,
             :guest_additions_mode => guest_additions_mode,
-            :vm_name              => options['name'],
-            :type                 => options['type'],
+            :type                 => vm_type,
             :headless             => headless_mode,
-            :guest_os_type        => options['guest'],
+            :guest_os_type        => guest_os_type,
             :output_directory     => image_dir,
-            :disk_size            => options['size'],
+            :disk_size            => disk_size,
             :iso_url              => iso_url,
-            :ssh_host             => options['ip'],
+            :ssh_host             => ssh_host,
             :ssh_port             => ssh_port,
             :ssh_host_port_min    => ssh_host_port_min,
             :ssh_host_port_max    => ssh_host_port_max,
@@ -2204,25 +2247,25 @@ def create_packer_json(options)
             :shutdown_command     => shutdown_command,
             :iso_checksum         => install_checksum,
             :http_directory       => http_dir,
-            :http_port_min        => options['httpport'],
-            :http_port_max        => options['httpport'],
+            :http_port_min        => http_port_min,
+            :http_port_max        => http_port_max,
             :http_bind_address    => ks_ip,
             :boot_wait            => boot_wait,
             :boot_command         => boot_command,
             :format               => output_format,
       			:vboxmanage => [
-      				[ "modifyvm", "{{.Name}}", "--memory", options['memory'] ],
+      				[ "modifyvm", "{{.Name}}", "--memory", memsize ],
               [ "modifyvm", "{{.Name}}", "--audio", audio ],
               [ "modifyvm", "{{.Name}}", "--mouse", mouse ],
               [ "modifyvm", "{{.Name}}", "--hwvirtex", hwvirtex ],
               [ "modifyvm", "{{.Name}}", "--rtcuseutc", rtcuseutc ],
               [ "modifyvm", "{{.Name}}", "--vtxvpid", vtxvpid ],
               [ "modifyvm", "{{.Name}}", "--vtxux", vtxux ],
-      				[ "modifyvm", "{{.Name}}", "--cpus", options['vcpus'] ],
+      				[ "modifyvm", "{{.Name}}", "--cpus", numvcpus ],
               [ "modifyvm", "{{.Name}}", nic_command1, nic_config1 ],
               [ "modifyvm", "{{.Name}}", nic_command2, nic_config2 ],
               [ "modifyvm", "{{.Name}}", nic_command3, nic_config3 ],
-              [ "modifyvm", "{{.Name}}", "--macaddress1", options['mac'] ],
+              [ "modifyvm", "{{.Name}}", "--macaddress1", mac_address ],
       			]
       		]
         }
@@ -2233,15 +2276,15 @@ def create_packer_json(options)
             :net_config => net_config
           },
           :builders => [
-            :name                 => options['name'],
+            :name                 => vm_name,
+            :vm_name              => vm_name,
             :guest_additions_mode => guest_additions_mode,
-            :vm_name              => options['name'],
-            :type                 => options['type'],
+            :type                 => vm_type,
             :headless             => headless_mode,
-            :guest_os_type        => options['guest'],
-            :hard_drive_interface => options['controller'],
+            :guest_os_type        => guest_os_type,
+            :hard_drive_interface => controller,
             :output_directory     => image_dir,
-            :disk_size            => options['size'],
+            :disk_size            => disk_size,
             :iso_url              => iso_url,
             :ssh_port             => ssh_port,
             :ssh_username         => ssh_username,
@@ -2252,20 +2295,20 @@ def create_packer_json(options)
             :ssh_pty              => ssh_pty,
             :iso_checksum         => install_checksum,
             :http_directory       => http_dir,
-            :http_port_min        => options['httpport'],
-            :http_port_max        => options['httpport'],
+            :http_port_min        => http_port_min,
+            :http_port_max        => http_port_max,
             :boot_wait            => boot_wait,
             :boot_command         => boot_command,
             :vboxmanage => [
-              [ "modifyvm", "{{.Name}}", "--memory", options['memory'] ],
+              [ "modifyvm", "{{.Name}}", "--memory", memsize ],
               [ "modifyvm", "{{.Name}}", "--audio", audio ],
               [ "modifyvm", "{{.Name}}", "--mouse", mouse ],
               [ "modifyvm", "{{.Name}}", "--hwvirtex", hwvirtex ],
               [ "modifyvm", "{{.Name}}", "--rtcuseutc", rtcuseutc ],
               [ "modifyvm", "{{.Name}}", "--vtxvpid", vtxvpid ],
               [ "modifyvm", "{{.Name}}", "--vtxux", vtxux ],
-              [ "modifyvm", "{{.Name}}", "--cpus", options['vcpus'] ],
-              [ "modifyvm", "{{.Name}}", "--macaddress1", options['mac'] ],
+              [ "modifyvm", "{{.Name}}", "--cpus", numvcpus ],
+              [ "modifyvm", "{{.Name}}", "--macaddress1", mac_address ],
             ]
           ]
         }
@@ -2278,15 +2321,15 @@ def create_packer_json(options)
             :net_config => net_config
           },
           :builders => [
-            :name                 => options['name'],
-            :vm_name              => options['name'],
-            :type                 => options['type'],
+            :name                 => vm_name,
+            :vm_name              => vm_name,
+            :type                 => vm_type,
             :headless             => headless_mode,
-            :guest_os_type        => options['guest'],
+            :guest_os_type        => guest_os_type,
             :output_directory     => image_dir,
-            :disk_size            => options['size'],
+            :disk_size            => disk_size,
             :iso_url              => iso_url,
-            :ssh_host             => options['ip'],
+            :ssh_host             => ssh_host,
             :ssh_port             => ssh_port,
             :ssh_username         => ssh_username,
             :ssh_password         => ssh_password,
@@ -2296,8 +2339,8 @@ def create_packer_json(options)
             :ssh_pty              => ssh_pty,
             :iso_checksum         => install_checksum,
             :http_directory       => http_dir,
-            :http_port_min        => options['httpport'],
-            :http_port_max        => options['httpport'],
+            :http_port_min        => http_port_min,
+            :http_port_max        => http_port_max,
             :http_bind_address    => ks_ip,
             :boot_wait            => boot_wait,
             :boot_command         => boot_command,
@@ -2306,14 +2349,14 @@ def create_packer_json(options)
             :vmx_data => {
               :"virtualHW.version"                => hw_version,
               :"RemoteDisplay.vnc.enabled"        => vnc_enabled,
-              :memsize                            => options['memory'],
-              :numvcpus                           => options['vcpus'],
+              :memsize                            => memsize,
+              :numvcpus                           => numvcpus,
               :"vhv.enable"                       => vhv_enabled,
               :"ethernet0.present"                => ethernet_enabled,
               :"ethernet0.connectionType"         => options['vmnetwork'],
               :"ethernet0.virtualDev"             => ethernet_dev,
               :"ethernet0.addressType"            => ethernet_type,
-              :"ethernet0.address"                => options['mac'],
+              :"ethernet0.address"                => mac_address,
               :"scsi0.virtualDev"                 => virtual_dev
             }
           ]
@@ -2325,13 +2368,13 @@ def create_packer_json(options)
             :net_config => net_config
           },
           :builders => [
-            :name                 => options['name'],
-            :vm_name              => options['name'],
-            :type                 => options['type'],
+            :name                 => vm_name,
+            :vm_name              => vm_name,
+            :type                 => vm_type,
             :headless             => headless_mode,
-            :guest_os_type        => options['guest'],
+            :guest_os_type        => guest_os_type,
             :output_directory     => image_dir,
-            :disk_size            => options['size'],
+            :disk_size            => disk_size,
             :iso_url              => iso_url,
             :ssh_port             => ssh_port,
             :ssh_username         => ssh_username,
@@ -2342,8 +2385,8 @@ def create_packer_json(options)
             :ssh_pty              => ssh_pty,
             :iso_checksum         => install_checksum,
             :http_directory       => http_dir,
-            :http_port_min        => options['httpport'],
-            :http_port_max        => options['httpport'],
+            :http_port_min        => http_port_min,
+            :http_port_max        => http_port_max,
             :boot_wait            => boot_wait,
             :boot_command         => boot_command,
             :tools_upload_flavor  => tools_upload_flavor,
@@ -2351,14 +2394,14 @@ def create_packer_json(options)
             :vmx_data => {
               :"virtualHW.version"                => hw_version,
               :"RemoteDisplay.vnc.enabled"        => vnc_enabled,
-              :memsize                            => options['memory'],
-              :numvcpus                           => options['vcpus'],
+              :memsize                            => memsize,
+              :numvcpus                           => numvcpus,
               :"vhv.enable"                       => vhv_enabled,
               :"ethernet0.present"                => ethernet_enabled,
               :"ethernet0.connectionType"         => options['vmnetwork'],
               :"ethernet0.virtualDev"             => ethernet_dev,
               :"ethernet0.addressType"            => ethernet_type,
-              :"ethernet0.GeneratedAddress"       => options['mac'],
+              :"ethernet0.GeneratedAddress"       => mac_address,
               :"scsi0.virtualDev"                 => virtual_dev
             }
           ]
@@ -2373,13 +2416,13 @@ def create_packer_json(options)
               :net_config => net_config
             },
             :builders => [
-              :name                   => options['name'],
-              :vm_name                => options['name'],
-              :type                   => options['type'],
+              :name                   => vm_name,
+              :vm_name                => vm_name,
+              :type                   => vm_type,
               :output_directory       => image_dir,
-              :disk_size              => options['size'],
+              :disk_size              => disk_size,
               :iso_url                => iso_url,
-              :ssh_host               => options['ip'],
+              :ssh_host               => ssh_host,
               :ssh_port               => ssh_port,
               :ssh_username           => ssh_username,
               :ssh_password           => ssh_password,
@@ -2389,8 +2432,8 @@ def create_packer_json(options)
               :ssh_pty                => ssh_pty,
               :iso_checksum           => install_checksum,
               :http_directory         => http_dir,
-              :http_port_min          => options['httpport'],
-              :http_port_max          => options['httpport'],
+              :http_port_min          => http_port_min,
+              :http_port_max          => http_port_max,
               :http_bind_address      => ks_ip,
               :boot_wait              => boot_wait,
               :boot_command           => boot_command,
@@ -2408,13 +2451,13 @@ def create_packer_json(options)
               :net_config => net_config
             },
             :builders => [
-              :name                   => options['name'],
-              :vm_name                => options['name'],
-              :type                   => options['type'],
+              :name                   => vm_name,
+              :vm_name                => vm_name,
+              :type                   => vm_type,
               :output_directory       => image_dir,
-              :disk_size              => options['size'],
+              :disk_size              => disk_size,
               :iso_url                => iso_url,
-              :ssh_host               => options['ip'],
+              :ssh_host               => ssh_host,
               :ssh_port               => ssh_port,
               :ssh_username           => ssh_username,
               :ssh_password           => ssh_password,
@@ -2424,8 +2467,8 @@ def create_packer_json(options)
               :ssh_pty                => ssh_pty,
               :iso_checksum           => install_checksum,
               :http_directory         => http_dir,
-              :http_port_min          => options['httpport'],
-              :http_port_max          => options['httpport'],
+              :http_port_min          => http_port_min,
+              :http_port_max          => http_port_max,
               :boot_wait              => boot_wait,
               :boot_command           => boot_command,
               :parallels_tools_flavor => parallels_tools_flavor,
@@ -2446,14 +2489,14 @@ def create_packer_json(options)
               :net_config => net_config
             },
             :builders => [
-              :name                 => options['name'],
-              :vm_name              => options['name'],
-              :type                 => options['type'],
+              :name                 => vm_name,
+              :vm_name              => vm_name,
+              :type                 => vm_type,
               :headless             => headless_mode,
               :output_directory     => image_dir,
-              :disk_size            => options['size'],
+              :disk_size            => disk_size,
               :iso_url              => iso_url,
-              :ssh_host             => options['ip'],
+              :ssh_host             => ssh_host,
               :ssh_port             => ssh_port,
               :ssh_username         => ssh_username,
               :ssh_password         => ssh_password,
@@ -2463,12 +2506,12 @@ def create_packer_json(options)
               :ssh_pty              => ssh_pty,
               :iso_checksum         => install_checksum,
               :http_directory       => http_dir,
-              :http_port_min        => options['httpport'],
-              :http_port_max        => options['httpport'],
+              :http_port_min        => http_port_min,
+              :http_port_max        => http_port_max,
               :http_bind_address    => ks_ip,
               :boot_wait            => boot_wait,
               :boot_command         => boot_command,
-              :format               => format,
+              :format               => disk_format,
               :accelerator          => accelerator,
               :disk_interface       => disk_interface,
               :net_device           => net_device,
@@ -2477,8 +2520,8 @@ def create_packer_json(options)
                 [ "-nographic" ],
                 [ "-serial", "stdio" ],
                 [ "-cpu", "host" ],
-                [ "-m", options['memory'] ],
-                [ "-smp", "cpus="+options['vcpus'] ]
+                [ "-m", memsize ],
+                [ "-smp", "cpus="+numvcpus ]
               ]
             ]
           }
@@ -2489,14 +2532,14 @@ def create_packer_json(options)
               :net_config => net_config
             },
             :builders => [
-              :name                 => options['name'],
-              :vm_name              => options['name'],
-              :type                 => options['type'],
+              :name                 => vm_name,
+              :vm_name              => vm_name,
+              :type                 => vm_type,
               :headless             => headless_mode,
               :output_directory     => image_dir,
-              :disk_size            => options['size'],
+              :disk_size            => disk_size,
               :iso_url              => iso_url,
-              :ssh_host             => options['ip'],
+              :ssh_host             => ssh_host,
               :ssh_port             => ssh_port,
               :ssh_username         => ssh_username,
               :ssh_password         => ssh_password,
@@ -2506,12 +2549,12 @@ def create_packer_json(options)
               :ssh_pty              => ssh_pty,
               :iso_checksum         => install_checksum,
               :http_directory       => http_dir,
-              :http_port_min        => options['httpport'],
-              :http_port_max        => options['httpport'],
+              :http_port_min        => http_port_min,
+              :http_port_max        => http_port_max,
               :http_bind_address    => ks_ip,
               :boot_wait            => boot_wait,
               :boot_command         => boot_command,
-              :format               => format,
+              :format               => disk_format,
               :accelerator          => accelerator,
               :disk_interface       => disk_interface,
               :net_device           => net_device,
@@ -2519,8 +2562,8 @@ def create_packer_json(options)
               :qemuargs             => [
                 [ "-serial", "stdio" ],
                 [ "-cpu", "host" ],
-                [ "-m", options['memory'] ],
-                [ "-smp", "cpus="+options['vcpus'] ]
+                [ "-m", memsize ],
+                [ "-smp", "cpus="+numvcpus ]
               ]
             ]
           }
@@ -2533,12 +2576,12 @@ def create_packer_json(options)
               :net_config => net_config
             },
             :builders => [
-              :name                 => options['name'],
-              :vm_name              => options['name'],
-              :type                 => options['type'],
+              :name                 => vm_name,
+              :vm_name              => vm_name,
+              :type                 => vm_type,
               :headless             => headless_mode,
               :output_directory     => image_dir,
-              :disk_size            => options['size'],
+              :disk_size            => disk_size,
               :iso_url              => iso_url,
               :ssh_port             => ssh_port,
               :ssh_host_port_min    => ssh_host_port_min,
@@ -2551,11 +2594,11 @@ def create_packer_json(options)
               :ssh_pty              => ssh_pty,
               :iso_checksum         => install_checksum,
               :http_directory       => http_dir,
-              :http_port_min        => options['httpport'],
-              :http_port_max        => options['httpport'],
+              :http_port_min        => http_port_min,
+              :http_port_max        => http_port_max,
               :boot_wait            => boot_wait,
               :boot_command         => boot_command,
-              :format               => format,
+              :format               => disk_format,
               :accelerator          => accelerator,
               :disk_interface       => disk_interface,
               :net_device           => net_device,
@@ -2563,8 +2606,8 @@ def create_packer_json(options)
                 [ "-nographic" ],
                 [ "-serial", "stdio" ],
                 [ "-cpu", "host" ],
-                [ "-m", options['memory']+"M" ],
-                [ "-smp", "cpus="+options['vcpus'] ]
+                [ "-m", memsize+"M" ],
+                [ "-smp", "cpus="+numvcpus ]
               ]
             ]
           }
@@ -2575,12 +2618,12 @@ def create_packer_json(options)
               :net_config => net_config
             },
             :builders => [
-              :name                 => options['name'],
-              :vm_name              => options['name'],
-              :type                 => options['type'],
+              :name                 => vm_name,
+              :vm_name              => vm_name,
+              :type                 => vm_type,
               :headless             => headless_mode,
               :output_directory     => image_dir,
-              :disk_size            => options['size'],
+              :disk_size            => disk_size,
               :iso_url              => iso_url,
               :ssh_port             => ssh_port,
               :ssh_host_port_min    => ssh_host_port_min,
@@ -2593,19 +2636,19 @@ def create_packer_json(options)
               :ssh_pty              => ssh_pty,
               :iso_checksum         => install_checksum,
               :http_directory       => http_dir,
-              :http_port_min        => options['httpport'],
-              :http_port_max        => options['httpport'],
+              :http_port_min        => http_port_min,
+              :http_port_max        => http_port_max,
               :boot_wait            => boot_wait,
               :boot_command         => boot_command,
-              :format               => format,
+              :format               => disk_format,
               :accelerator          => accelerator,
               :disk_interface       => disk_interface,
               :net_device           => net_device,
               :qemuargs             => [
                 [ "-serial", "stdio" ],
                 [ "-cpu", "host" ],
-                [ "-m", options['memory']+"M" ],
-                [ "-smp", "cpus="+options['vcpus'] ]
+                [ "-m", memsize+"M" ],
+                [ "-smp", "cpus="+numvcpus ]
               ]
             ]
           }
