@@ -1550,50 +1550,38 @@ def check_local_config(options)
   end
   # If runnning on OS X check we have brew installed
   if options['host-os-name'].to_s.match(/Darwin/)
-    if not File.exist?("/usr/local/bin/brew")
+    if !File.exist?("/usr/local/bin/brew") && !File.exist?("/opt/homebrew/bin/brew") && !File.exist?("/usr/homebrew/bin/brew")
       message = "Installing:\tBrew for OS X"
       command = "ruby -e \"$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)\""
       execute_command(options,message,command)
     end
   end
-  check_dir_exists(options,options['backupdir'])
-  options = install_package(options,"rpm")
-  options = install_package(options,"rpm2cpio")
   if options['verbose'] == true
     handle_output(options,"Information:\tChecking work bin directory")
   end
-  if File.exist?("/bin/rpm2cpio")
-    options['rpm2cpiobin'] = "/bin/rpm2cpio"
-  else
-    if File.exist?("/usr/bin/rpm2cpio")
-      options['rpm2cpiobin'] = "/usr/bin/rpm2cpio"
-    else
-      if File.exist?("/usr/local/bin/rpm2cpio")
-        options['rpm2cpiobin'] = "/usr/local/bin/rpm2cpio"
-      else
-        if options['host-os-name'].to_s.match(/Darwin/)
-          install_brew_pkg(options,"rpm2cpio")
-          options['rpm2cpiobin'] = "/usr/local/bin/rpm2cpio"
-        else
-          bin_dir = options['workdir']+"/bin"
-          check_dir_exists(options,bin_dir)
-          check_dir_owner(options,bin_dir,options['uid'])
-          options['rpm2cpiobin'] = bin_dir+"/rpm2cpio"
+  work_bin_dir = options['workdir']+"/bin"
+  [ "rpm2cpio", "rpm" ].each do |pkg_name|
+    option = pkg_name+"bin"
+    installed = false
+    [ "/bin", "/usr/local/bin", "/opt/local/bin", "/opt/homebrew/bin", work_bin_dir ].each do |bin_dir|
+      pkg_bin = bin_dir+"/"+pkg_name
+      if File.exist?(pkg_bin)
+        installed = true
+        options[option] = pkg_bin
+        check_file_executable(options,pkg_bin)
+      end
+    end
+    if installed == false
+      install_pac=kage(options,pkg_name)
+      [ "/bin", "/usr/local/bin", "/opt/local/bin", "/opt/homebrew/bin", work_bin_dir ].each do |bin_dir|
+        pkg_bin = bin_dir+"/"+pkg_name
+        if File.exist?(pkg_bin)
+          options[option] = pkg_bin
+          check_file_executable(options,pkg_bin)
         end
       end
     end
   end
-  if not File.exist?(options['rpm2cpiobin'])
-    if options['download'] == true
-      install_package(options,"rpm2cpio")
-#      wget_file(options,options['rpm2cpiourl'],options['rpm2cpiobin'])
-      if File.exist?(options['rpm2cpiobin'] )
-        check_file_owner(options,options['rpm2cpiobin'],options['uid'])
-        check_file_executable(options,options['rpm2cpiobin'])
-      end
-    end
-  end
-  # Check directory ownerships
   [ options['workdir'], options['bindir'], options['rpmdir'], options['backupdir'] ].each do |test_dir|
     if options['verbose'] == true
       handle_output(options,"Information:\tChecking #{test_dir} directory")
@@ -1601,7 +1589,6 @@ def check_local_config(options)
     check_dir_exists(options,test_dir)
     check_dir_owner(options,test_dir,options['uid'])
   end
-  check_file_executable(options,options['rpm2cpiobin'])
   return options
 end
 

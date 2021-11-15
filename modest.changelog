@@ -1443,3 +1443,5 @@
 # Further clean up of Packer support for KVM
 # 7.2.1: Sat 30 Oct 2021 17:29:41 AEDT
 # Further cleanup of packer support
+# 7.2.2: Mon 15 Nov 2021 19:08:26 AEDT
+# Cleaned up RPM check
