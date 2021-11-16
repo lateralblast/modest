@@ -36,7 +36,7 @@ def check_ai_publisherport(options)
     options['publisherport'] = options['publisherport'].to_s
   end
   if options['verbose'] == true
-    handle_output(options,"Setting:\tPublisher port to #{options['publisherport']}")
+    handle_output(options,"Information: Setting publisher port to #{options['publisherport']}")
   end
   return options
 end

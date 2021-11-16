@@ -1031,7 +1031,7 @@ end
 # Change VirtualBox VM MAC address
 
 def change_vbox_vm_mac(options)
-  message = "Setting:\tVirtualBox VM "+options['name']+" MAC address to "+options['mac']
+  message = "Information:\tSetting VirtualBox VM "+options['name']+" MAC address to "+options['mac']
   if options['mac'].to_s.match(/:/)
     options['mac'] = options['mac'].gsub(/:/,"")
   end

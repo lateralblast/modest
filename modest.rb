@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      7.2.2
+# Version:      7.2.3
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -837,7 +837,7 @@ end
 if options['name'] != options['empty']
   check_hostname(options)
   if options['verbose'] == true
-    handle_output(options,"Setting:\tClient name to #{options['name']}")
+    handle_output(options,"Information:\tSetting client name to #{options['name']}")
   end
 end
 

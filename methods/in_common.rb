@@ -3225,7 +3225,7 @@ def add_nfs_export(options,export_name,export_dir)
       message  = "Enabling:\tNFS share on "+export_dir
       command  = "zfs set sharenfs=on #{options['zpoolname']}#{export_dir}"
       output   = execute_command(options,message,command)
-      message  = "Setting:\tNFS access rights on "+export_dir
+      message  = "Information:\tSetting NFS access rights on "+export_dir
       command  = "zfs set share=name=#{export_name},path=#{export_dir},prot=nfs,anon=0,sec=sys,ro=@#{network_address}/24 #{options['zpoolname']}#{export_dir}"
       output   = execute_command(options,message,command)
     else
@@ -3757,7 +3757,7 @@ def check_tftpd_config(options)
         command = "getsebool -a | grep tftp |grep home"
         output  = execute_command(options,message,command)
         if output.match(/off/)
-          message = "Setting SELinux tftp permissions"
+          message = "Information:\ySetting SELinux tftp permissions"
           command = "setsebool -P tftp_home_dir 1"
           execute_command(options,message,command)
         end
@@ -3789,7 +3789,7 @@ def check_tftpd_dir(options)
     command = "svcprop -p inetd_start/exec svc:network/tftp/udp"
     output  = execute_command(options,message,command)
     if not output.match(/netboot/)
-      message = "Setting:\tTFTPd boot directory to "+options['tftpdir']
+      message = "Information:\tSetting TFTPd boot directory to "+options['tftpdir']
       command = "svccfg -s svc:network/tftp/udp setprop inetd_start/exec = astring: \"/usr/sbin/in.tftpd\\ -s\\ /etc/netboot\""
       execute_command(options,message,command)
     end

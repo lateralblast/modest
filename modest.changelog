@@ -1445,3 +1445,5 @@
 # Further cleanup of packer support
 # 7.2.2: Mon 15 Nov 2021 19:08:26 AEDT
 # Cleaned up RPM check
+# 7.2.3: Tue 16 Nov 2021 12:40:28 AEDT
+# Cleaned up output messages
