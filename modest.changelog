@@ -1447,3 +1447,5 @@
 # Cleaned up RPM check
 # 7.2.3: Tue 16 Nov 2021 12:40:28 AEDT
 # Cleaned up output messages
+# 7.2.4: Tue 16 Nov 2021 20:08:05 AEDT
+# Fixed multipass stop VM

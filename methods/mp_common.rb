@@ -234,7 +234,7 @@ def stop_multipass_vm(options)
   vm_name = options['name'].to_s
   if exists == "yes"
     message = "Information:\tStopping Mulipass VM #{vm_name}"
-    command = "multipass start #{vm_name}"
+    command = "multipass stop #{vm_name}"
     execute_command(options,message,command)
   else
     handle_output("Warning:\tMultipass VM #{vm_name} does not exist")
