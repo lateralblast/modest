@@ -3,7 +3,7 @@
 
 # Populate Cloud Config/Init User data file
 
-def populate_cc_userdata(options)
+def populate_cc_user_data(options)
   install_locale = options['q_struct']['locale'].value
   if install_locale.match(/\./)
     install_locale = install_locale.split(".")[0]

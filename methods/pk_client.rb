@@ -478,9 +478,9 @@ def create_packer_ps_install_files(options)
     print_contents_of_file(options,"",output_file)
     if options['livecd'] == true
       output_file = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/subiquity/http/user-data"
-      user_data   = populate_packer_ps_user_data(options)
+      user_data,exec_data = populate_packer_cc_user_data(options)
       delete_file(options,output_file)
-      output_packer_ps_user_data(options,user_data,output_file)
+      output_packer_cc_user_data(options,user_data,exec_data,output_file)
       output_file = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/subiquity/http/meta-data"
       FileUtils.touch(output_file)
     end
@@ -641,15 +641,15 @@ end
 
 # Populate Cloud Config/Init user_data
 
-def populate_packer_ps_user_data(options)
-  user_data = populate_cc_user_data(options)
-  return user_data
+def populate_packer_cc_user_data(options)
+  user_data,exec_data = populate_cc_user_data(options)
+  return user_data,exec_data
 end
 
 # Output Cloud Config/Init user data
 
-def output_packer_ps_user_data(options,user_data,output_file)
-  output_cc_user_data(options,user_data,output_file)
+def output_packer_cc_user_data(options,user_data,exec_data,output_file)
+  output_cc_user_data(options,user_data,exec_data,output_file)
   return
 end
 
