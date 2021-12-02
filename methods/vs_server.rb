@@ -88,7 +88,7 @@ def configure_vs_repo(options)
     umount_iso(options)
   end
   options['clientdir'] = options['clientdir']+"/"+options['service']
-  ovf_file   = options['clientdir']+"/vmware-ovftools.tar.gz"
+  ovf_file = options['clientdir']+"/vmware-ovftools.tar.gz"
   if not File.exist?(ovf_file)
     wget_file(options,options['ovftarurl'],ovf_file)
     if options['host-os-uname'].match(/RedHat/) and options['host-os-version'].match(/^7|^6\.7/)
@@ -139,10 +139,10 @@ def configure_vs_pxe_boot(options)
   if not options['service'].to_s.match(/vmware/)
     pxe_image_dir=options['pxebootdir']+"/images"
     if not File.directory?(pxe_image_dir)
-      iso_image_dir = options['baserepodir']+"/"+options['service']+"/images"
-      message       = "Information:\tCopying PXE boot images from "+iso_image_dir+" to "+pxe_image_dir
-      command       = "cp -r #{iso_image_dir} #{options['pxebootdir']}"
-      output        = execute_command(options,message,command)
+      iso_dir = options['baserepodir']+"/"+options['service']+"/images"
+      message = "Information:\tCopying PXE boot images from "+iso_dir+" to "+pxe_image_dir
+      command = "cp -r #{iso_dir} #{options['pxebootdir']}"
+      output  = execute_command(options,message,command)
     end
   end
   pxe_cfg_dir = options['tftpdir']+"/pxelinux.cfg"

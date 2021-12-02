@@ -28,12 +28,12 @@ end
 # Check if AWS CF Stack exists
 
 def check_if_aws_cf_stack_exists(options)
-  exists = "no"
+  exists = false
   stacks = get_aws_cf_stacks(options)
   stacks.each do |stack|
     stack_name  = stack.stack_name
     if stack_name.match(/#{options['name']}/)
-      exists = "yes"
+      exists = true
       return exists
     end
   end

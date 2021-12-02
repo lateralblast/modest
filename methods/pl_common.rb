@@ -129,7 +129,7 @@ end
 
 def clone_parallels_vm(options)
   exists = check_parallels_vm_exists(options)
-  if exists.match(/no/)
+  if exists == false
     handle_output(options,"Warning:\tParallels VM #{options['name']} does not exist")
     quit(options)
   end
@@ -382,7 +382,7 @@ end
 def boot_parallels_vm(options)
   check_parallels_hostonly_network(options)
   exists = check_parallels_vm_exists(options)
-  if exists.match(/no/)
+  if exists == false
     handle_output(options,"Warning:\tParallels VM #{options['name']} does not exist")
     quit(options)
   end
@@ -505,7 +505,7 @@ end
 
 def check_parallels_vm_doesnt_exist(options)
   exists = check_parallels_vm_exists(options)
-  if exists.match(/yes/)
+  if exists == true
     handle_output(options,"Parallels VM #{options['name']} already exists")
     quit(options)
   end
@@ -516,11 +516,11 @@ end
 
 def check_parallels_vm_exists(options)
   set_vmrun_bin(options)
-  exists  = "no"
+  exists  = false
   vm_list = get_all_parallels_vms(options)
   vm_list.each do |vm_name|
     if vm_name.match(/^#{options['name']}$/)
-      exists = "yes"
+      exists = true
       return exists
     end
   end
@@ -532,7 +532,7 @@ end
 def unconfigure_parallels_vm(options)
   check_parallels_is_installed(options)
   exists = check_parallels_vm_exists(options)
-  if exists.match(/no/)
+  if exists == false
     handle_output(options,"Parallels VM #{options['name']} does not exist")
     quit(options)
   end

@@ -10,9 +10,9 @@ def check_qemu_vm_exists(options)
     if options['verbose'] == true
       handle_output(options,"Information:\tKVM VM #{options['name']} does not exist")
     end
-    exists = "no"
+    exists = false
   else
-    exists = "yes"
+    exists = true
   end
   return exists
 end

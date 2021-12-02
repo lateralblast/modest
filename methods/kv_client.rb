@@ -56,7 +56,7 @@ end
 
 def unconfigure_kvm_vm(options)
   exists = check_kvm_vm_exists(options)
-  if exists == "yes"
+  if exists == true
     stop_kvm_vm(options)
     message = "Warning:\tDeleting KVM VM \"#{options['name']}\""
     command = "virsh undefine --domain \"#{options['name']}\""
@@ -91,8 +91,8 @@ end
 
 def boot_kvm_vm(options)
   exists = check_kvm_vm_exists(options)
-  if exists.match(/yes/)
-    message          = "Starting:\tVM "+options['name']
+  if exists == true
+    message = "Starting:\tVM "+options['name']
     if options['text'] == true or options['headless'] == true
       command = "virsh start #{options['name']}"
     else
@@ -123,7 +123,7 @@ end
 
 def destroy_kvm_vm(options)
   exists = check_kvm_vm_exists(options)
-  if exists.match(/yes/)
+  if exists == true
     message = "Starting:\tVM "+options['name']
     if options['text'] == true or options['headless'] == true
       command = "virsh destroy --domain #{options['name']}"
@@ -142,7 +142,7 @@ end
 
 def stop_kvm_vm(options)
   exists = check_kvm_vm_exists(options)
-  if exists.match(/yes/)
+  if exists == true
     running = check_kvm_vm_is_running(options)
     if running.match(/yes/)
       message = "Stopping:\tVM "+options['name']

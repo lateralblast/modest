@@ -35,6 +35,8 @@ def check_vm_exists(options)
     exists = check_vbox_vm_exists(options)
   when /fusion/
     exists = check_fusion_vm_exists(options)
+  when /mp|multipass/
+    exists = check_multipass_vm_exists(options)
   end
   return exists
 end

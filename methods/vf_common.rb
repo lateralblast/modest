@@ -36,7 +36,7 @@ end
 
 def add_fusion_vm_network(options)
   exists = check_fusion_vm_exists(options)
-  if exists.match(/yes/)
+  if exists == true
     vm_list = get_running_fusion_vms(options)
     if !vm_list.to_s.match(/#{options['name']}/)
       fusion_vmx_file = get_fusion_vm_vmx_file(options)
@@ -56,7 +56,7 @@ end
 
 def delete_fusion_vm_network(options,install_interface)
   exists = check_fusion_vm_exists(options)
-  if exists.match(/yes/)
+  if exists == true
     vm_list = get_running_fusion_vms(options)
     if !vm_list.to_s.match(/#{options['name']}/)
       fusion_vmx_file = get_fusion_vm_vmx_file(options)
@@ -90,7 +90,7 @@ end
 
 def show_fusion_vm_network(options)
   exists = check_fusion_vm_exists(options)
-  if exists.match(/yes/)
+  if exists == true
     fusion_vmx_file = get_fusion_vm_vmx_file(options)
     message = "Information:\tGetting network interface list for "+options['name']
     command = "'#{options['vmrun']}' listNetworkAdapters '#{fusion_vmx_file}'"
@@ -106,7 +106,7 @@ end
 
 def get_fusion_vm_status(options)
   exists = check_fusion_vm_exists(options)
-  if exists.match(/yes/)
+  if exists == true
     vm_list = get_running_fusion_vms(options)
     if vm_list.to_s.match(/#{options['name']}/)
       handle_output(options,"Information:\t#{options['vmapp']} VM #{options['name']} is Running")
@@ -123,7 +123,7 @@ end
 
 def get_fusion_vm_screen(options)
   exists = check_fusion_vm_exists(options)
-  if exists.match(/yes/)
+  if exists == true
     vm_list = get_running_fusion_vms(options)
     if vm_list.to_s.match(/#{options['name']}/)
       fusion_vmx_file = get_fusion_vm_vmx_file(options)
@@ -157,7 +157,7 @@ end
 def get_fusion_vm_ip(options)
   options['ip'] = ""
   exists = check_fusion_vm_exists(options)
-  if exists.match(/yes/)
+  if exists == true
     running = check_fusion_vm_is_running(options)
     if running.match(/yes/)
       fusion_vmx_file = get_fusion_vm_vmx_file(options)
@@ -189,7 +189,7 @@ end
 
 def import_packer_fusion_vm(options)
   (exists,images_dir) = check_packer_vm_image_exists(options)
-  if exists.match(/no/)
+  if exists == false
     handle_output(options,"Warning:\tPacker #{options['vmapp']} VM image for #{options['name']} does not exist")
     quit(options)
   end
@@ -213,7 +213,7 @@ end
 
 def migrate_fusion_vm(options)
   exists = check_fusion_vm_exists(options)
-  if exists.match(/no/)
+  if exists == true
     handle_output(options,"Warning:\t#{options['vmapp']} VM #{options['name']} does not exist")
     quit(options)
   end
@@ -414,7 +414,7 @@ end
 def show_fusion_vm_config(options)
   fusion_vmx_file = ""
   exists = check_fusion_vm_exists(options)
-  if exists.match(/yes/)
+  if exists == true
     fusion_vmx_file = get_fusion_vm_vmx_file(options)
     if File.exist?(fusion_vmx_file)
       print_contents_of_file(options,"#{options['vmapp']} configuration",fusion_vmx_file)
@@ -428,7 +428,7 @@ end
 def set_fusion_value(options)
   exists = check_fusion_vm_exists(options)
   fusion_vmx_file = get_fusion_vm_vmx_file(options)
-  if exists.match(/yes/)
+  if exists == true
     message = "Information:\tSetting Parameter "+options['param']+" for "+options['name']+" to "+options['value']
     command = "'#{options['vmrun']}' writeVariable '#{fusion_vmx_file}' runtimeConfig '#{options['param']}' '#{options['value']}'"
     execute_command(options,message,command)
@@ -444,7 +444,7 @@ end
 def get_fusion_value(options)
   exists = check_fusion_vm_exists(options)
   fusion_vmx_file = get_fusion_vm_vmx_file(options)
-  if exists.match(/yes/)
+  if exists == true
     message = "Information:\tGetting Parameter "+options['param']+" for "+options['name']
     command = "'#{options['vmrun']}' readVariable '#{fusion_vmx_file}' runtimeConfig '#{options['param']}'"
     output  = execute_command(options,message,command)
@@ -477,7 +477,7 @@ end
 
 def snapshot_fusion_vm(options)
   exists = check_fusion_vm_exists(options)
-  if exists.match(/no/)
+  if exists == true
     handle_output(options,"Warning:\t#{options['vmapp']} VM #{options['name']} does not exist")
     quit(options)
   end
@@ -613,7 +613,7 @@ end
 
 def export_fusion_ova(options)
   exists = check_fusion_vm_exists(options)
-  if exists.match(/yes/)
+  if exists == true
     stop_fusion_vm(options)
     if not options['file'].to_s.match(/[0-9,a-z,A-Z]/)
       options['file'] = "/tmp/"+options['name']+".ova"
@@ -656,7 +656,7 @@ def import_fusion_ova(options)
     handle_output(options,"Warning:\tWMware configuration file for client does not exist")
   end
   exists = check_fusion_vm_exists(options)
-  if exists.match(/no/)
+  if exists == false
     if not options['file'].to_s.match(/\//)
       options['file'] = options['isodir']+"/"+options['file']
     end
@@ -1018,7 +1018,7 @@ end
 
 def boot_fusion_vm(options)
   exists = check_fusion_vm_exists(options)
-  if exists.match(/yes/)
+  if exists == true
     if options['host-os-name'].to_s.match(/Linux/)
       fusion_vm_dir = options['fusiondir']+"/"+options['name']
     else
@@ -1082,7 +1082,7 @@ end
 
 def stop_fusion_vm(options)
   exists = check_fusion_vm_exists(options)
-  if exists.match(/yes/)
+  if exists == true
     if options['host-os-name'].to_s.match(/Linux/)
       fusion_vm_dir = options['fusiondir']+"/"+options['name']
     else
@@ -1193,12 +1193,12 @@ def check_fusion_vm_exists(options)
     if options['verbose'] == true
       handle_output(options,"Information:\t#{options['vmapp']} VM #{options['name']} does not exist")
     end
-    exists = "no"
+    exists = false
   else
     if options['verbose'] == true
       handle_output(options,"Information:\t#{options['vmapp']} VM #{options['name']} exists")
     end
-    exists = "yes"
+    exists = true
   end
   return exists
 end
@@ -1462,7 +1462,7 @@ end
 def unconfigure_fusion_vm(options)
   stop_fusion_vm(options)
   exists = check_fusion_vm_exists(options)
-  if exists.match(/yes/)
+  if exists == true
     stop_fusion_vm(options)
     if options['host-os-name'].to_s.match(/Linux/)
       fusion_vm_dir = options['fusiondir']+"/"+options['name']

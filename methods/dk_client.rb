@@ -5,7 +5,7 @@
 def execute_docker_command(options)
   command = options['command'].to_s 
 	exists  = check_docker_vm_exists(options)
-	if exists == "yes"
+	if exists == true
 		output = %x[docker-machine ssh #{options['name']} "#{command}']
 		handle_output(options,output)
 	else
@@ -18,7 +18,7 @@ end
 
 def connect_to_docker_client(options)
 	exists = check_docker_vm_exists(options)
-	if exists == "yes"
+	if exists == true
 		handle_output(options,"Command:\tdocker ssh #{options['name']}")
 	else
 		handle_output(options,"Information:\tDocker instance #{options['name']} does not exist")
@@ -49,7 +49,7 @@ def configure_docker_client(options)
 		docker_vm = "vmwarefusion"
 	end
 	exists = check_docker_vm_exists(options)
-	if exists == "no"
+	if exists == false
 		message = "Information:\tCreating docker VM #{options['name']}"
 		if options['vm'].to_s.match(/box/)
 			if not options['ip'].empty?
@@ -69,7 +69,7 @@ end
 
 def unconfigure_docker_client(options)
 	exists = check_docker_vm_exists(options)
-	if exists == "yes"
+	if exists == true
 		message = "Information:\tDeleting docker instance #{options['name']}"
 		command = "docker-machine rm --force #{options['name']}"
 		execute_command(options,message,command)

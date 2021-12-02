@@ -18,7 +18,7 @@ end
 
 def import_packer_kvm_vm(options)
   (exists,images_dir) = check_packer_vm_image_exists(options)
-  if exists.match(/no/)
+  if exists == false
     handle_output(options,"Warning:\tPacker KVM VM QCOW image for #{options['name']} does not exist")
     quit(options)
   end
@@ -179,7 +179,7 @@ end
 
 def configure_kvm_client(options)
   exists = check_kvm_vm_exists(options)
-  if exists == "yes"
+  if exists == true
     message = "Warning:\t KVM VM #{options['name']} already exists"
     handle_output(options,message)
     quit(options)

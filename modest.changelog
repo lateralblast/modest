@@ -1451,3 +1451,5 @@
 # Fixed multipass stop VM
 # 7.2.5: Wed 17 Nov 2021 16:50:05 AEDT
 # Bug fixes
+# 7.2.6: Thu  2 Dec 2021 18:33:07 AEDT
+# Added multipass connect and cleaned up code

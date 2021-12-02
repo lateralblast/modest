@@ -31,7 +31,7 @@ end
 
 def build_aws_config(options)
   exists = check_aws_image_exists(options)
-  if exists == "yes"
+  if exists == true
     handle_output(options,"Warning:\tAWS image already exists for '#{options['name']}'")
     quit(options)
   end
@@ -326,11 +326,11 @@ def create_aws_install_files(options)
   options['service'] = "aws"
   process_questions(options)
   exists = check_aws_key_pair_exists(options)
-  if exists == "no"
+  if exists == false
     create_aws_key_pair(options)
   else
     exists = check_aws_ssh_key_file_exists(options)
-    if exists == "no"
+    if exists == false
       handle_output(options,"Warning:\tSSH Key file '#{aws_ssh_key_file}' for AWS Key Pair '#{options['key']}' does not exist")
       quit(options)
     end

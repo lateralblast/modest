@@ -115,16 +115,16 @@ def create_aws_cf_stack_config(options)
   options['service'] = "aws"
   process_questions(options)
   exists = check_if_aws_cf_stack_exists(options)
-  if exists == "yes"
+  if exists == true
     handle_output(options,"Warning:\tAWS CloudFormation Stack '#{options['name']}' already exists")
     quit(options)
   end
   exists = check_aws_key_pair_exists(options)
-  if exists == "no"
+  if exists == false
     create_aws_key_pair(options)
   else
     exists = check_aws_ssh_key_file_exists(options)
-    if exists == "no"
+    if exists == false
       handle_output(options,"Warning:\tSSH Key file '#{aws_ssh_key_file}' for AWS Key Pair '#{options['key']}' does not exist")
       quit(options)
     end

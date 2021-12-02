@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      7.2.5
+# Version:      7.2.6
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -2471,6 +2471,10 @@ if options['action'] != options['empty']
   when /console|serial|connect|ssh/
     if options['vm'].to_s.match(/kvm/)
       connect_to_kvm_vm(options)
+    end
+    if options['vm'].to_s.match(/mp|multipass/)
+      connect_to_multipass_vm((options))
+      quit(options)
     end
     if options['vm'].to_s.match(/aws/) || options['id'].to_s.match(/[0-9]/)
       connect_to_aws_vm(options)

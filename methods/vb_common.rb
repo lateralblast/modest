@@ -11,7 +11,7 @@ end
 
 def get_vbox_vm_status(options)
   exists = check_vbox_vm_exists(options)
-  if exists.match(/yes/)
+  if exists == true
     vm_list = get_running_vbox_vms()
     if vm_list.to_s.match(/#{options['name']}/)
       handle_output(options,"Information:\tVirtualBox VM #{options['name']} is Running")
@@ -28,7 +28,7 @@ end
 
 def import_packer_vbox_vm(options)
   (exists,images_dir) = check_packer_vm_image_exists(options)
-  if exists.match(/no/)
+  if exists == false
     handle_output(options,"Warning:\tPacker VirtualBox VM image for #{options['name']} does not exist")
     return exists
   end
@@ -52,7 +52,7 @@ end
 
 def show_vbox_vm(options)
   exists = check_vbox_vm_exists(options)
-  if exists.match(/yes/)
+  if exists == true
     output = %x[#{options['vboxmanage']} showvminfo '#{options['name']}']
     show_output_of_command("VirtualBox VM configuration",output)
   else
@@ -70,7 +70,7 @@ end
 
 def set_vbox_value(options)
   exists = check_vbox_vm_exists(options)
-  if exists.match(/yes/)
+  if exists == true
     %x[#{options['vboxmanage']} modifyvm '#{options['name']}' --#{options['param']} #{options['value']}]
   else
     handle_output(options,"Warning:\tVirtualBox VM #{options['name']} does not exist")
@@ -82,7 +82,7 @@ end
 
 def set_vbox_value(options)
   exists = check_vbox_vm_exists(options)
-  if exists.match(/yes/)
+  if exists == true
     %x[#{options['vboxmanage']} showvminfo '#{options['name']}' | grep '#{options['param']}']
   else
     handle_output(options,"Warning:\tVirtualBox VM #{options['name']} does not exist")
@@ -169,7 +169,7 @@ end
 
 def snapshot_vbox_vm(options)
   exists = check_vbox_vm_exists(options)
-  if exists.match(/no/)
+  if exists == true
     handle_output(options,"Warning:\tVirtualBox VM #{options['name']} does not exist")
     return exists
   end
@@ -298,7 +298,7 @@ end
 
 def clone_vbox_vm(options)
   exists = check_vbox_vm_exists(options)
-  if exists.match(/no/)
+  if exists == true
     handle_output(options,"Warning:\tVirtualBox VM #{options['name']} does not exist")
     return exists
   end
@@ -318,7 +318,7 @@ end
 
 def export_vbox_ova(options)
   exists = check_vbox_vm_exists(options)
-  if exists.match(/yes/)
+  if exists == true
     stop_vbox_vm(options)
     if not options['file'].to_s.match(/[0-9,a-z,A-Z]/)
       options['file'] = "/tmp/"+options['name']+".ova"
@@ -341,10 +341,10 @@ end
 
 def import_vbox_ova(options)
   exists = check_vbox_vm_exists(options)
-  if exists.match(/no/)
+  if exists == false
     exists = check_vbox_vm_config_exists(options)
   end
-  if exists.match(/yes/)
+  if exists == true
     delete_vbox_vm_config(options)
   end
   if not options['file'].to_s.match(/\//)
@@ -484,9 +484,9 @@ def check_vbox_vm_exists(options)
     if options['verbose'] == true
       handle_output(options,"Warning:\tVirtualBox VM #{options['name']} does not exist")
     end
-    exists = "no"
+    exists = false
   else
-    exists = "yes"
+    exists = true
   end
   return exists
 end
@@ -653,14 +653,14 @@ end
 # Check if VirtuakBox config file exists
 
 def check_vbox_vm_config_exists(options)
-  exists      = "no"
-  options['vmdir'] = get_vbox_vm_dir(options)
-  config_file = options['vmdir']+"/"+options['name']+".vbox"
-  prev_file   = options['vmdir']+"/"+options['name']+".vbox-prev"
+  exists = false
+  vm_dir = get_vbox_vm_dir(options)
+  config_file = vm_dir+"/"+options['name']+".vbox"
+  prev_file   = vm_dir+"/"+options['name']+".vbox-prev"
   if File.exist?(config_file) or File.exist?(prev_file)
-    exists = "yes"
+    exists = true
   else
-    exists = "no"
+    exists = false
   end
   return exists
 end
@@ -1044,7 +1044,7 @@ end
 
 def boot_vbox_vm(options)
   exists = check_vbox_vm_exists(options)
-  if exists.match(/no/)
+  if exists == false
     handle_output(options,"Warning:\tVirtualBox VM #{options['name']} does not exist")
     return exists
   end
@@ -1095,7 +1095,7 @@ end
 
 def stop_vbox_vm(options)
   exists = check_vbox_vm_exists(options)
-  if exists.match(/yes/)
+  if exists == true
     message = "Stopping:\tVM "+options['name']
     command = "#{options['vboxmanage']} controlvm #{options['name']} poweroff"
     execute_command(options,message,command)
@@ -1287,9 +1287,9 @@ end
 def unconfigure_vbox_vm(options)
   options = check_vbox_is_installed(options)
   exists  = check_vbox_vm_exists(options)
-  if exists.match(/no/)
+  if exists == false
     exists = check_vbox_vm_config_exists(options)
-    if exists.match(/yes/)
+    if exists == true
       delete_vbox_vm_config(options)
     else
       handle_output(options,"Warning:\tVirtualBox VM #{options['name']} does not exist")

@@ -77,7 +77,7 @@ def upload_file_to_aws_bucket(options)
     handle_output(options,"Information:\tSetting Bucket to default bucket '#{options['bucket']}'")
   end
   exists = check_if_aws_bucket_exists(options['access'],options['secret'],options['region'],options['bucket'])
-  if exists == "no"
+  if exists == false
      s3 = create_aws_s3_bucket(options['access'],options['secret'],options['region'],options['bucket'])
   end
   if not options['key'].to_s.match(/[A-Z]|[a-z]|[0-9]/)
@@ -129,12 +129,12 @@ end
 # Check if AWS bucket exists
 
 def check_if_aws_bucket_exists(options)
-  exists  = "no"
+  exists  = false
   buckets = get_aws_buckets(options)
   buckets.each do |bucket|
     bucket_name = bucket.name
     if bucket_name.match(/#{options['bucket']}/)
-      exists = "yes"
+      exists = true
       return exists
     end
   end

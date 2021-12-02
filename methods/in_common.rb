@@ -3023,14 +3023,14 @@ end
 # Check Python module is installed
 
 def check_python_module_is_installed(install_module)
-  exists = "no"
+  exists = false
   module_list = %x[pip listi | awk '{print $1}'].split(/\n/)
   module_list.each do |module_name|
     if module_name.match(/^#{options['model']}$/)
-      exists = "yes"
+      exists = true
     end
   end
-  if exists == "no"
+  if exists == false
     message = "Information:\tInstalling python model '#{install_module}'"
     command = "pip install #{install_module}"
     execute_command(options,message,command)
@@ -4176,8 +4176,8 @@ def check_zfs_fs_exists(options,dir_name)
       else
         mount_dir = dir_name
       end
-      message      = "Information:\tCreating "+dir_name+" with mount point "+mount_dir
-      command      = "zfs create -o mountpoint=#{mount_dir} #{zfs_name}"
+      message = "Information:\tCreating "+dir_name+" with mount point "+mount_dir
+      command = "zfs create -o mountpoint=#{mount_dir} #{zfs_name}"
       execute_command(options,message,command)
       if dir_name.match(/vmware_|openbsd_|coreos_/) or options['host-os-release'].to_i > 10
         message = "Information:\tSymlinking "+mount_dir+" to "+dir_name

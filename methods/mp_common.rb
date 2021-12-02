@@ -18,6 +18,21 @@ def check_multipass_is_installed(options)
   return
 end
 
+# Connect Multipass VM
+
+def connect_to_multipass_vm(options)
+  exists = check_multipass_vm_exists(options)
+  if exists == true
+    output = "Information:\tTo connect to Multipass VM #{options['name']}"
+    handle_output(options,output)
+    output = "multipass shell #{options['name']}"
+    handle_output(options,output)
+  else
+    handle_output(options,"Warning:\tMultipass VM #{options['name']} does not exist")
+  end
+  return
+end
+
 # Check Multipass NATd
 
 def check_multipass_natd(options,vm_if_name)
@@ -95,7 +110,7 @@ end
 # Check if Multipass instance exists
 
 def check_multipass_vm_exists(options)
-  exists = "no"
+  exists = false
   if options['name'] == options['empty']
     handle_output(options,"Warning:\tNo client name specified")
     quit(options)
@@ -105,7 +120,7 @@ def check_multipass_vm_exists(options)
   command = "multipass list |grep #{vm_name}"
   output  = execute_command(options,message,command)
   if output.match(/#{vm_name}/)
-    exists = "yes"
+    exists = true
   end
   return exists
 end
@@ -115,7 +130,7 @@ end
 def execute_multipass_command(options)
   command = options['command'].to_s 
 	exists  = check_multipass_vm_exists(options)
-	if exists == "yes"
+	if exists == true
     command = "multipass exec #{options['name']} -- bash -c \"#{command}\""
 		output  = %x[#{command}]
 		handle_output(options,output)
@@ -131,7 +146,7 @@ def configure_multipass_vm(options)
   exists  = check_multipass_vm_exists(options)
   vm_name = options['name'].to_s
   options = process_memory_value(options)
-  if exists == "yes"
+  if exists == true
     handle_output(options,"Warning:\tMultipass VM #{vm_name} already exists")
     quit(options)
   else
@@ -172,7 +187,7 @@ end
 def get_multipass_vm_info(options)
   exists  = check_multipass_vm_exists(options)
   vm_name = options['name'].to_s
-  if exists == "yes" && !options['action'].to_s.match(/list/)
+  if exists == true && !options['action'].to_s.match(/list/)
     handle_output(options,"Warning:\tMultipass VM #{vm_name} already exists")
   else
     message = "Information:\Getting information for Multipass VM #{vm_name}"
@@ -202,7 +217,7 @@ end
 def unconfigure_multipass_vm(options)
   exists  = check_multipass_vm_exists(options)
   vm_name = options['name'].to_s
-  if exists == "yes"
+  if exists == true
     message = "Information:\tDeleting Mulipass VM #{vm_name}"
     command = "multipass delete #{vm_name}; multipass purge"
     execute_command(options,message,command)
@@ -217,7 +232,7 @@ end
 def boot_multipass_vm(options)
   exists  = check_multipass_vm_exists(options)
   vm_name = options['name'].to_s
-  if exists == "yes"
+  if exists == true
     message = "Information:\tStarting Mulipass VM #{vm_name}"
     command = "multipass start #{vm_name}"
     execute_command(options,message,command)
@@ -232,7 +247,7 @@ end
 def stop_multipass_vm(options)
   exists  = check_multipass_vm_exists(options)
   vm_name = options['name'].to_s
-  if exists == "yes"
+  if exists == true
     message = "Information:\tStopping Mulipass VM #{vm_name}"
     command = "multipass stop #{vm_name}"
     execute_command(options,message,command)

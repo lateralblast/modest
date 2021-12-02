@@ -160,7 +160,7 @@ def populate_cc_user_data(options)
     exec_data.push("chmod 700 #{ssh_dir}")
     exec_data.push("#{in_target}chown -R #{admin_user}:#{admin_user} #{admin_home}")
   end
-  if !options['vm'].to_s.match(/mp|multipass/)
+  if !options['vm'].to_s.match(/mp|multipass/) or options['force'] == true
     if options['vm'].to_s.match(/kvm/)
       exec_data.push("systemctl enable serial-getty@ttyS0.service")
       exec_data.push("systemctl start serial-getty@ttyS0.service")

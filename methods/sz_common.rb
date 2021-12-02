@@ -6,12 +6,12 @@
 def check_zone_is_installed()
   if options['host-os-name'].to_s.match(/SunOS/)
     if options['host-os-release'].split(/\./)[0].to_i > 10
-      exists = "yes"
+      exists =  true
     else
-      exists = "no"
+      exists = false
     end
   else
-    exists = "no"
+    exists = false
   end
   return exists
 end

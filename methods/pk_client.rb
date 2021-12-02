@@ -30,9 +30,9 @@ end
 def check_packer_vm_image_exists(options)
   images_dir = options['clientdir']+"/images"
   if File.directory?(images_dir)
-    exists = "yes"
+    exists = true
   else
-    exists = "no"
+    exists = false
   end
   return exists,images_dir
 end
@@ -122,9 +122,9 @@ def check_packer_image_exists(options)
   image_dir  = options['clientdir']+"/images"
   image_file = image_dir+"/"+options['name']+".ovf"
   if File.exist?(image_file)
-  	exists = "yes"
+  	exists = true
   else
-  	exists = "no"
+  	exists = false
   end
 	return exists
 end
@@ -158,7 +158,7 @@ def unconfigure_packer_client(options)
     	FileUtils.rm_rf(image_dir)
     end
   end
-  exists = "no"
+  exists = false
   case options['vm']
   when /fusion/
     exists = check_packer_fusion_disk_exists(options)
@@ -167,7 +167,7 @@ def unconfigure_packer_client(options)
   when /kvm/
     exists = check_packer_kvm_disk_exists(options)
   end
-  if exists == "yes"
+  if exists == true
     case options['vm']
     when /fusion/
       delete_packer_fusion_disk(options)
@@ -192,14 +192,14 @@ end
 # Check if a packer VMware Fusion disk image exists
 
 def check_packer_fusion_disk_exists(options)
-  exists = "no"
+  exists = false
   return exists
 end
 
 # Check if a packer KVM disk image exists
 
 def check_packer_kvm_disk_exists(options)
-  exists = "no"
+  exists = false
   return exists
 end
 
@@ -218,7 +218,7 @@ end
 # Check if a packer VirtualBox disk image exists
 
 def check_packer_vbox_disk_exists(options)
-  exists   = "no"
+  exists   = false
   vdi_file = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/images/"+options['name']+".vdi"
   message  = "Information:\tChecking if VDI file exists for #{options['name']}"
   command  = "#{options['vboxmanage']} list hdds |grep ^Location"
@@ -268,12 +268,12 @@ def configure_packer_client(options)
   check_dir_exists(options,options['clientdir'])
   check_dir_owner(options,options['clientdir'],options['uid'])
   exists = check_vm_exists(options)
-	if exists == "yes"
+	if exists == true
   	handle_output(options,"Warning:\t#{options['vmapp']} VM #{options['name']} already exists")
 		quit(options)
 	end
 	exists = check_packer_image_exists(options)
-	if exists == "yes"
+	if exists == true
     handle_output(options,"Warning:\tPacker image for #{options['vmapp']} VM #{options['name']} already exists")
 		quit(options)
   end
@@ -335,7 +335,7 @@ end
 def build_packer_config(options)
   kill_packer_processes(options)
   exists = check_vm_exists(options)
-  if exists.to_s.match(/yes/)
+  if exists == true
     if options['vm'].to_s.match(/vbox/)
       handle_output(options,"Warning:\tVirtualBox VM #{options['name']} already exists")
     else
@@ -345,7 +345,7 @@ def build_packer_config(options)
   end
   exists = check_packer_image_exists(options)
   options['clientdir'] = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']
-  json_file  = options['clientdir']+"/"+options['name']+".json"
+  json_file = options['clientdir']+"/"+options['name']+".json"
   if not File.exist?(json_file)
     handle_output(options,"Warning:\tJSON configuration file \"#{json_file}\" for #{options['name']} does not exist")
     quit(options)

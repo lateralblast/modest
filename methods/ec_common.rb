@@ -100,7 +100,7 @@ end
 # Check AWS VM exists - Dummy function for packer
 
 def check_aws_vm_exists(options)
-  exists = "no"
+  exists = false
   return exists
 end
 
@@ -201,7 +201,7 @@ def handle_aws_values(options)
     quit(options)
   end
   exists = check_if_aws_security_group_exists(options)
-  if exists == "no"
+  if exists == false
     create_aws_security_group(options)
   end
   add_ssh_to_aws_security_group(options)
@@ -352,12 +352,12 @@ end
 
 
 def check_if_aws_security_group_exists(options)
-  exists = "no"
+  exists = false
   groups = get_aws_security_groups(options)
   groups.each do |group|
     group_name = group.group_name
     if options['group'].to_s.match(/^#{group_name}$/)
-      exists = "yes"
+      exists = true
       return exists
     end
   end
@@ -773,11 +773,11 @@ end
 # Check if AWS image exists
 
 def check_aws_image_exists(options)
-  exists     = "no"
+  exists     = false
   ec2,images = get_aws_images(options)
   images.each do |image|
     if image.name.match(/^#{options['name']}/)
-      exists = "yes"
+      exists = true
       return exists
     end
   end
@@ -909,12 +909,12 @@ end
 # Check if AWS Key Pair exists
 
 def check_aws_key_pair_exists(options)
-  exists = "no"
+  exists = false
   ec2,key_pairs = get_aws_key_pairs(options)
   key_pairs.each do |key_pair|
     key_name = key_pair.key_name
     if key_name.match(/^#{options['key']}$/)
-      exists = "yes"
+      exists = true
     end
   end
   return exists
@@ -925,9 +925,9 @@ end
 def check_aws_ssh_key_file_exists(options)
   aws_ssh_key = options['keydir']+"/"+options['key']+".pem"
   if File.exist?(aws_ssh_key)
-    exists = "yes"
+    exists = true
   else
-    exists = "no"
+    exists = false
   end
   return exists
 end
@@ -941,7 +941,7 @@ def create_aws_key_pair(options)
     options['keyname'] = get_aws_uniq_name(options)
   end
   exists = check_aws_key_pair_exists(options)
-  if exists == "yes"
+  if exists == true
     handle_output(options,"Warning:\tKey Pair '#{options['keyname']}' already exists")
     if options['type'].to_s.match(/key/)
       quit(options)
@@ -970,7 +970,7 @@ def delete_aws_key_pair(options)
     options['keyname'] = get_aws_uniq_name(options)
   end
   exists = check_aws_key_pair_exists(options)
-  if exists == "no"
+  if exists == false
     handle_output(options,"Warning:\tAWS Key Pair '#{options['keyname']}' does not exist")
     quit(options)
   else

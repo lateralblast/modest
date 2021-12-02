@@ -130,7 +130,7 @@ end
 # Check docker instance exists
 
 def check_docker_vm_exists(options)
-  exists  = "no"
+  exists  = false
   message = "Information:\tChecking docker instances for #{options['name']}"
   command = "docker-machine ls"
   output  = execute_command(options,message,command)
@@ -140,7 +140,7 @@ def check_docker_vm_exists(options)
     items = line.split(/\s+/)
     host  = items[0]
     if host.match(/^#{options['name']}$/)
-      exists = "yes"
+      exists = true
       return exists
     end
   end
@@ -150,14 +150,14 @@ end
 # Check docker image exists
 
 def check_docker_image_exists(options)
-  exists = "no"
+  exists = false
   images = get_docker_image_list(options)
   images.each do |line|
     line  = line.chomp
     items = line.split(/\s+/)
     host  = items[0]
     if host.match(/^#{options['name']}$/)
-      exists = "yes"
+      exists = true
       return exists
     end
   end

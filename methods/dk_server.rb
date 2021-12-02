@@ -13,7 +13,7 @@ def configure_docker_server(options)
   service_dir = options['tftpdir']+"/"+options['service']
   check_dir_exists(options,service_dir)
   exists = check_docker_image_exists(options['scriptname'])
-  if exists == "no"
+  if exists == false
     check_dir_exists(options,$docker_host_base_dir)
     check_dir_owner(options,$docker_host_base_dir,options['uid'])
     check_dir_exists(options,$docker_host_tftp_dir)

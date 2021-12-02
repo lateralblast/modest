@@ -426,7 +426,7 @@ def configure_ks_client(options)
       if options['service'].to_s.match(/live/) || options['vm'].to_s.match(/mp|multipass/)
         options = populate_ps_questions(options)
         options = process_questions(options)
-        (user_data,exec_data) = populate_cc_userdata(options)
+        (user_data,exec_data) = populate_cc_user_data(options)
         output_cc_user_data(options,user_data,exec_data,output_file)
         FileUtils.touch(meta_file)
       else
