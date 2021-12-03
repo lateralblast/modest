@@ -8,30 +8,30 @@
 def get_ai_repo_version(options)
   options = get_ai_publisherurl(options)
   if options['test'] == true || options['host-os-name'].to_s.match(/Darwin/)
-  repo_version  = "0.175.1"
+    version  = "0.175.1"
   else
-    message      = "Information:\tDetermining if available repository version from "+options['publisherurl']
-    command      = "pkg info -g #{options['publisherurl']} entire |grep Branch |awk \"{print \\\$2}\""
-    repo_version = execute_command(options,message,command)
-    repo_version = repo_version.chomp
-    repo_version = repo_version.split(/\./)[0..2].join(".")
+    message = "Information:\tDetermining if available repository version from "+options['publisherurl']
+    command = "pkg info -g #{options['publisherurl']} entire |grep Branch |awk \"{print \\\$2}\""
+    version = execute_command(options,message,command)
+    version = version.chomp
+    version = version.split(/\./)[0..2].join(".")
   end
-  return repo_version
+  return version
 end
 
 # Check the publisher port isn't being used
 
 def check_ai_publisherport(options)
-  message      = "Information:\tDetermining if publisher port "+options['publisherport']+" is in use"
-  command      = "svcprop -a pkg/server |grep \"port count\" |grep -v #{options['service']}"
-  ports_in_use = execute_command(options,message,command)
-  if ports_in_use.match(/#{options['publisherport']}/)
+  message = "Information:\tDetermining if publisher port "+options['publisherport']+" is in use"
+  command = "svcprop -a pkg/server |grep \"port count\" |grep -v #{options['service']}"
+  in_use  = execute_command(options,message,command)
+  if in_use.match(/#{options['publisherport']}/)
     if options['verbose'] == true
       handle_output(options,"Warning:\tPublisher port #{options['publisherport']} is in use")
       handle_output(options,"Information:\tFinding free publisher port")
     end
   end
-  while ports_in_use.match(/#{options['publisherport']}/)
+  while in_use.match(/#{options['publisherport']}/)
     options['publisherport'] = options['publisherport'].to_i+1
     options['publisherport'] = options['publisherport'].to_s
   end
@@ -44,17 +44,17 @@ end
 # Get publisher port for service
 
 def get_ai_publisherport(options)
-  message     = "Information:\tDetermining publisher port for service "+options['service']
-  command     = "svcprop -a pkg/server |grep 'port count'"
-  port_in_use = execute_command(options,message,command)
-  return port_in_use
+  message = "Information:\tDetermining publisher port for service "+options['service']
+  command = "svcprop -a pkg/server |grep 'port count'"
+  in_use  = execute_command(options,message,command)
+  return in_use
 end
 
 # Get the repository URL
 
 def get_ai_repo_url(options)
-  repo_version = get_ai_repo_version(options)
-  repo_url     = "pkg:/entire@0.5.11-"+repo_version
+  repo_ver = get_ai_repo_version(options)
+  repo_url = "pkg:/entire@0.5.11-"+repo_ver
   return repo_url
 end
 
@@ -176,8 +176,8 @@ def list_ai_isos(options)
       else
         iso_version = iso_info[1]
       end
-      options['service']  = "sol_"+iso_version
-      options['repodir'] = options['baserepodir']+"/"+options['service']
+      service = "sol_"+iso_version
+      repodir = options['baserepodir']+"/"+service
       if options['output'].to_s.match(/html/)
         handle_output(options,"<tr>")
         handle_output(options,"<td>#{file_name}</td>")
@@ -188,10 +188,10 @@ def list_ai_isos(options)
         else
           handle_output(options,"<td>#{iso_arch}</td>")
         end
-        if File.directory?(options['repodir'])
-          handle_output(options,"<td>#{options['service']} (exists)</td>")
+        if File.directory?(repodir)
+          handle_output(options,"<td>#{service} (exists)</td>")
         else
-          handle_output(options,"<td>#{options['service']}</td>")
+          handle_output(options,"<td>#{service}</td>")
         end
         handle_output(options,"</tr>")
       else
@@ -204,9 +204,9 @@ def list_ai_isos(options)
           handle_output(options,"Architecture:\t#{iso_arch}")
         end
         if File.directory?(options['repodir'])
-          handle_output(options,"Service Name:\t#{options['service']} (exists)")
+          handle_output(options,"Service Name:\t#{service} (exists)")
         else
-          handle_output(options,"Service Name:\t#{options['service']}")
+          handle_output(options,"Service Name:\t#{service}")
         end
         handle_output(options,"")
       end

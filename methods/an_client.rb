@@ -140,7 +140,7 @@ def create_ansible_aws_install_files(options)
     quit(options)
   end
   options = handle_aws_values(options)
-  exists = check_aws_image_exists(options)
+  exists  = check_aws_image_exists(options)
   if exists == true
     handle_output(options,"Warning:\tAWS AMI already exists with name #{options['name']}")
     quit(options)

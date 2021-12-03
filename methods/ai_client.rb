@@ -21,22 +21,22 @@ def list_ai_clients(options)
       handle_output(options,"Available AI clients:")
       handle_output(options,"")
     end
-    options['service'] = ""
-    options['name']  = ""
+    service = ""
+    client  = ""
     client_info.each do |line|
       if line.match(/^[a-z,A-Z]/)
-        options['service'] = line
+        service = line
       else
-        options['name'] = line
-        options['name'] = options['name'].gsub(/^\s+/,"")
-        options['name'] = options['name'].gsub(/\s+/," ")
+        client = line
+        client = client.gsub(/^\s+/,"")
+        client = client.gsub(/\s+/," ")
         if options['output'].to_s.match(/html/)
           handle_output(options,"<tr>")
-          handle_output(options,"<td>#{options['name']}</td>")
-          handle_output(options,"<td>#{options['service']}</td>")
+          handle_output(options,"<td>#{client}</td>")
+          handle_output(options,"<td>#{service}</td>")
           handle_output(options,"</tr>")
         else
-          handle_output(options,"#{options['name']} [ service = #{options['service']} ]")
+          handle_output(options,"#{client} [ service = #{service} ]")
         end
       end
     end
@@ -299,26 +299,26 @@ end
 
 def unconfigure_ai_client(options)
   if not options['mac'].to_s.match(/[a-z,A-Z,0-9]/) or not options['service'].to_s.match(/[a-z,A-Z,0-9]/)
-    repo_list            = %x[installadm list -p |grep -v '^-' |grep -v '^Service']
-    temp_options['name']  = ""
-    temp_options['mac']     = ""
-    temp_options['service'] = ""
+    repo_list = %x[installadm list -p |grep -v '^-' |grep -v '^Service']
+    temp_name = ""
+    temp_mac  = ""
+    temp_service = ""
     repo_list.each do |line|
       line = line.chomp
       if line.match(/[a-z,A-Z,0-9]/)
         if line.match(/^[a-z,A-Z,0-9]/)
           line = line.gsub(/\s+/,"")
-          temp_options['service'] = line
+          temp_service = line
         else
           line = line.gsub(/\s+/,"")
           if line.match(/mac=/)
-            (temp_options['name'],temp_options['mac']) = line.split(/mac=/)
-            if temp_options['name'].to_s.match(/^#{options['name']}/)
+            (temp_name,temp_mac) = line.split(/mac=/)
+            if temp_name.to_s.match(/^#{options['name']}/)
               if not options['service'].to_s.match(/[a-z,A-Z,0-9]/)
-                options['service'] = temp_options['service']
+                options['service'] = temp_service
               end
               if not options['mac'].to_s.match(/[a-z,A-Z,0-9]/)
-                options['mac'] = temp_options['mac']
+                options['mac'] = temp_mac
               end
             end
           end

@@ -31,18 +31,18 @@ def unconfigure_ai_server(options)
     end
     file="/etc/inet/dhcpd4.conf"
     if File.exist?(file)
-      backup_file = file+".preai"
-      message     = "Information:\tRestoring file "+backup_file+" to "+file
-      command     = "cp #{backup_file} #{file}"
+      bu_file = file+".preai"
+      message = "Information:\tRestoring file "+bu_file+" to "+file
+      command = "cp #{bu_file} #{file}"
       execute_command(options,message,command)
       smf_install_service = "svc:/network/dhcp/server:ipv4"
       refresh_smf_service(smf_install_service)
     end
     remove_apache_proxy(options)
-    options['repodir'] = options['baserepodir']+"/"+service_base_name
-    test_dir = options['repodir']+"/publisher"
+    repo_dir = options['baserepodir']+"/"+service_base_name
+    test_dir = repo_dir+"/publisher"
     if File.directory?(test_dir) and options['yes'] == true
-      destroy_zfs_fs(options['repodir'])
+      destroy_zfs_fs(repo_dir)
     end
   else
     remove_apache_proxy(options)
