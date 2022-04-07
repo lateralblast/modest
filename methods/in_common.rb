@@ -1572,7 +1572,7 @@ def check_local_config(options)
       end
     end
     if installed == false
-      install_pac=kage(options,pkg_name)
+      install_package(options,pkg_name)
       [ "/bin", "/usr/local/bin", "/opt/local/bin", "/opt/homebrew/bin", work_bin_dir ].each do |bin_dir|
         pkg_bin = bin_dir+"/"+pkg_name
         if File.exist?(pkg_bin)

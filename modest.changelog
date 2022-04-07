@@ -1455,4 +1455,5 @@
 # Added multipass connect and cleaned up code
 # 7.2.7: Fri  3 Dec 2021 14:47:52 AEDT
 # Some more code cleanup 
-
+# 7.2.8: Thu 07 Apr 2022 16:54:08 AEST
+# Fixed bug with installing package

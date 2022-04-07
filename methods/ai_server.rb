@@ -80,9 +80,9 @@ def check_dhcpd4_conf(options)
       command = "touch #{file}"
       output  = execute_command(options,message,command)
     else
-      backup_file = file+".preai"
-      message = "Information:\tArchiving file "+file+" to "+backup_file
-      command = "cp #{file} #{backup_file}"
+      bu_file = file+".preai"
+      message = "Information:\tArchiving file "+file+" to "+bu_file
+      command = "cp #{file} #{bu_file}"
       output  = execute_command(options,message,command)
     end
   end
