@@ -1457,3 +1457,5 @@
 # Some more code cleanup 
 # 7.2.8: Thu 07 Apr 2022 16:54:08 AEST
 # Fixed bug with installing package
+# 7.2.9: Thu 07 Apr 2022 17:33:47 AEST
+# Updated packer version to 1.8.0

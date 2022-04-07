@@ -384,7 +384,7 @@ def set_defaults(options,defaults)
   defaults['output']          = 'text'
   defaults['ovftarurl']       = "https://github.com/richardatlateralblast/ottar/blob/master/vmware-ovftools.tar.gz?raw=true"
   defaults['ovfdmgurl']       = "https://github.com/richardatlateralblast/ottar/blob/master/VMware-ovftool-4.1.0-2459827-mac.x64.dmg?raw=true"
-  defaults['packerversion']   = "1.7.2"
+  defaults['packerversion']   = "1.8.0"
   defaults['pkgdir']          = defaults['basedir'].to_s+'/export/pkgs'
   defaults['proto']           = "tcp"
   defaults['publisherhost']   = defaults['hostip'].to_s
