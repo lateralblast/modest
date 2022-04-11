@@ -189,6 +189,9 @@ def configure_kvm_client(options)
   else
     if options['type'].to_s.match(/packer/)
       configure_packer_client(options)
+    else
+      handle_output(options,"Warning:\tNo KVM VM type specified")
+      quit(options)
     end
   end
   return
@@ -212,6 +215,10 @@ end
 # Configure a KVM VM via import
 
 def configure_kvm_import_client(options)
+  if options['file'] == options['empty'] || !File.exist?(options['file'].to_s)
+    handle_output(options,"Warning:\tNo file specified")
+    quit(options)
+  end
   if options['os-type'] == options['empty'] or options['os-variant'] == options['empty'] or options['method'] == options['empty']
     options = get_install_service_from_file(options)
   end
@@ -221,8 +228,16 @@ def configure_kvm_import_client(options)
   else
     if options['disk'].to_s.match(/ /)
       if !options['disk'].to_s.match(/--disk/)
-        temp_disk = options['disk'].to_s.split(/ /)[0]+" --disk "+options['disk'].to_s.split(/ /)[1]
-        options['disk'] = temp_disk
+        if options['file'].to_s.match(/cloud/)
+          options['disk1'] = options['virtdir']+"/"+options['name'].to_s+"-seed.qcow2,device=cdrom"
+          options['disk2'] = options['virtdir']+"/"+options['name'].to_s+".qcow2,device=disk"
+          options['disk']  = options['disk1']+" --disk "+options['disk2']
+          options['disk1'] = options['disk1'].split(/\,/)[0]
+          options['disk2'] = options['disk2'].split(/\,/)[0]
+        else
+          temp_disk = options['disk'].to_s.split(/ /)[0]+" --disk "+options['disk'].to_s.split(/ /)[1]
+          options['disk'] = temp_disk
+        end
       end
     else
       if options['file'].to_s.match(/cloud/)
@@ -257,7 +272,7 @@ def configure_kvm_import_client(options)
         handle_output(options,"Warning:\tNo cloud config image specified")
       end
     end
-    if options['outputfile'] = options['empty']
+    if options['outputfile'] == options['empty']
       output_file = options['disk'].to_s.split(" ")[2]
       if output_file.match(/,/)
         output_file = output_file.split(",")[0]
@@ -271,8 +286,12 @@ def configure_kvm_import_client(options)
       convert_kvm_image(options)
     else
       if options['file'] != options['empty']
-        options['inputfile'] = options['file']
-        convert_kvm_image(options)
+        if options['method'] == "ci"
+          options['inputfile'] = options['disk1']
+        else
+          options['inputfile'] = options['file']
+          convert_kvm_image(options)
+        end
       end
     end
   else
@@ -295,7 +314,7 @@ def configure_kvm_import_client(options)
     end
     check_dir_exists(options,config_path)
     check_dir_owner(options,config_path,options['uid'])
-    case options['os-variant']
+    case options['os-variant'].to_s
     when /ubuntu/
       options = populate_ps_questions(options)
     when /rhel/
@@ -304,6 +323,9 @@ def configure_kvm_import_client(options)
       options = populate_vs_questions(options)
     when /win/
       options = populate_pe_questions(options)
+    else
+      handle_output(options,"Warning:\tNo OS Variant specified")
+      quit(options)
     end
     file = File.open(config_file, 'w')
     file.write("#cloud-config\n")
@@ -392,7 +414,13 @@ def configure_kvm_import_client(options)
   end
   command = command + " --noreboot"
   message = "Information:\tCreating VM #{options['name'].to_s}"
-  output  = execute_command(options,message,command)
+  if options['nobuild'] == false
+    output  = execute_command(options,message,command)
+  else
+    if options['verbose'] == true
+      handle_output(options,"Command:\t#{command}")
+    end
+  end 
   return
 end
 

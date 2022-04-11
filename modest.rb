@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      7.2.9
+# Version:      7.3.1
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -797,9 +797,9 @@ end
 
 if options['sshkeyfile'] != options['empty']
   if !File.exist?(options['sshkeyfile'])
-    handle_output(options,"Warning:\tKey file #{options['sshkeyfile']} does not exist")
-    if options['action'].to_s.match(/create/) and !option['type'].to_s.match(/key/)
-      quit(options)
+    handle_output(options,"Warning:\tSSH Key file #{options['sshkeyfile']} does not exist")
+    if options['action'].to_s.match(/create/) 
+      check_ssh_keys(options)
     end
   end
 end

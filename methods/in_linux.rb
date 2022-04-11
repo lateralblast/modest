@@ -18,6 +18,8 @@ end
 
 def get_distro_version_from_distro_name(item_name)
   case item_name
+  when /trusty/
+    distro_version = "14.04"
   when /xenial/
     distro_version = "16.04"
   when /bionic/
@@ -26,6 +28,8 @@ def get_distro_version_from_distro_name(item_name)
     distro_version = "20.04"
   when /hirsuite/
     distro_version = "21.04"
+  when /jammy/
+    distro_version = "22.04"
   end
   return distro_version
 end

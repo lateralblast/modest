@@ -415,7 +415,9 @@ def set_defaults(options,defaults)
   defaults['sshconfig']       = defaults['home'].to_s+"/.ssh/config"
   defaults['sshenadble']      = "true"
   defaults['sshkeydir']       = defaults['home'].to_s+"/.ssh"
-  defaults['sshkeyfile']      = defaults['home'].to_s+"/.ssh/id_rsa.pub"
+  defaults['sshkeytype']      = "rsa"
+  defaults['sshkeyfile']      = defaults['home'].to_s+"/.ssh/id_"+defaults['sshkeytype'].to_s+".pub"
+  defaults['sshkeybits']      = "2048"
   defaults['sshport']         = "22"
   defaults['sshpty']          = true
   defaults['sshtimeout']      = "20m"
@@ -492,7 +494,10 @@ end
 # Set some parameter once we have more details
 
 def reset_defaults(options,defaults)
-  if options['service'].to_s.match(/live/) or options['file'].to_s.match(/live/)
+  if options['vm'].to_s.match(/kvm/) && options['file'].to_s.match(/cloudimg/)
+    defaults['method'] = "ci"
+  end
+  if options['service'].to_s.match(/live/) || options['file'].to_s.match(/live/)
     defaults['livecd'] = true
   end
   if options['ip'].to_s.match(/[0-9]/)
@@ -1975,14 +1980,14 @@ def get_install_service_from_file(options)
   else
     options['arch'] = "i386"
   end
-  case options['file']
+  case options['file'].to_s
   when /purity/
     options['service'] = "purity"
     options['release'] = options['file'].split(/_/)[1]
     options['arch']    = "x86_64"
     service_version = options['release']+"_"+options['arch']
     options['method']  = "ps"
-  when /ubuntu/
+  when /ubuntu|cloudimg/
     options['service'] = "ubuntu"
     if options['vm'].to_s.match(/kvm/)
       options['os-type'] = "linux"
@@ -1991,10 +1996,16 @@ def get_install_service_from_file(options)
     end
     if options['file'].to_s.match(/cloudimg/)
       options['method']  = "ci"
-      options['release'] = options['file'].to_s.split(/-/)[1].split(/\./)[0..1].join(".")
-      options['arch']    = options['file'].to_s.split(/-/)[4].split(/\./)[0].gsub(/amd64/,"x86_64")
-      service_version    = options['service'].to_s.+"_"+options['release'].to_s.gsub(/\./,"_")+options['arch']+to_s
+      options['release'] = get_distro_version_from_distro_name(options['file'].to_s)
+      if options['release'].to_s.match(/[0-9][0-9]/)
+        options['arch']    = options['file'].to_s.split(/-/)[3].split(/\./)[0].gsub(/amd64/,"x86_64")
+      else
+        options['release'] = options['file'].to_s.split(/-/)[1].split(/\./)[0..1].join(".")
+        options['arch']    = options['file'].to_s.split(/-/)[4].split(/\./)[0].gsub(/amd64/,"x86_64")
+      end
+      service_version = options['service'].to_s.+"_"+options['release'].to_s.gsub(/\./,"_")+options['arch']+to_s
       options['os-type'] = "linux"
+      options['os-variant'] = "ubuntu"+options['release'].to_s
     else
       service_version = options['file'].to_s.split(/-/)[1].gsub(/\./,"_").gsub(/_iso/,"")
       if options['file'].to_s.match(/live/)
@@ -3348,12 +3359,15 @@ end
 # Check SSH keys
 
 def check_ssh_keys(options)
-  ssh_key = options['home']+"/.ssh/id_rsa.pub"
-  if not File.exist?(ssh_key)
+  ssh_key_file = options['sshkeyfile'].to_s
+  ssh_key_type = options['sshkeytype'].to_s
+  ssh_key_bits = options['sshkeybits'].to_s
+  if not File.exist?(ssh_key_file)
     if options['verbose'] == true
-      handle_output(options,"Generating:\tPublic SSH key file #{ssh_key}")
+      handle_output(options,"Generating:\tPublic SSH key file #{ssh_key_file}")
     end
-    system("ssh-keygen -t rsa")
+    command = "ssh-keygen -t #{ssh_key_type} -b #{ssh_key_bits} -f #{ssh_key_file}"
+    system(command)
   end
   return
 end
