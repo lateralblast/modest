@@ -84,7 +84,7 @@ end
 def enable_linux_iptables_nat(options,gw_if_name,if_name)
   install_package(options,"iptables-persistent")
   message = "Information:\tSetting iptables firewall to allow traffic to internal VM network #{if_name}"
-  command = "iptables --table nat --append POSTROUTING --out-interface #{gw_if_name} -j MASQUERADE ; iptables --append FORWARD --in-interface #{if_name} -j ACCEPT ; iptables save"
+  command = "iptables --table nat --append POSTROUTING --out-interface #{gw_if_name} -j MASQUERADE ; iptables --append FORWARD --in-interface #{if_name} -j ACCEPT ; iptables-save"
   output  = execute_command(options,message,command)
   return
 end
@@ -92,14 +92,17 @@ end
 # Check Linux NAT
 
 def check_linux_nat(options,gw_if_name,if_name)
-  message = "Information:\tChecking iptables firewall allows traffic to internal VM network #{if_name}"
-  command = "iptables --list |grep #{if_name}"
-  output  = execute_command(options,message,command)
-  if !output.match(/#{if_name}/)
-    enable_linux_iptables_nat(options,gw_if_name,if_name)
-  end
   if File.exist?("/usr/sbin/ufw")
     enable_linux_ufw_nat(options,gw_if_name,if_name)
+  else
+    if File.exist?("/etc/iptables/rules.v4")
+      message = "Information:\tChecking iptables firewall allows traffic to internal VM network #{if_name}"
+      command = "cat /etc/iptables/rules.v4 |grep #{if_name}"
+      output  = execute_command(options,message,command)
+      if !output.match(/#{if_name}/)
+        enable_linux_iptables_nat(options,gw_if_name,if_name)
+      end
+    end
   end
   message = "Information:\tChecking IP forwarding is enabled"
   command = "sysctl net.ipv4.ip_forward"
