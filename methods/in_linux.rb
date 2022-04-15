@@ -92,18 +92,17 @@ end
 # Check Linux NAT
 
 def check_linux_nat(options,gw_if_name,if_name)
+  if File.exist?("/etc/iptables/rules.v4")
+    message = "Information:\tChecking iptables firewall allows traffic to internal VM network #{if_name}"
+    command = "cat /etc/iptables/rules.v4 |grep #{if_name}"
+    output  = execute_command(options,message,command)
+    if !output.match(/#{if_name}/)
+      enable_linux_iptables_nat(options,gw_if_name,if_name)
+    end
+  end
   if File.exist?("/usr/sbin/ufw")
     enable_linux_ufw_nat(options,gw_if_name,if_name)
   else
-    if File.exist?("/etc/iptables/rules.v4")
-      message = "Information:\tChecking iptables firewall allows traffic to internal VM network #{if_name}"
-      command = "cat /etc/iptables/rules.v4 |grep #{if_name}"
-      output  = execute_command(options,message,command)
-      if !output.match(/#{if_name}/)
-        enable_linux_iptables_nat(options,gw_if_name,if_name)
-      end
-    end
-  end
   message = "Information:\tChecking IP forwarding is enabled"
   command = "sysctl net.ipv4.ip_forward"
   output  = execute_command(options,message,command)
