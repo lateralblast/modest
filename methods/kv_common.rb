@@ -161,8 +161,12 @@ def convert_kvm_image(options)
   end
   if !File.exist?(output_file) or options['force'] == true
     message = "Information:\tCreating VM disk #{output_file} from #{input_file}"
-    command = "qemu-img convert -f qcow2 #{input_file} #{output_file}"
+    command = "qemu-img convert -O qcow2 -f qcow2 #{input_file} #{output_file}"
     output  = execute_command(options,message,command)
+  else
+    handle_output(options,"Warning:\tFile #{output_file} already exists")
+    handle_output(options,"Information:\tUse --force option to delete file")
+    quit(options)
   end
   size = options['size'].to_s
   size = size.gsub(/g/,"G")
@@ -207,7 +211,7 @@ def create_kvm_disk(options)
     disk_file = options['virtdir']+"/"+options['name'].to_s+".qcow2"
   end
   message = "Information:\tCreating KVM disk #{disk_file} of size #{disk_size}"
-  command = "sudo qemu-img create -f qcow2 #{disk_file} #{disk_size}"
+  command = "sudo qemu-img create -O qcow2 -f qcow2 #{disk_file} #{disk_size}"
   execute_command(options,message,command)
   return
 end
@@ -287,10 +291,10 @@ def configure_kvm_import_client(options)
     else
       if options['file'] != options['empty']
         if options['method'] == "ci"
-          options['inputfile'] = options['disk1']
-        else
+#          options['inputfile'] = options['disk1']
+#        else
           options['inputfile'] = options['file']
-          convert_kvm_image(options)
+        convert_kvm_image(options)
         end
       end
     end

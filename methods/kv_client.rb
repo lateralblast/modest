@@ -61,6 +61,19 @@ def unconfigure_kvm_vm(options)
     message = "Warning:\tDeleting KVM VM \"#{options['name']}\""
     command = "virsh undefine --domain \"#{options['name']}\""
     execute_command(options,message,command)
+  else
+    disk_file = options['imagedir'].to_s+"/"+options['name'].to_s+".qcow2"
+    if File.exist?(disk_file)
+      if options['force'] == true
+        message = "Information:\tDeleting VM disk #{disk_file}"
+        command = "rm #{disk_file}"
+        output  = execute_command(options,message,command)
+      else
+        handle_output(options,"Warning:\tFile #{output_file} already exists")
+        handle_output(options,"Information:\tUse --force option to delete file")
+        quit(options)
+      end
+    end
   end
   return
 end

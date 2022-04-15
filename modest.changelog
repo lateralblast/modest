@@ -1467,3 +1467,5 @@
 # More fixes for KVM
 # 7.3.3: Fri 15 Apr 2022 15:15:58 AEST
 # Fixes for iptables check
+# 7.3.4: Sat 16 Apr 2022 09:49:51 AEST
+# Added handling for orphaned VM disks files

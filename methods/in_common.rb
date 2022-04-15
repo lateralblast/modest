@@ -374,6 +374,7 @@ def set_defaults(options,defaults)
   defaults['nosuffix']        = false
   defaults['noreboot']        = false
   defaults['nobuild']         = false
+  defaults['noboot']          = false
   defaults['reboot']          = true
   defaults['novncdir']        = "/usr/local/novnc"
   defaults['number']          = "1,1"
