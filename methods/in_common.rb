@@ -3557,7 +3557,7 @@ def check_rhel_firewall(options,service,port_info)
       output  = execute_command(options,message,command)
       if not output.match(/#{protocol}/)
         message = "Information:\tAdding firewall rule for "+service
-        command = "iptables -I INPUT -p #{protocol} --dport #{port_no} -j ACCEPT ; service iptables save"
+        command = "iptables -I INPUT -p #{protocol} --dport #{port_no} -j ACCEPT ; iptables save"
         execute_command(options,message,command)
       end
     end

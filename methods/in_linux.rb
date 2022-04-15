@@ -82,8 +82,9 @@ end
 # Enable iptables NAT 
 
 def enable_linux_iptables_nat(options,gw_if_name,if_name)
+  install_package(options,"iptables-persistent")
   message = "Information:\tSetting iptables firewall to allow traffic to internal VM network #{if_name}"
-  command = "iptables --table nat --append POSTROUTING --out-interface #{gw_if_name} -j MASQUERADE ; iptables --append FORWARD --in-interface #{if_name} -j ACCEPT"
+  command = "iptables --table nat --append POSTROUTING --out-interface #{gw_if_name} -j MASQUERADE ; iptables --append FORWARD --in-interface #{if_name} -j ACCEPT ; iptables save"
   output  = execute_command(options,message,command)
   return
 end
