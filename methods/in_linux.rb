@@ -102,7 +102,7 @@ def check_linux_nat(options,gw_if_name,if_name)
   end
   if File.exist?("/usr/sbin/ufw")
     enable_linux_ufw_nat(options,gw_if_name,if_name)
-  else
+  end
   message = "Information:\tChecking IP forwarding is enabled"
   command = "sysctl net.ipv4.ip_forward"
   output  = execute_command(options,message,command)
