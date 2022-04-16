@@ -14,6 +14,20 @@ def check_kvm_hostonly_network(options,if_name)
   return
 end
 
+# Connect to KVM VM
+
+def connect_to_kvm_vm(options)
+  exists  = check_kvm_vm_exists(options)
+  vm_name = options['name'].to_s
+  if exists == true
+    handle_output(options, "Information:\t Connecting to KVM VM #{vm_name}")
+    exec("virsh console #{vm_name}")
+  else
+    handle_output(options,"Warning:\tKVM VM #{vm_name} doesn't exist")
+    quit(options)
+  end
+end
+
 # Import Packer KVM image
 
 def import_packer_kvm_vm(options)
