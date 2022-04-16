@@ -234,7 +234,7 @@ def check_kvm_network_bridge(options)
   file.write("  <bridge name=\"#{kvm_bridge}\" />")
   file.write("</network>")
   file.close
-  print_contents_of_file(bridge_file)
+  print_contents_of_file(options,"",bridge_file)
   if File.exist(bridge_file)
     message = "Information:\tImporting KVM bridge config for #{kvm_bridge}" 
     command = "virsh net-define #{bridge_file}"
