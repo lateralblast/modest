@@ -218,7 +218,7 @@ def configure_kvm_client(options)
   end
   exists = check_kvm_network_bridge_exists(options)
   if exists == false 
-    message = "Warning:\t KVM VM #{options['bridge']} doesn't exists"
+    message = "Warning:\tKVM VM #{options['bridge']} doesn't exists"
     handle_output(options,message)
     quit(options)
   end
