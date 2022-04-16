@@ -20,7 +20,7 @@ def check_kvm_network_bridge_exists(options)
   exists  = false
   net_dev = options['bridge'].to_s
   message = "Information:\tChecking KVM network device #{net_dev} exists"
-  command = "virsh list --all |grep #{net_dev}"
+  command = "virsh net-list --all |grep #{net_dev}"
   output  = execute_command(options,message,command)
   if output.match(/#{net_dev}/)
     exists = true
