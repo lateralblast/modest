@@ -69,7 +69,7 @@ def unconfigure_kvm_vm(options)
         command = "rm #{disk_file}"
         output  = execute_command(options,message,command)
       else
-        handle_output(options,"Warning:\tFile #{output_file} already exists")
+        handle_output(options,"Warning:\tFile #{disk_file} already exists")
         handle_output(options,"Information:\tUse --force option to delete file")
         quit(options)
       end
