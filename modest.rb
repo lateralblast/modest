@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      7.3.7
+# Version:      7.3.8
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -1761,6 +1761,9 @@ if options['action'] != options['empty']
       convert_kvm_image(options)
     end
   when /check/
+    if options['type'].to_s.match(/bridge/) && options['vm'].to_s.match(/kvm/)
+      check_kvm_network_bridge(options)      
+    end
     if options['mode'].to_s.match(/server/)
       options = check_local_config(options)
     end

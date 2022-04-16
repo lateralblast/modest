@@ -207,6 +207,47 @@ def convert_kvm_image(options)
   return
 end
 
+# Check KVM network bridge
+
+def check_kvm_network_bridge(options)
+  exists = check_network_bridge_exists(options)
+  if exists == false
+    net_dev = options['bridge'].to_s
+    handle_output(options,"Warning:\tNetwork bridge #{net_dev} doesn't exist")
+    quit(options)
+  end
+  exists = check_kvm_network_bridge_exists(options)
+  if exists == true 
+    message = "Warning:\tKVM VM #{options['bridge']} already exists"
+    handle_output(options,message)
+    quit(options)
+  end
+  kvm_bridge  = options['bridge'].to_s
+  bridge_file = "/tmp/"+kvm_bridge.to_s+"_bridge.xml"
+  if File.exist?(bridge_file)
+    File.delete(bridge_file)
+  end
+  file = File.open(bridge_file,"w")
+  file.write("<network>")
+  file.write("  <name>#{kvm_bridge}</name>")
+  file.write("  <forward mode=\"bridge\"/>")
+  file.write("  <bridge name=\"#{kvm_bridge}\" />")
+  file.write("</network>")
+  file.close
+  print_contents_of_file(bridge_file)
+  if File.exist(bridge_file)
+    message = "Information:\tImporting KVM bridge config for #{kvm_bridge}" 
+    command = "virsh net-define #{bridge_file}"
+    execute_command(options,message,command)
+    message = "Information:\tStarting KVM bridge #{kvm_bridge} config"
+    command = "virsh net-start #{kvm_bridge}"
+    execute_command(options,message,command)
+    message = "Information:\tSetting KVM bridge #{kvm_bridge} config to autostart"
+    command = "virsh net-autostart #{kvm_bridge}"
+    execute_command(options,message,command)
+  end
+end
+
 # Configure a KVM client
 
 def configure_kvm_client(options)

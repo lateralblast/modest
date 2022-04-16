@@ -1475,4 +1475,6 @@
 # Added check for network/bridge devices
 # 7.3.7: Sat 16 Apr 2022 16:09:52 AEST
 # Added check for KVM network bridge
+# 7.3.8: Sat 16 Apr 2022 20:28:38 AEST
+# Added code to check KVM bridge config
 
