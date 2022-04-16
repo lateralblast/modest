@@ -278,9 +278,14 @@ Hostonly networks and IP forwarding is used as it's far more reliable for consis
 An example host-only network layout For VMware Fusion with vmnet interfaces is as follows:
 
 ```ditaa {cmd=true args=["-E"]}
-__ External network __ External Interface (e.g. en0)
-   e.g. 192.168.1.0    e.g. 192.168.1.100
-                               |
+
++-------------------+  +-------------------------------+
+| External network  |__| External Interface (e.g. en0) |
+| e.g. 192.168.1.0  |  | e.g. 192.168.1.100            |
++-------------------+  +-------------------------------+
+```
+```
+|
                                |
                             VM Host
                                |
