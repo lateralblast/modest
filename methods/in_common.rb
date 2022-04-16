@@ -3812,6 +3812,34 @@ def check_tftpd_dir(options)
   return
 end
 
+# Check network device exists
+
+def check_network_device_exists(options)
+  exists  = false
+  net_dev = options['network'].to_s
+  message = "Information:\tChecking network device #{net_dev} exists"
+  command = "ifconfig #{net_dev} |grep ether"
+  output  = execute_command(options,message,command)
+  if output.match(/ether/)
+    exists = true
+  end
+  return exists
+end
+
+# Check network bridge exists
+
+def check_network_bridge_exists(options)
+  exists  = false
+  net_dev = options['bridge'].to_s
+  message = "Information:\tChecking network device #{net_dev} exists"
+  command = "ifconfig #{net_dev} |grep ether"
+  output  = execute_command(options,message,command)
+  if output.match(/ether/)
+    exists = true
+  end
+  return exists
+end
+
 # Check NAT
 
 def check_nat(options,gw_if_name,if_name)

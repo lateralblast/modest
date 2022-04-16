@@ -1471,4 +1471,6 @@
 # Added handling for orphaned VM disks files
 # 7.3.5: Sat 16 Apr 2022 11:24:12 AEST
 # Added code to connect to KVM VM
+# 7.3.6: Sat 16 Apr 2022 15:07:39 AEST
+# Added check for network/bridge devices
 

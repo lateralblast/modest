@@ -14,6 +14,20 @@ def check_kvm_hostonly_network(options,if_name)
   return
 end
 
+# Check network bridge exists
+
+def check_kvm_network_bridge_exists(options)
+  exists  = false
+  net_dev = options['bridge'].to_s
+  message = "Information:\tChecking KVM network device #{net_dev} exists"
+  command = "virsh list --all |grep #{net_dev}"
+  output  = execute_command(options,message,command)
+  if output.match(/#{net_dev}/)
+    exists = true
+  end
+  return exists
+end
+
 # Connect to KVM VM
 
 def connect_to_kvm_vm(options)
@@ -200,6 +214,12 @@ def configure_kvm_client(options)
   if exists == true
     message = "Warning:\t KVM VM #{options['name']} already exists"
     handle_output(options,message)
+    quit(options)
+  end
+  exists = check_network_bridge_exists(options)
+  if exists == false
+    net_dev = options['bridge'].to_s
+    handle_output(options,"Warning:\tNetwork bridge #{net_dev} doesn't exist")
     quit(options)
   end
   if options['import'] == true
@@ -408,13 +428,19 @@ def configure_kvm_import_client(options)
     options['boot'] = "network,menu=on"
   end
   command = "virt-install"
-  params  = [ "name", "vcpus", "memory", "cdrom", "cpu", "os-type", "os-variant", "host-device", "machine", "mac", "import",
+  params  = [ "name", "vcpus", "memory", "cdrom", "cpu", "os-variant", "host-device", "machine", "mac", "import",
               "extra-args", "connect", "metadata", "initrd-inject", "unattended", "install", "boot", "idmap", "disk", "network",
               "graphics", "controller", "serial", "parallel", "channel", "console", "hostdev", "filesystem", "sound",
               "watchdog", "video", "smartcard", "redirdev", "memballoon", "tpm", "rng", "panic", "memdev", "vsock", "iothreads",
               "seclabel", "cputune", "memtune", "blkiotune", "memorybacking", "features", "clock", "pm", "events", "resource",
               "sysinfo", "qemu-commandline", "launchSecurity", "hvm", "paravirt", "container", "virt-type", "arch", "machine",
               "autostart", "transient", "destroy-on-exit", "wait", "noautoconsole", "noreboot", "print-xml", "dry-run", "check" ]
+  message = "Information:\tChecking virt-install version"
+  command = "virt-install --version"
+  version = execute_command(options,message,command)
+  if !version.match(/4\.[0-9]/)
+    params.append("os-type")
+  end
   params.each do |param|
     if options[param] != options['empty'] && options[param] != "text"
       if options[param] != true && options[param] != false
