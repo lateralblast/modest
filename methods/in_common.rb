@@ -514,7 +514,7 @@ def reset_defaults(options,defaults)
     defaults['imagedir']  = "/var/lib/libvirt/images"
     defaults['console']   = "pty,target_type=virtio"
     defaults['mac']       = generate_mac_address(options)
-    defaults['network']   = "bridge=virbr0"
+    defaults['network']   = "bridge="+options['bridge'].to_s
     defaults['features']  = "kvm_hidden=on"
     defaults['vmnetwork'] = "hostonly"
     if defaults['host-os-arch'].to_s.match(/^x/) 
