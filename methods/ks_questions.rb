@@ -512,13 +512,43 @@ def populate_ks_questions(options)
   options['q_struct'][name] = config
   options['q_order'].push(name)
 
+  if options['gateway'].to_s.match(/[0-9]/) and options['vm'].to_s == options['empty'].to_s
+    gateway = options['gateway']
+  else
+    if options['vmgateway'].to_s.split(/\./)[2] == options['ip'].to_s.split(/\./)[2]
+      gateway = options['vmgateway']
+    else
+      if options['gateway'].to_s.split(/\./)[2] == options['ip'].to_s.split(/\./)[2]
+        gateway = options['gateway']
+      else
+        if options['vmgateway'].to_s.match(/[0-9]/)
+          gateway = options['vmgateway']
+        else
+          if options['type'].to_s.match(/packer/)
+            gateway = options['ip'].split(/\./)[0..2].join(".")+"."+options['gatewaynode']
+          else
+            if options['server'] == options['empty']
+              gateway = options['hostip']
+            else
+              gateway = options['server']
+            end
+          end
+        end
+      end
+    end
+  end
+
+  if gateway.to_s.split(/\./)[2] != options['ip'].to_s.split(/\./)[2]
+    gateway = %x[netstat -rn |grep "^0" |awk '{print $2}'].chomp
+  end
+
   name   = "gateway"
   config = Ks.new(
     type      = "",
     question  = "Gateway",
     ask       = "yes",
     parameter = "",
-    value     = options['vmgateway'],
+    value     = mgateway,
     valid     = "",
     eval      = "no"
     )
