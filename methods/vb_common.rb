@@ -1176,7 +1176,7 @@ def check_vbox_hostonly_network(options)
       check_osx_pfctl(options,gw_if_name,if_name)
     end
   when /Linux/
-    check_linux_nat(gw_if_name,if_name)
+    check_linux_nat(options,gw_if_name,if_name)
   when /Solaris/
     check_solaris_nat(if_name)
   end

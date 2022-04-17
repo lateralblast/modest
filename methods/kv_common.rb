@@ -69,7 +69,8 @@ end
 # Check KVM is installed
 
 def check_kvm_is_installed(options)
-  if_name = get_vm_if_name(options)
+  # if_name = get_vm_if_name(options)
+  if_name = options['bridge'].to_s
   if options['vmnet'].to_s.match(/hostonly/)
     check_kvm_hostonly_network(options,if_name)
   end
@@ -474,7 +475,6 @@ def configure_kvm_import_client(options)
   if options['pxe'] == true
     options['boot'] = "network,menu=on"
   end
-  command = "virt-install"
   params  = [ "name", "vcpus", "memory", "cdrom", "cpu", "os-variant", "host-device", "machine", "mac", "import",
               "extra-args", "connect", "metadata", "initrd-inject", "unattended", "install", "boot", "idmap", "disk", "network",
               "graphics", "controller", "serial", "parallel", "channel", "console", "hostdev", "filesystem", "sound",
@@ -488,6 +488,7 @@ def configure_kvm_import_client(options)
   if !version.match(/4\.[0-9]/)
     params.append("os-type")
   end
+  command = "virt-install"
   params.each do |param|
     if options[param] != options['empty'] && options[param] != "text"
       if options[param] != true && options[param] != false
