@@ -1481,4 +1481,6 @@
 # Improved gateway handling/determination
 # 7.4.0: Sun 17 Apr 2022 21:43:34 AEST
 # Improved iptables and ufw support for KVM
+# 7.4.1: Sun 17 Apr 2022 23:12:21 AEST
+# Improved KVM bridge support
 

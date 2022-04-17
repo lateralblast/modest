@@ -189,6 +189,23 @@ def populate_ps_questions(options)
 
   end
 
+  if options['vm'].to_s.match(/kvm/)
+
+    name = "bridge"
+    config = qs.new(
+      type      = "string",
+      question  = "Bridge Interface",
+      ask       = "yes",
+      parameter = "bridge",
+      value     = options['bridge'].to_s,
+      valid     = "",
+      eval      = "no"
+      )
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
+
+  end
+
   name = "admin_fullname"
   config = qs.new(
     type      = "string",
