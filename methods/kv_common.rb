@@ -474,6 +474,12 @@ def configure_kvm_import_client(options)
   if options['pxe'] == true
     options['boot'] = "network,menu=on"
   end
+  if options['network'].to_s.match(/bridge/)
+    if !options['network'].to_s.match(/br[0-9]/)
+      handle_output(options,"Warning:\tBridge not set")
+      quit(options)
+    end
+  end
   params  = [ "name", "vcpus", "memory", "cdrom", "cpu", "os-variant", "host-device", "machine", "mac", "import",
               "extra-args", "connect", "metadata", "initrd-inject", "unattended", "install", "boot", "idmap", "disk", "network",
               "graphics", "controller", "serial", "parallel", "channel", "console", "hostdev", "filesystem", "sound",
@@ -492,6 +498,10 @@ def configure_kvm_import_client(options)
     if options[param] != options['empty'] && options[param] != "text"
       if options[param] != true && options[param] != false
         command = command + " --"+param+" "+options[param].to_s
+        if !options['param'].to_s.match(/[0-9]|[a-z]|[A-Z]/)
+          handle_output(options,"Warning:\tOption #{param} not set")
+          quit(options)
+        end
       else
         if options[param] != false
           command = command + " --"+param
@@ -508,9 +518,9 @@ def configure_kvm_import_client(options)
   if options['nobuild'] == false
     output  = execute_command(options,message,command)
   else
-    if options['verbose'] == true
-      handle_output(options,"Command:\t#{command}")
-    end
+    handle_output(options,"Information:\tNot building VM #{options['name'].to_s}")
+    handle_output(options,"Information:\tTo build VM execute comannd below")
+    handle_output(options,"Command:\t#{command}")
   end 
   return
 end

@@ -515,7 +515,11 @@ def reset_defaults(options,defaults)
     defaults['imagedir']  = "/var/lib/libvirt/images"
     defaults['console']   = "pty,target_type=virtio"
     defaults['mac']       = generate_mac_address(options)
-    defaults['network']   = "bridge="+options['bridge'].to_s
+    if !options['bridge'].to_s.match(/br[0-9]/)
+      defaults['network']   = "bridge="+defaults['bridge'].to_s
+    else
+      defaults['network']   = "bridge="+options['bridge'].to_s
+    end
     defaults['features']  = "kvm_hidden=on"
     defaults['vmnetwork'] = "hostonly"
     if defaults['host-os-arch'].to_s.match(/^x/) 
@@ -4324,7 +4328,7 @@ def execute_command(options,message,command)
   end
   if execute == true
     if options['uid'] != 0
-      if !command.match(/brew |sw_vers|id |groups|hg|pip|VBoxManage|vboxmanage|netstat|df|vmrun|noVNC|docker|packer|ansible-playbook|virt-install|qemu|^ls|multipass/) && !options['host-os-name'].to_s.match(/NT/)
+      if !command.match(/brew |sw_vers|id |groups|hg|pip|VBoxManage|vboxmanage|netstat|df|vmrun|noVNC|docker|packer|ansible-playbook|virt-install|virsh|qemu|^ls|multipass/) && !options['host-os-name'].to_s.match(/NT/)
         if options['sudo'] == true
           command = "sudo sh -c '"+command+"'"
         else

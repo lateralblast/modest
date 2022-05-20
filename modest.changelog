@@ -1485,3 +1485,5 @@
 # Improved KVM bridge support
 # 7.4.2: Fri 20 May 2022 14:26:56 AEST
 # Improved DNSmasq support
+# 7.4.3: Fri 20 May 2022 16:39:20 AEST
+# KVM network option determination fixes

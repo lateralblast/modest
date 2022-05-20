@@ -13,7 +13,7 @@ def populate_ps_questions(options)
 
   if options['packages'] == options['empty']
     pkg_list = [
-      "nfs-common", "openssh-server", "setserial", "net-tools", "ansible", "jq", "ipmitool", "screen", "ruby-build", "git", "cryptsetup"
+      "nfs-common", "openssh-server", "setserial", "net-tools", "ansible", "jq", "ipmitool", "screen", "ruby-build", "git", "cryptsetup", "curl"
     ]
     if options['service'].match(/18_04/)
       pkg_list.append("linux-generic-hwe-18.04")
