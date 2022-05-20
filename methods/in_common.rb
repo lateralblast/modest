@@ -3934,8 +3934,8 @@ def add_dnsmasq_entry(options)
   command = "cat #{config_file} |grep -v '^#' |grep '#{options['scriptname'].to_s}' |grep 'addn-hosts'"
   output  = execute_command(options,message,command)
   if not output.match(/#{options['scriptname'].to_s}/)
-    backup_file(options,hosts_file)
-    message = "Adding:\t\tHost "+options['name'].to_s+" to "+hosts_file
+    backup_file(options,config_file)
+    message = "Information:\tAdding hosts file "+hosts_file+" to "+config_file
     command = "echo \"addn-hosts=#{hosts_file}\" >> #{config_file}"
     output  = execute_command(options,message,command)
   end
