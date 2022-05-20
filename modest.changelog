@@ -1487,3 +1487,5 @@
 # Improved DNSmasq support
 # 7.4.3: Fri 20 May 2022 16:39:20 AEST
 # KVM network option determination fixes
+# 7.4.4: Fri 20 May 2022 22:14:00 AEST
+# DNSmasq improvements

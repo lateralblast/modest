@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      7.4.3
+# Version:      7.4.4
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -2110,6 +2110,10 @@ if options['action'] != options['empty']
       end
     end
   when /add|create/
+    if options['type'].to_s.match(/dnsmasq/)
+      add_dnsmasq_entry)options)
+      quit(options)
+    end
     if options['vm'].to_s.match(/mp|multipass/)
       configure_multipass_vm(options)
       quit(options)

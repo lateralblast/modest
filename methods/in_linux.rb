@@ -47,7 +47,7 @@ end
 
 # Check DNSmasq
 
-def check_dnsmasq(options)
+def check_linux_dnsmasq(options)
   pkg_name = "dnsmasq"
   install_linux_package(options,pkg_name)
   return

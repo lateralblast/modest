@@ -3894,7 +3894,7 @@ end
 # Get client MAC
 
 def get_install_mac(options)
-  options['mac']   = ""
+  mac_address  = ""
   found_client = 0
   if File.exist?(options['dhcpdfile']) or File.symlink?(options['dhcpdfile'])
     file_array = IO.readlines(options['dhcpdfile'])
@@ -3904,12 +3904,63 @@ def get_install_mac(options)
         found_client = true
       end
       if line.match(/hardware ethernet/) and found_client == true
-        options['mac'] = line.split(/\s+/)[3].gsub(/\;/,"")
-        return options['mac']
+        mac_address = line.split(/\s+/)[3].gsub(/\;/,"")
+        return mac_address
       end
     end
   end
-  return options['mac']
+  return mac_address
+end
+
+# Check dnsmasq
+
+def check_dnsmasq(options)
+  if options['host-os-name'].to_s.match(/Linux/)
+    check_linux_dnsmasq(options)
+  end
+  if options['host-os-name'].to_s.match(/Darwin/)
+    check_osx_dnsmasq(options)
+  end
+  return
+end
+
+# Add dnsmasq entry
+
+def add_dnsmasq_entry(options)
+  check_dnsmasq(options)
+  config_file = "/etc/dnsmasq.conf"
+  hosts_file  = "/etc/hosts." + options['scriptname'].to_s
+  message = "Checking:\tChecking DNSmasq config file for hosts."+options['scriptname'].to_s
+  command = "cat #{config_file} |grep -v '^#' |grep '#{options['scriptname'].to_s}' |grep 'addn-hosts'"
+  output  = execute_command(options,message,command)
+  if not output.match(/#{options['scriptname'].to_s}/)
+    backup_file(options,hosts_file)
+    message = "Adding:\t\tHost "+options['name'].to_s+" to "+hosts_file
+    command = "echo \"addn-hosts=#{hosts_file}\" >> #{config_file}"
+    output  = execute_command(options,message,command)
+  end
+  message = "Checking:\tHosts file #{hosts_file}for #{options['name']}"
+  command = "cat #{hosts_file} |grep -v '^#' |grep '#{options['name']}' |grep '#{options['ip']}'"
+  output  = execute_command(options,message,command)
+  if not output.match(/#{options['name'].to_s}/)
+    backup_file(options,hosts_file)
+    message = "Adding:\t\tHost "+options['name'].to_s+" to "+hosts_file
+    command = "echo \"#{options['ip']}\\t#{options['name']}.local\\t#{options['name']}\\t# #{options['adminuser']}\" >> #{hosts_file}"
+    output  = execute_command(options,message,command)
+    if options['host-os-name'].to_s.match(/Darwin/)
+      pfile   = "/Library/LaunchDaemons/homebrew.mxcl.dnsmasq.plist"
+      if File.exist?(pfile)
+        service = "dnsmasq"
+        service = get_service_name(options,service)
+        refresh_service(service)
+      end
+    else
+      service = "dnsmasq"
+      service = get_service_name(options,service)
+      refresh_service(service)
+    end
+  end
+  return
 end
 
 # Add hosts entry
@@ -3926,38 +3977,7 @@ def add_hosts_entry(options)
     output  = execute_command(options,message,command)
   end
   if options['dnsmasq'] == true
-    config_file = "/etc/dnsmasq.conf"
-    hosts_file  = "/etc/hosts." + options['scriptname'].to_s
-    message = "Checking:\tChecking DNSmasq config file for hosts."+options['scriptname'].to_s
-    command = "cat #{config_file} |grep -v '^#' |grep '#{options['scriptname'].to_s}' |grep 'addn-hosts'"
-    output  = execute_command(options,message,command)
-    if not output.match(/#{options['scriptname'].to_s}/)
-      backup_file(options,hosts_file)
-      message = "Adding:\t\tHost "+options['name'].to_s+" to "+hosts_file
-      command = "echo \"addn-hosts=#{hosts_file}\" >> #{config_file}"
-      output  = execute_command(options,message,command)
-    end
-    message = "Checking:\tHosts file #{hosts_file}for #{options['name']}"
-    command = "cat #{hosts_file} |grep -v '^#' |grep '#{options['name']}' |grep '#{options['ip']}'"
-    output  = execute_command(options,message,command)
-    if not output.match(/#{options['name'].to_s}/)
-      backup_file(options,hosts_file)
-      message = "Adding:\t\tHost "+options['name'].to_s+" to "+hosts_file
-      command = "echo \"#{options['ip']}\\t#{options['name']}.local\\t#{options['name']}\\t# #{options['adminuser']}\" >> #{hosts_file}"
-      output  = execute_command(options,message,command)
-      if options['host-os-name'].to_s.match(/Darwin/)
-        pfile   = "/Library/LaunchDaemons/homebrew.mxcl.dnsmasq.plist"
-        if File.exist?(pfile)
-          service = "dnsmasq"
-          service = get_service_name(options,service)
-          refresh_service(service)
-        end
-      else
-        service = "dnsmasq"
-        service = get_service_name(options,service)
-        refresh_service(service)
-      end
-    end
+    add_dnsmasq_entry(options) 
   end
   return
 end
