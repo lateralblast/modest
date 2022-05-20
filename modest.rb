@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      7.4.1
+# Version:      7.4.2
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -225,6 +225,7 @@ begin
     ['--disk1', REQUIRED],            # Disk file
     ['--disk2', REQUIRED],            # Disk file
     ['--diskmode', REQUIRED],         # Disk mode (e.g. thin)
+    ['--dnsmasq', BOOLEAN],           # Update / Check DNSmasq
     ['--domainname', REQUIRED],       # Set domain (Used with deploy for VCSA)
     ['--dry-run', BOOLEAN],           # Dryrun flag
     ['--email', REQUIRED],            # AWS ACL email
@@ -1761,6 +1762,9 @@ if options['action'] != options['empty']
       convert_kvm_image(options)
     end
   when /check/
+    if options['check'].to_s.match(/dnsmasq/)
+      check_dnsmasq(options)
+    end
     if options['type'].to_s.match(/bridge/) && options['vm'].to_s.match(/kvm/)
       check_kvm_network_bridge(options)      
     end

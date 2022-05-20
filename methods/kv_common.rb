@@ -69,9 +69,8 @@ end
 # Check KVM is installed
 
 def check_kvm_is_installed(options)
-  # if_name = get_vm_if_name(options)
-  if_name = options['bridge'].to_s
-  if options['vmnet'].to_s.match(/hostonly/)
+  if_name = get_vm_if_name(options)
+  if options['vmnet'].to_s.match(/hostonly/) && options['bridge'].to_s.match(/virbr/)
     check_kvm_hostonly_network(options,if_name)
   end
   if not options['host-os-name'].match(/Linux/)

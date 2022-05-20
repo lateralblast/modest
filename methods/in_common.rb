@@ -283,6 +283,7 @@ def set_defaults(options,defaults)
   defaults['disableautoconf'] = "true"
   defaults['diskmode']        = "thin"
   defaults['diskinterface']   = "ide"
+  defaults['dnsmasq']         = false
   defaults['domainname']      = "lab.net"
   defaults['download']        = false
   defaults['dpool']           = "dpool"
@@ -3919,9 +3920,35 @@ def add_hosts_entry(options)
     message = "Adding:\t\tHost "+options['name']+" to "+hosts_file
     command = "echo \"#{options['ip']}\\t#{options['name']}.local\\t#{options['name']}\\t# #{options['adminuser']}\" >> #{hosts_file}"
     output  = execute_command(options,message,command)
-    if options['host-os-name'].to_s.match(/Darwin/)
-      pfile   = "/Library/LaunchDaemons/homebrew.mxcl.dnsmasq.plist"
-      if File.exist?(pfile)
+  end
+  if options['dnsmasq'] == true
+    config_file = "/etc/dnsmasq.conf"
+    hosts_file  = "/etc/hosts." + options['scriptname'].to_s
+    message = "Checking:\tChecking DNSmasq config file for hosts."+options['scriptname'].to_s
+    command = "cat #{config_file} |grep -v '^#' |grep '#{options['scriptname'].to_s}' |grep 'addn-hosts'"
+    output  = execute_command(options,message,command)
+    if not output.match(/#{options['scriptname'].to_s}/)
+      backup_file(options,hosts_file)
+      message = "Adding:\t\tHost "+options['name'].to_s+" to "+hosts_file
+      command = "echo \"addn-hosts=#{hosts_file}\" >> #{config_file}"
+      output  = execute_command(options,message,command)
+    end
+    message = "Checking:\tHosts file #{hosts_file}for #{options['name']}"
+    command = "cat #{hosts_file} |grep -v '^#' |grep '#{options['name']}' |grep '#{options['ip']}'"
+    output  = execute_command(options,message,command)
+    if not output.match(/#{options['name'].to_s}/)
+      backup_file(options,hosts_file)
+      message = "Adding:\t\tHost "+options['name'].to_s+" to "+hosts_file
+      command = "echo \"#{options['ip']}\\t#{options['name']}.local\\t#{options['name']}\\t# #{options['adminuser']}\" >> #{hosts_file}"
+      output  = execute_command(options,message,command)
+      if options['host-os-name'].to_s.match(/Darwin/)
+        pfile   = "/Library/LaunchDaemons/homebrew.mxcl.dnsmasq.plist"
+        if File.exist?(pfile)
+          service = "dnsmasq"
+          service = get_service_name(options,service)
+          refresh_service(service)
+        end
+      else
         service = "dnsmasq"
         service = get_service_name(options,service)
         refresh_service(service)

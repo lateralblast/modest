@@ -45,6 +45,14 @@ def install_linux_package(options,pkg_name)
   return
 end
 
+# Check DNSmasq
+
+def check_dnsmasq(options)
+  pkg_name = "dnsmasq"
+  install_linux_package(options,pkg_name)
+  return
+end
+
 # Enable ufw NAT
 
 def enable_linux_ufw_nat(options,gw_if_name,if_name)
