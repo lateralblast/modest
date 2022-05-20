@@ -2111,7 +2111,7 @@ if options['action'] != options['empty']
     end
   when /add|create/
     if options['type'].to_s.match(/dnsmasq/)
-      add_dnsmasq_entry)options)
+      add_dnsmasq_entry(options)
       quit(options)
     end
     if options['vm'].to_s.match(/mp|multipass/)

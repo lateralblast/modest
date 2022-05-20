@@ -3718,7 +3718,7 @@ end
 def restart_firewalld(options)
   service = "firewalld"
   service = get_service_name(options,service)
-  refresh_service(service)
+  refresh_service(options,service)
   return
 end
 
@@ -3952,12 +3952,12 @@ def add_dnsmasq_entry(options)
       if File.exist?(pfile)
         service = "dnsmasq"
         service = get_service_name(options,service)
-        refresh_service(service)
+        refresh_service(option,service)
       end
     else
       service = "dnsmasq"
       service = get_service_name(options,service)
-      refresh_service(service)
+      refresh_service(options,service)
     end
   end
   return
