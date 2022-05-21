@@ -1868,7 +1868,7 @@ def handle_action(options)
         list_images(options)
       when /packer|ansible/
         list_clients(options)
-        quit(options)
+        return options
       when /inst/
         if options['vm'].to_s.match(/docker/)
           list_docker_instances(options)
@@ -1898,7 +1898,7 @@ def handle_action(options)
           else
             list_docker_images(options)
           end
-          quit(options)
+          return options
         end
         if options['type'].to_s.match(/service/) || options['mode'].to_s.match(/server/)
           if options['method'] != options['empty']
@@ -1906,7 +1906,7 @@ def handle_action(options)
           else
             list_all_services(options)
           end
-          quit(options)
+          return options
         end
         if options['type'].to_s.match(/iso/)
           if options['method'] != options['empty']
@@ -1914,7 +1914,7 @@ def handle_action(options)
           else
             list_os_isos(options)
           end
-          quit(options)
+          return options
         end
         if options['mode'].to_s.match(/client/) || options['type'].to_s.match(/client/)
           options['mode'] = "client"
@@ -1935,15 +1935,15 @@ def handle_action(options)
               end
             end
           end
-          quit(options)
+          return options
         end
         if options['method'] != options['empty'] && options['vm'] == options['empty']
           list_clients(options)
-          quit(options)
+          return options
         end
         if options['type'].to_s.match(/ova/)
           list_ovas
-          quit(options)
+          return options
         end
         if options['vm'] != options['empty'] && options['vm'] != options['empty']
           if options['type'].to_s.match(/snapshot/)
@@ -1951,7 +1951,7 @@ def handle_action(options)
           else
             list_vm(options)
           end
-          quit(options)
+          return options
         end
       end
     when /delete|remove|terminate/
@@ -1961,16 +1961,16 @@ def handle_action(options)
         else
           delete_vm_snapshot(options)
         end
-        quit(options)
+        return options
       end
       if options['type'].to_s.match(/ssh/)
         delete_user_ssh_config(options)
-        quit(options)
+        return options
       end
       if options['name'] != options['empty']
         if options['vm'].to_s.match(/docker/)
           delete_docker_image(options)
-          quit(options)
+          return options
         end
         if options['service'] == options['empty'] && options['vm'] == options['empty']
           if options['vm'] == options['empty']
@@ -2005,7 +2005,7 @@ def handle_action(options)
             else
               if options['vm'].to_s.match(/mp|multipass/)
                 delete_multipass_vm(options)
-                quit(options)
+                return options
               else
                 remove_hosts_entry(options)
                 remove_dhcp_client(options)
@@ -2042,7 +2042,7 @@ def handle_action(options)
               else
                 if options['name'] == options['empty'] && options['snapshot'] == options['empty']
                   handle_output(options,"Warning:\tNo client or snapshot name specified")
-                  quit(options)
+                  return options
                 else
                   delete_vm_snapshot(options)
                 end
@@ -2081,7 +2081,7 @@ def handle_action(options)
               handle_output(options,"Warning:\tNo #{options['vm']} type, instance or image specified")
             end
           end
-          quit(options)
+          return options
         end
         if options['type'].to_s.match(/packer|docker/)
           unconfigure_client(options)
@@ -2113,26 +2113,26 @@ def handle_action(options)
     when /add|create/
       if options['type'].to_s.match(/dnsmasq/)
         add_dnsmasq_entry(options)
-        quit(options)
+        return options
       end
       if options['vm'].to_s.match(/mp|multipass/)
         configure_multipass_vm(options)
-        quit(options)
+        return options
       end
       if options['type'] == options['empty'] && options['vm'] == options['empty'] && options['service'] == options['empty']
         handle_output(options,"Warning:\tNo service type or VM specified")
-        quit(options)
+        return options
       end
     if options['type'].to_s.match(/service/) && !options['service'].to_s.match(/[a-z]/) && !options['service'] == options['empty']
         handle_output(options,"Warning:\tNo service name specified")
-        quit(options)
+        return options
       end
       if options['file'] == options['empty']
         options['mode'] = "client"
       end
       if options['type'].to_s.match(/network/) && options['vm'] != options['empty']
         add_vm_network(options)
-        quit(options)
+        return options
       end
       if options['type'].to_s.match(/ami|image|key|cloud|cf|stack|securitygroup|iprule|sg/)
         case options['type']
@@ -2165,7 +2165,7 @@ def handle_action(options)
             add_rule_to_aws_security_group(options)
           end
         end
-        quit(options)
+        return options
       end
       if options['vm'].to_s.match(/aws/)
         case options['type']
@@ -2176,19 +2176,20 @@ def handle_action(options)
         else
           if options['key'] == options['empty'] && options['group'] == options['empty']
             handle_output(options,"Warning:\tNo Key Pair or Security Group specified")
-            quit(options)
+            return options
           else
             options = configure_aws_client(options)
           end
         end
-        quit(options)
+        return options
       end
       if options['type'].to_s.match(/docker/)
         configure_docker_client(options)
-        quit(options)
+        return options
       end
       if options['vm'].to_s.match(/kvm/)
         configure_kvm_client(options)
+        return options
       end
       if options['vm'] == options['empty'] && options['method'] == options['empty'] && options['type'] == options['empty'] && !options['mode'].to_s.match(/server/)
         handle_output(options,"Warning:\tNo VM, Method or specified")
@@ -2316,7 +2317,7 @@ def handle_action(options)
       options['action'] = options['action'].gsub(/shutdown/,"stop")
       if options['vm'].to_s.match(/aws/)
         options = boot_aws_vm(options)
-        quit(options)
+        return options
       end
       if options['name'] != options['empty'] && options['vm'] != options['empty'] && options['vm'] != options['empty']
         eval"[#{options['action']}_#{options['vm']}_vm(options)]"
@@ -2355,7 +2356,7 @@ def handle_action(options)
         end
         if options['vm'].to_s.match(/aws/)
           options = reboot_aws_vm(options)
-          quit(options)
+          return options
         end
         if options['vm'] != options['empty']
           if options['name'] != options['empty']
@@ -2372,7 +2373,7 @@ def handle_action(options)
               if exists == "yes"
                 stop_vm(options)
                 boot_vm(options)
-                quit(options)
+                return options
               end
             end
           else
@@ -2486,11 +2487,11 @@ def handle_action(options)
       end
       if options['vm'].to_s.match(/mp|multipass/)
         connect_to_multipass_vm((options))
-        quit(options)
+        return options
       end
       if options['vm'].to_s.match(/aws/) || options['id'].to_s.match(/[0-9]/)
         connect_to_aws_vm(options)
-        quit(options)
+        return options
       end
       if options['type'].to_s.match(/docker/)
         connect_to_docker_client(options)
@@ -2534,10 +2535,10 @@ if options['name'].to_s.match(/\,/)
     if vcpu_list[counter]
       options['vcpus'] = mem_list[counter]
     end
-    handle_action(options)
+    options = handle_action(options)
   end
 else
-  handle_action(options)
+  options = handle_action(options)
 end
 
 quit(options)
