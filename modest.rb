@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      7.4.5
+# Version:      7.4.6
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -2515,11 +2515,21 @@ if options['name'].to_s.match(/\,/)
   mac_list  = []
   vcpu_list = []
   mem_list  = []
+  disk_list = []
   if options['ip'].to_s.match(/\,/)
     ip_list = options['ip'].to_s.split(",")
   end
   if options['mac'].to_s.match(/\,/)
     mac_list = options['mac'].to_s.split(",")
+  end
+  if options['memory'].to_s.match(/\,/)
+    mem_list = options['memory'].to_s.split(",")
+  end
+  if options['vcpus'].to_s.match(/\,/)
+    vcpus_list = options['vcpus'].to_s.split(",")
+  end
+  if options['disk'].to_s.match(/\,/)
+    disk_list = options['disk'].to_s.split(",")
   end
   host_list.each_with_index do |host_name, counter|
     options['name'] = host_name
@@ -2535,7 +2545,12 @@ if options['name'].to_s.match(/\,/)
       options['memory'] = mem_list[counter]
     end
     if vcpu_list[counter]
-      options['vcpus'] = mem_list[counter]
+      options['vcpus'] = vcpus_list[counter]
+    end
+    if disk_list[counter]
+      options['disk'] = disk_list[counter]
+    else
+      options['disk'] = options['empty']
     end
     handle_action(options)
   end

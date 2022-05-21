@@ -1491,3 +1491,5 @@
 # DNSmasq improvements
 # 7.4.5: Sat 21 May 2022 14:06:58 AEST
 # Started adding code to do multiple configs in one command
+# 7.4.6: Sat 21 May 2022 19:52:27 AEST
+# Improved code to do multiple configs in one command
