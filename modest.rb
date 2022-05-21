@@ -2521,7 +2521,7 @@ if options['name'].to_s.match(/\,/)
   if options['mac'].to_s.match(/\,/)
     mac_list = options['mac'].to_s.split(",")
   end
-  host_list.each_with_index do |counter, host_name|
+  host_list.each_with_index do |host_name, counter|
     options['name'] = host_name
     if ip_list[counter]
       options['ip'] = ip_list[counter]
