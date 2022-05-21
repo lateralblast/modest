@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      7.4.4
+# Version:      7.4.5
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -1755,304 +1755,395 @@ end
 
 # Handle action switch
 
-if options['action'] != options['empty']
-  case options['action']
-  when /convert/
-    if options['vm'].to_s.match(/kvm|qemu/)
-      convert_kvm_image(options)
-    end
-  when /check/
-    if options['check'].to_s.match(/dnsmasq/)
-      check_dnsmasq(options)
-    end
-    if options['type'].to_s.match(/bridge/) && options['vm'].to_s.match(/kvm/)
-      check_kvm_network_bridge(options)      
-    end
-    if options['mode'].to_s.match(/server/)
-      options = check_local_config(options)
-    end
-    if options['mode'].to_s.match(/osx/)
-      check_osx_dnsmasq(options)
-      check_osx_tftpd(options)
-      check_osx_dhcpd(options)
-    end
-    if options['vm'].to_s.match(/fusion|vbox|kvm/)
-      check_vm_network(options)
-    end
-    if options['check'].to_s.match(/dhcp/)
-      check_dhcpd_config(options)
-    end
-    if options['check'].to_s.match(/tftp/)
-      check_tftpd_config(options)
-    end
-  when /execute|shell/
-    if options['type'].to_s.match(/docker/) or options['vm'].to_s.match(/docker/)
-      execute_docker_command(options)
-    end
-    if options['vm'].to_s.match(/mp|multipass/)
-      execute_multipass_command(options)
-    end
-  when /screen/
-    if options['vm'] != options['empty']
-      get_vm_screen(options)
-    end
-  when /vnc/
-    if options['vm'] != options['empty']
-      vnc_to_vm(options)
-    end
-  when /status/
-    if options['vm'] != options['empty']
-      status = get_vm_status(options)
-    end
-  when /set|put/
-    if options['type'].to_s.match(/acl/)
+def handle_action(options)
+  if options['action'] != options['empty']
+    case options['action']
+    when /convert/
+      if options['vm'].to_s.match(/kvm|qemu/)
+        convert_kvm_image(options)
+      end
+    when /check/
+      if options['check'].to_s.match(/dnsmasq/)
+        check_dnsmasq(options)
+      end
+      if options['type'].to_s.match(/bridge/) && options['vm'].to_s.match(/kvm/)
+        check_kvm_network_bridge(options)      
+      end
+      if options['mode'].to_s.match(/server/)
+        options = check_local_config(options)
+      end
+      if options['mode'].to_s.match(/osx/)
+        check_osx_dnsmasq(options)
+        check_osx_tftpd(options)
+        check_osx_dhcpd(options)
+      end
+      if options['vm'].to_s.match(/fusion|vbox|kvm/)
+        check_vm_network(options)
+      end
+      if options['check'].to_s.match(/dhcp/)
+        check_dhcpd_config(options)
+      end
+      if options['check'].to_s.match(/tftp/)
+        check_tftpd_config(options)
+      end
+    when /execute|shell/
+      if options['type'].to_s.match(/docker/) or options['vm'].to_s.match(/docker/)
+        execute_docker_command(options)
+      end
+      if options['vm'].to_s.match(/mp|multipass/)
+        execute_multipass_command(options)
+      end
+    when /screen/
+      if options['vm'] != options['empty']
+        get_vm_screen(options)
+      end
+    when /vnc/
+      if options['vm'] != options['empty']
+        vnc_to_vm(options)
+      end
+    when /status/
+      if options['vm'] != options['empty']
+        status = get_vm_status(options)
+      end
+    when /set|put/
+      if options['type'].to_s.match(/acl/)
+        if options['bucket'] != options['empty']
+          set_aws_s3_bucket_acl(options)
+        end
+      end
+    when /upload|download/
       if options['bucket'] != options['empty']
-        set_aws_s3_bucket_acl(options)
-      end
-    end
-  when /upload|download/
-    if options['bucket'] != options['empty']
-      if options['action'].to_s.match(/upload/)
-        upload_file_to_aws_bucket(options)
-      else
-        download_file_from_aws_bucket(options)
-      end
-    end
-  when /display|view|show|prop|get|billing/
-    if options['type'].to_s.match(/acl|url/) || options['action'].to_s.match(/acl|url/)
-      if options['bucket'] != options['empty']
-        show_aws_s3_bucket_acl(options)
-      else
-        if options['type'].to_s.match(/url/) || options['action'].to_s.match(/url/)
-          show_s3_bucket_url(options)
+        if options['action'].to_s.match(/upload/)
+          upload_file_to_aws_bucket(options)
         else
-          get_aws_billing(options)
+          download_file_from_aws_bucket(options)
         end
       end
-    else
-      if options['name'] != options['empty']
-        if options['vm'] != options['empty']
-          show_vm_config(options)
+    when /display|view|show|prop|get|billing/
+      if options['type'].to_s.match(/acl|url/) || options['action'].to_s.match(/acl|url/)
+        if options['bucket'] != options['empty']
+          show_aws_s3_bucket_acl(options)
         else
-          get_client_config(options)
-        end
-      end
-    end
-  when /help/
-    print_help(options)
-  when /version/
-    print_version
-  when /info|usage|help/
-    if options['file'] != options['empty']
-      describe_file(options)
-    else
-      print_examples(options)
-    end
-  when /show/
-    if options['vm'] != options['empty']
-      show_vm_config(options)
-    end
-  when /list/
-    if options['file'] != options['empty']
-      describe_file(options)
-    end
-    case options['type']
-    when /service/
-      list_services(options)
-    when /network/
-      show_vm_network(options)
-    when /ssh/
-      list_user_ssh_config(options)
-    when /image|ami/
-      list_images(options)
-    when /packer|ansible/
-      list_clients(options)
-      quit(options)
-    when /inst/
-      if options['vm'].to_s.match(/docker/)
-        list_docker_instances(options)
-      else
-        list_aws_instances(options)
-      end
-    when /bucket/
-      list_aws_buckets(options)
-    when /object/
-      list_aws_bucket_objects(options)
-    when /snapshot/
-      if options['vm'].to_s.match(/aws/)
-        list_aws_snapshots(options)
-      else
-        list_vm_snapshots(options)
-      end
-    when /key/
-      list_aws_key_pairs(options)
-    when /stack|cloud|cf/
-      list_aws_cf_stacks(options)
-    when /securitygroup/
-      list_aws_security_groups(options)
-    else
-      if options['vm'].to_s.match(/docker/)
-        if options['type'].to_s.match(/instance/)
-          list_docker_instances(options)
-        else
-          list_docker_images(options)
-        end
-        quit(options)
-      end
-      if options['type'].to_s.match(/service/) || options['mode'].to_s.match(/server/)
-        if options['method'] != options['empty']
-          list_services(options)
-        else
-          list_all_services(options)
-        end
-        quit(options)
-      end
-      if options['type'].to_s.match(/iso/)
-        if options['method'] != options['empty']
-          list_isos(options)
-        else
-          list_os_isos(options)
-        end
-        quit(options)
-      end
-      if options['mode'].to_s.match(/client/) || options['type'].to_s.match(/client/)
-        options['mode'] = "client"
-        check_local_config(options)
-        if options['service'] != options['empty']
-          if options['service'].to_s.match(/[a-z]/)
-            list_clients(options)
+          if options['type'].to_s.match(/url/) || options['action'].to_s.match(/url/)
+            show_s3_bucket_url(options)
+          else
+            get_aws_billing(options)
           end
         end
-        if options['vm'] != options['empty']
-          if options['vm'].to_s.match(/[a-z]/)
-            if options['type'] == options['empty']
-              if options['file'] != options['empty']
-                describe_file(options)
-              else
-                list_vms(options)
-              end
-            end
+      else
+        if options['name'] != options['empty']
+          if options['vm'] != options['empty']
+            show_vm_config(options)
+          else
+            get_client_config(options)
           end
         end
-        quit(options)
       end
-      if options['method'] != options['empty'] && options['vm'] == options['empty']
+    when /help/
+      print_help(options)
+    when /version/
+      print_version
+    when /info|usage|help/
+      if options['file'] != options['empty']
+        describe_file(options)
+      else
+        print_examples(options)
+      end
+    when /show/
+      if options['vm'] != options['empty']
+        show_vm_config(options)
+      end
+    when /list/
+      if options['file'] != options['empty']
+        describe_file(options)
+      end
+      case options['type']
+      when /service/
+        list_services(options)
+      when /network/
+        show_vm_network(options)
+      when /ssh/
+        list_user_ssh_config(options)
+      when /image|ami/
+        list_images(options)
+      when /packer|ansible/
         list_clients(options)
         quit(options)
-      end
-      if options['type'].to_s.match(/ova/)
-        list_ovas
-        quit(options)
-      end
-      if options['vm'] != options['empty'] && options['vm'] != options['empty']
-        if options['type'].to_s.match(/snapshot/)
-          list_vm_snapshots(options)
+      when /inst/
+        if options['vm'].to_s.match(/docker/)
+          list_docker_instances(options)
         else
-          list_vm(options)
+          list_aws_instances(options)
         end
-        quit(options)
-      end
-    end
-  when /delete|remove|terminate/
-    if options['type'].to_s.match(/network|snapshot/) && options['vm'] != options['empty']
-      if options['type'].to_s.match(/network/)
-        delete_vm_network(options)
+      when /bucket/
+        list_aws_buckets(options)
+      when /object/
+        list_aws_bucket_objects(options)
+      when /snapshot/
+        if options['vm'].to_s.match(/aws/)
+          list_aws_snapshots(options)
+        else
+          list_vm_snapshots(options)
+        end
+      when /key/
+        list_aws_key_pairs(options)
+      when /stack|cloud|cf/
+        list_aws_cf_stacks(options)
+      when /securitygroup/
+        list_aws_security_groups(options)
       else
-        delete_vm_snapshot(options)
-      end
-      quit(options)
-    end
-    if options['type'].to_s.match(/ssh/)
-      delete_user_ssh_config(options)
-      quit(options)
-    end
-    if options['name'] != options['empty']
-      if options['vm'].to_s.match(/docker/)
-        delete_docker_image(options)
-        quit(options)
-      end
-      if options['service'] == options['empty'] && options['vm'] == options['empty']
-        if options['vm'] == options['empty']
-          options['vm'] = get_client_vm_type(options)
-          if options['vm'].to_s.match(/vbox|fusion|parallels|mp|multipass/)
-            options['sudo'] = false
-            delete_vm(options)
+        if options['vm'].to_s.match(/docker/)
+          if options['type'].to_s.match(/instance/)
+            list_docker_instances(options)
           else
-            handle_output(options,"Warning:\tNo VM, client or service specified")
-            handle_output(options,"Available services")
+            list_docker_images(options)
+          end
+          quit(options)
+        end
+        if options['type'].to_s.match(/service/) || options['mode'].to_s.match(/server/)
+          if options['method'] != options['empty']
+            list_services(options)
+          else
             list_all_services(options)
           end
+          quit(options)
         end
-      else
-        if options['vm'].to_s.match(/fusion|vbox|parallels|aws|kvm/)
-          if options['type'].to_s.match(/packer|ansible/)
-            unconfigure_client(options)
+        if options['type'].to_s.match(/iso/)
+          if options['method'] != options['empty']
+            list_isos(options)
           else
-            if options['type'].to_s.match(/snapshot/)
-              if options['name'] != options['empty'] && options['snapshot'] != options['empty']
-                delete_vm_snapshot(options)
-              else
-                handle_output(options,"Warning:\tClient name or snapshot not specified")
+            list_os_isos(options)
+          end
+          quit(options)
+        end
+        if options['mode'].to_s.match(/client/) || options['type'].to_s.match(/client/)
+          options['mode'] = "client"
+          check_local_config(options)
+          if options['service'] != options['empty']
+            if options['service'].to_s.match(/[a-z]/)
+              list_clients(options)
+            end
+          end
+          if options['vm'] != options['empty']
+            if options['vm'].to_s.match(/[a-z]/)
+              if options['type'] == options['empty']
+                if options['file'] != options['empty']
+                  describe_file(options)
+                else
+                  list_vms(options)
+                end
               end
-            else
+            end
+          end
+          quit(options)
+        end
+        if options['method'] != options['empty'] && options['vm'] == options['empty']
+          list_clients(options)
+          quit(options)
+        end
+        if options['type'].to_s.match(/ova/)
+          list_ovas
+          quit(options)
+        end
+        if options['vm'] != options['empty'] && options['vm'] != options['empty']
+          if options['type'].to_s.match(/snapshot/)
+            list_vm_snapshots(options)
+          else
+            list_vm(options)
+          end
+          quit(options)
+        end
+      end
+    when /delete|remove|terminate/
+      if options['type'].to_s.match(/network|snapshot/) && options['vm'] != options['empty']
+        if options['type'].to_s.match(/network/)
+          delete_vm_network(options)
+        else
+          delete_vm_snapshot(options)
+        end
+        quit(options)
+      end
+      if options['type'].to_s.match(/ssh/)
+        delete_user_ssh_config(options)
+        quit(options)
+      end
+      if options['name'] != options['empty']
+        if options['vm'].to_s.match(/docker/)
+          delete_docker_image(options)
+          quit(options)
+        end
+        if options['service'] == options['empty'] && options['vm'] == options['empty']
+          if options['vm'] == options['empty']
+            options['vm'] = get_client_vm_type(options)
+            if options['vm'].to_s.match(/vbox|fusion|parallels|mp|multipass/)
+              options['sudo'] = false
               delete_vm(options)
+            else
+              handle_output(options,"Warning:\tNo VM, client or service specified")
+              handle_output(options,"Available services")
+              list_all_services(options)
             end
           end
         else
-          if options['vm'].to_s.match(/ldom|gdom/)
-            unconfigure_gdom(options)
-          else
-            if options['vm'].to_s.match(/mp|multipass/)
-              delete_multipass_vm(options)
-              quit(options)
+          if options['vm'].to_s.match(/fusion|vbox|parallels|aws|kvm/)
+            if options['type'].to_s.match(/packer|ansible/)
+              unconfigure_client(options)
             else
-              remove_hosts_entry(options)
-              remove_dhcp_client(options)
-              if options['yes'] == true
-                delete_client_dir(options)
+              if options['type'].to_s.match(/snapshot/)
+                if options['name'] != options['empty'] && options['snapshot'] != options['empty']
+                  delete_vm_snapshot(options)
+                else
+                  handle_output(options,"Warning:\tClient name or snapshot not specified")
+                end
+              else
+                delete_vm(options)
               end
+            end
+          else
+            if options['vm'].to_s.match(/ldom|gdom/)
+              unconfigure_gdom(options)
+            else
+              if options['vm'].to_s.match(/mp|multipass/)
+                delete_multipass_vm(options)
+                quit(options)
+              else
+                remove_hosts_entry(options)
+                remove_dhcp_client(options)
+                if options['yes'] == true
+                  delete_client_dir(options)
+                end
+              end
+            end
+          end
+        end
+      else
+        if options['type'].to_s.match(/instance|snapshot|key|stack|cf|cloud|securitygroup|iprule|sg|ami|image/) || options['id'].to_s.match(/[0-9]|all/)
+          case options['type']
+          when /instance/
+            options = delete_aws_vm(options)
+          when /ami|image/
+            if options['vm'].to_s.match(/docker/)
+              delete_docker_image(options)
+            else
+              delete_aws_image(options)
+            end
+          when /snapshot/
+            if options['vm'].to_s.match(/aws/)
+              delete_aws_snapshot(options)
+            else
+              if options['snapshot'] == options['empty']
+                handle_output(options,"Warning:\tNo snapshot name specified")
+                if options['name'] == options['empty']
+                  handle_output(options,"Warning:\tNo client name specified")
+                  list_all_vm_snapshots(options)
+                else
+                  list_vm_snapshots(options)
+                end
+              else
+                if options['name'] == options['empty'] && options['snapshot'] == options['empty']
+                  handle_output(options,"Warning:\tNo client or snapshot name specified")
+                  quit(options)
+                else
+                  delete_vm_snapshot(options)
+                end
+              end
+            end
+          when /key/
+            options = delete_aws_key_pair(options)
+          when /stack|cf|cloud/
+            delete_aws_cf_stack(options)
+          when /securitygroup/
+            delete_aws_security_group(options)
+          when /iprule/
+            if options['ports'].to_s.match(/[0-9]/)
+              if options['ports'].to_s.match(/\./)
+                ports = []
+                options['ports'].split(/\./).each do |port|
+                  ports.push(port)
+                end
+                ports = ports.uniq
+              else
+                port  = options['ports']
+                ports = [ port ]
+              end
+              ports.each do |port|
+                options['from'] = port
+                options['to']   = port
+                remove_rule_from_aws_security_group(options)
+              end
+            else
+              remove_rule_from_aws_security_group(options)
+            end
+          else
+            if options['ami'] != options['empty']
+              delete_aws_image(options)
+            else
+              handle_output(options,"Warning:\tNo #{options['vm']} type, instance or image specified")
+            end
+          end
+          quit(options)
+        end
+        if options['type'].to_s.match(/packer|docker/)
+          unconfigure_client(options)
+        else
+          if options['service'] != options['empty']
+            if options['method'] == options['empty']
+              unconfigure_server(options)
+            else
+              unconfigure_server(options)
             end
           end
         end
       end
-    else
-      if options['type'].to_s.match(/instance|snapshot|key|stack|cf|cloud|securitygroup|iprule|sg|ami|image/) || options['id'].to_s.match(/[0-9]|all/)
+    when /build/
+      if options['type'].to_s.match(/packer/)
+        if options['vm'].to_s.match(/aws/)
+          build_packer_aws_config(options)
+        else
+          build_packer_config(options)
+        end
+      end
+      if options['type'].to_s.match(/ansible/)
+        if options['vm'].to_s.match(/aws/)
+          build_ansible_aws_config(options)
+        else
+          build_ansible_config(options)
+        end
+      end
+    when /add|create/
+      if options['type'].to_s.match(/dnsmasq/)
+        add_dnsmasq_entry(options)
+        quit(options)
+      end
+      if options['vm'].to_s.match(/mp|multipass/)
+        configure_multipass_vm(options)
+        quit(options)
+      end
+      if options['type'] == options['empty'] && options['vm'] == options['empty'] && options['service'] == options['empty']
+        handle_output(options,"Warning:\tNo service type or VM specified")
+        quit(options)
+      end
+    if options['type'].to_s.match(/service/) && !options['service'].to_s.match(/[a-z]/) && !options['service'] == options['empty']
+        handle_output(options,"Warning:\tNo service name specified")
+        quit(options)
+      end
+      if options['file'] == options['empty']
+        options['mode'] = "client"
+      end
+      if options['type'].to_s.match(/network/) && options['vm'] != options['empty']
+        add_vm_network(options)
+        quit(options)
+      end
+      if options['type'].to_s.match(/ami|image|key|cloud|cf|stack|securitygroup|iprule|sg/)
         case options['type']
-        when /instance/
-          options = delete_aws_vm(options)
         when /ami|image/
-          if options['vm'].to_s.match(/docker/)
-            delete_docker_image(options)
-          else
-            delete_aws_image(options)
-          end
-        when /snapshot/
-          if options['vm'].to_s.match(/aws/)
-            delete_aws_snapshot(options)
-          else
-            if options['snapshot'] == options['empty']
-              handle_output(options,"Warning:\tNo snapshot name specified")
-              if options['name'] == options['empty']
-                handle_output(options,"Warning:\tNo client name specified")
-                list_all_vm_snapshots(options)
-              else
-                list_vm_snapshots(options)
-              end
-            else
-              if options['name'] == options['empty'] && options['snapshot'] == options['empty']
-                handle_output(options,"Warning:\tNo client or snapshot name specified")
-                quit(options)
-              else
-                delete_vm_snapshot(options)
-              end
-            end
-          end
+          create_aws_image(options)
         when /key/
-          options = delete_aws_key_pair(options)
-        when /stack|cf|cloud/
-          delete_aws_cf_stack(options)
+          options = create_aws_key_pair(options)
+        when /cf|cloud|stack/
+          configure_aws_cf_stack(options)
         when /securitygroup/
-          delete_aws_security_group(options)
+          create_aws_security_group(options)
         when /iprule/
           if options['ports'].to_s.match(/[0-9]/)
             if options['ports'].to_s.match(/\./)
@@ -2068,443 +2159,386 @@ if options['action'] != options['empty']
             ports.each do |port|
               options['from'] = port
               options['to']   = port
-              remove_rule_from_aws_security_group(options)
+              add_rule_to_aws_security_group(options)
             end
           else
-            remove_rule_from_aws_security_group(options)
-          end
-        else
-          if options['ami'] != options['empty']
-            delete_aws_image(options)
-          else
-            handle_output(options,"Warning:\tNo #{options['vm']} type, instance or image specified")
+            add_rule_to_aws_security_group(options)
           end
         end
         quit(options)
       end
-      if options['type'].to_s.match(/packer|docker/)
-        unconfigure_client(options)
-      else
-        if options['service'] != options['empty']
-          if options['method'] == options['empty']
-            unconfigure_server(options)
-          else
-            unconfigure_server(options)
-          end
-        end
-      end
-    end
-  when /build/
-    if options['type'].to_s.match(/packer/)
       if options['vm'].to_s.match(/aws/)
-        build_packer_aws_config(options)
-      else
-        build_packer_config(options)
-      end
-    end
-    if options['type'].to_s.match(/ansible/)
-      if options['vm'].to_s.match(/aws/)
-        build_ansible_aws_config(options)
-      else
-        build_ansible_config(options)
-      end
-    end
-  when /add|create/
-    if options['type'].to_s.match(/dnsmasq/)
-      add_dnsmasq_entry(options)
-      quit(options)
-    end
-    if options['vm'].to_s.match(/mp|multipass/)
-      configure_multipass_vm(options)
-      quit(options)
-    end
-    if options['type'] == options['empty'] && options['vm'] == options['empty'] && options['service'] == options['empty']
-      handle_output(options,"Warning:\tNo service type or VM specified")
-      quit(options)
-    end
-    if options['type'].to_s.match(/service/) && !options['service'].to_s.match(/[a-z]/) && !options['service'] == options['empty']
-      handle_output(options,"Warning:\tNo service name specified")
-      quit(options)
-    end
-    if options['file'] == options['empty']
-      options['mode'] = "client"
-    end
-    if options['type'].to_s.match(/network/) && options['vm'] != options['empty']
-      add_vm_network(options)
-      quit(options)
-    end
-    if options['type'].to_s.match(/ami|image|key|cloud|cf|stack|securitygroup|iprule|sg/)
-      case options['type']
-      when /ami|image/
-        create_aws_image(options)
-      when /key/
-        options = create_aws_key_pair(options)
-      when /cf|cloud|stack/
-        configure_aws_cf_stack(options)
-      when /securitygroup/
-        create_aws_security_group(options)
-      when /iprule/
-        if options['ports'].to_s.match(/[0-9]/)
-          if options['ports'].to_s.match(/\./)
-            ports = []
-            options['ports'].split(/\./).each do |port|
-              ports.push(port)
-            end
-            ports = ports.uniq
+        case options['type']
+        when /packer/
+          configure_packer_aws_client(options)
+        when /ansible/
+          configure_ansible_aws_client(options)
+        else
+          if options['key'] == options['empty'] && options['group'] == options['empty']
+            handle_output(options,"Warning:\tNo Key Pair or Security Group specified")
+            quit(options)
           else
-            port  = options['ports']
-            ports = [ port ]
+            options = configure_aws_client(options)
           end
-          ports.each do |port|
-            options['from'] = port
-            options['to']   = port
-            add_rule_to_aws_security_group(options)
-          end
-        else
-          add_rule_to_aws_security_group(options)
         end
+        quit(options)
       end
-      quit(options)
-    end
-    if options['vm'].to_s.match(/aws/)
-      case options['type']
-      when /packer/
-        configure_packer_aws_client(options)
-      when /ansible/
-        configure_ansible_aws_client(options)
+      if options['type'].to_s.match(/docker/)
+        configure_docker_client(options)
+        quit(options)
+      end
+      if options['vm'].to_s.match(/kvm/)
+        configure_kvm_client(options)
+        quit(options)
+      end
+      if options['vm'] == options['empty'] && options['method'] == options['empty'] && options['type'] == options['empty'] && !options['mode'].to_s.match(/server/)
+        handle_output(options,"Warning:\tNo VM, Method or specified")
+      end
+      if options['mode'].to_s.match(/server/) || options['type'].to_s.match(/service/) && options['file'] != options['empty'] && options['vm'] == options['empty'] && !options['type'].to_s.match(/packer/) && !options['service'].to_s.match(/packer/)
+        options['mode'] = "server"
+        options = check_local_config(options)
+        if options['host-os'].to_s.match(/Docker/)
+          configure_docker_server(options)
+        end
+        if options['method'] == "none"
+          if options['service'] != "none"
+            options['method'] = get_method_from_service(options)
+          end
+        end
+        configure_server(options)
       else
-        if options['key'] == options['empty'] && options['group'] == options['empty']
-          handle_output(options,"Warning:\tNo Key Pair or Security Group specified")
-          quit(options)
-        else
-          options = configure_aws_client(options)
+        if options['vm'].to_s.match(/fusion|vbox|kvm|mp|multipass/)
+          check_vm_network(options)
         end
-      end
-      quit(options)
-    end
-    if options['type'].to_s.match(/docker/)
-      configure_docker_client(options)
-      quit(options)
-    end
-    if options['vm'].to_s.match(/kvm/)
-      configure_kvm_client(options)
-      quit(options)
-    end
-    if options['vm'] == options['empty'] && options['method'] == options['empty'] && options['type'] == options['empty'] && !options['mode'].to_s.match(/server/)
-      handle_output(options,"Warning:\tNo VM, Method or specified")
-    end
-    if options['mode'].to_s.match(/server/) || options['type'].to_s.match(/service/) && options['file'] != options['empty'] && options['vm'] == options['empty'] && !options['type'].to_s.match(/packer/) && !options['service'].to_s.match(/packer/)
-      options['mode'] = "server"
-      options = check_local_config(options)
-      if options['host-os'].to_s.match(/Docker/)
-        configure_docker_server(options)
-      end
-      if options['method'] == "none"
-        if options['service'] != "none"
-          options['method'] = get_method_from_service(options)
-        end
-      end
-      configure_server(options)
-    else
-      if options['vm'].to_s.match(/fusion|vbox|kvm|mp|multipass/)
-        check_vm_network(options)
-      end
-      if options['name'] != options['empty']
-        if options['service'] != options['empty'] || options['type'].to_s.match(/packer/)
-          if options['method'] == options['empty']
-            options['method'] = get_install_method(options)
-          end
-          if !options['type'].to_s.match(/packer/) && options['vm'] == options['empty']
-            check_dhcpd_config(options)
-          end
-          if !options['vmnetwork'].to_s.match(/nat/) && !options['action'].to_s.match(/add/)
-            if !options['type'].to_s.match(/pxe/)
-              check_install_ip(options)
+        if options['name'] != options['empty']
+          if options['service'] != options['empty'] || options['type'].to_s.match(/packer/)
+            if options['method'] == options['empty']
+              options['method'] = get_install_method(options)
             end
-            check_install_mac(options)
-          end
-          if options['type'].to_s.match(/packer/)
-            if options['yes'] == true
-              if options['vm'] == options['empty']
-                options['vm'] = get_client_vm_type(options)
-                if options['vm'].to_s.match(/vbox|fusion|parallels/)
+            if !options['type'].to_s.match(/packer/) && options['vm'] == options['empty']
+              check_dhcpd_config(options)
+            end
+            if !options['vmnetwork'].to_s.match(/nat/) && !options['action'].to_s.match(/add/)
+              if !options['type'].to_s.match(/pxe/)
+                check_install_ip(options)
+              end
+              check_install_mac(options)
+            end
+            if options['type'].to_s.match(/packer/)
+              if options['yes'] == true
+                if options['vm'] == options['empty']
+                  options['vm'] = get_client_vm_type(options)
+                  if options['vm'].to_s.match(/vbox|fusion|parallels/)
+                    options['sudo'] = false
+                    delete_vm(options)
+                    unconfigure_client(options)
+                  end
+                else
                   options['sudo'] = false
                   delete_vm(options)
                   unconfigure_client(options)
                 end
-              else
-                options['sudo'] = false
-                delete_vm(options)
-                unconfigure_client(options)
               end
-            end
-            configure_client(options)
-          else
-            if options['vm'] == options['empty']
-              if options['method'] == options['empty']
-                if options['ip'].to_s.match(/[0-9]/)
-                  options['mode'] = "client"
-                  options = check_local_config(options)
-                  add_hosts_entry(options)
-                end
-                if options['mac'].to_s.match(/[0-9]|[a-f]|[A-F]/)
-                  options['service'] = ""
-                  add_dhcp_client(options)
-                end
-              else
-                if options['model'] == options['empty']
-                  options['model'] = "vmware"
-                  options['slice'] = "4192"
-                end
-                options['mode'] = "server"
-                options = check_local_config(options)
-                if !options['mac'].to_s.match(/[0-9]/)
-                  options['mac'] = generate_mac_address(options)
-                end
-                configure_client(options)
-              end
+              configure_client(options)
             else
-              if options['vm'].to_s.match(/fusion|vbox|parallels/) && !options['action'].to_s.match(/add/)
-                create_vm(options)
-              end
-              if options['vm'].to_s.match(/zone|lxc|gdom/)
-                eval"[configure_#{options['vm']}(options)]"
-              end
-              if options['vm'].to_s.match(/cdom/)
-                configure_cdom(options)
+              if options['vm'] == options['empty']
+                if options['method'] == options['empty']
+                  if options['ip'].to_s.match(/[0-9]/)
+                    options['mode'] = "client"
+                    options = check_local_config(options)
+                    add_hosts_entry(options)
+                  end
+                  if options['mac'].to_s.match(/[0-9]|[a-f]|[A-F]/)
+                    options['service'] = ""
+                    add_dhcp_client(options)
+                  end
+                else
+                  if options['model'] == options['empty']
+                    options['model'] = "vmware"
+                    options['slice'] = "4192"
+                  end
+                  options['mode'] = "server"
+                  options = check_local_config(options)
+                  if !options['mac'].to_s.match(/[0-9]/)
+                    options['mac'] = generate_mac_address(options)
+                  end
+                  configure_client(options)
+                end
+              else
+                if options['vm'].to_s.match(/fusion|vbox|parallels/) && !options['action'].to_s.match(/add/)
+                  create_vm(options)
+                end
+                if options['vm'].to_s.match(/zone|lxc|gdom/)
+                  eval"[configure_#{options['vm']}(options)]"
+                end
+                if options['vm'].to_s.match(/cdom/)
+                  configure_cdom(options)
+                end
               end
             end
-          end
-        else
-          if options['vm'].to_s.match(/fusion|vbox|parallels/)
-            create_vm(options)
-          end
-          if options['vm'].to_s.match(/zone|lxc|gdom/)
-            eval"[configure_#{options['vm']}(options)]"
-          end
-          if options['vm'].to_s.match(/cdom/)
-            configure_cdom(options)
-          end
-          if options['vm'] == options['empty']
-            if options['ip'].to_s.match(/[0-9]/)
-              options['mode'] = "client"
-              options = check_local_config(options)
-              add_hosts_entry(options)
-            end
-            if options['mac'].to_s.match(/[0-9]|[a-f]|[A-F]/)
-              options['service'] = ""
-              add_dhcp_client(options)
-            end
-          end
-        end
-      else
-        if options['mode'].to_s.match(/server/)
-          if options['method'].to_s.match(/ai/)
-            configure_ai_server(options)
           else
-            handle_output(options,"Warning:\tNo install method specified")
-          end
-        else
-          handle_output(options,"Warning:\tClient or service name not specified")
-        end
-      end
-    end
-  when /^boot$|^stop$|^halt$|^shutdown$|^suspend$|^resume$|^start$|^destroy$/
-    options['mode']   = "client"
-    options['action'] = options['action'].gsub(/start/,"boot")
-    options['action'] = options['action'].gsub(/halt/,"stop")
-    options['action'] = options['action'].gsub(/shutdown/,"stop")
-    if options['vm'].to_s.match(/aws/)
-      options = boot_aws_vm(options)
-      quit(options)
-    end
-    if options['name'] != options['empty'] && options['vm'] != options['empty'] && options['vm'] != options['empty']
-      eval"[#{options['action']}_#{options['vm']}_vm(options)]"
-    else
-      if options['name'] != options['empty'] && options['vm'] == options['empty']
-        options['vm'] = get_client_vm_type(options)
-        options = check_local_config(options)
-        if options['vm'].to_s.match(/vbox|fusion|parallels/)
-          options['sudo'] = false
-        end
-        if options['vm'] != options['empty']
-          control_vm(options)
-        end
-      else
-        if options['name'] != options['empty']
-          for vm_type in options['valid-vm']
-            options['vm'] = vm_type
-            exists = check_vm_exists(options)
-            if exists == "yes"
-              control_vm(options)
+            if options['vm'].to_s.match(/fusion|vbox|parallels/)
+              create_vm(options)
+            end
+            if options['vm'].to_s.match(/zone|lxc|gdom/)
+              eval"[configure_#{options['vm']}(options)]"
+            end
+            if options['vm'].to_s.match(/cdom/)
+              configure_cdom(options)
+            end
+            if options['vm'] == options['empty']
+              if options['ip'].to_s.match(/[0-9]/)
+                options['mode'] = "client"
+                options = check_local_config(options)
+                add_hosts_entry(options)
+              end
+              if options['mac'].to_s.match(/[0-9]|[a-f]|[A-F]/)
+                options['service'] = ""
+                add_dhcp_client(options)
+              end
             end
           end
         else
-          if options['name'] == options['empty']
-            handle_output(options,"Warning:\tClient name not specified")
+          if options['mode'].to_s.match(/server/)
+            if options['method'].to_s.match(/ai/)
+              configure_ai_server(options)
+            else
+              handle_output(options,"Warning:\tNo install method specified")
+            end
+          else
+            handle_output(options,"Warning:\tClient or service name not specified")
           end
         end
       end
-    end
-  when /restart|reboot/
-    if options['service'] != options['empty']
-      eval"[restart_#{options['service']}]"
-    else
-      if options['vm'] == options['empty'] && options['name'] != options['empty']
-        options['vm'] = get_client_vm_type(options)
-      end
+    when /^boot$|^stop$|^halt$|^shutdown$|^suspend$|^resume$|^start$|^destroy$/
+      options['mode']   = "client"
+      options['action'] = options['action'].gsub(/start/,"boot")
+      options['action'] = options['action'].gsub(/halt/,"stop")
+      options['action'] = options['action'].gsub(/shutdown/,"stop")
       if options['vm'].to_s.match(/aws/)
-        options = reboot_aws_vm(options)
+        options = boot_aws_vm(options)
         quit(options)
       end
-      if options['vm'] != options['empty']
+      if options['name'] != options['empty'] && options['vm'] != options['empty'] && options['vm'] != options['empty']
+        eval"[#{options['action']}_#{options['vm']}_vm(options)]"
+      else
+        if options['name'] != options['empty'] && options['vm'] == options['empty']
+          options['vm'] = get_client_vm_type(options)
+          options = check_local_config(options)
+          if options['vm'].to_s.match(/vbox|fusion|parallels/)
+            options['sudo'] = false
+          end
+          if options['vm'] != options['empty']
+            control_vm(options)
+          end
+        else
+          if options['name'] != options['empty']
+            for vm_type in options['valid-vm']
+              options['vm'] = vm_type
+              exists = check_vm_exists(options)
+              if exists == "yes"
+                control_vm(options)
+              end
+            end
+          else
+            if options['name'] == options['empty']
+              handle_output(options,"Warning:\tClient name not specified")
+            end
+          end
+        end
+      end
+    when /restart|reboot/
+      if options['service'] != options['empty']
+        eval"[restart_#{options['service']}]"
+      else
+        if options['vm'] == options['empty'] && options['name'] != options['empty']
+          options['vm'] = get_client_vm_type(options)
+        end
+        if options['vm'].to_s.match(/aws/)
+          options = reboot_aws_vm(options)
+          quit(options)
+        end
+        if options['vm'] != options['empty']
+          if options['name'] != options['empty']
+            stop_vm(options)
+            boot_vm(options)
+          else
+            handle_output(options,"Warning:\tClient name not specified")
+          end
+        else
+          if options['name'] != options['empty']
+            for vm_type in options['valid-vm']
+              options['vm'] = vm_type
+              exists = check_vm_exists(options)
+              if exists == "yes"
+                stop_vm(options)
+                boot_vm(options)
+                quit(options)
+              end
+            end
+          else
+            handle_output(options,"Warning:\tInstall service or VM type not specified")
+          end
+        end
+      end
+    when /import/
+      if options['file'] == options['empty']
+        if options['type'].to_s.match(/packer/)
+          import_packer_vm(options)
+        end
+      else
+        if options['vm'].to_s.match(/fusion|vbox|kvm/)
+          if options['file'].to_s.match(/ova/)
+            if !options['vm'].to_s.match(/kvm/)
+              set_ovfbin
+            end
+            import_ova(options)
+          else
+            if options['file'].to_s.match(/vmdk/)
+              import_vmdk(options)
+            end
+          end
+        end
+      end
+    when /export/
+      if options['vm'].to_s.match(/fusion|vbox/)
+        eval"[export_#{options['vm']}_ova(options)]"
+      end
+      if options['vm'].to_s.match(/aws/)
+        export_aws_image(options)
+      end
+    when /clone|copy/
+      if options['clone'] != options['empty'] && options['name'] != options['empty']
+        eval"[clone_#{options['vm']}_vm(options)]"
+      else
+        handle_output(options,"Warning:\tClient name or clone name not specified")
+      end
+    when /running|stopped|suspended|paused/
+      if options['vm'] != options['empty'] && options['vm'] != options['empty']
+        eval"[list_#{options['action']}_#{options['vm']}_vms]"
+      end
+    when /crypt/
+      options['crypt'] = get_password_crypt(options)
+      handle_output(options,"")
+    when /post/
+      eval"[execute_#{options['vm']}_post(options)]"
+    when /change|modify/
+      if options['name'] != options['empty']
+        if options['memory'].to_s.match(/[0-9]/)
+          eval"[change_#{options['vm']}_vm_mem(options)]"
+        end
+        if options['mac'].to_s.match(/[0-9]|[a-f]|[A-F]/)
+          eval"[change_#{options['vm']}_vm_mac(options)]"
+        end
+      else
+        handle_output(options,"Warning:\tClient name not specified")
+      end
+    when /attach/
+      if options['vm'] != options['empty'] && options['vm'] != options['empty']
+        eval"[attach_file_to_#{options['vm']}_vm(options)]"
+      end
+    when /detach/
+      if options['vm'] != options['empty'] && options['name'] != options['empty'] && options['vm'] != options['empty']
+        eval"[detach_file_from_#{options['vm']}_vm(options)]"
+      else
+        handle_output(options,"Warning:\tClient name or virtualisation platform not specified")
+      end
+    when /share/
+      if options['vm'] != options['empty'] && options['vm'] != options['empty']
+        eval"[add_shared_folder_to_#{options['vm']}_vm(options)]"
+      end
+    when /^snapshot|clone/
+      if options['vm'] != options['empty'] && options['vm'] != options['empty']
         if options['name'] != options['empty']
-          stop_vm(options)
-          boot_vm(options)
+          eval"[snapshot_#{options['vm']}_vm(options)]"
         else
           handle_output(options,"Warning:\tClient name not specified")
         end
+      end
+    when /migrate/
+      eval"[migrate_#{options['vm']}_vm(options)]"
+    when /deploy/
+      if options['type'].to_s.match(/vcsa/)
+        set_ovfbin
+        options['file'] = handle_vcsa_ova(options)
+        deploy_vcsa_vm(options)
       else
+        eval"[deploy_#{options['vm']}_vm(options)]"
+      end
+    when /restore|revert/
+      if options['vm'] != options['empty'] && options['vm'] != options['empty']
         if options['name'] != options['empty']
-          for vm_type in options['valid-vm']
-            options['vm'] = vm_type
-            exists = check_vm_exists(options)
-            if exists == "yes"
-              stop_vm(options)
-              boot_vm(options)
-              quit(options)
-            end
-          end
+          eval"[restore_#{options['vm']}_vm_snapshot(options)]"
         else
-          handle_output(options,"Warning:\tInstall service or VM type not specified")
+          handle_output(options,"Warning:\tClient name not specified")
         end
       end
-    end
-  when /import/
-    if options['file'] == options['empty']
-      if options['type'].to_s.match(/packer/)
-        import_packer_vm(options)
+    when /set/
+      if options['vm'] != options['empty']
+        eval"[set_#{options['vm']}_value(options)]"
       end
-    else
-      if options['vm'].to_s.match(/fusion|vbox|kvm/)
-        if options['file'].to_s.match(/ova/)
-          if !options['vm'].to_s.match(/kvm/)
-            set_ovfbin
-          end
-          import_ova(options)
+    when /get/
+      if options['vm'] != options['empty']
+        eval"[get_#{options['vm']}_value(options)]"
+      end
+    when /console|serial|connect|ssh/
+      if options['vm'].to_s.match(/kvm/)
+        connect_to_kvm_vm(options)
+      end
+      if options['vm'].to_s.match(/mp|multipass/)
+        connect_to_multipass_vm((options))
+        quit(options)
+      end
+      if options['vm'].to_s.match(/aws/) || options['id'].to_s.match(/[0-9]/)
+        connect_to_aws_vm(options)
+        quit(options)
+      end
+      if options['type'].to_s.match(/docker/)
+        connect_to_docker_client(options)
+      end
+      if options['vm'] != options['empty'] && options['vm'] != options['empty']
+        if options['name'] != options['empty']
+          connect_to_virtual_serial(options)
         else
-          if options['file'].to_s.match(/vmdk/)
-            import_vmdk(options)
-          end
+          handle_output(options,"Warning:\tClient name not specified")
         end
       end
-    end
-  when /export/
-    if options['vm'].to_s.match(/fusion|vbox/)
-      eval"[export_#{options['vm']}_ova(options)]"
-    end
-    if options['vm'].to_s.match(/aws/)
-      export_aws_image(options)
-    end
-  when /clone|copy/
-    if options['clone'] != options['empty'] && options['name'] != options['empty']
-      eval"[clone_#{options['vm']}_vm(options)]"
     else
-      handle_output(options,"Warning:\tClient name or clone name not specified")
+      handle_output(options,"Warning:\tAction #{options['method']}")
     end
-  when /running|stopped|suspended|paused/
-    if options['vm'] != options['empty'] && options['vm'] != options['empty']
-      eval"[list_#{options['action']}_#{options['vm']}_vms]"
-    end
-  when /crypt/
-    options['crypt'] = get_password_crypt(options)
-    handle_output(options,"")
-  when /post/
-    eval"[execute_#{options['vm']}_post(options)]"
-  when /change|modify/
-    if options['name'] != options['empty']
-      if options['memory'].to_s.match(/[0-9]/)
-        eval"[change_#{options['vm']}_vm_mem(options)]"
-      end
-      if options['mac'].to_s.match(/[0-9]|[a-f]|[A-F]/)
-        eval"[change_#{options['vm']}_vm_mac(options)]"
-      end
-    else
-      handle_output(options,"Warning:\tClient name not specified")
-    end
-  when /attach/
-    if options['vm'] != options['empty'] && options['vm'] != options['empty']
-      eval"[attach_file_to_#{options['vm']}_vm(options)]"
-    end
-  when /detach/
-    if options['vm'] != options['empty'] && options['name'] != options['empty'] && options['vm'] != options['empty']
-      eval"[detach_file_from_#{options['vm']}_vm(options)]"
-    else
-      handle_output(options,"Warning:\tClient name or virtualisation platform not specified")
-    end
-  when /share/
-    if options['vm'] != options['empty'] && options['vm'] != options['empty']
-      eval"[add_shared_folder_to_#{options['vm']}_vm(options)]"
-    end
-  when /^snapshot|clone/
-    if options['vm'] != options['empty'] && options['vm'] != options['empty']
-      if options['name'] != options['empty']
-        eval"[snapshot_#{options['vm']}_vm(options)]"
-      else
-        handle_output(options,"Warning:\tClient name not specified")
-      end
-    end
-  when /migrate/
-    eval"[migrate_#{options['vm']}_vm(options)]"
-  when /deploy/
-    if options['type'].to_s.match(/vcsa/)
-      set_ovfbin
-      options['file'] = handle_vcsa_ova(options)
-      deploy_vcsa_vm(options)
-    else
-      eval"[deploy_#{options['vm']}_vm(options)]"
-    end
-  when /restore|revert/
-    if options['vm'] != options['empty'] && options['vm'] != options['empty']
-      if options['name'] != options['empty']
-        eval"[restore_#{options['vm']}_vm_snapshot(options)]"
-      else
-        handle_output(options,"Warning:\tClient name not specified")
-      end
-    end
-  when /set/
-    if options['vm'] != options['empty']
-      eval"[set_#{options['vm']}_value(options)]"
-    end
-  when /get/
-    if options['vm'] != options['empty']
-      eval"[get_#{options['vm']}_value(options)]"
-    end
-  when /console|serial|connect|ssh/
-    if options['vm'].to_s.match(/kvm/)
-      connect_to_kvm_vm(options)
-    end
-    if options['vm'].to_s.match(/mp|multipass/)
-      connect_to_multipass_vm((options))
-      quit(options)
-    end
-    if options['vm'].to_s.match(/aws/) || options['id'].to_s.match(/[0-9]/)
-      connect_to_aws_vm(options)
-      quit(options)
-    end
-    if options['type'].to_s.match(/docker/)
-      connect_to_docker_client(options)
-    end
-    if options['vm'] != options['empty'] && options['vm'] != options['empty']
-      if options['name'] != options['empty']
-        connect_to_virtual_serial(options)
-      else
-        handle_output(options,"Warning:\tClient name not specified")
-      end
-    end
-  else
-    handle_output(options,"Warning:\tAction #{options['method']}")
   end
 end
+
+if options['name'].to_s.match(/\,/)
+  host_list = options['name'].to_s.split(",")
+  ip_list   = []
+  mac_list  = []
+  vcpu_list = []
+  mem_list  = []
+  if options['ip'].to_s.match(/\,/)
+    ip_list = options['ip'].to_s.split(",")
+  end
+  if options['mac'].to_s.match(/\,/)
+    mac_list = options['mac'].to_s.split(",")
+  end
+  host_list.each_with_index do |counter, host_name|
+    options['name'] = host_name
+    if ip_list[counter]
+      options['ip'] = ip_list[counter]
+    end
+    if mac_list[counter]
+      options['mac'] = mac_list[counter]
+    end
+    if mem_list[counter]
+      options['memory'] = mem_list[counter]
+    end
+    if vcpu_list[counter]
+      options['vcpus'] = mem_list[counter]
+    end
+    handle_action(options)
+  end
+end
+
+handle_action(options)
 
 quit(options)
