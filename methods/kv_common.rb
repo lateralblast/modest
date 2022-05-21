@@ -356,6 +356,10 @@ def configure_kvm_import_client(options)
       else
         handle_output(options,"Warning:\tNo cloud config image specified")
       end
+    else
+      if !options['cloudfile'].to_s.match(/#{options['name'].to_s}/)
+        options['cloudfile'] = options['virtdir'].to_s+"/"+options['name']+"-seed.qcow2"
+      end
     end
     if options['outputfile'] == options['empty']
       output_file = options['disk'].to_s.split(" ")[2]
