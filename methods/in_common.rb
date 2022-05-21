@@ -528,9 +528,11 @@ def reset_defaults(options,defaults)
     end
     if not options['disk']
       if options['name'].to_s.match(/\,/)
-        options['name'].to_s.split(/\,/)[0]
+        host_name = options['name'].to_s.split(/\,/)[0]
+      else
+        host_name = options['name'].to_s
       end
-      defaults['disk'] = "path="+defaults['imagedir'].to_s+"/"+options['name'].to_s+"-seed.qcow2 path="+defaults['imagedir'].to_s+".qcow2,device=disk"
+      defaults['disk'] = "path="+defaults['imagedir'].to_s+"/"+host_name+"-seed.qcow2 path="+defaults['imagedir'].to_s+".qcow2,device=disk"
     end
     defaults['cpu']  = "host-passthrough"
     defaults['boot'] = "hd,menu=on"
