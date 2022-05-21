@@ -527,6 +527,9 @@ def reset_defaults(options,defaults)
       defaults['arch']    = "x86_64"
     end
     if not options['disk']
+      if options['name'].to_s.match(/\,/)
+        options['name'].to_s.split(/\,/)[0]
+      end
       defaults['disk'] = "path="+defaults['imagedir'].to_s+"/"+options['name'].to_s+"-seed.qcow2 path="+defaults['imagedir'].to_s+".qcow2,device=disk"
     end
     defaults['cpu']  = "host-passthrough"

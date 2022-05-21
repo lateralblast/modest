@@ -1493,3 +1493,5 @@
 # Started adding code to do multiple configs in one command
 # 7.4.6: Sat 21 May 2022 19:52:27 AEST
 # Improved code to do multiple configs in one command
+# 7.4.7: Sat 21 May 2022 20:49:32 AEST
+# More multi config fixes
