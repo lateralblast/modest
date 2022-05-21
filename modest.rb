@@ -2537,8 +2537,8 @@ if options['name'].to_s.match(/\,/)
     end
     handle_action(options)
   end
+else
+  handle_action(options)
 end
-
-handle_action(options)
 
 quit(options)
