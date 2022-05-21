@@ -2529,7 +2529,7 @@ if options['name'].to_s.match(/\,/)
     if mac_list[counter]
       options['mac'] = mac_list[counter]
     else
-      options['mac'] = get_install_nac(options)
+      options['mac'] = generate_mac_address(options)
     end
     if mem_list[counter]
       options['memory'] = mem_list[counter]
