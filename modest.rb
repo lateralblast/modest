@@ -2189,23 +2189,23 @@ def handle_action(options)
       end
       if options['vm'].to_s.match(/kvm/)
         configure_kvm_client(options)
-        quit(options)
-      end
-      if options['vm'] == options['empty'] && options['method'] == options['empty'] && options['type'] == options['empty'] && !options['mode'].to_s.match(/server/)
-        handle_output(options,"Warning:\tNo VM, Method or specified")
-      end
-      if options['mode'].to_s.match(/server/) || options['type'].to_s.match(/service/) && options['file'] != options['empty'] && options['vm'] == options['empty'] && !options['type'].to_s.match(/packer/) && !options['service'].to_s.match(/packer/)
-        options['mode'] = "server"
-        options = check_local_config(options)
-        if options['host-os'].to_s.match(/Docker/)
-          configure_docker_server(options)
-        end
-        if options['method'] == "none"
-          if options['service'] != "none"
-            options['method'] = get_method_from_service(options)
+      else
+        if options['vm'] == options['empty'] && options['method'] == options['empty'] && options['type'] == options['empty'] && !options['mode'].to_s.match(/server/)
+          handle_output(options,"Warning:\tNo VM, Method or specified")
+       end
+        if options['mode'].to_s.match(/server/) || options['type'].to_s.match(/service/) && options['file'] != options['empty'] && options['vm'] == options['empty'] && !options['type'].to_s.match(/packer/) && !options['service'].to_s.match(/packer/)
+          options['mode'] = "server"
+          options = check_local_config(options)
+          if options['host-os'].to_s.match(/Docker/)
+            configure_docker_server(options)
           end
+          if options['method'] == "none"
+            if options['service'] != "none"
+              options['method'] = get_method_from_service(options)
+            end
+          end
+          configure_server(options)
         end
-        configure_server(options)
       else
         if options['vm'].to_s.match(/fusion|vbox|kvm|mp|multipass/)
           check_vm_network(options)
