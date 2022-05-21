@@ -2528,6 +2528,8 @@ if options['name'].to_s.match(/\,/)
     end
     if mac_list[counter]
       options['mac'] = mac_list[counter]
+    else
+      options['mac'] = get_install_nac(options)
     end
     if mem_list[counter]
       options['memory'] = mem_list[counter]
@@ -2535,7 +2537,7 @@ if options['name'].to_s.match(/\,/)
     if vcpu_list[counter]
       options['vcpus'] = mem_list[counter]
     end
-    options = handle_action(options)
+    handle_action(options)
   end
 else
   options = handle_action(options)
