@@ -251,6 +251,9 @@ end
 # Configure a KVM client
 
 def configure_kvm_client(options)
+  if options['dnsmasq'] == true
+    add_dnsmasq_entry(options)
+  end
   exists = check_kvm_vm_exists(options)
   if exists == true
     message = "Warning:\t KVM VM #{options['name']} already exists"

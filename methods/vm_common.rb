@@ -389,6 +389,9 @@ def configure_vm(options)
   if options['vm'] == options['empty']
     options['vm'] = get_client_vm_type(options)
   end
+  if options['dnsmasq'] == true
+    add_dnsmasq_entry(options)
+  end
   case options['vm']
   when /docker/
     configure_docker_vm(options)

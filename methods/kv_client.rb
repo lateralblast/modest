@@ -52,6 +52,12 @@ def get_kvm_vm_if_info(options)
   return if_info
 end
 
+# Configure KVM VM
+
+def configure_kvm_vm(options)
+  configure_kvm_client(options)
+end
+
 # Unconfigure KVM VM
 
 def unconfigure_kvm_vm(options)
