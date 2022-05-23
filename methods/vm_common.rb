@@ -389,9 +389,6 @@ def configure_vm(options)
   if options['vm'] == options['empty']
     options['vm'] = get_client_vm_type(options)
   end
-  if options['dnsmasq'] == true
-    add_dnsmasq_entry(options)
-  end
   case options['vm']
   when /docker/
     configure_docker_vm(options)
@@ -450,6 +447,7 @@ def delete_vm(options)
   when /multipass|mp/
     unconfigure_multipass_vm(options)
   end
+  remove_hosts_entry(options)
   return
 end
 

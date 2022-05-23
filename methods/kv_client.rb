@@ -55,7 +55,7 @@ end
 # Configure KVM VM
 
 def configure_kvm_vm(options)
-  configure_kvm_client(options)
+  options = configure_kvm_client(options)
 end
 
 # Unconfigure KVM VM
@@ -81,6 +81,7 @@ def unconfigure_kvm_vm(options)
       end
     end
   end
+  remove_hosts_entry(options)
   return
 end
 

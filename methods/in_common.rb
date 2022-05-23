@@ -3990,9 +3990,18 @@ end
 # Remove hosts entry
 
 def remove_hosts_entry(options)
-  tmp_file   = "/tmp/hosts"
   hosts_file = "/etc/hosts"
-  message    = "Checking:\tHosts file for "+options['name']
+  remove_hosts_file_entry(options,hosts_file)
+  if options['dnsmasq'] == true
+    hosts_file = "/etc/hosts."+options['scriptname'].to_s
+    remove_hosts_file_entry(options,hosts_file)
+  end
+  return
+end
+
+def remove_hosts_file_entry(options,hosts_file)
+  tmp_file = "/tmp/hosts"
+  message  = "Checking:\tHosts file for "+options['name']
   if options['ip'].to_s.match(/[0-9]/)
     command = "cat #{hosts_file} |grep -v '^#' |grep '#{options['name']}' |grep '#{options['ip']}'"
   else

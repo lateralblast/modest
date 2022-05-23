@@ -2188,7 +2188,7 @@ def handle_action(options)
         return options
       end
       if options['vm'].to_s.match(/kvm/)
-        configure_kvm_client(options)
+        options = configure_kvm_client(options)
         return options
       end
       if options['vm'] == options['empty'] && options['method'] == options['empty'] && options['type'] == options['empty'] && !options['mode'].to_s.match(/server/)

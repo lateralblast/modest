@@ -251,9 +251,7 @@ end
 # Configure a KVM client
 
 def configure_kvm_client(options)
-  if options['dnsmasq'] == true
-    add_dnsmasq_entry(options)
-  end
+  add_hosts_entry(options)
   exists = check_kvm_vm_exists(options)
   if exists == true
     message = "Warning:\t KVM VM #{options['name']} already exists"
@@ -273,16 +271,16 @@ def configure_kvm_client(options)
     quit(options)
   end
   if options['import'] == true
-    configure_kvm_import_client(options)
+    optons = configure_kvm_import_client(options)
   else
     if options['type'].to_s.match(/packer/)
-      configure_packer_client(options)
+      options = configure_packer_client(options)
     else
       handle_output(options,"Warning:\tNo KVM VM type specified")
       quit(options)
     end
   end
-  return
+  return options
 end
 
 # Create a KVM disk
@@ -529,7 +527,7 @@ def configure_kvm_import_client(options)
     handle_output(options,"Information:\tTo build VM execute comannd below")
     handle_output(options,"Command:\t#{command}")
   end 
-  return
+  return options
 end
 
 # List KVM VMs
