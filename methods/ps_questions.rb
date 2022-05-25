@@ -318,13 +318,20 @@ def populate_ps_questions(options)
   options['q_struct']['nic'] = options['q_struct']['interface']
   options['q_order'].push(name)
 
+
+  if options['dnsmasq'] == true
+    nameserver = options['vmgateway'].to_s+","+options['nameserver'].to_s
+  else
+    nameserver = options['nameserver'].to_s
+  end
+
   name = "nameserver"
   config = qs.new(
     type      = "string",
     question  = "Nameservers",
     ask       = "yes",
     parameter = "netcfg/get_nameservers",
-    value     = "#{options['nameserver']}",
+    value     = nameserver,
     valid     = "",
     eval      = "no"
     )

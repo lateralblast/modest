@@ -1499,3 +1499,5 @@
 # KVM and dnsmasq fixes
 # 7.4.9: Wed 25 May 2022 15:40:43 AEST
 # Added additional multi config support in one command
+# 7.5.0: Wed 25 May 2022 16:58:08 AEST
+# Added additional dnsmasq functionality
