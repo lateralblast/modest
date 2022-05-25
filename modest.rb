@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      7.4.8
+# Version:      7.4.9
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -730,6 +730,15 @@ end
 if options['ips']
   if options['ips'].to_s.match(/[0-9]/)
     options['ip'] = options['ips']
+  end
+end
+
+# If delete action chosen, check a client or service name is specified
+
+if options['action'].to_s.match(/delete/)
+  if options['name'] == options['empty'] && options['service'] == options['empty']
+    handle_output(options,"Warning:\tNo service of client name specified")
+    quit(options)
   end
 end
 
@@ -1955,6 +1964,10 @@ def handle_action(options)
         end
       end
     when /delete|remove|terminate/
+      if options['name'] == options['empty'] && options['service'] == options['empty']
+        handle_output(options,"Warning:\tNo service of client name specified")
+        quit(options)
+      end
       if options['type'].to_s.match(/network|snapshot/) && options['vm'] != options['empty']
         if options['type'].to_s.match(/network/)
           delete_vm_network(options)
@@ -2507,6 +2520,7 @@ def handle_action(options)
       handle_output(options,"Warning:\tAction #{options['method']}")
     end
   end
+  return options
 end
 
 if options['name'].to_s.match(/\,/)
@@ -2516,6 +2530,7 @@ if options['name'].to_s.match(/\,/)
   vcpu_list = []
   mem_list  = []
   disk_list = []
+  rel_list  = []
   if options['ip'].to_s.match(/\,/)
     ip_list = options['ip'].to_s.split(",")
   end
@@ -2530,6 +2545,9 @@ if options['name'].to_s.match(/\,/)
   end
   if options['disk'].to_s.match(/\,/)
     disk_list = options['disk'].to_s.split(",")
+  end
+  if options['release'].to_s.match(/\,/)
+    rel_list = options['release'].to_s.split(",")
   end
   host_list.each_with_index do |host_name, counter|
     options['name'] = host_name
@@ -2546,6 +2564,9 @@ if options['name'].to_s.match(/\,/)
     end
     if vcpu_list[counter]
       options['vcpus'] = vcpus_list[counter]
+    end
+    if rel_list[counter]
+      options['release'] = rel_list[counter]
     end
     if disk_list[counter]
       options['disk'] = disk_list[counter]

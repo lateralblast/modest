@@ -3996,7 +3996,7 @@ def remove_hosts_entry(options)
     hosts_file = "/etc/hosts."+options['scriptname'].to_s
     remove_hosts_file_entry(options,hosts_file)
   end
-  return
+  return options
 end
 
 def remove_hosts_file_entry(options,hosts_file)
@@ -4031,7 +4031,7 @@ def remove_hosts_file_entry(options,hosts_file)
     end
     execute_command(options,message,command)
   end
-  return
+  return options
 end
 
 # Add host to DHCP config
