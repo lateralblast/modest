@@ -449,13 +449,13 @@ def configure_kvm_import_client(options)
       file.write("  - sudo systemctl disable systemd-resolved\n")
       file.write("  - sudo systemctl stop systemd-resolved\n")
       file.write("  - sudo rm /etc/resolv.conf\n")
-      if options['nameserver'].to_s.match(/\,/)
-        nameservers = options['nameserver'].to_s.split("\,")
+      if options['q_struct']['nameserver'].to_s.match(/\,/)
+        nameservers = options['q_struct']['nameserver'].to_s.split("\,")
         nameservers.each do |nameserver|
           file.write("  - echo 'nameserver #{nameserver}' > /etc/resolv.conf\n")
         end
       else
-        nameserver = options['nameserver'].to_s
+        nameserver = options['q_struct']['nameserver'].to_s
         file.write("  - echo 'nameserver #{nameserver}' > /etc/resolv.conf\n")
       end
     end
