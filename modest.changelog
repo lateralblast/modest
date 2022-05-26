@@ -1501,3 +1501,5 @@
 # Added additional multi config support in one command
 # 7.5.0: Wed 25 May 2022 16:58:08 AEST
 # Added additional dnsmasq functionality
+# 7.5.1: Thu 26 May 2022 13:01:45 AEST
+# Added additional dnsmasq functionality

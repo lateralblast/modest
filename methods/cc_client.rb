@@ -63,6 +63,20 @@ def populate_cc_user_data(options)
   user_data = []
   exec_data = []
   user_data.push("#cloud-config")
+  if options['dnsmasq'] == true
+    exec_data.push("sudo systemctl disable systemd-resolved")
+    exec_data.push("sudo systemctl stop systemd-resolved")
+    exec_data.push("sudo rm /etc/resolv.conf")
+    if options['nameserver'].to_s.match(/\,/)
+      nameservers = options['nameserver'].to_s.split("\,")
+      nameservers.each do |nameserver|
+        exec_data.push("echo 'nameserver #{nameserver}' > /etc/resolv.conf")
+      end
+    else
+      nameserver = options['nameserver'].to_s
+      exec_data.push("echo 'nameserver #{nameserver}' > /etc/resolv.conf")
+    end
+  end
   if !options['vm'].to_s.match(/mp|multipass/)
     in_target = "curtin in-target --target=/target -- "
     user_data.push("autoinstall:")

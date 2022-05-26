@@ -444,6 +444,21 @@ def configure_kvm_import_client(options)
       file.write("power_state:\n")
       file.write("  mode: reboot\n")
     end
+    if options['dnsmasq'] == true
+      file.write("late_commands:\n")
+      file.write("  - sudo systemctl disable systemd-resolved")
+      file.write("  - sudo systemctl stop systemd-resolved")
+      file.write("  - sudo rm /etc/resolv.conf")
+      if options['nameserver'].to_s.match(/\,/)
+        nameservers = options['nameserver'].to_s.split("\,")
+        nameservers.each do |nameserver|
+          file.write("  - echo 'nameserver #{nameserver}' > /etc/resolv.conf")
+        end
+      else
+        nameserver = options['nameserver'].to_s
+        file.write("  - echo 'nameserver #{nameserver}' > /etc/resolv.conf")
+      end
+    end
     file.close
     print_contents_of_file(options,"",config_file)
     check_file_owner(options,config_file,options['uid'])
