@@ -445,18 +445,18 @@ def configure_kvm_import_client(options)
       file.write("  mode: reboot\n")
     end
     if options['dnsmasq'] == true
-      file.write("late_commands:\n")
-      file.write("  - sudo systemctl disable systemd-resolved\n")
-      file.write("  - sudo systemctl stop systemd-resolved\n")
-      file.write("  - sudo rm /etc/resolv.conf\n")
+      file.write("runcmd:\n")
+      file.write("  - systemctl disable systemd-resolved\n")
+      file.write("  - systemctl stop systemd-resolved\n")
+      file.write("  - rm /etc/resolv.conf\n")
       if options['q_struct']['nameserver'].value.to_s.match(/\,/)
         nameservers = options['q_struct']['nameserver'].value.to_s.split("\,")
         nameservers.each do |nameserver|
-          file.write("  - echo 'nameserver #{nameserver}' > /etc/resolv.conf\n")
+          file.write("  - echo 'nameserver #{nameserver}' >> /etc/resolv.conf\n")
         end
       else
         nameserver = options['q_struct']['nameserver'].value.to_s
-        file.write("  - echo 'nameserver #{nameserver}' > /etc/resolv.conf\n")
+        file.write("  - echo 'nameserver #{nameserver}' >> /etc/resolv.conf\n")
       end
     end
     file.close
