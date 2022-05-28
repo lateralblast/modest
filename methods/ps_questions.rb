@@ -215,6 +215,36 @@ def populate_ps_questions(options)
   options['q_struct'][name] = config
   options['q_order'].push(name)
 
+  if options['method'].to_s.match(/ci/) && options['vm'].to_s.match(/mp|multipass/)
+
+    name = "admin_shell"
+    config = qs.new(
+      type      = "string",
+      question  = "Shell",
+      ask       = "yes",
+      parameter = "passwd/shell",
+      value     = options['adminshell'],
+      valid     = "",
+      eval      = "no"
+      )
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
+
+    name = "admin_sudo"
+    config = qs.new(
+      type      = "string",
+      question  = "Sudo",
+      ask       = "yes",
+      parameter = "passwd/sudo",
+      value     = options['adminsudo'],
+      valid     = "",
+      eval      = "no"
+      )
+    options['q_struct'][name] = config
+    options['q_order'].push(name)
+
+  end
+
   name = "admin_password"
   config = qs.new(
     type      = "",

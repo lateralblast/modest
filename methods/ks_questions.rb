@@ -1113,7 +1113,6 @@ def populate_ks_questions(options)
   options['q_struct'][name] = config
   options['q_order'].push(name)
 
-
   name   = "logroot"
   config = Ks.new(
     type      = "output",

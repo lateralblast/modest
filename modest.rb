@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      7.5.1
+# Version:      7.5.2
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -158,6 +158,7 @@ begin
     ['--admingroup', REQUIRED],       # Admin user Group for client VM to be created
     ['--adminhome', REQUIRED],        # Admin user Home directory for client VM to be created
     ['--adminshell', REQUIRED],       # Admin user shell for client VM to be created
+    ['--adminsudo', REQUIRED],        # Admin sudo command for client VM to be created
     ['--adminuid', REQUIRED],         # Admin user UID for client VM to be created
     ['--adminuser', REQUIRED],        # Admin username for client VM to be created
     ['--adminpassword', REQUIRED],    # Client admin password

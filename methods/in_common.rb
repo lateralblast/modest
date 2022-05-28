@@ -254,6 +254,7 @@ def set_defaults(options,defaults)
   defaults['adminpassword']   = "P455w0rd"
   defaults['adminuid']        = "200"
   defaults['adminshell']      = "/bin/bash"
+  defaults['adminsudo']       = "ALL=(ALL) NOPASSWD:ALL"
   defaults['apachedir']       = '/etc/apache2'
   defaults['aidir']           = defaults['basedir'].to_s+'/export/auto_install'
   defaults['aiport']          = '10081'
@@ -3996,7 +3997,7 @@ def remove_hosts_entry(options)
     hosts_file = "/etc/hosts."+options['scriptname'].to_s
     remove_hosts_file_entry(options,hosts_file)
   end
-  return options
+  return
 end
 
 def remove_hosts_file_entry(options,hosts_file)
@@ -4031,7 +4032,7 @@ def remove_hosts_file_entry(options,hosts_file)
     end
     execute_command(options,message,command)
   end
-  return options
+  return
 end
 
 # Add host to DHCP config

@@ -18,6 +18,8 @@ def populate_cc_user_data(options)
   install_layout  = install_locale.split("_")[0]
   install_variant = install_locale.split("_")[1].downcase
   install_gateway = options['q_struct']['gateway'].value
+  admin_shell   = options['q_struct']['admin_shell'].value
+  admin_sudo    = options['q_struct']['admin_sudo'].value
   disable_dhcp  = options['q_struct']['disable_dhcp'].value
   install_name  = options['q_struct']['hostname'].value
   resolved_conf = "/etc/systemd/resolved.conf"
@@ -27,7 +29,7 @@ def populate_cc_user_data(options)
   admin_crypt   = options['q_struct']['admin_crypt'].value
   install_nic   = options['q_struct']['interface'].value
   if disable_dhcp.match(/true/)
-    install_ip    = options['q_struct']['ip'].value
+    install_ip  = options['q_struct']['ip'].value
   end
   install_cidr  = options['q_struct']['cidr'].value
   install_disk  = options['q_struct']['partition_disk'].value
@@ -159,6 +161,20 @@ def populate_cc_user_data(options)
     exec_data.push("systemctl restart systemd-resolved")
   else
     in_target = ""
+    if options['method'].to_s.match(/ci/)
+      user_data.push("hostname: #{install_name}")
+      user_data.push("groups:")
+      user_data.push("  - #{admin_user}: #{admin_group}")
+      user_data.push("users:")
+      user_data.push("  - default")
+      user_data.push("  - name: #{admin_user}")
+      user_data.push("    gecos: #{admin_user}")
+      user_data.push("    primary_group: #{admin_group}")
+      user_data.push("    shell: #{admin_shell}")
+      user_data.push("    passwd: #{admin_crypt}")
+      user_data.push("    sudo: #{admin_sudo}")
+      user_data.push("    lock_passwd: false")
+    end
   end
   exec_data.push("echo 'DNS=#{install_nameserver}' >> #{install_target}#{resolved_conf}")
   exec_data.push("#{in_target}/usr/sbin/locale-gen #{install_locale}.UTF-8")
@@ -240,7 +256,6 @@ def output_cc_user_data(options,user_data,exec_data,output_file)
       output = "  - "+line+"\n"
       file.write(output)
     end
-    file.write("\n")
     file.write("runcmd:\n")
     exec_data.each do |line|
       output = "  - "+line+"\n"
