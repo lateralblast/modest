@@ -334,7 +334,7 @@ def set_defaults(options,defaults)
   if options['clientnic'].to_s.match(/[0-9]/)
     defaults['vmnic'] = options['clientnic'].to_s
   else
-    if options['vm'] == "kvm"
+    if options['vm'].to_s.match(/kvm|mp|multipass/)
       defaults['vmnic'] = "enp1s0"
     else
       defaults['vmnic'] = "eth0"

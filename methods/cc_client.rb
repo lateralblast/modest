@@ -65,20 +65,6 @@ def populate_cc_user_data(options)
   user_data = []
   exec_data = []
   user_data.push("#cloud-config")
-  if options['dnsmasq'] == true
-    exec_data.push("systemctl disable systemd-resolved")
-    exec_data.push("systemctl stop systemd-resolved")
-    exec_data.push("rm /etc/resolv.conf")
-    if options['nameserver'].to_s.match(/\,/)
-      nameservers = options['nameserver'].to_s.split("\,")
-      nameservers.each do |nameserver|
-        exec_data.push("echo 'nameserver #{nameserver}' >> /etc/resolv.conf")
-      end
-    else
-      nameserver = options['nameserver'].to_s
-      exec_data.push("echo 'nameserver #{nameserver}' >> /etc/resolv.conf")
-    end
-  end
   if !options['vm'].to_s.match(/mp|multipass/)
     in_target = "curtin in-target --target=/target -- "
     user_data.push("autoinstall:")
@@ -176,12 +162,27 @@ def populate_cc_user_data(options)
       user_data.push("    lock_passwd: false")
     end
   end
-  exec_data.push("echo 'DNS=#{install_nameserver}' >> #{install_target}#{resolved_conf}")
-  exec_data.push("#{in_target}/usr/sbin/locale-gen #{install_locale}.UTF-8")
+  if options['dnsmasq'] == true && options['vm'].to_s.match(/mp|multipass/)
+    exec_data.push("/usr/bin/systemctl disable systemd-resolved")
+    exec_data.push("/usr/bin/systemctl stop systemd-resolved")
+    exec_data.push("rm /etc/resolv.conf")
+    if options['q_struct']['nameserver'].value.to_s.match(/\,/)
+      nameservers = options['q_struct']['nameserver'].value.to_s.split("\,")
+      nameservers.each do |nameserver|
+        exec_data.push("echo 'nameserver #{nameserver}' >> /etc/resolv.conf")
+      end
+    else
+      nameserver = options['q_struct']['nameserver'].value.to_s
+      exec_data.push("  - echo 'nameserver #{nameserver}' >> /etc/resolv.conf")
+    end
+  else  
+    exec_data.push("echo 'DNS=#{install_nameserver}' >> #{install_target}#{resolved_conf}")
+    exec_data.push("#{in_target}/usr/sbin/locale-gen #{install_locale}.UTF-8")
+  end
   exec_data.push("echo 'LC_ALL=en_US.UTF-8' > #{locale_file}")
   exec_data.push("echo 'LANG=en_US.UTF-8' >> #{locale_file}")
   exec_data.push("echo '#{admin_user} ALL=(ALL) NOPASSWD:ALL' > #{sudo_file}")
-  if options['copykeys'] == true and File.exist?(ssh_keyfile)
+  if options['copykeys'] == true and File.exist?(ssh_keyfile) and !options['vm'].to_s.match(/mp|multipass/)
     exec_data.push("#{in_target}groupadd #{admin_user}")
     exec_data.push("#{in_target}useradd -p '#{admin_crypt}' -g #{admin_user} -G #{admin_group} -d #{admin_home} -s /usr/bin/bash -m #{admin_user}")
     exec_data.push("mkdir -p #{ssh_dir}")
@@ -190,7 +191,7 @@ def populate_cc_user_data(options)
     exec_data.push("chmod 700 #{ssh_dir}")
     exec_data.push("#{in_target}chown -R #{admin_user}:#{admin_user} #{admin_home}")
   end
-  if !options['vm'].to_s.match(/mp|multipass/) or options['force'] == true
+  if !options['vm'].to_s.match(/mp|multipass/)
     if options['vm'].to_s.match(/kvm/)
       exec_data.push("systemctl enable serial-getty@ttyS0.service")
       exec_data.push("systemctl start serial-getty@ttyS0.service")
@@ -209,24 +210,29 @@ def populate_cc_user_data(options)
         end
       end
     end
-    exec_data.push("echo '# This file describes the network interfaces available on your system' > #{netplan_file}")
-    exec_data.push("echo '# For more information, see netplan(5).' >> #{netplan_file}")
-    exec_data.push("echo 'network:' >> #{netplan_file}")
-    exec_data.push("echo '  version: 2' >> #{netplan_file}")
-    exec_data.push("echo '  renderer: networkd' >> #{netplan_file}")
-    exec_data.push("echo '  ethernets:' >> #{netplan_file}")
-    exec_data.push("echo '    #{install_nic}:' >> #{netplan_file}")
-    if disable_dhcp.match(/true/)
-      exec_data.push("echo '      addresses: [#{install_ip}/#{install_cidr}]' >> #{netplan_file}")
-      exec_data.push("echo '      gateway4: #{install_gateway}' >> #{netplan_file}")
-    else
-      exec_data.push("echo '      dhcp4: true' >> #{netplan_file}")
-    end
-    if options['serial'] == true || options['biosdevnames'] == true
-      exec_data.push("#{in_target}update-grub")
-    end
-    if options['reboot'] == true
-      exec_data.push("#{in_target}reboot")
+    if !options['vm'].to_s.match(/mp|multipass/)
+      if options['dhcp'] == false || options['dnsmasq'] == true
+        exec_data.push("echo '# This file describes the network interfaces available on your system' > #{netplan_file}")
+        exec_data.push("echo '# For more information, see netplan(5).' >> #{netplan_file}")
+        exec_data.push("echo 'network:' >> #{netplan_file}")
+        exec_data.push("echo '  version: 2' >> #{netplan_file}")
+        exec_data.push("echo '  renderer: networkd' >> #{netplan_file}")
+        exec_data.push("echo '  ethernets:' >> #{netplan_file}")
+        exec_data.push("echo '    #{install_nic}:' >> #{netplan_file}")
+      else
+        if disable_dhcp.match(/true/)
+          exec_data.push("echo '      addresses: [#{install_ip}/#{install_cidr}]' >> #{netplan_file}")
+          exec_data.push("echo '      gateway4: #{install_gateway}' >> #{netplan_file}")
+        else
+          exec_data.push("echo '      dhcp4: true' >> #{netplan_file}")
+        end
+      end
+      if options['serial'] == true || options['biosdevnames'] == true
+        exec_data.push("#{in_target}update-grub")
+      end
+      if options['reboot'] == true
+        exec_data.push("#{in_target}reboot")
+      end
     end
   end
   return user_data,exec_data

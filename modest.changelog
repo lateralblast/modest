@@ -1505,3 +1505,5 @@
 # Added additional dnsmasq functionality
 # 7.5.2: Sat 28 May 2022 17:10:52 AEST
 # Added some addition multipass cloudinit support
+# 7.5.3: Thu  2 Jun 2022 13:54:26 AEST
+# More multipass cloudinit tweaks
