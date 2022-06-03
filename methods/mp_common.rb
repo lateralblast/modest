@@ -50,6 +50,92 @@ def check_multipass_hostonly_network(options,if_name)
   return
 end
 
+# Multipass post install
+
+def multipass_post_install(options)
+  exists = check_multipass_vm_exists(options)
+  if options['nobuild'] == false
+    if exists == false
+      return options
+    end
+  end
+  install_locale = options['q_struct']['locale'].value
+  if install_locale.match(/\./)
+    install_locale = install_locale.split(".")[0]
+  end
+  if options['livecd'] == true
+    install_target  = "/target"
+  else
+    install_target  = ""
+  end
+  install_nameserver = options['q_struct']['nameserver'].value
+  install_base_url   = "http://"+options['hostip']+"/"+options['name']
+  install_layout  = install_locale.split("_")[0]
+  install_variant = install_locale.split("_")[1].downcase
+  install_gateway = options['q_struct']['gateway'].value
+  admin_shell   = options['q_struct']['admin_shell'].value
+  admin_sudo    = options['q_struct']['admin_sudo'].value
+  disable_dhcp  = options['q_struct']['disable_dhcp'].value
+  install_name  = options['q_struct']['hostname'].value
+  resolved_conf = "/etc/systemd/resolved.conf"
+  admin_user    = options['q_struct']['admin_username'].value
+  admin_group   = options['q_struct']['admin_username'].value
+  admin_home    = "/home/"+options['q_struct']['admin_username'].value
+  admin_crypt   = options['q_struct']['admin_crypt'].value
+  install_nic   = options['q_struct']['interface'].value
+  if disable_dhcp.match(/true/)
+    install_ip  = options['q_struct']['ip'].value
+  end
+  install_cidr  = options['q_struct']['cidr'].value
+  install_disk  = options['q_struct']['partition_disk'].value
+  #netplan_file  = "#{install_target}/etc/netplan/01-netcfg.yaml"
+  netplan_file  = "#{install_target}/etc/netplan/50-cloud-init.yaml"
+  locale_file   = "#{install_target}/etc/default/locales"
+  grub_file = "#{install_target}/etc/default/grub"
+  ssh_dir   = "#{install_target}/home/#{admin_user}/.ssh"
+  auth_file = "#{ssh_dir}/authorized_keys"
+  sudo_file = "#{install_target}/etc/sudoers.d/#{admin_user}"
+  host_name = options['name'].to_s
+  exec_data = []
+  if options['dnsmasq'] == true && options['vm'].to_s.match(/mp|multipass/)
+    exec_data.push("/usr/bin/systemctl disable systemd-resolved")
+    exec_data.push("/usr/bin/systemctl stop systemd-resolved")
+    exec_data.push("rm /etc/resolv.conf")
+    if options['q_struct']['nameserver'].value.to_s.match(/\,/)
+      nameservers = options['q_struct']['nameserver'].value.to_s.split("\,")
+      nameservers.each do |nameserver|
+        exec_data.push("echo 'nameserver #{nameserver}' >> /etc/resolv.conf")
+      end
+    else
+      nameserver = options['q_struct']['nameserver'].value.to_s
+      exec_data.push("  - echo 'nameserver #{nameserver}' >> /etc/resolv.conf")
+    end
+  end
+  if options['dnsmasq'] == true || disable_dhcp.match(/true/)
+    exec_data.push("echo '# This file describes the network interfaces available on your system' > #{netplan_file}")
+    exec_data.push("echo '# For more information, see netplan(5).' >> #{netplan_file}")
+    exec_data.push("echo 'network:' >> #{netplan_file}")
+    exec_data.push("echo '  version: 2' >> #{netplan_file}")
+    exec_data.push("echo '  renderer: networkd' >> #{netplan_file}")
+    exec_data.push("echo '  ethernets:' >> #{netplan_file}")
+    exec_data.push("echo '    #{install_nic}:' >> #{netplan_file}")
+    exec_data.push("echo '      addresses: [#{install_ip}/#{install_cidr}]' >> #{netplan_file}")
+    exec_data.push("echo '      gateway4: #{install_gateway}' >> #{netplan_file}")
+    nameservers = options['q_struct']['nameserver'].value
+    exec_data.push("echo '      nameservers:' >> #{netplan_file}")
+    exec_data.push("echo '        addresses: [#{nameservers}]' >> #{netplan_file}")
+  end 
+  exec_data.each do |shell_command| 
+    exec_command = "multipass exec #{host_name} -- sudo sh -c \"#{shell_command}\""
+    if options['nobuild'] == true
+      handle_output(options,exec_command)
+    else
+      %x[#{exec_command}]
+    end
+  end
+  return options
+end
+
 # List Multipass instances
 
 def list_multipass_vms(options)
@@ -179,6 +265,7 @@ def configure_multipass_vm(options)
       handle_output(options,command)
     end
   end
+  options = multipass_post_install(options)
   return
 end
 
