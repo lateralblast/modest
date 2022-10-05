@@ -499,37 +499,41 @@ def get_fusion_version(options)
     command = "defaults read \"/Applications/VMware Fusion.app/Contents/Info.plist\" CFBundleShortVersionString"
   end
   vf_version = execute_command(options,message,command)
-  vf_version = vf_version.chomp
-  vf_dotver  = vf_version.split(".")[1]
-  vf_version = vf_version.split(".")[0]
-  vf_version = vf_version.to_i
-  vf_dotver  = vf_dotver.to_i
-  if vf_version > 6
-    if vf_version > 7
-      if vf_version >= 8
-        if vf_version >= 10
-          if vf_version >= 11
-            if vf_version >= 12 and vf_dotver >= 2
-              hw_version = "19"
-            else
-              if vf_dotver >= 1
-                hw_version = "18"
+  if vf_version.to_s.match(/^e/)
+    hw_version = "18"
+  else
+    vf_version = vf_version.chomp
+    vf_dotver  = vf_version.split(".")[1]
+    vf_version = vf_version.split(".")[0]
+    vf_version = vf_version.to_i
+    vf_dotver  = vf_dotver.to_i
+    if vf_version > 6
+      if vf_version > 7
+        if vf_version >= 8
+          if vf_version >= 10
+            if vf_version >= 11
+              if vf_version >= 12 and vf_dotver >= 2
+                hw_version = "19"
               else
-                hw_version = "16"
+                if vf_dotver >= 1
+                  hw_version = "18"
+                else
+                  hw_version = "16"
+                end
               end
+            else
+              hw_version = "14"
             end
           else
-            hw_version = "14"
+            hw_version = "12"
           end
         else
-          hw_version = "12"
+          hw_version = "11"
         end
-      else
-        hw_version = "11"
       end
+    else
+      hw_version = "10"
     end
-  else
-    hw_version = "10"
   end
   return hw_version
 end
@@ -1269,7 +1273,7 @@ end
 
 def configure_ai_fusion_vm(options)
   options['os-type'] = get_ai_fusion_guest_os(options)
-  configure_fusion_vm(options)
+  options = configure_fusion_vm(options)
   return
 end
 
@@ -1284,7 +1288,7 @@ end
 
 def configure_js_fusion_vm(options)
   options['os-type'] = get_js_fusion_guest_os(options)
-  configure_fusion_vm(options)
+  options = configure_fusion_vm(options)
   return
 end
 
@@ -1302,7 +1306,7 @@ end
 
 def configure_ay_fusion_vm(options)
   options['os-type'] = get_ay_fusion_guest_os(options)
-  configure_fusion_vm(options)
+  options = configure_fusion_vm(options)
   return
 end
 
@@ -1320,7 +1324,7 @@ end
 
 def configure_nb_fusion_vm(options)
   options['os-type'] = get_nb_fusion_guest_os(options)
-  configure_fusion_vm(options)
+  options = configure_fusion_vm(options)
   return
 end
 
@@ -1335,7 +1339,7 @@ end
 
 def configure_ob_fusion_vm(options)
   options['os-type'] = get_ob_fusion_guest_os(options)
-  configure_fusion_vm(options)
+  options = configure_fusion_vm(options)
   return
 end
 
@@ -1353,7 +1357,7 @@ end
 
 def configure_ps_fusion_vm(options)
   options['os-type'] = get_ps_fusion_guest_os(options)
-  configure_fusion_vm(options)
+  options = configure_fusion_vm(options)
   return
 end
 
@@ -1368,7 +1372,7 @@ end
 
 def configure_pe_fusion_vm(options)
   options['os-type'] = get_pe_fusion_guest_os(options)
-  configure_fusion_vm(options)
+  options = configure_fusion_vm(options)
   return
 end
 
@@ -1383,7 +1387,7 @@ end
 
 def configure_other_fusion_vm(options)
   options['os-type'] = get_other_fusion_guest_os(options)
-  configure_fusion_vm(options)
+  options = configure_fusion_vm(options)
   return
 end
 
@@ -1405,7 +1409,7 @@ end
 
 def configure_ks_fusion_vm(options)
   options['os-type'] = get_ks_fusion_guest_os(options)
-  configure_fusion_vm(options)
+  options = configure_fusion_vm(options)
   return
 end
 
@@ -1420,7 +1424,7 @@ end
 
 def configure_vs_fusion_vm(options)
   options['os-type'] = get_vs_fusion_guest_os(options)
-  configure_fusion_vm(options)
+  options = configure_fusion_vm(options)
   return
 end
 
@@ -1491,7 +1495,7 @@ def create_fusion_vm_vmx_file(options,fusion_vmx_file)
   if options['os-type'] == options['empty']
     options['os-type'] = get_fusion_guest_os(options)
   end
-  vmx_info = populate_fusion_vm_vmx_info(options)
+  options,vmx_info = populate_fusion_vm_vmx_info(options)
   if not fusion_vmx_file.match(/\/packer\//)
     fusion_vm_dir,fusion_vmx_file,fusion_disk_file = check_fusion_vm_doesnt_exist(options)
   else
@@ -1514,7 +1518,7 @@ def create_fusion_vm_vmx_file(options,fusion_vmx_file)
   end
   file.close
   print_contents_of_file(options,"",fusion_vmx_file)
-  return
+  return options
 end
 
 # Create ESX VM vmx file
@@ -1573,7 +1577,7 @@ def configure_fusion_vm(options)
     options['vm']  = "fusion"
     options['mac'] = generate_mac_address(options['vm'])
   end
-  create_fusion_vm_vmx_file(options,fusion_vmx_file)
+  options = create_fusion_vm_vmx_file(options,fusion_vmx_file)
   if not options['file'].to_s.match(/ova$/)
     create_fusion_vm_disk(options,fusion_vm_dir,fusion_disk_file)
     check_file_owner(options,fusion_disk_file,options['uid'])
@@ -1581,7 +1585,7 @@ def configure_fusion_vm(options)
   handle_output(options,"")
   handle_output(options,"Information:\tClient:     #{options['name']} created with MAC address #{options['mac']}")
   handle_output(options,"")
-  return
+  return options
 end
 
 # Populate VMware Fusion VM vmx information
@@ -1613,20 +1617,25 @@ def populate_fusion_vm_vmx_info(options)
     if version > 7
       if version >= 8
         if version >= 9
-          if version >= 18
+          if version >= 10
             vmx_info.push("virtualHW.version,18")
+            options['hwversion'] = "18"
           else
             vmx_info.push("virtualHW.version,16")
+            options['hwversion'] = "16"
           end
         else
           vmx_info.push("virtualHW.version,12")
+          options['hwversion'] = "12"
         end
       else
         vmx_info.push("virtualHW.version,11")
+        options['hwversion'] = "11"
       end
     end
   else
     vmx_info.push("virtualHW.version,10")
+    options['hwversion'] = "10"
   end
   vmx_info.push("vcpu.hotadd,FALSE")
   vmx_info.push("scsi0.present,TRUE")
@@ -1812,5 +1821,5 @@ def populate_fusion_vm_vmx_info(options)
 #    vmx_info.push("signal.suspendOnHUP=TRUE"  )
 #    vmx_info.push("signal.powerOffOnTERM,TRUE")
   end
-  return vmx_info
+  return options,vmx_info
 end

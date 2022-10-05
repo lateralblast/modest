@@ -40,7 +40,7 @@ def create_packer_json(options)
   disk_interface    = options['diskinterface'].to_s
   net_device        = options['netdevice'].to_s
   guest_os_type     = options['guest'].to_s
-  disk_size         = options['size'].to_s
+  disk_size         = options['size'].to_s.gsub(/G/,"000")
   natpf_ssh_rule    = ""
   ssh_host_port_min = options['sshportmin'].to_s
   ssh_host_port_max = options['sshportmax'].to_s

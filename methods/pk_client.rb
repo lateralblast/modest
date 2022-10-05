@@ -314,7 +314,7 @@ def configure_packer_client(options)
     check_dir_exists(options,image_dir)
     check_dir_owner(options,image_dir,options['uid'])
     fusion_vmx_file = image_dir+"/"+options['name']+".vmx"
-    create_fusion_vm_vmx_file(options,fusion_vmx_file)
+    options = create_fusion_vm_vmx_file(options,fusion_vmx_file)
   end
   if options['guest'].kind_of?(Array)
     options['guest'] = options['guest'].join("")
@@ -369,7 +369,7 @@ def build_packer_config(options)
     handle_output(options,"Executing:\t"+command)
   end
   exec(command)
-	return
+	return options
 end
 
 # Create vSphere Packer client

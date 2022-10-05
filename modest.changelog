@@ -1509,3 +1509,5 @@
 # More multipass cloudinit tweaks
 # 7.5.4: Fri  3 Jun 2022 15:36:32 AEST
 # Multipass post install fixes
+# 7.5.5: Wed  5 Oct 2022 15:48:56 AEDT
+# Added support for calculating VMware HW version for tech preview versions
