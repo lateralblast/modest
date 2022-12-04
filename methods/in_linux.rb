@@ -18,18 +18,80 @@ end
 
 def get_distro_version_from_distro_name(item_name)
   case item_name
+  when /warty/
+    distro_version = "4.10"
+  when /hoary/
+    distro_version = "5.04"
+  when /breezy/
+    distro_version = "5.10"
+  when /dapper/
+    distro_version = "6.06"
+  when /edgy/
+    distro_version = "6.10"
+  when /feisty/
+    distro_version = "7.04"
+  when /gutsy/
+    distro_version = "7.10"
+  when /hardy/
+    distro_version = "8.04"
+  when /intrepid/
+    distro_version = "8.10"
+  when /jaunty/
+    distro_version = "9.04"
+  when /karmic/
+    distro_version = "9.10"
+  when /lucid/
+    distro_version = "10.04"
+  when /maverick/
+    distro_version = "10.10"
+  when /natty/
+    distro_version = "11.04"
+  when /oneiric/
+    distro_version = "11.10"
+  when /precise/
+    distro_version = "12.04"
+  when /quantal/
+    distro_version = "12.10"
+  when /raring/
+    distro_version = "13.04"
+  when /saucy/
+    distro_version = "13.10"
   when /trusty/
     distro_version = "14.04"
+  when /utopic/
+    distro_version = "14.10"
+  when /vivid/
+    distro_version = "15.04"
+  when /wily/
+    distro_version = "15.10"
   when /xenial/
     distro_version = "16.04"
+  when /yakkety/
+    distro_version = "16.10"
+  when /zesty/
+    distro_version = "17.04"
+  when /artful/
+    distro_version = "17.10"
   when /bionic/
     distro_version = "18.04"
+  when /cosmic/
+    distro_version = "18.10"
+  when /disco/
+    distro_version = "19.04"
+  when /eoan/
+    distro_version = "19.10"
   when /focal/
     distro_version = "20.04"
+  when /groovy/
+    distro_version = "20.10"
   when /hirsuite/
     distro_version = "21.04"
+  when /impish/
+    distro_version = "21.10"
   when /jammy/
     distro_version = "22.04"
+  when /kinetic/
+    distro_version = "22.10"
   end
   return distro_version
 end

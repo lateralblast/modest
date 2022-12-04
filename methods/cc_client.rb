@@ -33,6 +33,9 @@ def populate_cc_user_data(options)
   end
   install_cidr  = options['q_struct']['cidr'].value
   install_disk  = options['q_struct']['partition_disk'].value
+  if install_disk.match(/\//)
+    install_disk = install_disk.split(/\//)[-1]
+  end
   #netplan_file  = "#{install_target}/etc/netplan/01-netcfg.yaml"
   netplan_file  = "#{install_target}/etc/netplan/50-cloud-init.yaml"
   locale_file   = "#{install_target}/etc/default/locales"
@@ -73,7 +76,11 @@ def populate_cc_user_data(options)
     user_data.push("    geoip: true")
     user_data.push("    preserve_sources_list: false")
     user_data.push("    primary:")
-    user_data.push("    - arches: [amd64, i386]")
+    if options['arch'].to_s.match(/arm/)
+      user_data.push("    - arches: [arm64, arm]")
+    else
+      user_data.push("    - arches: [amd64, i386]")
+    end
     user_data.push("      uri: http://archive.ubuntu.com/ubuntu")
     user_data.push("    - arches: [default]")
     user_data.push("      uri: http://ports.ubuntu.com/ubuntu-ports")

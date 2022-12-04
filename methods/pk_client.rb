@@ -355,7 +355,7 @@ def build_packer_config(options)
     if options['host-os-name'].to_s.match(/NT/)
       command = "cd "+options['clientdir']+" ; export PACKER_LOG=1 ; packer build "+options['name']+".json"
     else
-      command = "export PACKER_LOG=1 ; packer build "+json_file
+      command = "export PACKER_LOG=1 ; packer build --on-error=abort "+json_file
     end
   else
     if options['host-os-name'].to_s.match(/NT/)
@@ -369,7 +369,7 @@ def build_packer_config(options)
     handle_output(options,"Executing:\t"+command)
   end
   exec(command)
-	return options
+	return
 end
 
 # Create vSphere Packer client

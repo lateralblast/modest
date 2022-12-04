@@ -57,6 +57,12 @@ def create_packer_json(options)
   memsize           = options['memory'].to_s
   numvcpus          = options['vcpus'].to_s
   mac_address       = options['mac'].to_s
+  disk_adapter_type = options['diskinterface'].to_s
+  if options['vm'].to_s.match(/fusion/)
+    if hw_version.to_i >= 20
+      disk_adapter_type = "nvme"
+    end
+  end
   if options['q_struct']['admin_password']
     install_password  = options['q_struct']['admin_password'].value
   else
@@ -699,16 +705,39 @@ def create_packer_json(options)
       end
     end
     ks_file = options['vm']+"/"+options['name']+"/"+options['name']+".cfg"
-    if options['livecd'] == true
+    if options['livecd'] == true 
       boot_wait    = "3s"
-      if options['biosdevnames'] == true
-        boot_header  = "<enter><enter><f6><esc><wait><bs><bs><bs><bs>net.ifnames=0 biosdevname=0 "
+      if options['release'].to_i >= 20
+#        boot_header = "<wait>e<wait><down><wait><down><wait><down><wait><leftCtrlOn>e<leftCtrlOff>"+
+#                      "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
+#                      "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
+#                      "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
+#                      "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
+#                      "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
+#                      "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
+#                      "<bs><bs><bs><bs><bs>linux /casper/vmlinuz --- "
+        boot_header = "<wait>e<wait><down><wait><down><wait><down><wait><leftCtrlOn>e<leftCtrlOff>"+
+                      "<bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
+                      "--- "
+#        boot_footer = "<wait><f10><wait><enter>"
+        boot_footer  = ""
       else
         boot_header  = "<enter><enter><f6><esc><wait><bs><bs><bs><bs>"
+        boot_footer  = ""
       end
-      boot_command = boot_header+
-                     "autoinstall ds=nocloud-net;seedfrom=http://"+ks_ip+":#{options['httpport']}/ --- "+
-                     "<enter><wait>"
+      if options['biosdevnames'] == true
+#        boot_header = boot_header+"net.ifnames=0 biosdevname=0 "
+      end
+      if options['release'].to_i >= 20
+        boot_command = boot_header+
+                      "autoinstall ds='nocloud-net;s=http://"+ks_ip+":#{options['httpport']}/' "+
+                      boot_footer
+      else
+        boot_command = boot_header+
+                      "--- autoinstall ds=nocloud-net;seedfrom=http://"+ks_ip+":#{options['httpport']}/"+
+                       "<enter><wait>"+
+                       boot_footer
+      end
     else
       if options['vm'].to_s.match(/parallels/)
         boot_header = "<wait>e<wait><down><wait><down><wait><down><wait><leftCtrlOn>e<leftCtrlOff>"+
@@ -2328,6 +2357,7 @@ def create_packer_json(options)
             :guest_os_type        => guest_os_type,
             :output_directory     => image_dir,
             :disk_size            => disk_size,
+            :disk_adapter_type    => disk_adapter_type,
             :iso_url              => iso_url,
             :ssh_host             => ssh_host,
             :ssh_port             => ssh_port,
@@ -2356,8 +2386,7 @@ def create_packer_json(options)
               :"ethernet0.connectionType"         => options['vmnetwork'],
               :"ethernet0.virtualDev"             => ethernet_dev,
               :"ethernet0.addressType"            => ethernet_type,
-              :"ethernet0.address"                => mac_address,
-              :"scsi0.virtualDev"                 => virtual_dev
+              :"ethernet0.address"                => mac_address
             }
           ]
         }
@@ -2375,6 +2404,7 @@ def create_packer_json(options)
             :guest_os_type        => guest_os_type,
             :output_directory     => image_dir,
             :disk_size            => disk_size,
+            :disk_adapter_type    => disk_adapter_type,
             :iso_url              => iso_url,
             :ssh_port             => ssh_port,
             :ssh_username         => ssh_username,
@@ -2401,8 +2431,7 @@ def create_packer_json(options)
               :"ethernet0.connectionType"         => options['vmnetwork'],
               :"ethernet0.virtualDev"             => ethernet_dev,
               :"ethernet0.addressType"            => ethernet_type,
-              :"ethernet0.GeneratedAddress"       => mac_address,
-              :"scsi0.virtualDev"                 => virtual_dev
+              :"ethernet0.GeneratedAddress"       => mac_address
             }
           ]
         }
@@ -2421,6 +2450,8 @@ def create_packer_json(options)
               :type                   => vm_type,
               :output_directory       => image_dir,
               :disk_size              => disk_size,
+              :memory                 => memsize, 
+              :cpus                   => numvcpus, 
               :iso_url                => iso_url,
               :ssh_host               => ssh_host,
               :ssh_port               => ssh_port,
@@ -2456,6 +2487,8 @@ def create_packer_json(options)
               :type                   => vm_type,
               :output_directory       => image_dir,
               :disk_size              => disk_size,
+              :memory                 => memsize, 
+              :cpus                   => numvcpus, 
               :iso_url                => iso_url,
               :ssh_host               => ssh_host,
               :ssh_port               => ssh_port,

@@ -372,7 +372,15 @@ def check_parallels_is_installed(options)
   app_dir = "/Applications/Parallels Desktop.app"
   if File.directory?(app_dir)
     options['status'] = "yes"
-    install_brew_pkg(options,"parallels-virtualization-sdk")
+    if !File.symlink?("/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/site-packages/prlsdkapi.pth")
+      if !File.exist?("/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/prlsdkapi.pth")
+        install_brew_pkg(options,"parallels-virtualization-sdk")
+      else
+        command = "ln -s /Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/prlsdkapi.pth /Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/site-packages/prlsdkapi.pth"
+        message = "Information:\tSymlinking Parallels SDK Library"
+        execute_command(options,message,command)
+      end
+    end
   end
   return options['status']
 end

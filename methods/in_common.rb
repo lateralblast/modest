@@ -13,6 +13,7 @@ def set_defaults(options,defaults)
   defaults['host-os-release']  = %x[uname -r].chomp
   defaults['host-os-packages'] = []
   if defaults['host-os-name'].to_s.match(/Darwin/)
+    defaults['host-os-arch']   = %x[uname -m].chomp
     defaults['host-os-memory'] = %x[system_profiler SPHardwareDataType |grep Memory |awk '{print $2}'].chomp
     defaults['host-os-cpu'] = %x[sysctl hw.ncpu |awk '{print $2}']
     if File.exist?("/usr/local/bin/brew")
@@ -80,7 +81,7 @@ def set_defaults(options,defaults)
                                 'export', 'get', 'halt', 'info', 'import', 'list',
                                 'migrate', 'shutdown', 'start', 'stop', 'upload',
                                 'usage' ]
-  defaults['valid-arch']    = [ 'x86_64', 'i386', 'sparc' ]
+  defaults['valid-arch']    = [ 'x86_64', 'i386', 'sparc', 'arm64' ]
   defaults['valid-console'] = [ 'text', 'console', 'x11', 'headless', "pty", "vnc" ]
   defaults['valid-format']  = [ 'VMDK', 'RAW', 'VHD' ]
   defaults['valid-method']  = [ 'ks', 'xb', 'vs', 'ai', 'js', 'ps', 'lxc', 'mp',
@@ -497,6 +498,17 @@ end
 # Set some parameter once we have more details
 
 def reset_defaults(options,defaults)
+  if options['file'].to_s.match(/[a-z]/)
+    defaults['arch'] = get_install_arch_from_file(options)
+    if !options['service'].to_s.match(/[a-z]/)
+      defaults['service'] = get_install_service_from_file(options)
+    end
+  end
+  if defaults['host-os-arch'].to_s.match(/^arm/) 
+    defaults['machine']  = "arm64"
+    defaults['arch']     = "arm64"
+    defaults['biostype'] = "efi"
+  end
   if options['vm'].to_s.match(/kvm/) && options['file'].to_s.match(/cloudimg/)
     defaults['method'] = "ci"
   end
@@ -1999,18 +2011,22 @@ def get_install_service_from_file(options)
     options['arch']    = "x86_64"
     service_version = options['release']+"_"+options['arch']
     options['method']  = "ps"
-  when /ubuntu|cloudimg/
+  when /ubuntu|cloudimg|[a-z]-desktop|[a-z]-live-server/
     options['service'] = "ubuntu"
     if options['vm'].to_s.match(/kvm/)
       options['os-type'] = "linux"
     else
       options['os-type'] = "ubuntu"
     end
-    if options['file'].to_s.match(/cloudimg/)
+    if options['file'].to_s.match(/cloudimg|[a-z]-desktop|[a-z]-live-server/)
       options['method']  = "ci"
       options['release'] = get_distro_version_from_distro_name(options['file'].to_s)
       if options['release'].to_s.match(/[0-9][0-9]/)
-        options['arch']    = options['file'].to_s.split(/-/)[3].split(/\./)[0].gsub(/amd64/,"x86_64")
+        if options['file'].to_s.match(/-arm/)
+          options['arch'] = options['file'].to_s.split(/-/)[-1].split(/\./)[0]
+        else
+          options['arch'] = options['file'].to_s.split(/-/)[3].split(/\./)[0].gsub(/amd64/,"x86_64")
+        end
       else
         options['release'] = options['file'].to_s.split(/-/)[1].split(/\./)[0..1].join(".")
         options['arch']    = options['file'].to_s.split(/-/)[4].split(/\./)[0].gsub(/amd64/,"x86_64")
@@ -2036,6 +2052,7 @@ def get_install_service_from_file(options)
     if options['file'].to_s.match(/live/)
       options['livecd'] = true
     end
+  puts options['service']
   when /purity/
     options['service'] = "purity"
     service_version = options['file'].to_s.split(/_/)[1]
@@ -2206,11 +2223,40 @@ def get_install_service_from_file(options)
     end
     options['service'] = options['service']+"_"+service_version.gsub(/__/,"_")
   end
+  if options['file'].to_s.match(/-arm/) and options['service'].to_s.match(/ubuntu/)
+    if options['file'].to_s.match(/live/)
+      options['service'] = "ubuntu_live_"+options['release'].to_s+"_"+options['arch']
+    else
+      options['service'] = "ubuntu_"+options['release'].to_s+"_"+options['arch']
+    end
+    options['service'] = options['service'].gsub(/\./,"_")
+  end
   if options['verbose'] == true
     handle_output(options,"Information:\tSetting service name to #{options['service']}")
     handle_output(options,"Information:\tSetting OS name to #{options['os-type']}")
   end
   return(options)
+end
+
+# Get arch from ISO
+
+def get_install_arch_from_file(options)
+  if options['file'].to_s.match(/\//)
+    iso_file = File.basename(options['file'])
+  end
+  case iso_file
+  when /386/
+    options['arch'] = "i386"
+  when /amd64|x86/
+    options['arch'] = "x86_64"
+  when /arm64/
+    options['arch'] = "arm64"
+  when /arm/
+    options['arch'] = "arm"
+  when /sparc/
+    options['arch'] = "sparc"
+  end
+  return options['arch']
 end
 
 # Get Install method from ISO file name

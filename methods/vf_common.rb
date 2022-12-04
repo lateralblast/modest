@@ -314,8 +314,8 @@ def get_fusion_vm_os(options)
   options['search']  = "guestOS"
   options['os-type'] = get_fusion_vm_vmx_file_value(options)
   if not options['os-type']
-    options['search'] = "guestos"
-    options['os-type']     = get_fusion_vm_vmx_file_value(options)
+    options['search']  = "guestos"
+    options['os-type'] = get_fusion_vm_vmx_file_value(options)
   end
   if not options['os-type']
     options['os-type'] = "Unknown"
@@ -512,14 +512,22 @@ def get_fusion_version(options)
         if vf_version >= 8
           if vf_version >= 10
             if vf_version >= 11
-              if vf_version >= 12 and vf_dotver >= 2
-                hw_version = "19"
-              else
-                if vf_dotver >= 1
-                  hw_version = "18"
+              if vf_version >= 12
+                if vf_version >= 13
+                  hw_version = "20"
                 else
-                  hw_version = "16"
+                  if vf_version >= 12 and vf_dotver >= 2
+                    hw_version = "19"
+                  else
+                    if vf_dotver >= 1
+                      hw_version = "18"
+                    else
+                      hw_version = "16"
+                    end
+                  end
                 end
+              else
+                hw_version = "14"
               end
             else
               hw_version = "14"
@@ -1248,7 +1256,7 @@ def get_fusion_guest_os(options)
     guest_os = get_nb_fusion_guest_os(options)
   when /ob/
     guest_os = get_ob_fusion_guest_os(options)
-  when /ps/
+  when /ps|ci/
     guest_os = get_ps_fusion_guest_os(options)
   when /pe/
     guest_os = get_pe_fusion_guest_os(options)
@@ -1347,8 +1355,11 @@ end
 
 def get_ps_fusion_guest_os(options)
   guest_os = "ubuntu"
-  if not options['arch'].to_s.match(/i386/) and not options['arch'].to_s.match(/64/)
+  if options['arch'].to_s.match(/64/)
     guest_os = guest_os+"-64"
+  end
+  if options['arch'].to_s.match(/arm/)
+    guest_os = "arm-"+guest_os
   end
   return guest_os
 end
@@ -1618,8 +1629,13 @@ def populate_fusion_vm_vmx_info(options)
       if version >= 8
         if version >= 9
           if version >= 10
-            vmx_info.push("virtualHW.version,18")
-            options['hwversion'] = "18"
+            if version >= 13 
+              vmx_info.push("virtualHW.version,20")
+              options['hwversion'] = "20"
+            else
+              vmx_info.push("virtualHW.version,18")
+              options['hwversion'] = "18"
+            end
           else
             vmx_info.push("virtualHW.version,16")
             options['hwversion'] = "16"
@@ -1725,7 +1741,6 @@ def populate_fusion_vm_vmx_info(options)
   vmx_info.push("hpet0.present,TRUE")
 #  vmx_info.push("usb.vbluetooth.startConnected,FALSE")
   vmx_info.push("tools.syncTime,TRUE")
-  vmx_info.push("displayName,#{options['name']}")
   vmx_info.push("guestOS,#{guest_os}")
   vmx_info.push("nvram,#{options['name']}.nvram")
   vmx_info.push("virtualHW.productCompatibility,hosted")
@@ -1734,6 +1749,7 @@ def populate_fusion_vm_vmx_info(options)
   vmx_info.push("powerType.powerOn,soft")
   vmx_info.push("powerType.suspend,soft")
   vmx_info.push("powerType.reset,soft")
+  vmx_info.push("displayName,#{options['name']}")
   vmx_info.push("extendedConfigFile,#{options['name']}.vmxf")
   vmx_info.push("uuid.bios,#{options['uuid']}")
   vmx_info.push("uuid.location,#{options['uuid']}")
