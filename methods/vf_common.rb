@@ -514,7 +514,11 @@ def get_fusion_version(options)
             if vf_version >= 11
               if vf_version >= 12
                 if vf_version >= 13
-                  hw_version = "20"
+                  if vf_dotver >= 5
+                    hw_version = "21"
+                  else
+                    hw_version = "20"
+                  end
                 else
                   if vf_version >= 12 and vf_dotver >= 2
                     hw_version = "19"
@@ -1351,14 +1355,14 @@ def configure_ob_fusion_vm(options)
   return
 end
 
-# Get VMware Fusion Guest OS name
+# Get VMware Fusion Guest OS name for Ubuntu/Debian VMs
 
 def get_ps_fusion_guest_os(options)
   guest_os = "ubuntu"
   if options['arch'].to_s.match(/64/)
     guest_os = guest_os+"-64"
   end
-  if options['arch'].to_s.match(/arm/)
+  if options['arch'].to_s.match(/arm/) or options['host-os-arch'].to_s.match(/arm/)
     guest_os = "arm-"+guest_os
   end
   return guest_os
@@ -1372,7 +1376,7 @@ def configure_ps_fusion_vm(options)
   return
 end
 
-# Get VMware Fusion Guest OS name
+# Get VMware Fusion Guest OS name for Windows VMs
 
 def get_pe_fusion_guest_os(options)
   guest_os  = "windows7srv-64"
@@ -1614,7 +1618,8 @@ def populate_fusion_vm_vmx_info(options)
       guest_os = "vmkernel7"
     end
   else
-    guest_os = options['os-type'].to_s
+    guest_os = get_fusion_guest_os(options)
+#    guest_os = options['os-type'].to_s
   end
   if options['uuid'] == options['empty'] or !options['uuid'].to_s.match(/[0-9]/)
     options['uuid'] = options['mac'].to_s.downcase.gsub(/\:/," ")+" 00 00-00 00 "+options['mac'].to_s.downcase.gsub(/\:/," ")
@@ -1630,8 +1635,13 @@ def populate_fusion_vm_vmx_info(options)
         if version >= 9
           if version >= 10
             if version >= 13 
-              vmx_info.push("virtualHW.version,20")
-              options['hwversion'] = "20"
+              if version >= 21
+                vmx_info.push("virtualHW.version,21")
+                options['hwversion'] = "21"
+              else
+                vmx_info.push("virtualHW.version,20")
+                options['hwversion'] = "20"
+              end
             else
               vmx_info.push("virtualHW.version,18")
               options['hwversion'] = "18"
@@ -1653,7 +1663,7 @@ def populate_fusion_vm_vmx_info(options)
     vmx_info.push("virtualHW.version,10")
     options['hwversion'] = "10"
   end
-  vmx_info.push("vcpu.hotadd,FALSE")
+#  vmx_info.push("vcpu.hotadd,FALSE")
   vmx_info.push("scsi0.present,TRUE")
   if options['service'].to_s.match(/el_8|vsphere|esx|vmware/) || options['os-type'].to_s.match(/vsphere|esx|vmware|el_6/)
     vmx_info.push("scsi0.virtualDev,pvscsi")
@@ -1670,12 +1680,26 @@ def populate_fusion_vm_vmx_info(options)
   vmx_info.push("scsi0:0.present,TRUE")
   vmx_info.push("scsi0:0.fileName,#{options['name']}.vmdk")
   vmx_info.push("memsize,#{options['memory']}")
-  vmx_info.push("mem.hotadd,FALSE")
+#  vmx_info.push("mem.hotadd,FALSE")
   if options['file'] != options['empty']
-    vmx_info.push("ide0.present,TRUE")
-    vmx_info.push("ide0:0.present,TRUE")
-    vmx_info.push("ide0:0.deviceType,cdrom-image")
-    vmx_info.push("ide0:0.filename,#{options['file']}")
+    if options['hwversion'].to_i >= 20
+      vmx_info.push("sata0.pciSlotNumber,37")
+      vmx_info.push("sata0.present,TRUE")
+      vmx_info.push("sata0:1.present,TRUE")
+      vmx_info.push("sata0:1.deviceType,cdrom-image")
+      vmx_info.push("sata0:1.filename,#{options['file']}")
+#      vmx_info.push("nvme0.pciSlotNumber,224")
+#      vmx_info.push("nvme0.present,TRUE")
+#      vmx_info.push("nvme0.subnqnUUID,#{options['uuid']}")
+#      vmx_info.push("nvme0:0.fileName,#{options['file']}")
+#      vmx_info.push("nvme0:0.present,TRUE")
+#      vmx_info.push("nvme0:0.redo,")
+    else
+      vmx_info.push("ide0.present,TRUE")
+      vmx_info.push("ide0:0.present,TRUE")
+      vmx_info.push("ide0:0.deviceType,cdrom-image")
+      vmx_info.push("ide0:0.filename,#{options['file']}")
+    end
   else
     #vmx_info.push("ide0:0.deviceType,none")
     #vmx_info.push("ide0:0.filename,")
@@ -1687,14 +1711,18 @@ def populate_fusion_vm_vmx_info(options)
 #  vmx_info.push("floppy0.fileName,")
 #  vmx_info.push("floppy0.clientDevice,FALSE")
   vmx_info.push("ethernet0.present,TRUE")
-  vmx_info.push("ethernet0.noPromisc,FALSE")
+#  vmx_info.push("ethernet0.noPromisc,FALSE")
   vmx_info.push("ethernet0.connectionType,#{options['vmnetwork']}")
   if options['os-type'].to_s.match(/vmware|esx|vsphere/)
     vmx_info.push("ethernet0.virtualDev,vmxnet3")
   else
-    vmx_info.push("ethernet0.virtualDev,e1000")
+    if options['host-os-arch'].to_s.match(/arm/)
+      vmx_info.push("ethernet0.virtualDev,e1000e")
+    else
+      vmx_info.push("ethernet0.virtualDev,e1000")
+    end
   end
-  vmx_info.push("ethernet0.wakeOnPcktRcv,FALSE")
+#  vmx_info.push("ethernet0.wakeOnPcktRcv,FALSE")
   if options['dhcp'] == false
     vmx_info.push("ethernet0.addressType,static")
   else
@@ -1713,9 +1741,13 @@ def populate_fusion_vm_vmx_info(options)
   end
   vmx_info.push("ethernet0.linkStatePropagation.enable,TRUE")
 #  vmx_info.push("usb.present,TRUE")
-  if options['service'].to_s.match(/el_8|vsphere|esx|vmware/) || options['os-type'].to_s.match(/vsphere|esx|vmware|el_6/)
+  if options['service'].to_s.match(/el_8|vsphere|esx|vmware/) || options['os-type'].to_s.match(/vsphere|esx|vmware|el_6|ubuntu/)
     vmx_info.push("ehci.present,TRUE")
     vmx_info.push("ehci.pciSlotNumber,35")
+    vmx_info.push("ehci:0.deviceType,video")
+    vmx_info.push("ehci:0.parent,-1")
+    vmx_info.push("ehci:0.port,0")
+    vmx_info.push("ehci:0.present,TRUE")
   end
   vmx_info.push("sound.present,TRUE")
   if options['os-type'].to_s.match(/windows7srv-64/)
@@ -1723,7 +1755,7 @@ def populate_fusion_vm_vmx_info(options)
   end
   vmx_info.push("sound.fileName,-1")
   vmx_info.push("sound.autodetect,TRUE")
-  vmx_info.push("mks.enable3d,TRUE")
+#  vmx_info.push("mks.enable3d,TRUE")
   vmx_info.push("pciBridge0.present,TRUE")
   vmx_info.push("pciBridge4.present,TRUE")
   vmx_info.push("pciBridge4.virtualDev,pcieRootPort")
@@ -1753,9 +1785,9 @@ def populate_fusion_vm_vmx_info(options)
   vmx_info.push("extendedConfigFile,#{options['name']}.vmxf")
   vmx_info.push("uuid.bios,#{options['uuid']}")
   vmx_info.push("uuid.location,#{options['uuid']}")
-  vmx_info.push("uuid.action,keep")
-  vmx_info.push("replay.supported,FALSE")
-  vmx_info.push("replay.filename,")
+#  vmx_info.push("uuid.action,keep")
+#  vmx_info.push("replay.supported,FALSE")
+#  vmx_info.push("replay.filename,")
   vmx_info.push("pciBridge0.pciSlotNumber,17")
   vmx_info.push("pciBridge4.pciSlotNumber,21")
   vmx_info.push("pciBridge5.pciSlotNumber,22")
@@ -1765,7 +1797,35 @@ def populate_fusion_vm_vmx_info(options)
 #  vmx_info.push("usb.pciSlotNumber,32")
   vmx_info.push("ethernet0.pciSlotNumber,33")
   vmx_info.push("sound.pciSlotNumber,34")
-  vmx_info.push("vmci0.pciSlotNumber,36")
+#  vmx_info.push("vmci0.pciSlotNumber,36")
+  if options['host-os-arch'].to_s.match(/arm/)
+    vmx_info.push("monitor.phys_bits_used,36")
+    vmx_info.push("cpuid.coresPerSocket,1")
+    vmx_info.push("usb.pciSlotNumber,32")
+    vmx_info.push("usb.present,TRUE")
+    vmx_info.push("usb.vbluetooth.startConnected,TRUE")
+    vmx_info.push("usb:1.deviceType,hub")
+    vmx_info.push("usb:1.parent,-1")
+    vmx_info.push("usb:1.port,1")
+    vmx_info.push("usb:1.present,TRUE")
+    vmx_info.push("usb:1.speed,2")
+    vmx_info.push("usb_xhci.pciSlotNumber,192")
+    vmx_info.push("usb_xhci.present,TRUE")
+    vmx_info.push("usb_xhci:4.deviceType,hid")
+    vmx_info.push("usb_xhci:4.parent,-1")
+    vmx_info.push("usb_xhci:4.port,4")
+    vmx_info.push("usb_xhci:4.present,TRUE")
+    vmx_info.push("usb_xhci:6.deviceType,hub")
+    vmx_info.push("usb_xhci:6.parent,-1")
+    vmx_info.push("usb_xhci:6.port,6")
+    vmx_info.push("usb_xhci:6.present,TRUE")
+    vmx_info.push("usb_xhci:6.speed,2")
+    vmx_info.push("usb_xhci:7.deviceType,hub")
+    vmx_info.push("usb_xhci:7.parent,-1")
+    vmx_info.push("usb_xhci:7.port,7")
+    vmx_info.push("usb_xhci:7.present,TRUE")
+    vmx_info.push("usb_xhci:7.speed,4")
+  end
 #  if version >= 8
 #    vmx_info.push("sata0.pciSlotNumber,-1")
 #  else
@@ -1775,8 +1835,8 @@ def populate_fusion_vm_vmx_info(options)
     vmx_info.push("scsi0.sasWWID,50 05 05 63 9c 8f c0 c0")
   end
   vmx_info.push("ethernet0.generatedAddressOffset,0")
-#  vmx_info.push("vmci0.id,-1176557972")
-  vmx_info.push("vmotion.checkpointFBSize,134217728")
+  vmx_info.push("vmci0.id,-1176557972")
+#  vmx_info.push("vmotion.checkpointFBSize,134217728")
   vmx_info.push("cleanShutdown,TRUE")
   vmx_info.push("softPowerOff,FALSE")
 #  vmx_info.push("usb:1.speed,2")
@@ -1784,7 +1844,7 @@ def populate_fusion_vm_vmx_info(options)
 #  vmx_info.push("usb:1.deviceType,hub")
 #  vmx_info.push("usb:1.port,1")
 #  vmx_info.push("usb:1.parent,-1")
-  vmx_info.push("checkpoint.vmState,")
+#  vmx_info.push("checkpoint.vmState,")
 #  vmx_info.push("sata0:1.startConnected,FALSE")
 #  vmx_info.push("usb:0.present,TRUE")
 #  vmx_info.push("usb:0.deviceType,hid")
@@ -1796,12 +1856,17 @@ def populate_fusion_vm_vmx_info(options)
     vmx_info.push("ethernet0.address,#{options['mac']}")
   end
   vmx_info.push("floppy0.present,FALSE")
-  vmx_info.push("serial0.present,TRUE")
-  vmx_info.push("serial0.fileType,pipe")
-  vmx_info.push("serial0.yieldOnMsrRead,TRUE")
-  vmx_info.push("serial0.startConnected,TRUE")
-  vmx_info.push("serial0.fileName,/tmp/#{options['name']}")
-  vmx_info.push("scsi0:0.redo,")
+#  vmx_info.push("serial0.present,TRUE")
+#  vmx_info.push("serial0.fileType,pipe")
+#  vmx_info.push("serial0.yieldOnMsrRead,TRUE")
+#  vmx_info.push("serial0.startConnected,TRUE")
+#  vmx_info.push("serial0.fileName,/tmp/#{options['name']}")
+#  vmx_info.push("scsi0:0.redo,")
+  vmx_info.push("vmotion.checkpointFBSize,134217728")
+  vmx_info.push("vmotion.checkpointSVGAPrimarySize,268435456")
+  vmx_info.push("vmotion.svga.graphicsMemoryKB,262144")
+  vmx_info.push("vmotion.svga.mobMaxSize,268435456")
+  vmx_info.push("vsvga.vramSize,268435456")
   if options['os-type'].to_s.match(/vmkernel/)
     vmx_info.push("monitor.virtual_mmu,hardware")
     vmx_info.push("monitor.virtual_exec,hardware")
@@ -1811,11 +1876,13 @@ def populate_fusion_vm_vmx_info(options)
   if options['vcpus'].to_i > 1
     vmx_info.push("numvcpus,#{options['vcpus']}")
   end
-  vmx_info.push("isolation.tools.hgfs.disable,FALSE")
-  vmx_info.push("hgfs.mapRootShare,TRUE")
-  vmx_info.push("hgfs.linkRootShare,TRUE")
+#  vmx_info.push("isolation.tools.hgfs.disable,FALSE")
+#  vmx_info.push("hgfs.mapRootShare,TRUE")
+#  vmx_info.push("hgfs.linkRootShare,TRUE")
   if version >= 8
-    vmx_info.push("acpi.smbiosVersion2.7,FALSE")
+    if not options['host-os-arch'].to_s.match(/arm/)
+      vmx_info.push("acpi.smbiosVersion2.7,FALSE")
+    end
     vmx_info.push("numa.autosize.vcpu.maxPerVirtualNode,2")
     vmx_info.push("numa.autosize.cookie,10001")
     vmx_info.push("migrate.hostlog,#{options['name']}-#{options['mac']}.hlog")
@@ -1837,5 +1904,6 @@ def populate_fusion_vm_vmx_info(options)
 #    vmx_info.push("signal.suspendOnHUP=TRUE"  )
 #    vmx_info.push("signal.powerOffOnTERM,TRUE")
   end
+  vmx_info.push("vmxstats.filename,#{options['name']}.scoreboard")
   return options,vmx_info
 end

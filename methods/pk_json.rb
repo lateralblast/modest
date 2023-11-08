@@ -57,6 +57,7 @@ def create_packer_json(options)
   memsize           = options['memory'].to_s
   numvcpus          = options['vcpus'].to_s
   mac_address       = options['mac'].to_s
+  usb               = options['usb'].to_s
   disk_adapter_type = options['diskinterface'].to_s
   if options['vm'].to_s.match(/fusion/)
     if hw_version.to_i >= 20
@@ -719,8 +720,8 @@ def create_packer_json(options)
         boot_header = "<wait>e<wait><down><wait><down><wait><down><wait><leftCtrlOn>e<leftCtrlOff>"+
                       "<bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
                       "--- "
-#        boot_footer = "<wait><f10><wait><enter>"
-        boot_footer  = ""
+        boot_footer = "<wait><f10><wait><enter>"
+#        boot_footer  = ""
       else
         boot_header  = "<enter><enter><f6><esc><wait><bs><bs><bs><bs>"
         boot_footer  = ""
@@ -1026,6 +1027,7 @@ def create_packer_json(options)
             :http_bind_address    => ks_ip,
             :boot_wait            => boot_wait,
             :boot_command         => boot_command,
+            :usb                  => usb,
             :tools_upload_flavor  => tools_upload_flavor,
             :tools_upload_path    => tools_upload_path,
             :vmx_data => {
@@ -1071,6 +1073,7 @@ def create_packer_json(options)
             :http_port_max        => http_port_max,
             :boot_wait            => boot_wait,
             :boot_command         => boot_command,
+            :usb                  => usb,
             :tools_upload_flavor  => tools_upload_flavor,
             :tools_upload_path    => tools_upload_path,
             :vmx_data => {
@@ -1346,6 +1349,7 @@ def create_packer_json(options)
           :http_port_max        => http_port_max,
           :boot_wait            => boot_wait,
           :boot_command         => boot_command,
+          :usb                  => usb,
           :tools_upload_flavor  => tools_upload_flavor,
           :tools_upload_path    => tools_upload_path,
           :vmx_data => {
@@ -1733,6 +1737,7 @@ def create_packer_json(options)
             :http_port_min        => http_port_min,
             :http_port_max        => http_port_max,
             :http_bind_address    => ks_ip,
+            :usb                  => usb,
             :boot_wait            => boot_wait,
             :boot_command         => boot_command,
             :tools_upload_flavor  => tools_upload_flavor,
@@ -1786,6 +1791,7 @@ def create_packer_json(options)
             :http_port_max        => http_port_max,
             :boot_wait            => boot_wait,
             :boot_command         => boot_command,
+            :usb                  => usb,
             :tools_upload_flavor  => tools_upload_flavor,
             :tools_upload_path    => tools_upload_path,
             :floppy_files         => [
@@ -1943,6 +1949,7 @@ def create_packer_json(options)
             :http_bind_address    => ks_ip,
             :boot_wait            => boot_wait,
             :boot_command         => boot_command,
+            :usb                  => usb,
             :tools_upload_flavor  => tools_upload_flavor,
             :tools_upload_path    => tools_upload_path,
             :floppy_files         => [
@@ -1993,6 +2000,7 @@ def create_packer_json(options)
             :http_directory       => http_dir,
             :http_port_min        => http_port_min,
             :http_port_max        => http_port_max,
+            :usb                  => usb,
             :boot_wait            => boot_wait,
             :boot_command         => boot_command,
             :tools_upload_flavor  => tools_upload_flavor,
@@ -2373,6 +2381,7 @@ def create_packer_json(options)
             :http_port_max        => http_port_max,
             :http_bind_address    => ks_ip,
             :boot_wait            => boot_wait,
+            :usb                  => usb,
             :boot_command         => boot_command,
             :tools_upload_flavor  => tools_upload_flavor,
             :tools_upload_path    => tools_upload_path,
@@ -2419,6 +2428,7 @@ def create_packer_json(options)
             :http_port_max        => http_port_max,
             :boot_wait            => boot_wait,
             :boot_command         => boot_command,
+            :usb                  => usb,
             :tools_upload_flavor  => tools_upload_flavor,
             :tools_upload_path    => tools_upload_path,
             :vmx_data => {

@@ -1519,3 +1519,9 @@
 # Fixes for determining service name for Ubuntu ARM
 # 7.5.9: Sun  4 Dec 2022 11:05:54 AEDT
 # More fixes for ARM
+# 7.6.0: Tue  7 Nov 2023 17:35:39 AEDT
+# Updated VMware HW version for VMware Fusion 13.5
+# 7.6.1: Tue  7 Nov 2023 17:57:52 AEDT
+# Fixed guest OS name detection for VMware Fusion on ARM
+# 7.6.2: Wed  8 Nov 2023 15:12:04 AEDT
+# Added fix for keyboard not working on Packer and VMware Fusion on Apple Silicon

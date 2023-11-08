@@ -292,7 +292,7 @@ def set_defaults(options,defaults)
   defaults['dryrun']          = false
   defaults['empty']           = "none"
   defaults['enableethernet']  = true
-  defaults['enablevnc']       = true
+  defaults['enablevnc']       = false
   defaults['enablevhv']       = true
   defaults['environment']     = "en_US.UTF-8"
   defaults['exportdir']       = defaults['basedir'].to_s+"/export/"+defaults['scriptname'].to_s
@@ -447,13 +447,14 @@ def set_defaults(options,defaults)
   defaults['uuid']            = ""
   defaults['unmasked']        = false
   defaults['usemirror']       = false
+  defaults['usb']             = true
   defaults['user']            = %x[whoami].chomp
   defaults['utc']             = "off"
   defaults['vboxadditions']   = "/Applications/VirtualBox.app//Contents/MacOS/VBoxGuestAdditions.iso"
   defaults['vboxmanage']      = "/usr/local/bin/VBoxManage"
   defaults['vcpu']            = "1"
   defaults['vgname']          = "vg01"
-  defaults['vnc']             = true
+  defaults['vnc']             = false
   defaults['verbose']         = "false"
   defaults['virtualdevice']   = "lsilogic"
   defaults['vmntools']        = false
@@ -1589,7 +1590,8 @@ def check_local_config(options)
     handle_output(options,"Information:\tChecking work bin directory")
   end
   work_bin_dir = options['workdir']+"/bin"
-  [ "rpm2cpio", "rpm" ].each do |pkg_name|
+#  [ "rpm2cpio", "rpm" ].each do |pkg_name|
+  [ "rpm2cpio" ].each do |pkg_name|
     option = pkg_name+"bin"
     installed = false
     [ "/bin", "/usr/local/bin", "/opt/local/bin", "/opt/homebrew/bin", work_bin_dir ].each do |bin_dir|

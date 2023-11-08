@@ -4,6 +4,11 @@
 MODEST
 ======
 
+Version: 7.6.2
+
+Introduction
+------------
+
 MODEST stands for: Multi OS Deployment Engine Server Tool
 
 WARNING: This is a somewhat significant clean up of the previous tool (mode) - it is currently not working for everything
@@ -85,7 +90,6 @@ Currently supported deployment targets with packer:
 - VMware Fusion
 - AWS
 
-
 Screenshots
 -----------
 
@@ -101,8 +105,8 @@ Some example screen captures:
 
 [Solaris 11 Client Examples](https://github.com/lateralblast/modest/wiki/AI-Client-Screen-Capture)
 
-Introduction
-------------
+Background
+----------
 
 Why another OS/VM deployment tool?
 

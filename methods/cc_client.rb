@@ -294,4 +294,3 @@ def output_cc_user_data(options,user_data,exec_data,output_file)
   print_contents_of_file(options,"",output_file)
   return
 end
-
