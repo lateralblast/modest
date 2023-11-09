@@ -4,7 +4,7 @@
 MODEST
 ======
 
-Version: 7.6.2
+Version: 7.6.3
 
 Introduction
 ------------
