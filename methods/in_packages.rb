@@ -7,50 +7,50 @@
 
 # Code to fetch a source file
 
-def get_pkg_source(source_url,source_file)
+def get_pkg_source(source_url, source_file)
   if not File.exist?("/usr/bin/wget")
     message = "Information:\tInstalling package wget"
     command = "pkg install pkg:/web/wget"
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   message = "Information:\tFetching source "+source_url+" to "+source_file
   command = "wget #{source_url} -O #{source_file}"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
 # Check installed packages
 
-def check_installed_pkg(p_struct,pkg_name)
+def check_installed_pkg(p_struct, pkg_name)
   message = "Information:\tChecking if package "+pkg_name+" is installed"
   command = "pkg info #{pkg_name} |grep Version |awk \"{print \\\$2}\""
-  ins_ver = execute_command(options,message,command)
+  ins_ver = execute_command(options, message, command)
   ins_ver = ins_ver.chomp
   return ins_ver
 end
 
 # Install a package
 
-def install_pkg(p_struct,pkg_name,pkg_repo_dir)
+def install_pkg(p_struct, pkg_name, pkg_repo_dir)
   pkg_ver = p_struct[pkg_name].version
-  ins_ver = check_installed_pkg(p_struct,pkg_name)
+  ins_ver = check_installed_pkg(p_struct, pkg_name)
   if not ins_ver.match(/#{pkg_ver}/)
     message = "Information:\tInstalling Package "+pkg_name
     command = "pkg install -g #{pkg_repo_dir} #{pkg_name}"
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   return
 end
 
 # Install local package
 
-def install_package(options,pkg_name)
+def install_package(options, pkg_name)
   if !options['host-os-packages'].to_s.match(/\"#{pkg_name}\"/)
     if options['host-os-name'].to_s.match(/Darwin/)
-      install_osx_package(options,pkg_name)
+      install_osx_package(options, pkg_name)
     end
     if options['host-os-name'].to_s.match(/Linux/)
-      install_linux_package(options,pkg_name)
+      install_linux_package(options, pkg_name)
     end
     options = update_package_list(options)
   end
@@ -70,9 +70,9 @@ end
 
 # Handle a package
 
-def handle_pkg(p_struct,pkg_name,build_type,pkg_repo_dir)
+def handle_pkg(p_struct, pkg_name, build_type, pkg_repo_dir)
   if options['verbose'] == true
-    handle_output(options,"Information:\tHandling Package #{pkg_name}")
+    handle_output(options, "Information:\tHandling Package #{pkg_name}")
   end
   depend_list     = []
   pkg_version     = p_struct[pkg_name].version
@@ -92,22 +92,22 @@ def handle_pkg(p_struct,pkg_name,build_type,pkg_repo_dir)
       end
       if not depend_pkg_name.match(/#{pkg_name}/)
         if options['verbose'] == true
-          handle_output(options,"Information:\tHandling dependency #{depend_pkg_name}")
+          handle_output(options, "Information:\tHandling dependency #{depend_pkg_name}")
         end
-        build_pkg(p_struct,depend_pkg_name,build_type,pkg_repo_dir)
-        install_pkg(p_struct,depend_pkg_name,pkg_repo_dir)
+        build_pkg(p_struct, depend_pkg_name, build_type, pkg_repo_dir)
+        install_pkg(p_struct, depend_pkg_name, pkg_repo_dir)
       end
     end
-    repo_pkg_version = check_pkg_repo(p_struct,pkg_name,pkg_repo_dir)
+    repo_pkg_version = check_pkg_repo(p_struct, pkg_name, pkg_repo_dir)
     if not repo_pkg_version.match(/#{pkg_version}/)
-      build_pkg(p_struct,pkg_name,build_type,pkg_repo_dir)
-      install_pkg(p_struct,pkg_name,pkg_repo_dir)
+      build_pkg(p_struct, pkg_name, build_type, pkg_repo_dir)
+      install_pkg(p_struct, pkg_name, pkg_repo_dir)
     end
   else
-    repo_pkg_version = check_pkg_repo(p_struct,pkg_name,pkg_repo_dir)
+    repo_pkg_version = check_pkg_repo(p_struct, pkg_name, pkg_repo_dir)
     if not repo_pkg_version.match(/#{pkg_version}/)
-      build_pkg(p_struct,pkg_name,build_type,pkg_repo_dir)
-      install_pkg(p_struct,pkg_name,pkg_repo_dir)
+      build_pkg(p_struct, pkg_name, build_type, pkg_repo_dir)
+      install_pkg(p_struct, pkg_name, pkg_repo_dir)
     end
   end
   return
@@ -115,9 +115,9 @@ end
 
 # Process package list
 
-def process_pkgs(p_struct,pkg_repo_dir,build_type)
+def process_pkgs(p_struct, pkg_repo_dir, build_type)
   p_struct.each do |pkg_name, value|
-    handle_pkg(p_struct,pkg_name,build_type,pkg_repo_dir)
+    handle_pkg(p_struct, pkg_name, build_type, pkg_repo_dir)
   end
   return
 end
@@ -142,11 +142,11 @@ end
 def uninstall_pkg(pkg_name)
   message = "Information:\tChecking if package "+pkg_name+" is installed"
   command = "pkg info #{pkg_name} |grep Version |awk \"{print \\\$2}\""
-  output  = execute_command(options,message,command)
+  output  = execute_command(options, message, command)
   if output.match(/[0-9]/)
     message = "Information:\tUninstalling Package "+pkg_name
     command = "pkg uninstall #{pkg_name}"
-    output  = execute_command(options,message,command)
+    output  = execute_command(options, message, command)
   end
   return
 end

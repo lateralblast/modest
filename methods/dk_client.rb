@@ -9,7 +9,7 @@ def execute_docker_command(options)
 		output = %x[docker-machine ssh #{options['name']} "#{command}']
 		handle_output(options,output)
 	else
-		handle_output(options,"Information:\tDocker instance #{options['name']} does not exist")
+		handle_output(options, "Information:\tDocker instance #{options['name']} does not exist")
 	end
 	return
 end
@@ -19,9 +19,9 @@ end
 def connect_to_docker_client(options)
 	exists = check_docker_vm_exists(options)
 	if exists == true
-		handle_output(options,"Command:\tdocker ssh #{options['name']}")
+		handle_output(options, "Command:\tdocker ssh #{options['name']}")
 	else
-		handle_output(options,"Information:\tDocker instance #{options['name']} does not exist")
+		handle_output(options, "Information:\tDocker instance #{options['name']} does not exist")
 	end
 	return
 end
@@ -60,9 +60,9 @@ def configure_docker_client(options)
 		else
 			command = "docker-machine create --driver #{docker_vm} #{options['name']}"
 		end
-		execute_command(options,message,command)
+		execute_command(options, message, command)
 	else
-		handle_output(options,"Information:\tDocker instance '#{options['name']}' already exists")
+		handle_output(options, "Information:\tDocker instance '#{options['name']}' already exists")
 	end
 	return
 end
@@ -72,9 +72,9 @@ def unconfigure_docker_client(options)
 	if exists == true
 		message = "Information:\tDeleting docker instance #{options['name']}"
 		command = "docker-machine rm --force #{options['name']}"
-		execute_command(options,message,command)
+		execute_command(options, message, command)
 	else
-		handle_output(options,"Information:\tDocker instance #{options['name']} does not exist")
+		handle_output(options, "Information:\tDocker instance #{options['name']} does not exist")
 	end
 	return
 end

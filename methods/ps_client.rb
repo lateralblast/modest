@@ -23,10 +23,10 @@ end
 
 # Output the Preseed file contents
 
-def output_ps_header(options,output_file)
+def output_ps_header(options, output_file)
   dir_name = File.dirname(output_file)
-  check_dir_exists(options,dir_name)
-  check_dir_owner(options,dir_name,options['uid'])
+  check_dir_exists(options, dir_name)
+  check_dir_owner(options, dir_name, options['uid'])
   tmp_file = "/tmp/preseed_"+options['name'].to_s
   file = File.open(tmp_file, 'w')
   options['q_order'].each do |key|
@@ -38,9 +38,9 @@ def output_ps_header(options,output_file)
   file.close
   message = "Creating:\tPreseed file "+output_file+" for "+options['name']
   command = "cp #{tmp_file} #{output_file} ; rm #{tmp_file}"
-  execute_command(options,message,command)
-  print_contents_of_file(options,"",output_file)
-  check_file_owner(options,output_file,options['uid'])
+  execute_command(options, message, command)
+  print_contents_of_file(options, "", output_file)
+  check_file_owner(options, output_file, options['uid'])
   return
 end
 

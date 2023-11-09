@@ -157,16 +157,16 @@ def handle_aws_values(options)
     if not options['ami'].to_s.match(/^#{options['empty']}/)
       options['name'] = options['ami']
     else
-      handle_output(options,"Warning:\tNo name specified for AWS image")
+      handle_output(options, "Warning:\tNo name specified for AWS image")
       quit(options)
     end
   end
   if options['key'].to_s.match(/^#{options['empty']}$|^none$/)
-    handle_output(options,"Warning:\tNo key pair specified")
+    handle_output(options, "Warning:\tNo key pair specified")
     if options['keyfile'] == options['empty']
       if options['name'].to_s.match(/^#{options['empty']}/)
         if options['group'].to_s.match(/^#{}options['empty']/)
-          handle_output(options,"Warning:\tCould not determine key pair")
+          handle_output(options, "Warning:\tCould not determine key pair")
           quit(options)
         else
           options['key'] = options['group']
@@ -178,11 +178,11 @@ def handle_aws_values(options)
       options['key'] = File.basename(options['keyfile'])
       options['key'] = options['key'].split(/\./)[0..-2].join
     end
-    handle_output(options,"Information:\tSetting key pair to #{options['key']}")
+    handle_output(options, "Information:\tSetting key pair to #{options['key']}")
   end
   if options['group'].to_s.match(/^default$/)
     options['group'] = options['key']
-    handle_output(options,"Information:\tSetting security group to #{options['group']}")
+    handle_output(options, "Information:\tSetting security group to #{options['group']}")
   end
   if options['nosuffix'] == false
     options['name'] = get_aws_uniq_name(options)
@@ -191,13 +191,13 @@ def handle_aws_values(options)
   if options['keyfile'] == options['empty']
     options = set_aws_key_file(options)
     puts options['keyfile']
-    handle_output(options,"Information:\tSetting key file to #{options['keyfile']}")
+    handle_output(options, "Information:\tSetting key file to #{options['keyfile']}")
   end
   if not File.exist?(options['keyfile'])
     options = create_aws_key_pair(options)
   end
   if not File.exist?(options['keyfile'])
-    handle_output(options,"Warning:\tKey file '#{options['keyfile']}' does not exist")
+    handle_output(options, "Warning:\tKey file '#{options['keyfile']}' does not exist")
     quit(options)
   end
   exists = check_if_aws_security_group_exists(options)
@@ -240,7 +240,7 @@ def get_aws_snapshots(options)
   begin
     snapshots = ec2.describe_snapshots.snapshots
   rescue Aws::EC2::Errors::AccessDenied
-    handle_output(options,"Warning:\tUser needs to be specified appropriate rights in AWS IAM")
+    handle_output(options, "Warning:\tUser needs to be specified appropriate rights in AWS IAM")
     quit(options)
   end
   return snapshots
@@ -257,10 +257,10 @@ def list_aws_snapshots(options)
     if snapshot_owner == owner_id
       if options['snapshot'].to_s.match(/[0-9]/)
         if snapshot_id.match(/^#{options['snapshot']}$/)
-          handle_output(options,"#{snapshot_id}")
+          handle_output(options, "#{snapshot_id}")
         end
       else
-        handle_output(options,"#{snapshot_id}")
+        handle_output(options, "#{snapshot_id}")
       end
     end
   end
@@ -271,7 +271,7 @@ end
 
 def delete_aws_snapshot(options)
   if not options['snapshot'].to_s.match(/[A-Z]|[a-z]|[0-9]/)
-    handle_output(options,"Warning:\tNo Snapshot ID specified")
+    handle_output(options, "Warning:\tNo Snapshot ID specified")
     return
   end
   owner_id  = get_aws_owner_id(options)
@@ -282,11 +282,11 @@ def delete_aws_snapshot(options)
     snapshot_owner = snapshot.owner_id
     if snapshot_owner == owner_id
       if snapshot_id.match(/^#{options['snapshot']}$/) || options['snapshot'] == "all"
-        handle_output(options,"Information:\tDeleting Snapshot ID #{snapshot_id}")
+        handle_output(options, "Information:\tDeleting Snapshot ID #{snapshot_id}")
         begin
           ec2.delete_snapshot({snapshot_id: snapshot_id})
         rescue 
-          handle_output(options,"Warning:\tUnable to delete Snapshot ID #{snapshot_id}")
+          handle_output(options, "Warning:\tUnable to delete Snapshot ID #{snapshot_id}")
         end
       end
     end
@@ -312,10 +312,10 @@ def get_aws_reservations(options)
   begin
     reservations = ec2.describe_instances({ }).reservations
   rescue Aws::EC2::Errors::AccessDenied
-    handle_output(options,"Warning:\tUser needs to be specified appropriate rights in AWS IAM")
+    handle_output(options, "Warning:\tUser needs to be specified appropriate rights in AWS IAM")
     quit(options)
   end
-  return ec2,reservations
+  return ec2, reservations
 end
 
 # Get AWS Key Pairs
@@ -325,17 +325,17 @@ def get_aws_key_pairs(options)
   begin
     key_pairs = ec2.describe_key_pairs({ }).key_pairs
   rescue Aws::EC2::Errors::AccessDenied
-    handle_output(options,"Warning:\tUser needs to be specified appropriate rights in AWS IAM")
+    handle_output(options, "Warning:\tUser needs to be specified appropriate rights in AWS IAM")
     quit(options)
   end
-  return ec2,key_pairs
+  return ec2, key_pairs
 end
 
 # Get instance security group 
 
 def get_aws_instance_security_group(options)
   group = "none"
-  ec2,reservations = get_aws_reservations(options)
+  ec2, reservations = get_aws_reservations(options)
   reservations.each do |reservation|
     reservation['instances'].each do |instance|
       instance_id = instance.instance_id
@@ -392,7 +392,7 @@ end
 def remove_ingress_rule_from_aws_security_group(options)
   ec2 = initiate_aws_ec2_client(options)
   prefix_list_id = get_aws_prefix_list_id(options)
-  handle_output(options,"Information:\tDeleting ingress rule to security group #{options['group']} (Protocol: #{options['proto']} From: #{options['from']} To: #{options['to']} CIDR: #{options['cidr']})")
+  handle_output(options, "Information:\tDeleting ingress rule to security group #{options['group']} (Protocol: #{options['proto']} From: #{options['from']} To: #{options['to']} CIDR: #{options['cidr']})")
   ec2.revoke_security_group_ingress({
     group_id: options['group'],
     ip_permissions: [
@@ -415,8 +415,8 @@ end
 
 def remove_egress_rule_from_aws_security_group(options)
   ec2 = initiate_aws_ec2_client(options)
-  prefix_list_id = get_aws_prefix_list_id(options['access'],options['secret'],options['region'])
-  handle_output(options,"Information:\tDeleting egress rule to security group #{options['group']} (Protocol: #{options['proto']} From: #{options['from']} To: #{options['to']} CIDR: #{options['cidr']})")
+  prefix_list_id = get_aws_prefix_list_id(options['access'], options['secret'], options['region'])
+  handle_output(options, "Information:\tDeleting egress rule to security group #{options['group']} (Protocol: #{options['proto']} From: #{options['from']} To: #{options['to']} CIDR: #{options['cidr']})")
   ec2.revoke_security_group_egress({
     group_id: options['group'],
     ip_permissions: [
@@ -457,7 +457,7 @@ end
 def add_ingress_rule_to_aws_security_group(options)
   ec2 = initiate_aws_ec2_client(options)
   prefix_list_id = get_aws_prefix_list_id(options)
-  handle_output(options,"Information:\tAdding ingress rule to security group #{options['group']} (Protocol: #{options['proto']} From: #{options['from']} To: #{options['to']} CIDR: #{options['cidr']})")
+  handle_output(options, "Information:\tAdding ingress rule to security group #{options['group']} (Protocol: #{options['proto']} From: #{options['from']} To: #{options['to']} CIDR: #{options['cidr']})")
   begin
     ec2.authorize_security_group_ingress({
       group_id: options['group'],
@@ -475,7 +475,7 @@ def add_ingress_rule_to_aws_security_group(options)
       ],
     })
   rescue Aws::EC2::Errors::InvalidPermissionDuplicate
-    handle_output(options,"Warning:\tRule already exists")
+    handle_output(options, "Warning:\tRule already exists")
   end
   return
 end
@@ -485,7 +485,7 @@ end
 def add_egress_rule_to_aws_security_group(options)
   ec2 = initiate_aws_ec2_client(options)
   prefix_list_id = get_aws_prefix_list_id(options)
-  handle_output(options,"Information:\tAdding egress rule to security group #{options['group']} (Protocol: #{options['proto']} From: #{options['from']} To: #{options['to']} CIDR: #{options['cidr']})")
+  handle_output(options, "Information:\tAdding egress rule to security group #{options['group']} (Protocol: #{options['proto']} From: #{options['from']} To: #{options['to']} CIDR: #{options['cidr']})")
   begin
     ec2.authorize_security_group_egress({
       group_id: options['group'],
@@ -503,7 +503,7 @@ def add_egress_rule_to_aws_security_group(options)
       ],
     })
   rescue Aws::EC2::Errors::InvalidPermissionDuplicate
-    handle_output(options,"Warning:\tRule already exists")
+    handle_output(options, "Warning:\tRule already exists")
   end
   return
 end
@@ -581,14 +581,14 @@ end
 
 def create_aws_security_group(options)
   if not options['desc'].to_s.match(/[A-Z]|[a-z]|[0-9]/)
-    handle_output(options,"Information:\tNo description specified, using group name '#{options['group']}'")
+    handle_output(options, "Information:\tNo description specified, using group name '#{options['group']}'")
     options['desc'] = options['group']
   end
   exists = check_if_aws_security_group_exists(options)
   if exists == "yes"
-    handle_output(options,"Warning:\tSecurity group '#{options['group']}' already exists")
+    handle_output(options, "Warning:\tSecurity group '#{options['group']}' already exists")
   else
-    handle_output(options,"Information:\tCreating security group '#{options['group']}'")
+    handle_output(options, "Information:\tCreating security group '#{options['group']}'")
     ec2 = initiate_aws_ec2_client(options)
     ec2.create_security_group({ group_name: options['group'], description: options['desc'] })
   end
@@ -600,16 +600,16 @@ end
 def delete_aws_security_group(options)
   exists = check_if_aws_security_group_exists(options)
   if exists == "yes"
-    handle_output(options,"Information:\tDeleting security group '#{options['group']}'")
+    handle_output(options, "Information:\tDeleting security group '#{options['group']}'")
     ec2 = initiate_aws_ec2_client(options)
     ec2.delete_security_group({ group_name: options['group'] })
   else
-    handle_output(options,"Warning:\tSecurity group '#{options['group']}' doesn't exist")
+    handle_output(options, "Warning:\tSecurity group '#{options['group']}' doesn't exist")
   end
   return
 end
 
-def handle_ip_perms(options,ip_perms,type,group_name)
+def handle_ip_perms(options, ip_perms, type, group_name)
   name_length = group_name.length
   name_spacer = ""
   name_length.times do
@@ -630,7 +630,7 @@ def handle_ip_perms(options,ip_perms,type,group_name)
     if ip_protocol and from_port and to_port
       if ip_protocol.match(/[a-z]/) and cidr_ip.match(/[0-9]/)
         ip_rule = ip_protocol+","+from_port+","+to_port
-        handle_output(options,"#{name_spacer} rule=#{ip_rule} range=#{cidr_ip} (IPv4 #{type})")
+        handle_output(options, "#{name_spacer} rule=#{ip_rule} range=#{cidr_ip} (IPv4 #{type})")
       end
     end
     cidr_ip = []
@@ -642,7 +642,7 @@ def handle_ip_perms(options,ip_perms,type,group_name)
     if ip_protocol and from_port and to_port
       if ip_protocol.match(/[a-z]/) and cidr_ip.match(/[0-9]/)
         ip_rule = ip_protocol+","+from_port+","+to_port
-        handle_output(options,"#{name_spacer} rule=#{ip_rule} range=#{cidr_ip} (IPv4 #{type})")
+        handle_output(options, "#{name_spacer} rule=#{ip_rule} range=#{cidr_ip} (IPv4 #{type})")
       end
     end
   end
@@ -657,11 +657,11 @@ def list_aws_security_groups(options)
     group_name = group.group_name
     if options['group'].to_s.match(/^all$|^#{group_name}$/)
       description = group.description
-      handle_output(options,"#{group_name} desc=\"#{description}\"")
+      handle_output(options, "#{group_name} desc=\"#{description}\"")
       ip_perms = group.ip_permissions
-      handle_ip_perms(options,ip_perms,"Ingress",group_name)
+      handle_ip_perms(options, ip_perms, "Ingress", group_name)
       ip_perms = group.ip_permissions_egress
-      handle_ip_perms(options,ip_perms,"Egress",group_name)
+      handle_ip_perms(options, ip_perms, "Egress", group_name)
     end
   end
   return
@@ -672,7 +672,7 @@ end
 
 def get_aws_instance_key_name(options)
   key_name = "none"
-  ec2,reservations = get_aws_reservations(options)
+  ec2, reservations = get_aws_reservations(options)
   reservations.each do |reservation|
     reservation['instances'].each do |instance|
       instance_id = instance.instance_id
@@ -689,7 +689,7 @@ end
 
 def get_aws_instance_ip(options)
   public_ip = "none"
-  ec2,reservations = get_aws_reservations(options)
+  ec2, reservations = get_aws_reservations(options)
   reservations.each do |reservation|
     reservation['instances'].each do |instance|
       instance_id = instance.instance_id
@@ -709,7 +709,7 @@ def get_aws_owner_id(options)
   begin
     user = iam.get_user()
   rescue Aws::EC2::Errors::AccessDenied
-    handle_output(options,"Warning:\tUser needs to be specified appropriate rights in AWS IAM")
+    handle_output(options, "Warning:\tUser needs to be specified appropriate rights in AWS IAM")
     quit(options)
   end
   owner_id = user[0].arn.split(/:/)[4]
@@ -723,20 +723,20 @@ def get_aws_images(options)
   begin
     images = ec2.describe_images({ owners: ['self'] }).images
   rescue Aws::EC2::Errors::AccessDenied
-    handle_output(options,"Warning:\tUser needs to be specified appropriate rights in AWS IAM")
+    handle_output(options, "Warning:\tUser needs to be specified appropriate rights in AWS IAM")
     quit(options)
   end
-  return ec2,images
+  return ec2, images
 end
 
 # List AWS images
 
 def list_aws_images(options)
-  ec2,images = get_aws_images(options)
+  ec2, images = get_aws_images(options)
   images.each do |image|
     image_name = image.name
     image_id   = image.image_id
-    handle_output(options,"#{image_name} id=#{image_id}")
+    handle_output(options, "#{image_name} id=#{image_id}")
   end
   return
 end
@@ -745,26 +745,26 @@ end
 
 def get_aws_image(options)
   image_id   = "none"
-  ec2,images = get_aws_images(options)
+  ec2, images = get_aws_images(options)
   images.each do |image|
     image_name = image.image_location.split(/\//)[1]
     if image_name.match(/^#{options['name']}$/)
       image_id = image.image_id
-      return ec2,image_id
+      return ec2, image_id
     end
   end
-  return ec2,image_id
+  return ec2, image_id
 end
 
 # Delete AWS image
 
 def delete_aws_image(options)
-  ec2,image_id = get_aws_image(options)
+  ec2, image_id = get_aws_image(options)
   if image_id == "none"
-    handle_output(options,"Warning:\tNo AWS Image exists for '#{options['name']}'")
+    handle_output(options, "Warning:\tNo AWS Image exists for '#{options['name']}'")
     quit(options)  
   else
-    handle_output(options,"Information:\tDeleting Image ID #{image_id} for '#{options['name']}'")
+    handle_output(options, "Information:\tDeleting Image ID #{image_id} for '#{options['name']}'")
     ec2.deregister_image({ dry_run: false, image_id: image_id, })
   end
   return
@@ -774,7 +774,7 @@ end
 
 def check_aws_image_exists(options)
   exists     = false
-  ec2,images = get_aws_images(options)
+  ec2, images = get_aws_images(options)
   images.each do |image|
     if image.name.match(/^#{options['name']}/)
       exists = true
@@ -799,14 +799,14 @@ def check_vagrant_aws_is_installed()
   if not plugin_list.match(/aws/)
     message = "Information:\tInstalling Vagrant AWS Plugin"
     command = "vagrant plugin install vagrant-aws"
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   return
 end
 
 # Check vagrant is installed
 
-def check_vagrant_is_installed(options,osinfo)
+def check_vagrant_is_installed(options, osinfo)
   $vagrant_bin = %x[which vagrant].chomp
   if not $vagrant_bin.match(/vagrant/)
     if options['host-os-name'].to_s.match(/Darwin/)
@@ -823,24 +823,24 @@ def check_vagrant_is_installed(options,osinfo)
     end
     tmp_file = "/tmp/"+vagrant_pkg
     if not File.exist?(tmp_file)
-      wget_file(options,vagrant_url,tmp_file)
+      wget_file(options, vagrant_url, tmp_file)
     end
     if not File.directory?("/usr/local/bin") and not File.symlink?("/usr/local/bin")
       message = "Information:\tCreating /usr/local/bin"
       command = "mkdir /usr/local/bin"
-      execute_command(options,message,command)
+      execute_command(options, message, command)
     end
     if options['host-os-name'].to_s.match(/Darwin/)
       message = "Information:\tMounting Vagrant Image"
       command = "hdiutil attach #{vagrant_pkg}"
-      execute_command(options,message,command)
+      execute_command(options, message, command)
       message = "Information:\tInstalling Vagrant Image"
       command = "installer -package /Volumes/Vagrant/Vagrant.pkg -target /"
-      execute_command(options,message,command)
+      execute_command(options, message, command)
     else
       message = "Information:\tInstalling Vagrant"
     end
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   return
 end
@@ -856,7 +856,7 @@ def get_aws_creds(options)
       line = line.chomp
       if not line.match(/^#/)
         if line.match(/:/)
-          (options['access'],options['secret']) = line.split(/:/)
+          (options['access'], options['secret']) = line.split(/:/)
         end
         if line.match(/AWS_ACCESS_KEY|aws_access_key_id/)
           options['access'] = line.gsub(/export|AWS_ACCESS_KEY|aws_access_key_id|=|"|\s+/,"")
@@ -867,9 +867,9 @@ def get_aws_creds(options)
       end
     end
   else
-    handle_output(options,"Warning:\tCredentials file '#{options['creds']}' does not exist")
+    handle_output(options, "Warning:\tCredentials file '#{options['creds']}' does not exist")
   end
-  return options['access'],options['secret']
+  return options['access'], options['secret']
 end
 
 # Check AWS CLI is installed
@@ -877,9 +877,9 @@ end
 def check_if_aws_cli_is_installed()
   aws_cli = %x[which aws]
   if not aws_cli.match(/aws/)
-    handle_output(options,"Warning:\tAWS CLI not installed")
+    handle_output(options, "Warning:\tAWS CLI not installed")
     if options['host-os-name'].to_s.match(/Darwin/)
-      handle_output(options,"Information:\tInstalling AWS CLI")
+      handle_output(options, "Information:\tInstalling AWS CLI")
       brew_install("awscli")
     end
   end
@@ -891,14 +891,14 @@ end
 def create_aws_creds_file(options)
   creds_dir = File.dirname(options['creds'])
   if !options['access'].to_s.match(/[a-z]/) || !options['secret'].to_s.match(/[a-z]/)
-    handle_output(options,"Warning:\tNo access key or secret specified")
+    handle_output(options, "Warning:\tNo access key or secret specified")
     quit(options)
   end
   if not File.exist?(creds_dir)
-    check_dir_exists(options,creds_dir)
-    check_dir_owner(options,creds_dir,options['uid'])
+    check_dir_exists(options, creds_dir)
+    check_dir_owner(options, creds_dir, options['uid'])
   end
-  file = File.open(options['creds'],"w")
+  file = File.open(options['creds'], "w")
   file.write("[default]\n")
   file.write("aws_access_key_id = #{options['access']}\n")
   file.write("aws_secret_access_key = #{options['secret']}\n")
@@ -910,7 +910,7 @@ end
 
 def check_aws_key_pair_exists(options)
   exists = false
-  ec2,key_pairs = get_aws_key_pairs(options)
+  ec2, key_pairs = get_aws_key_pairs(options)
   key_pairs.each do |key_pair|
     key_name = key_pair.key_name
     if key_name.match(/^#{options['key']}$/)
@@ -936,28 +936,28 @@ end
 
 def create_aws_key_pair(options)
   aws_ssh_dir = options['home']+"/.ssh/aws"
-  check_my_dir_exists(options,aws_ssh_dir)
+  check_my_dir_exists(options, aws_ssh_dir)
   if options['nosuffix'] == false
     options['keyname'] = get_aws_uniq_name(options)
   end
   exists = check_aws_key_pair_exists(options)
   if exists == true
-    handle_output(options,"Warning:\tKey Pair '#{options['keyname']}' already exists")
+    handle_output(options, "Warning:\tKey Pair '#{options['keyname']}' already exists")
     if options['type'].to_s.match(/key/)
       quit(options)
     end
   else
-    handle_output(options,"Information:\tCreating Key Pair '#{options['keyname']}'")
+    handle_output(options, "Information:\tCreating Key Pair '#{options['keyname']}'")
     ec2      = initiate_aws_ec2_client(options)
     key_pair = ec2.create_key_pair({ key_name: options['keyname'] }).key_material
     key_file = aws_ssh_dir+"/"+options['keyname']+".pem"
-    handle_output(options,"Information:\tSaving Key Pair '#{options['keyname']}' to '#{key_file}'")
-    file = File.open(key_file,"w")
+    handle_output(options, "Information:\tSaving Key Pair '#{options['keyname']}' to '#{key_file}'")
+    file = File.open(key_file, "w")
     file.write(key_pair)
     file.close
     message = "Information:\tSetting permissions on '#{key_file}' to 600"
     command = "chmod 600 #{key_file}"
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   return options
 end
@@ -971,15 +971,15 @@ def delete_aws_key_pair(options)
   end
   exists = check_aws_key_pair_exists(options)
   if exists == false
-    handle_output(options,"Warning:\tAWS Key Pair '#{options['keyname']}' does not exist")
+    handle_output(options, "Warning:\tAWS Key Pair '#{options['keyname']}' does not exist")
     quit(options)
   else
-    handle_output(options,"Information:\tDeleting AWS Key Pair '#{options['keyname']}'")
+    handle_output(options, "Information:\tDeleting AWS Key Pair '#{options['keyname']}'")
     ec2      = initiate_aws_ec2_client(options)
     key_pair = ec2.delete_key_pair({ key_name: options['keyname'] })
     key_file = aws_ssh_dir+"/"+options['keyname']+".pem"
     if File.exist?(key_file)
-      handle_output(options,"Information:\tDeleting AWS Key Pair file '#{key_file}'")
+      handle_output(options, "Information:\tDeleting AWS Key Pair file '#{key_file}'")
       File.delete(key_file)
     end
   end
@@ -989,7 +989,7 @@ end
 # List AWS Key Pairs
 
 def list_aws_key_pairs(options)
-  ec2,key_pairs = get_aws_key_pairs(options)
+  ec2, key_pairs = get_aws_key_pairs(options)
   key_pairs.each do |key_pair|
     key_name = key_pair.key_name
     if options['key'].to_s.match(/[A-Z]|[a-z]|[0-9]/)

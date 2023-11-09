@@ -5,8 +5,8 @@
 def install_docker(options)
 	if options['host-os-name'].to_s.match(/Darwin/)
 		if not Dir.exist?("/Applications/Docker.app")
-			handle_output(options,"Information:\tDocker no installed")
-			handle_output(options,"Download:\thttps://docs.docker.com/docker-for-mac/")
+			handle_output(options, "Information:\tDocker no installed")
+			handle_output(options, "Download:\thttps://docs.docker.com/docker-for-mac/")
 			quit(options)
 		end
 	end
@@ -18,7 +18,7 @@ end
 def get_docker_image_list(options)
   message = "Information:\tListing docker images"
   command = "docker image list"
-  output  = execute_command(options,message,command)
+  output  = execute_command(options, message, command)
   images  = output.split(/\n/)
   return images
 end
@@ -28,7 +28,7 @@ end
 def get_docker_instance_list(options)
   message   = "Information:\tListing docker images"
   command   = "docker ps"
-  output    = execute_command(options,message,command)
+  output    = execute_command(options, message, command)
   instances = output.split(/\n/)
   return instances
 end
@@ -56,13 +56,13 @@ def delete_docker_image(options)
     options['id'] = get_docker_image_id_from_name(options)
   end
   if options['id']== options['empty']
-    handle_output(options,"Information:\tNo image found")
+    handle_output(options, "Information:\tNo image found")
     quit(options)
   end
   message   = "Information:\tListing docker images"
   command   = "docker image rm #{options['id']}"
-  output    = execute_command(options,message,command)
-  handle_output(options,output)
+  output    = execute_command(options, message, command)
+  handle_output(options, output)
   return
 end
 
@@ -133,7 +133,7 @@ def check_docker_vm_exists(options)
   exists  = false
   message = "Information:\tChecking docker instances for #{options['name']}"
   command = "docker-machine ls"
-  output  = execute_command(options,message,command)
+  output  = execute_command(options, message, command)
   output  = output.split(/\n/)
   output.each do |line|
     line  = line.chomp

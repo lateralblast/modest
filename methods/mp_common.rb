@@ -6,15 +6,15 @@ def check_multipass_is_installed(options)
   case options['host-os-name'].to_s
   when /Darwin/
     if !File.exist?("/usr/local/bin/multipass")
-      install_brew_pkg(options,"multipass")
+      install_brew_pkg(options, "multipass")
     end
   when /Linux/
     if !File.exist?("/snap/bin/multipass")
-      install_snap_pkg(options,"multipass")
+      install_snap_pkg(options, "multipass")
     end
   end
   if_name = get_vm_if_name(options)
-  check_multipass_hostonly_network(options,if_name)
+  check_multipass_hostonly_network(options, if_name)
   return
 end
 
@@ -24,29 +24,29 @@ def connect_to_multipass_vm(options)
   exists = check_multipass_vm_exists(options)
   if exists == true
     output = "Information:\tTo connect to Multipass VM #{options['name']}"
-    handle_output(options,output)
+    handle_output(options, output)
     output = "multipass shell #{options['name']}"
-    handle_output(options,output)
+    handle_output(options, output)
   else
-    handle_output(options,"Warning:\tMultipass VM #{options['name']} does not exist")
+    handle_output(options, "Warning:\tMultipass VM #{options['name']} does not exist")
   end
   return
 end
 
 # Check Multipass NATd
 
-def check_multipass_natd(options,vm_if_name)
+def check_multipass_natd(options, vm_if_name)
   if options['vmnetwork'].to_s.match(/hostonly/)
-    check_multipass_hostonly_network(options,if_name)
+    check_multipass_hostonly_network(options, if_name)
   end
   return options
 end
 
 # Check Multipass hostonly network
 
-def check_multipass_hostonly_network(options,if_name)
+def check_multipass_hostonly_network(options, if_name)
   gw_if_name = get_gw_if_name(options)
-  check_nat(options,gw_if_name,if_name)
+  check_nat(options, gw_if_name, if_name)
   return
 end
 
@@ -128,7 +128,7 @@ def multipass_post_install(options)
   exec_data.each do |shell_command| 
     exec_command = "multipass exec #{host_name} -- sudo sh -c \"#{shell_command}\""
     if options['nobuild'] == true
-      handle_output(options,exec_command)
+      handle_output(options, exec_command)
     else
       %x[#{exec_command}]
     end
@@ -150,12 +150,12 @@ def list_multipass_vms(options)
     command = "multipass list |grep -v ^Name"
   end
   message = "Informtion:\tGetting list of local Multipass instances"
-  output  = execute_command(options,message,command)
+  output  = execute_command(options, message, command)
   vm_list = output.split("\n")
-  handle_output(options,"Image:\t\t\tState:\t\t  IPv4:\t\t   Image")
+  handle_output(options, "Image:\t\t\tState:\t\t  IPv4:\t\t   Image")
   vm_list = output.split("\n")
   vm_list.each do |line|
-    handle_output(options,line)
+    handle_output(options, line)
   end
   return
 end
@@ -170,7 +170,7 @@ def get_multipass_iso_list(options)
     command = "multipass find |grep -v ^Image"
   end
   message  = "Informtion:\tGetting list of remote Multipass instances"
-  output   = execute_command(options,message,command)
+  output   = execute_command(options, message, command)
   iso_list = output.split("\n")
   return iso_list
 end
@@ -183,11 +183,11 @@ def get_multipass_service_from_release(options)
   if options['service'] == options['empty']
     message = "Information:\tDetermining service name"
     command = "multipass find |grep '^#{release}'"
-    output  = execute_command(options,message,command)
-    output  = output.chomp.gsub(/ LTS/,"")
+    output  = execute_command(options, message, command)
+    output  = output.chomp.gsub(/ LTS/, "")
   else
     if release.match(/^[0-9]/)
-      options['service'] = "ubuntu_"+release.gsub(/\./,"_")+"_"+machine
+      options['service'] = "ubuntu_"+release.gsub(/\./, "_")+"_"+machine
     end
   end
   return options
@@ -198,13 +198,13 @@ end
 def check_multipass_vm_exists(options)
   exists = false
   if options['name'] == options['empty']
-    handle_output(options,"Warning:\tNo client name specified")
+    handle_output(options, "Warning:\tNo client name specified")
     quit(options)
   end
   vm_name = options['name'].to_s
   message = "Information:\tChecking if VM #{vm_name} exists"
   command = "multipass list |grep #{vm_name}"
-  output  = execute_command(options,message,command)
+  output  = execute_command(options, message, command)
   if output.match(/#{vm_name}/)
     exists = true
   end
@@ -219,9 +219,9 @@ def execute_multipass_command(options)
 	if exists == true
     command = "multipass exec #{options['name']} -- bash -c \"#{command}\""
 		output  = %x[#{command}]
-		handle_output(options,output)
+		handle_output(options, output)
 	else
-		handle_output(options,"Information:\tMultipass instance #{options['name']} does not exist")
+		handle_output(options, "Information:\tMultipass instance #{options['name']} does not exist")
 	end
   return
 end
@@ -233,7 +233,7 @@ def configure_multipass_vm(options)
   vm_name = options['name'].to_s
   options = process_memory_value(options)
   if exists == true
-    handle_output(options,"Warning:\tMultipass VM #{vm_name} already exists")
+    handle_output(options, "Warning:\tMultipass VM #{vm_name} already exists")
     quit(options)
   else
     message = "Information:\tCreating Multipass VM #{vm_name}"
@@ -259,10 +259,10 @@ def configure_multipass_vm(options)
       command = command+" "+options['release'].to_s
     end
     if options['nobuild'] == false
-      execute_command(options,message,command)
+      execute_command(options, message, command)
     else
-      handle_output(options,"Build Command:")
-      handle_output(options,command)
+      handle_output(options, "Build Command:")
+      handle_output(options, command)
     end
   end
   options = multipass_post_install(options)
@@ -275,19 +275,19 @@ def get_multipass_vm_info(options)
   exists  = check_multipass_vm_exists(options)
   vm_name = options['name'].to_s
   if exists == true && !options['action'].to_s.match(/list/)
-    handle_output(options,"Warning:\tMultipass VM #{vm_name} already exists")
+    handle_output(options, "Warning:\tMultipass VM #{vm_name} already exists")
   else
     message = "Information:\Getting information for Multipass VM #{vm_name}"
     command = "multipass info #{vm_name}"
-    output  = execute_command(options,message,command)
+    output  = execute_command(options, message, command)
     lines   = output.split("\n")
     lines.each do |line|
       if options['search'] != options['empty']
         if line.downcase.match(/#{options['search'].to_s.downcase}/)
-          handle_output(options,line)
+          handle_output(options, line)
         end
       else
-        handle_output(options,line)
+        handle_output(options, line)
       end
     end
   end
@@ -307,9 +307,9 @@ def unconfigure_multipass_vm(options)
   if exists == true
     message = "Information:\tDeleting Mulipass VM #{vm_name}"
     command = "multipass delete #{vm_name}; multipass purge"
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   else
-    handle_output(options,"Warning:\tMultipass VM #{vm_name} does not exist")
+    handle_output(options, "Warning:\tMultipass VM #{vm_name} does not exist")
   end
   return
 end
@@ -322,7 +322,7 @@ def boot_multipass_vm(options)
   if exists == true
     message = "Information:\tStarting Mulipass VM #{vm_name}"
     command = "multipass start #{vm_name}"
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   else
     handle_output("Warning:\tMultipass VM #{vm_name} does not exist")
   end
@@ -337,7 +337,7 @@ def stop_multipass_vm(options)
   if exists == true
     message = "Information:\tStopping Mulipass VM #{vm_name}"
     command = "multipass stop #{vm_name}"
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   else
     handle_output("Warning:\tMultipass VM #{vm_name} does not exist")
   end

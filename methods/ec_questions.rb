@@ -2,7 +2,7 @@
 
 # Populate AWS questions
 
-def populate_aws_questions(options,user_data_file)
+def populate_aws_questions(options, user_data_file)
   # options['q_struct'] = {}
   # options['q_order']  = []
 

@@ -4,10 +4,10 @@
 def process_questions(options)
   options['q_order'].each do |key|
     if options['verbose'] == true
-      handle_output(options,"Information:\tProcessing value for #{key}")
+      handle_output(options, "Information:\tProcessing value for #{key}")
     end
     if options['q_struct'][key].value == nil 
-      handle_output(options,"Warning:\tValue for #{key} is NULL")
+      handle_output(options, "Warning:\tValue for #{key} is NULL")
       quit(options)
     end
     correct = false
@@ -24,20 +24,20 @@ def process_questions(options)
           answer = $stdin.gets.chomp
         else
           answer = options['q_struct'][key].value
-          evaluate_answer(key,answer,options)
+          evaluate_answer(key, answer, options)
           correct = true
         end
         if answer != ""
           if answer != options['q_struct'][key].value
             if options['q_struct'][key].valid.match(/[a-z,A-Z,0-9]/)
               if options['q_struct'][key].valid.match(/#{answer}/)
-                correct = evaluate_answer(key,answer)
+                correct = evaluate_answer(key, answer)
                 if correct == true
                   options['q_struct'][key].value = answer
                 end
               end
             else
-              correct = evaluate_answer(key,answer,options)
+              correct = evaluate_answer(key, answer, options)
               if correct == true
                 options['q_struct'][key].value = answer
               end
@@ -49,7 +49,7 @@ def process_questions(options)
           end
         else
           answer = options['q_struct'][key].value
-          correct = evaluate_answer(key,answer,options)
+          correct = evaluate_answer(key, answer, options)
           correct = true
         end
       end
@@ -66,7 +66,7 @@ end
 
 # Code to check answers
 
-def evaluate_answer(key,answer,options)
+def evaluate_answer(key, answer, options)
   correct = false
   if options['q_struct'][key].eval != "no"
     new_value = options['q_struct'][key].eval
@@ -91,7 +91,7 @@ def evaluate_answer(key,answer,options)
   end
   answer = answer.to_s
   if options['verbose'] == true
-    handle_output(options,"Information:\tSetting parameter #{key} to #{answer}")
+    handle_output(options, "Information:\tSetting parameter #{key} to #{answer}")
   end
   return correct
 end

@@ -87,8 +87,8 @@ def create_ansible_aws_yaml(options)
   hosts_data.push("---\n")
   hosts_data.push("[local]\n")
   hosts_data.push("localhost\n")
-  write_array_to_file(options,prov_data,prov_file,"w")
-  write_array_to_file(options,hosts_data,hosts_file,"w")
+  write_array_to_file(options, prov_data, prov_file, "w")
+  write_array_to_file(options, hosts_data, hosts_file, "w")
   [ prov_file, hosts_file ].each do |file_name|
     check_file_owner(options,file_name, uid)
   end

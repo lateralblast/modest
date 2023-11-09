@@ -5,9 +5,9 @@
 def check_gdom_is_running(options)
   message = "Information:\tChecking Guest Domain "+options['name']+" is running"
   command = "ldm list-bindings #{options['name']} |grep '^#{options['name']}'"
-  output  = execute_command(options,message,command)
+  output  = execute_command(options, message, command)
   if not output.match(/active/)
-    handle_output(options,"Warning:\tGuest Domain #{options['name']} is not running")
+    handle_output(options, "Warning:\tGuest Domain #{options['name']} is not running")
     quit(options)
   end
   return
@@ -18,9 +18,9 @@ end
 def check_gdom_isnt_running(options)
   message = "Information:\tChecking Guest Domain "+options['name']+" is running"
   command = "ldm list-bindings #{options['name']} |grep '^#{options['name']}'"
-  output  = execute_command(options,message,command)
+  output  = execute_command(options, message, command)
   if output.match(/active/)
-    handle_output(options,"Warning:\tGuest Domain #{options['name']} is already running")
+    handle_output(options, "Warning:\tGuest Domain #{options['name']} is already running")
     quit(options)
   end
   return
@@ -31,7 +31,7 @@ end
 def get_gdom_mac(options)
   message = "Information:\tGetting guest domain "+options['name']+" MAC address"
   command = "ldm list-bindings #{options['name']} |grep '#{options['vmnic']}' |awk '{print $5}'"
-  output  = execute_command(options,message,command)
+  output  = execute_command(options, message, command)
   options['mac'] = output.chomp
   return options['mac']
 end
@@ -44,26 +44,26 @@ def list_gdoms(options)
       if options['host-os-uname'].match(/sun4v/)
         ldom_type    = "Guest Domain"
         ldom_command = "ldm list |grep -v NAME |grep -v primary |awk '{print $1}'"
-        list_doms(ldom_type,ldom_command)
+        list_doms(ldom_type, ldom_command)
       else
         if options['verbose'] == true
-          handle_output(options,"") 
-          handle_output(options,"Warning:\tThis service is only available on the Sun4v platform")
-          handle_output(options,"") 
+          handle_output(options, "") 
+          handle_output(options, "Warning:\tThis service is only available on the Sun4v platform")
+          handle_output(options, "") 
         end
       end
     else
       if options['verbose'] == true
-        handle_output(options,"") 
-        handle_output(options,"Warning:\tThis service is only available on Solaris 10 or later")
-        handle_output(options,"") 
+        handle_output(options, "") 
+        handle_output(options, "Warning:\tThis service is only available on Solaris 10 or later")
+        handle_output(options, "") 
       end
     end
   else
     if options['verbose'] == true
-      handle_output(options,"") 
-      handle_output(options,"Warning:\tThis service is only available on Solaris")
-      handle_output(options,"") 
+      handle_output(options, "") 
+      handle_output(options, "Warning:\tThis service is only available on Solaris")
+      handle_output(options, "") 
     end
   end
   return
@@ -90,16 +90,16 @@ def create_gdom_disk(options)
     if not File.exist?(client_disk)
       message = "Information:\tCreating guest domain disk "+client_disk+" for client "+options['name']
       command = "mkfile -n #{disk_size} #{client_disk}"
-      output = execute_command(options,message,command)
+      output = execute_command(options, message, command)
     end
   end
   message = "Information:\tChecking Virtual Disk Server device doesn't already exist"
   command = "ldm list-services |grep 'primary-vds0' |grep '#{vds_disk}'"
-  output = execute_command(options,message,command)
+  output = execute_command(options, message, command)
   if not output.match(/#{options['name']}/)
     message = "Information:\tAdding disk device to Virtual Disk Server"
     command = "ldm add-vdsdev #{client_disk} #{vds_disk}@primary-vds0"
-    output = execute_command(options,message,command)
+    output = execute_command(options, message, command)
   end
   return
 end
@@ -109,9 +109,9 @@ end
 def check_gdom_doesnt_exist(options)
   message = "Information:\tChecking guest domain "+options['name']+" doesn't exist"
   command = "ldm list |grep #{options['name']}"
-  output  = execute_command(options,message,command)
+  output  = execute_command(options, message, command)
   if output.match(/#{options['name']}/)
-    handle_output(options,"Warning:\tGuest domain #{options['name']} already exists")
+    handle_output(options, "Warning:\tGuest domain #{options['name']} already exists")
     quit(options)
   end
   return
@@ -122,9 +122,9 @@ end
 def check_gdom_exists(options)
   message = "Information:\tChecking guest domain "+options['name']+" exist"
   command = "ldm list |grep #{options['name']}"
-  output  = execute_command(options,message,command)
+  output  = execute_command(options, message, command)
   if not output.match(/#{options['name']}/)
-    handle_output(options,"Warning:\tGuest domain #{options['name']} doesn't exist")
+    handle_output(options, "Warning:\tGuest domain #{options['name']} doesn't exist")
     quit(options)
   end
   return
@@ -135,7 +135,7 @@ end
 def start_gdom(options)
   message = "Information:\tStarting guest domain "+options['name']
   command = "ldm start-domain #{options['name']}"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
@@ -144,7 +144,7 @@ end
 def stop_gdom(options)
   message = "Information:\tStopping guest domain "+options['name']
   command = "ldm stop-domain #{options['name']}"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
@@ -153,7 +153,7 @@ end
 def bind_gdom(options)
   message = "Information:\tBinding guest domain "+options['name']
   command = "ldm bind-domain #{options['name']}"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
@@ -162,7 +162,7 @@ end
 def unbind_gdom(options)
   message = "Information:\tUnbinding guest domain "+options['name']
   command = "ldm unbind-domain #{options['name']}"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
@@ -171,7 +171,7 @@ end
 def remove_gdom(options)
   message = "Information:\tRemoving guest domain "+options['name']
   command = "ldm remove-domain #{options['name']}"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
@@ -181,7 +181,7 @@ def remove_gdom_disk(options)
   vds_disk = options['name']+"_vdisk0"
   message = "Information:\tRemoving disk "+vds_disk+" from Virtual Disk Server"
   command = "ldm remove-vdisk #{vds_disk} #{options['name']}"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
@@ -192,7 +192,7 @@ def delete_gdom_disk(options)
   client_disk = gdom_dir+"/vdisk0"
   message = "Information:\tRemoving disk "+client_disk
   command = "rm #{client_disk}"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
@@ -212,19 +212,19 @@ def create_gdom(options)
   vds_disk = options['name']+"_vdisk0"
   message  = "Information:\tCreating guest domain "+options['name']
   command  = "ldm add-domain #{options['name']}"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   message = "Information:\tAdding vCPUs to Guest domain "+options['name']
   command = "ldm add-vcpu #{vcpu} #{options['name']}"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   message = "Information:\tAdding memory to Guest domain "+options['name']
   command = "ldm add-memory #{memory} #{options['name']}"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   message = "Information:\tAdding network to Guest domain "+options['name']
   command = "ldm add-vnet #{options['vmnic']} primary-vsw0 #{options['name']}"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   message = "Information:\tAdding isk to Guest domain "+options['name']
   command = "ldm add-vdisk vdisk0 #{vds_disk}@primary-vds0 #{options['name']}"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
@@ -235,17 +235,17 @@ def configure_gdom(options)
   check_dpool()
   check_gdom_doesnt_exist(options)
   if not File.directory?($ldom_base_dir)
-    check_fs_exists(options,$ldom_base_dir)
+    check_fs_exists(options, $ldom_base_dir)
     message = "Information:\tSetting mount point for "+$ldom_base_dir
     command = "zfs set mountpoint=#{$ldom_base_dir} #{options['zpoolname']}#{$ldom_base_dir}"
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   gdom_dir = $ldom_base_dir+"/"+options['name']
   if not File.directory?(gdom_dir)
-    check_fs_exists(options,gdom_dir)
+    check_fs_exists(options, gdom_dir)
     message = "Information:\tSetting mount point for "+gdom_dir
     command = "zfs set mountpoint=#{gdom_dir} #{options['zpoolname']}#{gdom_dir}"
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   options = populate_gdom_questions(options)
   process_questions(options)
@@ -303,7 +303,7 @@ end
 def get_gdom_console_port(options)
   message  = "Information:\tDetermining Virtual Console Port for Guest Domain "+options['name']
   command  = "ldm list-bindings #{options['name']} |grep vcc |awk '{print $3}'"
-  vcc_port = execute_command(options,message,command)
+  vcc_port = execute_command(options, message, command)
   return vcc_port
 end
 
@@ -316,11 +316,11 @@ def connect_to_gdom_console(options)
   check_gdom_is_running(options)
   vcc_port = get_gdom_console_port(options)
   vcc_port = vcc_port.chomp
-  handle_output(options,"") 
-  handle_output(options,"To connect to console of Guest Domain #{options['name']} type the following command: ")
-  handle_output(options,"") 
-  handle_output(options,"telnet localhost #{vcc_port}")
-  handle_output(options,"") 
+  handle_output(options, "") 
+  handle_output(options, "To connect to console of Guest Domain #{options['name']} type the following command: ")
+  handle_output(options, "") 
+  handle_output(options, "telnet localhost #{vcc_port}")
+  handle_output(options, "") 
   return
 end
 
@@ -333,7 +333,7 @@ def set_gdom_value(options)
     options['param'] = "auto-boot\?"
   end
   command = "ldm set-variable #{options['param']}=#{options['value']} #{options['name']}"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 

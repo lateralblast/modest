@@ -68,7 +68,7 @@ def get_js_mirror_disk_id(options)
   else
     root_disk_id = options['q_struct']['root_disk_id'].value
     if not root_disk_id.match(/any/)
-      mirror_controller_id = root_disk_id.split(/t/)[0].gsub(/^c/,"")
+      mirror_controller_id = root_disk_id.split(/t/)[0].gsub(/^c/, "")
       mirror_target_id     = root_disk_id.split(/t/)[1].split(/d/)[0]
       mirror_disk_id       = root_disk_id.split(/d/)[1]
       system_model         = options['q_struct']['system_model'].value.downcase
@@ -127,7 +127,7 @@ end
 def set_js_fs(options)
   fs_name = ""
   if options['q_struct']['root_fs'].value.downcase.match(/zfs/)
-    ['memory_size","disk_size","swap_size","root_metadb","mirror_metadb","metadb_size","metadb_count'].each do |key|
+    ['memory_size", "disk_size", "swap_size", "root_metadb", "mirror_metadb", "metadb_size", "metadb_count'].each do |key|
       if options['q_struct'][key]
         options['q_struct'][key].ask  = "no"
         options['q_struct'][key].type = ""
@@ -136,7 +136,7 @@ def set_js_fs(options)
   else
     options['q_struct']['zfs_layout'].ask  = "no"
     options['q_struct']['zfs_bootenv'].ask = "no"
-    (f_struct,f_order) = populate_js_fs_list(options)
+    (f_struct, f_order) = populate_js_fs_list(options)
     f_struct = ""
     f_order.each do |fs_name|
       key                 = fs_name+"_filesys"
@@ -201,7 +201,7 @@ end
 
 # Get UFS filesys entries
 
-def get_js_ufs_filesys(options,fs_mount,fs_slice,fs_mirror,fs_size)
+def get_js_ufs_filesys(options, fs_mount, fs_slice, fs_mirror, fs_size)
   if options['q_struct']['mirror_disk'].value.match(/no/)
     if options['q_struct']['root_disk_id'].value.match(/any/)
       filesys_entry = options['q_struct']['root_disk_id'].value+" "+fs_size+" "+fs_mount
@@ -214,16 +214,16 @@ def get_js_ufs_filesys(options,fs_mount,fs_slice,fs_mirror,fs_size)
   return filesys_entry
 end
 
-def get_js_filesys(options,fs_name)
+def get_js_filesys(options, fs_name)
   if not options['q_struct']['root_fs'].value.downcase.match(/zfs/)
-    (f_struct,f_order) = populate_js_fs_list(options)
+    (f_struct, f_order) = populate_js_fs_list(options)
     f_order            = ""
     fs_mount           = f_struct[fs_name].mount
     fs_slice           = f_struct[fs_name].slice
     key_name           = fs_name+"_size"
     fs_size            = options['q_struct'][key_name].value
     fs_mirror          = f_struct[fs_name].mirror
-    filesys_entry      = get_js_ufs_filesys(fs_mount,fs_slice,fs_mirror,fs_size)
+    filesys_entry      = get_js_ufs_filesys(fs_mount, fs_slice, fs_mirror, fs_size)
   end
   return filesys_entry
 end
@@ -268,7 +268,7 @@ end
 
 # Set password crypt
 
-def set_js_password_crypt(options,answer)
+def set_js_password_crypt(options, answer)
   password_crypt = get_password_crypt(answer)
   options['q_struct']['root_crypt'].value = password_crypt
   return options

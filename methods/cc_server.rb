@@ -5,7 +5,7 @@
 
 def configure_cc_server(options)
   search_string = "live"
-  configure_linux_server(options,search_string)
+  configure_linux_server(options, search_string)
   return
 end
 
@@ -15,11 +15,11 @@ def list_cc_services(options)
   options['method'] = "ci"
   dir_list = get_dir_item_list(options)
   message  = "Ubuntu Subiquity or Cloud Config/Init Services:"
-  handle_output(options,message)
+  handle_output(options, message)
   dir_list.each do |service|
-    handle_output(options,service)
+    handle_output(options, service)
   end
-  handle_output(options,"")
+  handle_output(options, "")
   return
 end
 

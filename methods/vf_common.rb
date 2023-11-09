@@ -1452,7 +1452,7 @@ def check_fusion_is_installed(options)
     if !File.directory?(app_dir)
       app_dir = "/Applications/VMware Fusion Tech Preview.app"
       if !File.directory?(app_dir)
-        handle_output(options,"Warning:\tVMware Fusion not installed")
+        handle_output(options, "Warning:\tVMware Fusion not installed")
         quit(options)
       end
     end
@@ -1460,7 +1460,7 @@ def check_fusion_is_installed(options)
     options['vmapp'] = "VMware Workstation"
     options['vmrun'] = %x[which vmrun].chomp
     if !options['vmrun'].to_s.match(/vmrun/) && !options['vmrun'].to_s.match(/no vmrun/)
-      handle_output(options,"Warning:\t#{options['vmapp']} not installed")
+      handle_output(options, "Warning:\t#{options['vmapp']} not installed")
       quit(options)
     end
   end
@@ -1469,9 +1469,9 @@ end
 
 # check VMware Fusion NAT
 
-def check_fusion_natd(options,if_name)
+def check_fusion_natd(options, if_name)
   if options['vmnetwork'].to_s.match(/hostonly/)
-    check_fusion_hostonly_network(options,if_name)
+    check_fusion_hostonly_network(options, if_name)
   end
   return options
 end
@@ -1491,14 +1491,14 @@ def unconfigure_fusion_vm(options)
     fusion_vmx_file = fusion_vm_dir+"/"+options['name']+".vmx"
     message         = "Deleting:\t#{options['vmapp']} VM "+options['name']
     command         = "'#{options['vmrun']}' -T fusion deleteVM '#{fusion_vmx_file}'"
-    execute_command(options,message,command)
+    execute_command(options, message, command)
     vm_dir   = options['name']+".vmwarevm"
     message  = "Removing:\t#{options['vmapp']} VM "+options['name']+" directory"
     command  = "cd \"#{options['fusiondir']}\" ; rm -rf \"#{vm_dir}\""
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   else
     if options['verbose'] == true
-      handle_output(options,"Warning:\t#{options['vmapp']} VM #{options['name']} does not exist")
+      handle_output(options, "Warning:\t#{options['vmapp']} VM #{options['name']} does not exist")
     end
   end
   return
@@ -1506,25 +1506,25 @@ end
 
 # Create VMware Fusion VM vmx file
 
-def create_fusion_vm_vmx_file(options,fusion_vmx_file)
+def create_fusion_vm_vmx_file(options, fusion_vmx_file)
   if options['os-type'] == options['empty']
     options['os-type'] = get_fusion_guest_os(options)
   end
-  options,vmx_info = populate_fusion_vm_vmx_info(options)
+  options, vmx_info = populate_fusion_vm_vmx_info(options)
   if not fusion_vmx_file.match(/\/packer\//)
-    fusion_vm_dir,fusion_vmx_file,fusion_disk_file = check_fusion_vm_doesnt_exist(options)
+    fusion_vm_dir, fusion_vmx_file, fusion_disk_file = check_fusion_vm_doesnt_exist(options)
   else
     fusion_vm_dir = File.dirname(fusion_vmx_file)
   end
-  file = File.open(fusion_vmx_file,"w")
+  file = File.open(fusion_vmx_file, "w")
   if options['verbose'] == true
-    handle_output(options,"Information:\tChecking Fusion VMX configuration directory")
+    handle_output(options, "Information:\tChecking Fusion VMX configuration directory")
   end
-  check_dir_exists(options,fusion_vm_dir)
+  check_dir_exists(options, fusion_vm_dir)
   uid = options['uid']
-  check_dir_owner(options,fusion_vm_dir,uid)
+  check_dir_owner(options, fusion_vm_dir, uid)
   vmx_info.each do |vmx_line|
-    (vmx_param,vmx_value) = vmx_line.split(/\,/)
+    (vmx_param, vmx_value) = vmx_line.split(/\,/)
     if not vmx_value
       vmx_value = ""
     end
@@ -1532,28 +1532,28 @@ def create_fusion_vm_vmx_file(options,fusion_vmx_file)
     file.write(output)
   end
   file.close
-  print_contents_of_file(options,"",fusion_vmx_file)
+  print_contents_of_file(options, "", fusion_vmx_file)
   return options
 end
 
 # Create ESX VM vmx file
 
-def create_fusion_vm_esx_file(options,local_vmx_file,fixed_vmx_file)
-  fusion_vm_dir,fusion_vmx_file,fusion_disk_file = check_fusion_vm_doesnt_exist(options)
+def create_fusion_vm_esx_file(options, local_vmx_file, fixed_vmx_file)
+  fusion_vm_dir, fusion_vmx_file, fusion_disk_file = check_fusion_vm_doesnt_exist(options)
   if options['verbose'] == true
-    handle_output(options,"Information:\tChecking Fusion ESX configuration directory")
+    handle_output(options, "Information:\tChecking Fusion ESX configuration directory")
   end
-  check_dir_exists(options,fusion_vm_dir)
+  check_dir_exists(options, fusion_vm_dir)
   uid = options['uid']
-  check_dir_owner(options,fusion_vm_dir,uid)
+  check_dir_owner(options, fusion_vm_dir, uid)
   vmx_info = []
   old_vmx_info = File.readlines(local_vmx_file)
   old_vmx_info.each do |line|
     vmx_line = line.chomp()
-    (vmx_param,vmx_value) = vmx_line.split(/\=/)
-    vmx_param = vmx_param.gsub(/\s+/,"")
-    vmx_value = vmx_value.gsub(/^\s+/,"")
-    vmx_value = vmx_value.gsub(/"/,"")
+    (vmx_param, vmx_value) = vmx_line.split(/\=/)
+    vmx_param = vmx_param.gsub(/\s+/, "")
+    vmx_value = vmx_value.gsub(/^\s+/, "")
+    vmx_value = vmx_value.gsub(/"/, "")
     vmx_line  = vmx_param+","+vmx_value
     case vmx_line
     when /virtualHW\.version/
@@ -1564,9 +1564,9 @@ def create_fusion_vm_esx_file(options,local_vmx_file,fixed_vmx_file)
       end
     end
   end
-  file = File.open(fixed_vmx_file,"w")
+  file = File.open(fixed_vmx_file, "w")
   vmx_info.each do |vmx_line|
-    (vmx_param,vmx_value) = vmx_line.split(/\,/)
+    (vmx_param, vmx_value) = vmx_line.split(/\,/)
     if not vmx_value
       vmx_value = ""
     end
@@ -1574,32 +1574,32 @@ def create_fusion_vm_esx_file(options,local_vmx_file,fixed_vmx_file)
     file.write(output)
   end
   file.close
-  print_contents_of_file(options,"",fixed_vmx_file)
+  print_contents_of_file(options, "", fixed_vmx_file)
   return
 end
 
 # Configure a VMware Fusion VM
 
 def configure_fusion_vm(options)
-  (fusion_vm_dir,fusion_vmx_file,fusion_disk_file) = check_fusion_vm_doesnt_exist(options)
+  (fusion_vm_dir, fusion_vmx_file, fusion_disk_file) = check_fusion_vm_doesnt_exist(options)
   if options['verbose'] == true
-    handle_output(options,"Information:\tChecking Fusion VM configuration directory")
+    handle_output(options, "Information:\tChecking Fusion VM configuration directory")
   end
-  check_dir_exists(options,fusion_vm_dir)
+  check_dir_exists(options, fusion_vm_dir)
   uid = options['uid']
-  check_dir_owner(options,fusion_vm_dir,uid)
+  check_dir_owner(options, fusion_vm_dir, uid)
   if not options['mac'].to_s.match(/[0-9]/)
     options['vm']  = "fusion"
     options['mac'] = generate_mac_address(options['vm'])
   end
-  options = create_fusion_vm_vmx_file(options,fusion_vmx_file)
+  options = create_fusion_vm_vmx_file(options, fusion_vmx_file)
   if not options['file'].to_s.match(/ova$/)
-    create_fusion_vm_disk(options,fusion_vm_dir,fusion_disk_file)
-    check_file_owner(options,fusion_disk_file,options['uid'])
+    create_fusion_vm_disk(options, fusion_vm_dir, fusion_disk_file)
+    check_file_owner(options, fusion_disk_file, options['uid'])
   end
-  handle_output(options,"")
-  handle_output(options,"Information:\tClient:     #{options['name']} created with MAC address #{options['mac']}")
-  handle_output(options,"")
+  handle_output(options, "")
+  handle_output(options, "Information:\tClient:     #{options['name']} created with MAC address #{options['mac']}")
+  handle_output(options, "")
   return options
 end
 
@@ -1622,7 +1622,7 @@ def populate_fusion_vm_vmx_info(options)
 #    guest_os = options['os-type'].to_s
   end
   if options['uuid'] == options['empty'] or !options['uuid'].to_s.match(/[0-9]/)
-    options['uuid'] = options['mac'].to_s.downcase.gsub(/\:/," ")+" 00 00-00 00 "+options['mac'].to_s.downcase.gsub(/\:/," ")
+    options['uuid'] = options['mac'].to_s.downcase.gsub(/\:/, " ")+" 00 00-00 00 "+options['mac'].to_s.downcase.gsub(/\:/, " ")
   end
   version  = options['hwversion'].to_s
   version  = version.to_i
@@ -1905,5 +1905,5 @@ def populate_fusion_vm_vmx_info(options)
 #    vmx_info.push("signal.powerOffOnTERM,TRUE")
   end
   vmx_info.push("vmxstats.filename,#{options['name']}.scoreboard")
-  return options,vmx_info
+  return options, vmx_info
 end

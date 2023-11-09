@@ -13,7 +13,7 @@ def configure_ay_server(options)
       search_string = "SLE"
     end
   end
-  configure_linux_server(options,search_string)
+  configure_linux_server(options, search_string)
   return
 end
 
@@ -23,11 +23,11 @@ def list_ay_services(options)
   options['method'] = "ay"
   dir_list = get_dir_item_list(options)
   message  = "AutoYast Services:"
-  handle_output(options,message)
+  handle_output(options, message)
   dir_list.each do |service|
-    handle_output(options,service)
+    handle_output(options, service)
   end
-  handle_output(options,"")
+  handle_output(options, "")
   return
 end
 

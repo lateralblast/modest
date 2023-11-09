@@ -40,7 +40,7 @@ def create_packer_json(options)
   disk_interface    = options['diskinterface'].to_s
   net_device        = options['netdevice'].to_s
   guest_os_type     = options['guest'].to_s
-  disk_size         = options['size'].to_s.gsub(/G/,"000")
+  disk_size         = options['size'].to_s.gsub(/G/, "000")
   natpf_ssh_rule    = ""
   ssh_host_port_min = options['sshportmin'].to_s
   ssh_host_port_max = options['sshportmax'].to_s
@@ -58,6 +58,7 @@ def create_packer_json(options)
   numvcpus          = options['vcpus'].to_s
   mac_address       = options['mac'].to_s
   usb               = options['usb'].to_s
+  usb_xhci_present   = options['usbxhci'].to_s
   disk_adapter_type = options['diskinterface'].to_s
   if options['vm'].to_s.match(/fusion/)
     if hw_version.to_i >= 20
@@ -101,7 +102,7 @@ def create_packer_json(options)
     FileUtils.rm_rf(image_dir)
   end
   json_file = packer_dir+"/"+options['vm']+"/"+options['name']+"/"+options['name']+".json"
-  check_dir_exists(options,options['clientdir'])
+  check_dir_exists(options, options['clientdir'])
   if !options['service'].to_s.match(/purity/)
     headless_mode = options['q_struct']['headless_mode'].value
   end
@@ -119,10 +120,18 @@ def create_packer_json(options)
   end
   if options['vmnetwork'].to_s.match(/hostonly/)
     if options['httpbindaddress'] != options['empty']
-      ks_ip = options['httpbindaddress']
+      if options['vn'].to_s.match(/fusion/)
+        ks_ip = options['vmgateway']
+      else
+        ks_ip = options['httpbindaddress']
+      end
     else
       if options['host-os-name'].to_s.match(/Darwin/) && options['host-os-version'].to_i > 10 
-        ks_ip = options['hostip']
+        if options['vm'].to_s.match(/fusion/)
+          ks_ip = options['vmgateway']
+        else
+          ks_ip = options['hostip']
+        end
       else
         ks_ip = options['vmgateway']
       end
@@ -206,7 +215,6 @@ def create_packer_json(options)
     nic_command3 = "--bridgeadapter1"
     nic_config3  = "#{nic_name}"
   end
-  options['size'] = options['size'].gsub(/G/,"000")
   if options['service'].to_s.match(/el_8|centos_8/)
     virtual_dev = "pvscsi"
   end
@@ -248,6 +256,7 @@ def create_packer_json(options)
       ssh_com = ""
     end
   end
+  options['size'] = options['size'].gsub(/G/, "000")
   case options['service'].to_s
   when /win/
     if options['vmtools'] == true
@@ -560,12 +569,12 @@ def create_packer_json(options)
     script_url        = "http://"+options['vmgateway']+":8888/"+options['vm']+"/"+options['name']+"/setup.sh"
     script_file       = packer_dir+"/"+options['vm']+"/"+options['name']+"/setup.sh"
     if !File.exist?(options['setup'])
-      handle_output(options,"Warning:\tSetup script '#{options['setup']}' not found")
+      handle_output(options, "Warning:\tSetup script '#{options['setup']}' not found")
       quit(options)
     else
       message = "Information:\tCopying '#{options['setup']}' to '#{script_file}'"
       command = "cp '#{options['setup']}' '#{script_file}'"
-      execute_command(options,message,command)
+      execute_command(options, message, command)
       user = %x[cat '#{script_file}' |grep Username |awk '{print $3}'].chomp
       pass = %x[cat '#{script_file}' |grep Password |awk '{print $3}'].chomp
     end
@@ -702,7 +711,15 @@ def create_packer_json(options)
           ks_ip = options['hostonlyip'].to_s
         end
       else
-        ks_ip = options['hostip'].to_s
+        if options['host-os-name'].to_s.match(/Darwin/) && options['host-os-version'].to_i > 10 
+          if options['vmnetwork'].to_s.match(/hostonly/)
+            ks_ip = options['vmgateway'].to_s
+          else
+            ks_ip = options['hostip'].to_s
+          end
+        else
+          ks_ip = options['hostip'].to_s
+        end
       end
     end
     ks_file = options['vm']+"/"+options['name']+"/"+options['name']+".cfg"
@@ -727,7 +744,7 @@ def create_packer_json(options)
         boot_footer  = ""
       end
       if options['biosdevnames'] == true
-#        boot_header = boot_header+"net.ifnames=0 biosdevname=0 "
+        boot_header = boot_header+"net.ifnames=0 biosdevname=0 "
       end
       if options['release'].to_i >= 20
         boot_command = boot_header+
@@ -856,11 +873,11 @@ def create_packer_json(options)
       shutdown_command = "sudo /usr/sbin/shutdown -P now"
     end
   end
-	controller = controller.gsub(/sas/,"scsi")
+	controller = controller.gsub(/sas/, "scsi")
 	case options['vm']
 	when /vbox|virtualbox/
 		vm_type = "virtualbox-iso"
-    mac_address = mac_address.gsub(/:/,"")
+    mac_address = mac_address.gsub(/:/, "")
 	when /fusion|vmware/
 		vm_type = "vmware-iso"
   when /parallels/
@@ -891,8 +908,8 @@ def create_packer_json(options)
   end
   bridge_nic = get_vm_if_name(options)
   if options['service'].to_s.match(/windows/) and options['vm'].to_s.match(/vbox/) and options['vmnetwork'].to_s.match(/hostonly|bridged/)
-    handle_output(options,"Warning:\tPacker with Windows and VirtualBox only works on a NAT network (Packer issue)")
-    handle_output(options,"Information:\tUse the --network=nat option")
+    handle_output(options, "Warning:\tPacker with Windows and VirtualBox only works on a NAT network (Packer issue)")
+    handle_output(options, "Information:\tUse the --network=nat option")
     quit(options)
   end
   if !options['guest'] || options['guest'] = options['empty']
@@ -1032,6 +1049,7 @@ def create_packer_json(options)
             :tools_upload_path    => tools_upload_path,
             :vmx_data => {
               :"virtualHW.version"                => hw_version,
+              :"usb_xhci.present"                 => usb_xhci_present,
               :"RemoteDisplay.vnc.enabled"        => vnc_enabled,
               :memsize                            => memsize,
               :numvcpus                           => numvcpus,
@@ -1078,6 +1096,7 @@ def create_packer_json(options)
             :tools_upload_path    => tools_upload_path,
             :vmx_data => {
               :"virtualHW.version"                => hw_version,
+              :"usb_xhci.present"                 => usb_xhci_present,
               :"RemoteDisplay.vnc.enabled"        => vnc_enabled,
               :memsize                            => memsize,
               :numvcpus                           => numvcpus,
@@ -1354,6 +1373,7 @@ def create_packer_json(options)
           :tools_upload_path    => tools_upload_path,
           :vmx_data => {
             :"virtualHW.version"                => hw_version,
+            :"usb_xhci.present"                 => usb_xhci_present,
             :"RemoteDisplay.vnc.enabled"        => vnc_enabled,
             :memsize                            => memsize,
             :numvcpus                           => numvcpus,
@@ -1751,6 +1771,7 @@ def create_packer_json(options)
             ],
             :vmx_data => {
               :"virtualHW.version"                => hw_version,
+              :"usb_xhci.present"                 => usb_xhci_present,
               :"RemoteDisplay.vnc.enabled"        => vnc_enabled,
               :memsize                            => memsize,
               :numvcpus                           => numvcpus,
@@ -1803,6 +1824,7 @@ def create_packer_json(options)
             ],
             :vmx_data => {
               :"virtualHW.version"                => hw_version,
+              :"usb_xhci.present"                 => usb_xhci_present,
               :"RemoteDisplay.vnc.enabled"        => vnc_enabled,
               :memsize                            => memsize,
               :numvcpus                           => numvcpus,
@@ -1958,6 +1980,7 @@ def create_packer_json(options)
             ],
             :vmx_data => {
               :"virtualHW.version"                => hw_version,
+              :"usb_xhci.present"                 => usb_xhci_present,
               :"RemoteDisplay.vnc.enabled"        => vnc_enabled,
               :"RemoteDisplay.vnc.port"           => vnc_port_min,
               :memsize                            => memsize,
@@ -2011,6 +2034,7 @@ def create_packer_json(options)
             ],
             :vmx_data => {
               :"virtualHW.version"                => hw_version,
+              :"usb_xhci.present"                 => usb_xhci_present,
               :"RemoteDisplay.vnc.enabled"        => vnc_enabled,
               :"RemoteDisplay.vnc.port"           => vnc_port_min,
               :memsize                            => memsize,
@@ -2387,6 +2411,7 @@ def create_packer_json(options)
             :tools_upload_path    => tools_upload_path,
             :vmx_data => {
               :"virtualHW.version"                => hw_version,
+              :"usb_xhci.present"                 => usb_xhci_present,
               :"RemoteDisplay.vnc.enabled"        => vnc_enabled,
               :memsize                            => memsize,
               :numvcpus                           => numvcpus,
@@ -2433,6 +2458,7 @@ def create_packer_json(options)
             :tools_upload_path    => tools_upload_path,
             :vmx_data => {
               :"virtualHW.version"                => hw_version,
+              :"usb_xhci.present"                 => usb_xhci_present,
               :"RemoteDisplay.vnc.enabled"        => vnc_enabled,
               :memsize                            => memsize,
               :numvcpus                           => numvcpus,
@@ -2762,8 +2788,8 @@ def create_packer_aws_json(options)
   }
   json_output = JSON.pretty_generate(json_data)
   delete_file(json_file)
-  File.write(json_file,json_output)
-  set_file_perms(json_file,"600")
-  print_contents_of_file(options,"",json_file)
+  File.write(json_file, json_output)
+  set_file_perms(json_file, "600")
+  print_contents_of_file(options, "", json_file)
   return options
 end

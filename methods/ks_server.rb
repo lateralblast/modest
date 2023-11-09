@@ -22,7 +22,7 @@ def set_zfs_mount(options)
   zfs_name = options['zpoolname']+options['repodir']
   message  = "Information:\tSetting "+zfs_name+" mount point to "+options['repodir']
   command  = "zfs set mountpoint=#{options['netbootdir']} #{zfs_name}"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
@@ -32,24 +32,24 @@ def configure_ks_repo(options)
   options['netbootdir'] = options['tftpdir']+"/"+options['service']
   if options['host-os-name'].to_s.match(/SunOS/)
     if options['host-os-version'].to_i < 11
-      check_fs_exists(options,options['repodir'])
+      check_fs_exists(options, options['repodir'])
       if not File.symlink?(options['netbootdir'])
-        File.symlink(options['repodir'],options['netbootdir'])
+        File.symlink(options['repodir'], options['netbootdir'])
       end
     else
-      check_fs_exists(options,options['repodir'])
-      set_zfs_mount(options['repodir'],options['netbootdir'])
+      check_fs_exists(options, options['repodir'])
+      set_zfs_mount(options['repodir'], options['netbootdir'])
       if not File.symlink?(options['repodir'])
         Dir.delete(options['repodir'])
-        File.symlink(options['netbootdir'],options['repodir'])
+        File.symlink(options['netbootdir'], options['repodir'])
       end
     end
   end
   if options['host-os-name'].to_s.match(/Linux/)
-    check_fs_exists(options,options['netbootdir'])
+    check_fs_exists(options, options['netbootdir'])
     if not File.symlink?(options['repodir'])
-      check_dir_owner(options,options['baserepodir'],options['uid'])
-      File.symlink(options['netbootdir'],options['repodir'])
+      check_dir_owner(options, options['baserepodir'], options['uid'])
+      File.symlink(options['netbootdir'], options['repodir'])
     end
   end
   if options['repodir'].to_s.match(/sles/)
@@ -58,7 +58,7 @@ def configure_ks_repo(options)
     check_dir = options['repodir']+"/isolinux"
   end
   if options['verbose'] == true
-    handle_output(options,"Information:\tChecking directory #{check_dir} exits")
+    handle_output(options, "Information:\tChecking directory #{check_dir} exits")
   end
   if not File.directory?(check_dir)
     mount_iso(options)
@@ -66,10 +66,10 @@ def configure_ks_repo(options)
     umount_iso(options)
     if options['file'].to_s.match(/DVD1\.iso|1of2\.iso/)
       if options['file'].to_s.match(/DVD1/)
-        options['file'] = options['file'].gsub(/1\.iso/,"2.iso")
+        options['file'] = options['file'].gsub(/1\.iso/, "2.iso")
       end
       if options['file'].to_s.match(/1of2/)
-        options['file'] = options['file'].gsub(/1of2\.iso/,"2of2.iso")
+        options['file'] = options['file'].gsub(/1of2\.iso/, "2of2.iso")
       end
       mount_iso(options)
       copy_iso(options)
@@ -83,7 +83,7 @@ def configure_ks_repo(options)
     if not File.exist?(file_name)
       message = "Information:\tCopying ISO file "+orig_file+" to "+file_name
       command = "cp #{orig_file} #{file_name}"
-      execute_command(options,message,command)
+      execute_command(options, message, command)
     end
    end
   return
@@ -133,38 +133,38 @@ def configure_ks_pxe_boot(options)
         if not options['service'].to_s.match(/sl_|fedora_19|rhel_6/)
           message  = "Information:\tLocating syslinux package"
           command  = "cd #{rpm_dir} ; find . -name 'syslinux-[0-9]*' |grep '#{iso_arch}'"
-          output   = execute_command(options,message,command)
+          output   = execute_command(options, message, command)
           rpm_file = output.chomp
-          rpm_file = rpm_file.gsub(/\.\//,"")
+          rpm_file = rpm_file.gsub(/\.\//, "")
           rpm_file = rpm_dir+"/"+rpm_file
-          check_dir_exists(options,options['pxebootdir'])
+          check_dir_exists(options, options['pxebootdir'])
         else
           rpm_dir  = options['workdir']+"/rpm"
           if not File.directory?(rpm_dir)
-            check_dir_exists(options,rpm_dir)
+            check_dir_exists(options, rpm_dir)
           end
           rpm_url  = "http://vault.centos.org/5.11/os/i386/CentOS/syslinux-4.02-7.2.el5.i386.rpm"
           rpm_file = rpm_dir+"/syslinux-4.02-7.2.el5.i386.rpm"
           if not File.exist?(rpm_file)
-            wget_file(options,rpm_url,rpm_file)
+            wget_file(options, rpm_url, rpm_file)
           end
         end
-        check_dir_exists(options,options['pxebootdir'])
+        check_dir_exists(options, options['pxebootdir'])
         message = "Information:\tCopying PXE boot files from "+rpm_file+" to "+options['pxebootdir']
         command = "cd #{options['pxebootdir']} ; #{options['rpm2cpiobin'] } #{rpm_file} | cpio -iud"
-        output  = execute_command(options,message,command)
+        output  = execute_command(options, message, command)
         if options['host-os-uname'].match(/RedHat/) and options['host-os-release'].match(/^7/) and options['pxebootdir'].to_s.match(/[a-z]/)
           httpd_p = "httpd_sys_rw_content_t"
           tftpd_p = "unconfined_u:object_r:system_conf_t:s0"
           message = "Information:\tFixing permissions on "+options['pxebootdir']
           command = "chcon -R -t #{httpd_p} #{options['pxebootdir']} ; chcon #{tftpd_p} #{options['pxebootdir']}"
-          execute_command(options,message,command)
+          execute_command(options, message, command)
           message = "Information:\tFixing permissions on "+options['pxebootdir']+"/usr and "+options['pxebootdir']+"/images"
           command = "chcon -R #{options['pxebootdir']}/usr ; chcon -R #{options['pxebootdir']}/images"
-          execute_command(options,message,command)
+          execute_command(options, message, command)
         end
       else
-        handle_output(options,"Warning:\tSource directory #{rpm_dir} does not exist")
+        handle_output(options, "Warning:\tSource directory #{rpm_dir} does not exist")
         quit(options)
       end
     end
@@ -181,14 +181,14 @@ def configure_ks_pxe_boot(options)
       end
       message = "Information:\tCopying PXE boot images from "+iso_image_dir+" to "+pxe_image_dir
       command = "cp -r #{iso_image_dir} #{options['pxebootdir']}"
-      output  = execute_command(options,message,command)
+      output  = execute_command(options, message, command)
     end
   else
-    check_dir_exists(options,options['pxebootdir'])
+    check_dir_exists(options, options['pxebootdir'])
     pxe_image_dir = options['pxebootdir']+"/images"
-    check_dir_exists(options,pxe_image_dir)
+    check_dir_exists(options, pxe_image_dir)
     pxe_image_dir = options['pxebootdir']+"/images/pxeboot"
-    check_dir_exists(options,pxe_image_dir)
+    check_dir_exists(options, pxe_image_dir)
     test_file = pxe_image_dir+"/vmlinuz"
     if not options['method'].to_s.match(/ci/)
       if options['service'].to_s.match(/ubuntu/)
@@ -200,11 +200,11 @@ def configure_ks_pxe_boot(options)
     if not File.exist?(test_file)
       message = "Information:\tCopying PXE boot files from "+iso_image_dir+" to "+pxe_image_dir
       command = "cd #{pxe_image_dir} ; cp -r #{iso_image_dir}/* . "
-      output  = execute_command(options,message,command)
+      output  = execute_command(options, message, command)
     end
   end
   pxe_cfg_dir = options['tftpdir']+"/pxelinux.cfg"
-  check_dir_exists(options,pxe_cfg_dir)
+  check_dir_exists(options, pxe_cfg_dir)
   return
 end
 
@@ -233,7 +233,7 @@ def configure_ks_server(options)
   else
     search_string = "CentOS|rhel|SL|OracleLinux|Fedora"
   end
-  configure_linux_server(options,search_string)
+  configure_linux_server(options, search_string)
   return
 end
 
@@ -241,7 +241,7 @@ end
 
 def configure_ks_vmware_repo(options)
   vmware_dir   = $pkg_base_dir+"/vmware"
-  add_apache_alias(options,vmware_dir)
+  add_apache_alias(options, vmware_dir)
   repodata_dir = vmware_dir+"/repodata"
   vmware_url   = "http://packages.vmware.com/tools/esx/latest"
   if options['service'].to_s.match(/centos_5|rhel_5|sl_5|oel_5|fedora_18/)
@@ -254,14 +254,14 @@ def configure_ks_vmware_repo(options)
   end
   if options['download'] == true
     if not File.directory?(vmware_dir)
-      check_dir_exists(options,vmware_dir)
+      check_dir_exists(options, vmware_dir)
       message = "Information:\tFetching VMware RPMs"
       command = "cd #{vmware_dir} ; lftp -e 'mget * ; quit' #{vmware_url}"
-      execute_command(options,message,command)
-      check_dir_exists(options,repodata_dir)
+      execute_command(options, message, command)
+      check_dir_exists(options, repodata_dir)
       message = "Information:\tFetching VMware RPM repodata"
       command = "cd #{repodata_dir} ; lftp -e 'mget * ; quit' #{repodata_url}"
-      execute_command(options,message,command)
+      execute_command(options, message, command)
     end
   end
   return
@@ -269,20 +269,20 @@ end
 
 # Configue Linux server
 
-def configure_linux_server(options,search_string)
+def configure_linux_server(options, search_string)
   iso_list = []
-  check_fs_exists(options,options['clientdir'])
+  check_fs_exists(options, options['clientdir'])
   check_dhcpd_config(options)
   if options['file'].to_s.match(/[a-z,A-Z]/)
     if File.exist?(options['file'])
       if not options['file'].to_s.match(/CentOS|rhel|Fedora|SL|OracleLinux|ubuntu/)
-        handle_output(options,"Warning:\tISO #{options['file']} does not appear to be a valid Linux distribution")
+        handle_output(options, "Warning:\tISO #{options['file']} does not appear to be a valid Linux distribution")
         quit(options)
       else
         iso_list[0] = options['file']
       end
     else
-      handle_output(options,"Warning:\tISO file #{options['file']} does not exist")
+      handle_output(options, "Warning:\tISO file #{options['file']} does not exist")
     end
   else
     options['search'] = "CentOS|rhel|Fedora|SL|OracleLinux|ubuntu"
@@ -291,8 +291,8 @@ def configure_linux_server(options,search_string)
   if iso_list[0]
     iso_list.each do |file_name|
       file_name = file_name.chomp
-      (linux_distro,iso_version,iso_arch) = get_linux_version_info(file_name)
-      iso_version  = iso_version.gsub(/\./,"_")
+      (linux_distro, iso_version, iso_arch) = get_linux_version_info(file_name)
+      iso_version  = iso_version.gsub(/\./, "_")
       if file_name.match(/live/)
         options['service'] = linux_distro+"_"+iso_version+"_live_"+iso_arch
       else
@@ -300,7 +300,7 @@ def configure_linux_server(options,search_string)
       end
       options['repodir'] = options['baserepodir']+"/"+options['service']
       if !file_name.match(/DVD[1,2]\.iso|2of2\.iso|dvd\.iso$/)
-        add_apache_alias(options,options['service'])
+        add_apache_alias(options, options['service'])
         configure_ks_repo(options)
         configure_ks_pxe_boot(options)
         if options['service'].to_s.match(/centos|fedora|rhel|sl_|oel/)
@@ -319,13 +319,13 @@ def configure_linux_server(options,search_string)
         iso_info = options['service'].split(/_/)
         options['arch'] = iso_info[-1]
       end
-      add_apache_alias(options,options['service'])
+      add_apache_alias(options, options['service'])
       configure_ks_pxe_boot(options)
       if options['service'].to_s.match(/centos|fedora|rhel|sl_|oel/)
         configure_ks_vmware_repo(options)
       end
     else
-      handle_output(options,"Warning:\tISO file and/or Service name not found")
+      handle_output(options, "Warning:\tISO file and/or Service name not found")
       quit(options)
     end
   end
@@ -338,10 +338,10 @@ def list_ks_services(options)
   options['method'] = "ks"
   dir_list = get_dir_item_list(options)
   message  = "Kickstart Services"
-  handle_output(options,message)
+  handle_output(options, message)
   dir_list.each do |service|
-    handle_output(options,service)
+    handle_output(options, service)
   end
-  handle_output(options,"")
+  handle_output(options, "")
   return
 end

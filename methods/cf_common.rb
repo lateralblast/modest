@@ -15,7 +15,7 @@ end
 # Get list of AWS CF stacks
 
 def get_aws_cf_stacks(options)
-  cf = initiate_aws_cf_client(options['access'],options['secret'],options['region'])
+  cf = initiate_aws_cf_client(options['access'], options['secret'], options['region'])
   begin
     stacks = cf.describe_stacks.stacks 
   rescue Aws::CloudFormation::Errors::AccessDenied

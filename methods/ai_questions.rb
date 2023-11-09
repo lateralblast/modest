@@ -201,7 +201,7 @@ def populate_ai_client_profile_questions(options)
     ask       = "yes",
     value     = "101",
     valid     = "",
-    eval      = "check_valid_uid(options,answer)"
+    eval      = "check_valid_uid(options, answer)"
     )
   options['q_struct'][name] = config
   options['q_order'].push(name)
@@ -212,7 +212,7 @@ def populate_ai_client_profile_questions(options)
     ask       = "yes",
     value     = "10",
     valid     = "",
-    eval      = "check_valid_gid(options,answer)"
+    eval      = "check_valid_gid(options, answer)"
     )
   options['q_struct'][name] = config
   options['q_order'].push(name)

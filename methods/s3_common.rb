@@ -91,7 +91,7 @@ def list_aws_buckets(options)
     bucket_name = bucket.name
     if options['bucket'].to_s.match(/^all$|#{bucket_name}|^none$/)
       bucket_date = bucket.creation_date
-      handle_output(options,"#{bucket_name}\tcreated=#{bucket_date}")
+      handle_output(options, "#{bucket_name}\tcreated=#{bucket_date}")
     end
   end
   return
@@ -104,9 +104,9 @@ def list_aws_bucket_objects(options)
   buckets.each do |bucket|
     bucket_name = bucket.name
     if options['bucket'].to_s.match(/^all$|#{bucket_name}/)
-      handle_output(options,"")
-      handle_output(options,"#{bucket_name}:")
-      s3 = initiate_aws_s3_client(options['access'],options['secret'],options['region'])
+      handle_output(options, "")
+      handle_output(options, "#{bucket_name}:")
+      s3 = initiate_aws_s3_client(options['access'], options['secret'], options['region'])
       objects = s3.list_objects_v2({ bucket: bucket_name })
       objects.contents.each do |object|
         object_key = object.key

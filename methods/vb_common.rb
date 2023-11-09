@@ -3,7 +3,7 @@
 def fix_vbox_mouse_integration(options)
   message = "Information:\tDisabling VirtualBox Mouse Integration Message"
   command = "#{options['vboxmanage']} setextradata global GUI/SuppressMessages remindAboutAutoCapture,confirmInputCapture,remindAboutMouseIntegrationOn,remindAboutWrongColorDepth,confirmGoingFullscreen,remindAboutMouseIntegrationOff,remindAboutMouseIntegration"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
@@ -14,12 +14,12 @@ def get_vbox_vm_status(options)
   if exists == true
     vm_list = get_running_vbox_vms()
     if vm_list.to_s.match(/#{options['name']}/)
-      handle_output(options,"Information:\tVirtualBox VM #{options['name']} is Running")
+      handle_output(options, "Information:\tVirtualBox VM #{options['name']} is Running")
     else
-      handle_output(options,"Information:\tVrtualBox VM #{options['name']} is Not Running")
+      handle_output(options, "Information:\tVrtualBox VM #{options['name']} is Not Running")
     end
   else
-    handle_output(options,"Warning:\tFusion VM #{options['name']} doesn't exist")
+    handle_output(options, "Warning:\tFusion VM #{options['name']} doesn't exist")
   end
   return
 end
@@ -27,9 +27,9 @@ end
 # Import Packer VirtualBox image
 
 def import_packer_vbox_vm(options)
-  (exists,images_dir) = check_packer_vm_image_exists(options)
+  (exists, images_dir) = check_packer_vm_image_exists(options)
   if exists == false
-    handle_output(options,"Warning:\tPacker VirtualBox VM image for #{options['name']} does not exist")
+    handle_output(options, "Warning:\tPacker VirtualBox VM image for #{options['name']} does not exist")
     return exists
   end
   ovf_file = images_dir+"/"+options['name']+".ovf"
@@ -41,9 +41,9 @@ def import_packer_vbox_vm(options)
     else
       command = "#{options['vboxmanage']} import '#{options['file']}'"
     end
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   else
-    handle_output(options,"Warning:\tOVF file for Packer VirtualBox VM #{options['name']} does not exist")
+    handle_output(options, "Warning:\tOVF file for Packer VirtualBox VM #{options['name']} does not exist")
   end
   return exists
 end
@@ -54,9 +54,9 @@ def show_vbox_vm(options)
   exists = check_vbox_vm_exists(options)
   if exists == true
     output = %x[#{options['vboxmanage']} showvminfo '#{options['name']}']
-    show_output_of_command("VirtualBox VM configuration",output)
+    show_output_of_command("VirtualBox VM configuration", output)
   else
-    handle_output(options,"Warning:\tVirtualBox VM #{options['name']} does not exist")
+    handle_output(options, "Warning:\tVirtualBox VM #{options['name']} does not exist")
   end
   return exists
 end
@@ -73,7 +73,7 @@ def set_vbox_value(options)
   if exists == true
     %x[#{options['vboxmanage']} modifyvm '#{options['name']}' --#{options['param']} #{options['value']}]
   else
-    handle_output(options,"Warning:\tVirtualBox VM #{options['name']} does not exist")
+    handle_output(options, "Warning:\tVirtualBox VM #{options['name']} does not exist")
   end
   return exists
 end
@@ -85,7 +85,7 @@ def set_vbox_value(options)
   if exists == true
     %x[#{options['vboxmanage']} showvminfo '#{options['name']}' | grep '#{options['param']}']
   else
-    handle_output(options,"Warning:\tVirtualBox VM #{options['name']} does not exist")
+    handle_output(options, "Warning:\tVirtualBox VM #{options['name']} does not exist")
   end
   return exist
 end
@@ -95,7 +95,7 @@ end
 def add_shared_folder_to_vbox_vm(options)
   message = "Information:\tSharing \""+options['share']+"\" to VM "+options['name']+" as "+options['mount']
   command = "#{options['vboxmanage']} sharedfolder add '#{options['name']}' --name '#{options['mount']}' --hostpath '#{options['share']}'"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
@@ -109,7 +109,7 @@ def restore_vbox_vm_snapshot(options)
     message = "Information:\tRestoring latest snapshot for "+options['name']
     command = "#{options['vboxmanage']} snapshot '#{options['name']}'' restorecurrent"
   end
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
@@ -127,7 +127,7 @@ def delete_vbox_vm_snapshot(options)
     fusion_vmx_file = get_fusion_vm_vmx_file(options)
     message = "Information:\tDeleting snapshot "+clone_name+" for Fusion VM "+options['name']
     command = "#{options['vboxmanage']} snapshot '#{options['name']}' delete '#{clone_name}'"
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   return
 end
@@ -137,7 +137,7 @@ end
 def get_vbox_vm_snapshots(options)
   message = "Information:\tGetting a list of snapshots for VirtualBox VM "+options['name']
   command = "#{options['vboxmanage']} snapshot '#{options['name']}' list |cut -f2 -d: |cut -f1 -d'(' |sed 's/^ //g' |sed 's/ $//g'"
-  output  = execute_command(options,message,command)
+  output  = execute_command(options, message, command)
   return output
 end
 
@@ -159,7 +159,7 @@ def list_vbox_vm_snapshots(options)
     list_all_vbox_vm_snapshots()
   else
     snapshot_list = get_vbox_vm_snapshots(options)
-    handle_output(options,"Snapshots for #{options['name']}:")
+    handle_output(options, "Snapshots for #{options['name']}:")
     handle_output(snapshot_list)
   end
   return
@@ -170,12 +170,12 @@ end
 def snapshot_vbox_vm(options)
   exists = check_vbox_vm_exists(options)
   if exists == true
-    handle_output(options,"Warning:\tVirtualBox VM #{options['name']} does not exist")
+    handle_output(options, "Warning:\tVirtualBox VM #{options['name']} does not exist")
     return exists
   end
   message = "Information:\tCloning VirtualBox VM "+options['name']+" to "+options['clone']
   command = "#{options['vboxmanage']} snapshot '#{options['name']}' take '#{options['clone']}'"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return exists
 end
 
@@ -185,7 +185,7 @@ def get_available_vbox_vms(options)
   vm_list = []
   message = "Information:\tGetting list of VirtualBox VMs"
   command = "#{options['vboxmanage']} list vms |grep -v 'inaccessible'"
-  output  = execute_command(options,message,command)
+  output  = execute_command(options, message, command)
   if output.match(/[a-z]/)
     vm_list = output.split("\n")
   end
@@ -201,8 +201,8 @@ def get_vbox_vm_info(options)
   else
     command = "#{options['vboxmanage']} showvminfo \"#{options['name']}\" |grep \"#{options['search']}\" |cut -f2 -d:"
   end
-  output  = execute_command(options,message,command)
-  vm_info = output.chomp.gsub(/^\s+/,"")
+  output  = execute_command(options, message, command)
+  vm_info = output.chomp.gsub(/^\s+/, "")
   return vm_info
 end
 
@@ -235,15 +235,15 @@ def list_running_vbox_vms(options)
   set_vboxm_bin()
   if options['vboxmanage'].to_s.match(/[a-z]/)
     vm_list = get_running_vbox_vms()
-    handle_output(options,"")
-    handle_output(options,"Running VirtualBox VMs:")
+    handle_output(options, "")
+    handle_output(options, "Running VirtualBox VMs:")
     handle_output ("")
     vm_list.each do |vm_name|
       vm_name = vm_name.split(/"/)[1]
-      os_info = %x[#{options['vboxmanage']} showvminfo "#{vm_name}" |grep '^Guest OS' |cut -f2 -d:].chomp.gsub(/^\s+/,"")
-      handle_output(options,"#{vm_name}\t#{os_info}")
+      os_info = %x[#{options['vboxmanage']} showvminfo "#{vm_name}" |grep '^Guest OS' |cut -f2 -d:].chomp.gsub(/^\s+/, "")
+      handle_output(options, "#{vm_name}\t#{os_info}")
     end
-    handle_output(options,"")
+    handle_output(options, "")
   end
   return
 end
@@ -251,21 +251,21 @@ end
 # Set VirtualBox ESXi options
 
 def configure_vmware_vbox_vm(options)
-  modify_vbox_vm(options['name'],"rtcuseutc","on")
-  modify_vbox_vm(options['name'],"vtxvpid","on")
-  modify_vbox_vm(options['name'],"vtxux","on")
-  modify_vbox_vm(options['name'],"hwvirtex","on")
-  setextradata_vbox_vm(options,"VBoxInternal/Devices/pcbios/0/Config/DmiSystemVersion","None")
-  setextradata_vbox_vm(options,"VBoxInternal/Devices/pcbios/0/Config/DmiBoardVendor","Intel Corporation")
-  setextradata_vbox_vm(options,"VBoxInternal/Devices/pcbios/0/Config/DmiBoardProduct","440BX Desktop Reference Platform")
-  setextradata_vbox_vm(options,"VBoxInternal/Devices/pcbios/0/Config/DmiSystemVendor","VMware, Inc.")
-  setextradata_vbox_vm(options,"VBoxInternal/Devices/pcbios/0/Config/DmiSystemProduct","VMware Virtual Platform")
-  setextradata_vbox_vm(options,"VBoxInternal/Devices/pcbios/0/Config/DmiBIOSVendor","Phoenix Technologies LTD")
-  setextradata_vbox_vm(options,"VBoxInternal/Devices/pcbios/0/Config/DmiBIOSVersion","6.0")
-  setextradata_vbox_vm(options,"VBoxInternal/Devices/pcbios/0/Config/DmiChassisVendor","No Enclosure")
+  modify_vbox_vm(options['name'], "rtcuseutc", "on")
+  modify_vbox_vm(options['name'], "vtxvpid", "on")
+  modify_vbox_vm(options['name'], "vtxux", "on")
+  modify_vbox_vm(options['name'], "hwvirtex", "on")
+  setextradata_vbox_vm(options, "VBoxInternal/Devices/pcbios/0/Config/DmiSystemVersion", "None")
+  setextradata_vbox_vm(options, "VBoxInternal/Devices/pcbios/0/Config/DmiBoardVendor", "Intel Corporation")
+  setextradata_vbox_vm(options, "VBoxInternal/Devices/pcbios/0/Config/DmiBoardProduct", "440BX Desktop Reference Platform")
+  setextradata_vbox_vm(options, "VBoxInternal/Devices/pcbios/0/Config/DmiSystemVendor", "VMware, Inc.")
+  setextradata_vbox_vm(options, "VBoxInternal/Devices/pcbios/0/Config/DmiSystemProduct", "VMware Virtual Platform")
+  setextradata_vbox_vm(options, "VBoxInternal/Devices/pcbios/0/Config/DmiBIOSVendor", "Phoenix Technologies LTD")
+  setextradata_vbox_vm(options, "VBoxInternal/Devices/pcbios/0/Config/DmiBIOSVersion", "6.0")
+  setextradata_vbox_vm(options, "VBoxInternal/Devices/pcbios/0/Config/DmiChassisVendor", "No Enclosure")
   vbox_vm_uuid = get_vbox_vm_uuid(options)
   vbox_vm_uuid = "VMware-"+vbox_vm_uuid
-  setextradata_vbox_vm(options['name'],"VBoxInternal/Devices/pcbios/0/Config/DmiSystemSerial",vbox_vm_uuid)
+  setextradata_vbox_vm(options['name'], "VBoxInternal/Devices/pcbios/0/Config/DmiSystemSerial", vbox_vm_uuid)
   return
 end
 
@@ -273,7 +273,7 @@ end
 
 def get_vbox_vm_uuid(options)
   options['search'] = "^UUID"
-  install_uuid   = get_vbox_vm_info(options['name'],options['search'])
+  install_uuid   = get_vbox_vm_info(options['name'], options['search'])
   return install_uuid
 end
 
@@ -281,7 +281,7 @@ end
 
 def configure_vmware_esxi_vbox_vm(options)
   configure_vmware_esxi_defaults()
-  modify_vbox_vm(options['name'],"cpus",options['vcpus'])
+  modify_vbox_vm(options['name'], "cpus", options['vcpus'])
   configure_vmware_vbox_vm(options)
   return
 end
@@ -299,17 +299,17 @@ end
 def clone_vbox_vm(options)
   exists = check_vbox_vm_exists(options)
   if exists == true
-    handle_output(options,"Warning:\tVirtualBox VM #{options['name']} does not exist")
+    handle_output(options, "Warning:\tVirtualBox VM #{options['name']} does not exist")
     return exists
   end
   message = "Information:\tCloning VM "+options['name']+" to "+options['clone']
   command = "#{options['vboxmanage']} clonevm #{options['name']} --name #{options['clone']} --register"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   if options['ip'].to_s.match(/[0-9]/)
-    add_hosts_entry(options['clone'],options['ip'])
+    add_hosts_entry(options['clone'], options['ip'])
   end
   if options['mac'].to_s.match(/[0-9,a-z,A-Z]/)
-    change_vbox_vm_mac(options['clone'],options['mac'])
+    change_vbox_vm_mac(options['clone'], options['mac'])
   end
   return exists
 end
@@ -322,17 +322,17 @@ def export_vbox_ova(options)
     stop_vbox_vm(options)
     if not options['file'].to_s.match(/[0-9,a-z,A-Z]/)
       options['file'] = "/tmp/"+options['name']+".ova"
-      handle_output(options,"Warning:\tNo ouput file given")
-      handle_output(options,"Information:\tExporting VirtualBox VM #{options['name']} to #{options['file']}")
+      handle_output(options, "Warning:\tNo ouput file given")
+      handle_output(options, "Information:\tExporting VirtualBox VM #{options['name']} to #{options['file']}")
     end
     if not options['file'].to_s.match(/\.ova$/)
       options['file'] = options['file']+".ova"
     end
     message = "Information:\tExporting VirtualBox VM "+options['name']+" to "+options['file']
     command = "#{options['vboxmanage']} export \"#{options['name']}\" -o \"#{options['file']}\""
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   else
-    handle_output(options,"Warning:\tVirtualBox VM #{options['name']} does not exist")
+    handle_output(options, "Warning:\tVirtualBox VM #{options['name']} does not exist")
   end
   return exists
 end
@@ -355,48 +355,48 @@ def import_vbox_ova(options)
       options['vmdir']  = get_vbox_vm_dir(options)
       message = "Information:\tImporting VirtualBox VM "+options['name']+" from "+options['file']
       command = "#{options['vboxmanage']} import \"#{options['file']}\" --vsys 0 --vmname \"#{options['name']}\" --unit 20 --disk \"#{options['vmdir']}\""
-      execute_command(options,message,command)
+      execute_command(options, message, command)
     else
       set_vbox_bin(options)
       if options['vboxmanage'].to_s.match(/[a-z]/)
         options['name'] = %x[#{options['vboxmanage']} import -n #{options['file']} |grep "Suggested VM name'].split(/\n/)[-1]
         if not options['name'].to_s.match(/[0-9,a-z,A-Z]/)
-          handle_output(options,"Warning:\tCould not determine VM name for Virtual Appliance #{options['file']}")
+          handle_output(options, "Warning:\tCould not determine VM name for Virtual Appliance #{options['file']}")
           quit(options)
         else
           options['name'] = options['name'].split(/Suggested VM name /)[1].chomp
           message = "Information:\tImporting VirtualBox VM "+options['name']+" from "+options['file']
           command = "#{options['vboxmanage']} import \"#{options['file']}\""
-          execute_command(options,message,command)
+          execute_command(options, message, command)
         end
       end
     end
   else
-    handle_output(options,"Warning:\tVirtual Appliance #{options['file']} does not exist")
+    handle_output(options, "Warning:\tVirtual Appliance #{options['file']} does not exist")
     return exists
   end
   if options['ip'].to_s.match(/[0-9]/)
-    add_hosts_entry(options['name'],options['ip'])
+    add_hosts_entry(options['name'], options['ip'])
   end
   options['socket'] = add_socket_to_vbox_vm(options)
   add_serial_to_vbox_vm(options)
   if options['vmnet'].to_s.match(/bridged/)
     vbox_nic = get_bridged_vbox_nic(options)
-    add_bridged_network_to_vbox_vm(options,vbox_nic)
+    add_bridged_network_to_vbox_vm(options, vbox_nic)
   else
     vbox_nic = check_vbox_hostonly_network(options)
-    add_nonbridged_network_to_vbox_vm(options,vbox_nic)
+    add_nonbridged_network_to_vbox_vm(options, vbox_nic)
   end
   if not options['mac'].to_s.match(/[0-9,a-z,A-Z]/)
     options['mac'] = get_vbox_vm_mac(options)
   else
-    change_vbox_vm_mac(options['name'],options['mac'])
+    change_vbox_vm_mac(options['name'], options['mac'])
   end
   if options['file'].to_s.match(/VMware/)
     configure_vmware_vcenter_defaults()
     configure_vmware_vbox_vm(options)
   end
-  handle_output(options,"Warning:\tVirtual Appliance #{options['file']} imported with VM name #{options['name']} and MAC address #{options['mac']}")
+  handle_output(options, "Warning:\tVirtual Appliance #{options['file']} imported with VM name #{options['name']} and MAC address #{options['mac']}")
   return exists
 end
 
@@ -455,19 +455,19 @@ def set_vbox_bin(options)
     if options['host-os-name'].to_s.match(/NT/)
       path = %x[echo $PATH]
       if not path.match(/VirtualBox/)
-        handle_output(options,"Warning:\tVirtualBox directory not in PATH")
+        handle_output(options, "Warning:\tVirtualBox directory not in PATH")
         options['vm'] = "none"
       end
     end
     options['vboxmanage'] = %x[which VBoxManage].chomp
     if not options['vboxmanage'].to_s.match(/VBoxManage/) or options['vboxmanage'].to_s.match(/no VBoxManage/)
-      handle_output(options,"Warning:\tCould not find VBoxManage")
+      handle_output(options, "Warning:\tCould not find VBoxManage")
       options['vm'] = "none"
     end
   else
     options['vboxmanage'] = %x[which vboxmanage].chomp
     if !options['vboxmanage'].to_s.match(/vboxmanage/) || options['vboxmanage'].to_s.match(/no vboxmanage/)
-      handle_output(options,"Warning:\tCould not find vboxmanage")
+      handle_output(options, "Warning:\tCould not find vboxmanage")
       options['vm'] = "none"
     end
   end
@@ -479,10 +479,10 @@ end
 def check_vbox_vm_exists(options)
   message   = "Information:\tChecking VM "+options['name'].to_s+" exists"
   command   = "#{options['vboxmanage']} list vms |grep -v 'inaccessible'"
-  host_list = execute_command(options,message,command)
+  host_list = execute_command(options, message, command)
   if not host_list.match(options['name'])
     if options['verbose'] == true
-      handle_output(options,"Warning:\tVirtualBox VM #{options['name']} does not exist")
+      handle_output(options, "Warning:\tVirtualBox VM #{options['name']} does not exist")
     end
     exists = false
   else
@@ -496,7 +496,7 @@ end
 def get_bridged_vbox_nic(options)
   message  = "Information:\tChecking Bridged interfaces"
   command  = "#{options['vboxmanage']} list bridgedifs |grep '^Name' |head -1"
-  nic_list = execute_command(options,message,command)
+  nic_list = execute_command(options, message, command)
   if not nic_list.match(/[a-z,A-Z]/)
     nic_name = options['nic']
   else
@@ -507,7 +507,7 @@ def get_bridged_vbox_nic(options)
         return nic_name
       end
       if line.match(/^Name/)
-        nic_name = line.split(/:/)[1].gsub(/\s+/,"")
+        nic_name = line.split(/:/)[1].gsub(/\s+/, "")
       end
     end
   end
@@ -516,23 +516,23 @@ end
 
 # Add bridged network to VirtualBox VM
 
-def add_bridged_network_to_vbox_vm(options,nic_name)
+def add_bridged_network_to_vbox_vm(options, nic_name)
   message = "Information:\tAdding bridged network "+nic_name+" to "+options['name']
   command = "#{options['vboxmanage']} modifyvm #{options['name']} --nic1 bridged --bridgeadapter1 #{nic_name}"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
 # Add non-bridged network to VirtualBox VM
 
-def add_nonbridged_network_to_vbox_vm(options,nic_name)
+def add_nonbridged_network_to_vbox_vm(options, nic_name)
   message = "Information:\tAdding network "+nic_name+" to "+options['name']
   if nic_name.match(/vboxnet/)
     command = "#{options['vboxmanage']} modifyvm #{options['name']} --hostonlyadapter1 #{nic_name} ; #{options['vboxmanage']} modifyvm #{options['name']} --nic1 hostonly"
   else
     command = "#{options['vboxmanage']} modifyvm #{options['name']} --nic1 #{nic_name}"
   end
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
@@ -541,7 +541,7 @@ end
 def set_vbox_vm_boot_priority(options)
   message = "Information:\tSetting boot priority for "+options['name']+" to disk then network"
   command = "#{options['vboxmanage']} modifyvm #{options['name']} --boot1 disk --boot2 net"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
@@ -550,7 +550,7 @@ end
 def set_vbox_boot_device(options)
   message = "Information:\tSetting boot device for "+options['name']+" to "+options['boot']
   command = "#{options['vboxmanage']} modifyvm #{options['name']} --boot1 #{options['boot']}"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
@@ -559,8 +559,8 @@ end
 def get_vbox_vm_os(options)
   message = "Information:\tGetting VirtualBox VM OS for "+options['name']
   command = "#{options['vboxmanage']} showvminfo #{options['name']} |grep Guest |grep OS |head -1 |cut -f2 -d:"
-  vm_os   = execute_command(options,message,command)
-  vm_os   = vm_os.gsub(/^\s+/,"")
+  vm_os   = execute_command(options, message, command)
+  vm_os   = vm_os.gsub(/^\s+/, "")
   vm_os   = vm_os.chomp
   return vm_os
 end
@@ -577,17 +577,17 @@ def list_vbox_vms(options)
       type_string = search_string+" VirtualBox"
     end
     if options['output'].to_s.match(/html/)
-      handle_output(options,"<h1>Available #{type_string} VMs</h1>")
-      handle_output(options,"<table border=\"1\">")
-      handle_output(options,"<tr>")
-      handle_output(options,"<th>VM</th>")
-      handle_output(options,"<th>OS</th>")
-      handle_output(options,"<th>MAC</th>")
-      handle_output(options,"</tr>")
+      handle_output(options, "<h1>Available #{type_string} VMs</h1>")
+      handle_output(options, "<table border=\"1\">")
+      handle_output(options, "<tr>")
+      handle_output(options, "<th>VM</th>")
+      handle_output(options, "<th>OS</th>")
+      handle_output(options, "<th>MAC</th>")
+      handle_output(options, "</tr>")
     else
-      handle_output(options,"")
-      handle_output(options,"Available #{type_string} VMs:")
-      handle_output(options,"")
+      handle_output(options, "")
+      handle_output(options, "Available #{type_string} VMs:")
+      handle_output(options, "")
     end
     vm_list.each do |line|
       line = line.chomp
@@ -597,21 +597,21 @@ def list_vbox_vms(options)
       vm_os  = get_vbox_vm_os(options)
       if search_string == "all" or line.match(/#{search_string}/)
         if options['output'].to_s.match(/html/)
-          handle_output(options,"<tr>")
-          handle_output(options,"<td>#{vm_name}</td>")
-          handle_output(options,"<td>#{vm_mac}</td>")
-          handle_output(options,"<td>#{vm_os}</td>")
-          handle_output(options,"</tr>")
+          handle_output(options, "<tr>")
+          handle_output(options, "<td>#{vm_name}</td>")
+          handle_output(options, "<td>#{vm_mac}</td>")
+          handle_output(options, "<td>#{vm_os}</td>")
+          handle_output(options, "</tr>")
         else
           output = vm_name+" os="+vm_os+" mac="+vm_mac
-          handle_output(options,output)
+          handle_output(options, output)
         end
       end
     end
     if options['output'].to_s.match(/html/)
-      handle_output(options,"</table>")
+      handle_output(options, "</table>")
     else
-      handle_output(options,"")
+      handle_output(options, "")
     end
   end
   return
@@ -622,7 +622,7 @@ end
 def get_vbox_vm_dir(options)
   message          = "Information:\tGetting VirtualBox VM directory"
   command          = "#{options['vboxmanage']} list systemproperties |grep 'Default machine folder' |cut -f2 -d':' |sed 's/^[         ]*//g'"
-  vbox_vm_base_dir = execute_command(options,message,command)
+  vbox_vm_base_dir = execute_command(options, message, command)
   vbox_vm_base_dir = vbox_vm_base_dir.chomp
   if not vbox_vm_base_dir.match(/[a-z,A-Z]/)
     vbox_vm_base_dir = options['home']+"/VirtualBox VMs"
@@ -639,13 +639,13 @@ def delete_vbox_vm_config(options)
   if File.exist?(config_file)
     message = "Information:\tRemoving Virtualbox configuration file "+config_file
     command = "rm \"#{config_file}\""
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   config_file = options['vmdir']+"/"+options['name']+".vbox-prev"
   if File.exist?(config_file)
     message = "Information:\tRemoving Virtualbox configuration file "+config_file
     command = "rm \"#{config_file}\""
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   return
 end
@@ -670,9 +670,9 @@ end
 def check_vbox_vm_doesnt_exist(options)
   message   = "Checking:\tVM "+options['name']+" doesn't exist"
   command   = "#{options['vboxmanage']} list vms"
-  host_list = execute_command(options,message,command)
+  host_list = execute_command(options, message, command)
   if host_list.match(options)
-    handle_output(options,"Information:\tVirtualBox VM #{options['name']} already exists")
+    handle_output(options, "Information:\tVirtualBox VM #{options['name']} already exists")
     quit(options)
   end
   return
@@ -683,7 +683,7 @@ end
 def register_vbox_vm(options)
   message = "Information:\tRegistering VM "+options['name']
   command = "#{options['vboxmanage']} createvm --name \"#{options['name']}\" --ostype \"#{options['os-type']}\" --register"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
@@ -710,7 +710,7 @@ end
 def add_controller_to_vbox_vm(options)
   message = "Information:\tAdding controller to VirtualBox VM"
   command = "#{options['vboxmanage']} storagectl \"#{options['name']}\" --name \"#{defaults['controller']}\" --add \"#{defaults['controller']}\" --controller \"#{options['controller']}\""
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
@@ -719,7 +719,7 @@ end
 def create_vbox_hdd(options)
   message = "Information:\tCreating VM hard disk for "+options['name']
   command = "#{options['vboxmanage']} createhd --filename \"#{options['disk']}\" --size \"#{options['size']}\""
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
@@ -727,7 +727,7 @@ def detach_file_from_vbox_vm(options)
   if options['file'].to_s.match(/iso$/) or options['type'].to_s.match(/iso|cdrom/)
     message = "Information:\tDetaching CDROM from "+options['name']
     command = "#{options['vboxmanage']} storageattach \"#{options['name']}\" --storagectl \"cdrom\" --port 0 --device 0 --type dvddrive --medium none"
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   return
 end
@@ -737,7 +737,7 @@ end
 def add_hdd_to_vbox_vm(options)
   message = "Information:\tAttaching storage \"#{options['disk']}\" of type \"#{defaults['controller']}\" to VM "+options['name']
   command = "#{options['vboxmanage']} storageattach \"#{options['name']}\" --storagectl \"#{defaults['controller']}\" --port 0 --device 0 --type hdd --medium \"#{options['disk']}\""
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
@@ -746,11 +746,11 @@ end
 def add_tools_to_vbox_vm(options)
   message = "Information:\tAttaching CDROM \""+options['vboxadditions']+"\" to VM "+options['name']
   command = "#{options['vboxmanage']} storagectl \"#{options['name']}\" --name \"cdrom\" --add \"sata\" --controller \"IntelAHCI\""
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   if File.exist?(options['vboxadditions'])
     message = "Information:\tAttaching ISO "+options['vboxadditions']+" to VM "+options['name']
     command = "#{options['vboxmanage']} storageattach \"#{options['name']}\" --storagectl \"cdrom\" --port 1 --device 0 --type dvddrive --medium \"#{options['vboxadditions']}\""
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   return
 end
@@ -760,11 +760,11 @@ end
 def add_cdrom_to_vbox_vm(options)
   message = "Information:\tAttaching CDROM \""+options['file']+"\" to VM "+options['name']
   command = "#{options['vboxmanage']} storagectl \"#{options['name']}\" --name \"cdrom\" --add \"sata\" --controller \"IntelAHCI\""
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   if File.exist?(options['vboxadditions'])
     message = "Information:\tAttaching ISO "+options['vboxadditions']+" to VM "+options['name']
     command = "#{options['vboxmanage']} storageattach \"#{options['name']}\" --storagectl \"cdrom\" --port 0 --device 0 --type dvddrive --medium \"#{options['file']}\""
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   return
 end
@@ -774,7 +774,7 @@ end
 def add_memory_to_vbox_vm(options)
   message = "Information:\tAdding memory to VM "+options['name']
   command = "#{options['vboxmanage']} modifyvm \"#{options['name']}\" --memory \"#{options['memory']}\""
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
@@ -784,7 +784,7 @@ def add_socket_to_vbox_vm(options)
   socket_name = "/tmp/#{options['name']}"
   message     = "Information:\tAdding serial controller to "+options['name']
   command     = "#{options['vboxmanage']} modifyvm \"#{options['name']}\" --uartmode1 server #{socket_name}"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return socket_name
 end
 
@@ -793,7 +793,7 @@ end
 def add_serial_to_vbox_vm(options)
   message = "Information:\tAdding serial Port to "+options['name']
   command = "#{options['vboxmanage']} modifyvm \"#{options['name']}\" --uart1 0x3F8 4"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
@@ -999,14 +999,14 @@ end
 def modify_vbox_vm(options)
   message = "Information:\tSetting VirtualBox Parameter "+options['param']+" to "+options['value']
   command = "#{options['vboxmanage']} modifyvm #{options['name']} --#{options['param']} #{options['value']}"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
 def setextradata_vbox_vm(options)
   message = "Information:\tSetting VirtualBox Extradata "+options['param']+" to "+options['value']
   command = "#{options['vboxmanage']} setextradata #{options['name']} \"#{options['param']}\" \"#{options['value']}\""
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
@@ -1015,7 +1015,7 @@ end
 def change_vbox_vm_cpu(options)
   message = "Information:\tSetting VirtualBox VM "+options['name']+" CPUs to "+options['vcpus']
   command = "#{options['vboxmanage']} modifyvm #{options['name']} --cpus #{options['vcpus']}"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
@@ -1024,7 +1024,7 @@ end
 def change_vbox_vm_utc(options)
   message = "Information:\tSetting VirtualBox VM "+options['name']+" RTC to "+options['utc']
   command = "#{options['vboxmanage']} modifyvm #{options['name']} --rtcuseutc #{options['utc']}"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
@@ -1033,10 +1033,10 @@ end
 def change_vbox_vm_mac(options)
   message = "Information:\tSetting VirtualBox VM "+options['name']+" MAC address to "+options['mac']
   if options['mac'].to_s.match(/:/)
-    options['mac'] = options['mac'].gsub(/:/,"")
+    options['mac'] = options['mac'].gsub(/:/, "")
   end
   command = "#{options['vboxmanage']} modifyvm #{options['name']} --macaddress1 #{options['mac']}"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
@@ -1045,48 +1045,48 @@ end
 def boot_vbox_vm(options)
   exists = check_vbox_vm_exists(options)
   if exists == false
-    handle_output(options,"Warning:\tVirtualBox VM #{options['name']} does not exist")
+    handle_output(options, "Warning:\tVirtualBox VM #{options['name']} does not exist")
     return exists
   end
   if options['boot'].to_s.match(/cdrom|net|dvd|disk/)
-    options['boot'] = options['boot'].gsub(/cdrom/,"dvd")
-    set_vbox_boot_device(options['name'],options['boot'])
+    options['boot'] = options['boot'].gsub(/cdrom/, "dvd")
+    set_vbox_boot_device(options['name'], options['boot'])
   end
   message = "Starting:\tVM "+options['name']
   if options['text'] == true or options['serial'] == true or options['headless'] == true
     command = "#{options['vboxmanage']} startvm #{options['name']} --type headless ; sleep 1"
-    handle_output(options,"")
-    handle_output(options,"Information:\tBooting and connecting to virtual serial port of #{options['name']}")
-    handle_output(options,"")
-    handle_output(options,"To disconnect from this session use CTRL-Q")
-    handle_output(options,"")
-    handle_output(options,"If you wish to re-connect to the serial console of this machine,")
-    handle_output(options,"run the following command")
-    handle_output(options,"")
-    handle_output(options,"socat UNIX-CONNECT:/tmp/#{options['name']} STDIO,raw,echo=0,escape=0x11,icanon=0")
-    handle_output(options,"")
-    handle_output(options,"Executing:\t #{command}")
-    handle_output(options,"")
+    handle_output(options, "")
+    handle_output(options, "Information:\tBooting and connecting to virtual serial port of #{options['name']}")
+    handle_output(options, "")
+    handle_output(options, "To disconnect from this session use CTRL-Q")
+    handle_output(options, "")
+    handle_output(options, "If you wish to re-connect to the serial console of this machine,")
+    handle_output(options, "run the following command")
+    handle_output(options, "")
+    handle_output(options, "socat UNIX-CONNECT:/tmp/#{options['name']} STDIO,raw,echo=0,escape=0x11,icanon=0")
+    handle_output(options, "")
+    handle_output(options, "Executing:\t #{command}")
+    handle_output(options, "")
     set_vbox_bin(options)
     if options['vboxmanage'].to_s.match(/[a-z]/)
       %x[#{options['vboxmanage']} startvm #{options['name']} --type headless ; sleep 1]
     end
   else
     command = "#{options['vboxmanage']} startvm #{options['name']}"
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   if options['serial'] == true
     system("socat UNIX-CONNECT:/tmp/#{options['name']} STDIO,raw,echo=0,escape=0x11,icanon=0")
   else
-    handle_output(options,"")
-    handle_output(options,"If you wish to connect to the serial console of this machine,")
-    handle_output(options,"run the following command")
-    handle_output(options,"")
-    handle_output(options,"socat UNIX-CONNECT:/tmp/#{options['name']} STDIO,raw,echo=0,escape=0x11,icanon=0")
-    handle_output(options,"")
-    handle_output(options,"To disconnect from this session use CTRL-Q")
-    handle_output(options,"")
-    handle_output(options,"")
+    handle_output(options, "")
+    handle_output(options, "If you wish to connect to the serial console of this machine,")
+    handle_output(options, "run the following command")
+    handle_output(options, "")
+    handle_output(options, "socat UNIX-CONNECT:/tmp/#{options['name']} STDIO,raw,echo=0,escape=0x11,icanon=0")
+    handle_output(options, "")
+    handle_output(options, "To disconnect from this session use CTRL-Q")
+    handle_output(options, "")
+    handle_output(options, "")
   end
   return exists
 end
@@ -1098,7 +1098,7 @@ def stop_vbox_vm(options)
   if exists == true
     message = "Stopping:\tVM "+options['name']
     command = "#{options['vboxmanage']} controlvm #{options['name']} poweroff"
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   return
 end
@@ -1108,7 +1108,7 @@ end
 def get_vbox_vm_mac(options)
   options['search'] = "MAC"
   options['mac']    = get_vbox_vm_info(options)
-  options['mac']    = options['mac'].chomp.gsub(/\,/,"")
+  options['mac']    = options['mac'].chomp.gsub(/\,/, "")
   return options['mac']
 end
 
@@ -1119,11 +1119,11 @@ def get_vbox_hostonly_interface(options)
   if options['vboxmanage'].match(/[a-z]/)
     message = "Information:\tFinding VirtualBox hostonly network name"
     command = "#{options['vboxmanage']} list hostonlyifs |grep '^Name' |head -1"
-    if_name = execute_command(options,message,command)
+    if_name = execute_command(options, message, command)
     if_name = if_name.split(":")[1]
     if if_name
-      if_name = if_name.gsub(/^\s+/,"")
-      if_name = if_name.gsub(/'/,"")
+      if_name = if_name.gsub(/^\s+/, "")
+      if_name = if_name.gsub(/'/, "")
     else
       if_name = "none"
     end
@@ -1144,25 +1144,25 @@ def check_vbox_hostonly_network(options)
   if !if_check.match(/#{string}/)
     message = "information:\tPlumbing VirtualBox hostonly network"
     command = "#{options['vboxmanage']} hostonlyif create"
-    execute_command(options,message,command)
+    execute_command(options, message, command)
     if options['vmnetdhcp'] == false
       message = "Information:\tDisabling DHCP on "+if_name
       command = "#{options['vboxmanage']} dhcpserver remove --ifname \"#{if_name}\""
-      execute_command(options,message,command)
+      execute_command(options, message, command)
     end
   end
   message = "Information:\tChecking VirtualBox hostonly network "+if_name+" has address "+options['hostonlyip']
   command = "#{options['vboxmanage']} list hostonlyifs |grep 'IPAddress' |awk '{print $2}' |head -1"
-  host_ip = execute_command(options,message,command)
+  host_ip = execute_command(options, message, command)
   host_ip = host_ip.chomp
   if not host_ip.match(/#{options['hostonlyip']}/)
     message = "Information:\tConfiguring VirtualBox hostonly network "+if_name+" with IP "+options['hostonlyip']
     command = "#{options['vboxmanage']} hostonlyif ipconfig \"#{if_name}\" --ip #{options['hostonlyip']} --netmask #{options['netmask']}"
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   message = "Information:\tChecking VirtualBox DHCP Server is Disabled"
   command = "#{options['vboxmanage']} list dhcpservers"
-  output  = execute_command(options,message,command)
+  output  = execute_command(options, message, command)
   if output.match(/Enabled/)
     message = "Information:\tDisabling VirtualBox DHCP Server\t"
     command = "#{options['vboxmanage']} dhcpserver remove --ifname \"#{if_name}\""
@@ -1171,12 +1171,12 @@ def check_vbox_hostonly_network(options)
   case options['host-os-name']
   when /Darwin/
     if options['host-os-release'].split(".")[0].to_i < 14
-      check_osx_nat(options,gw_if_name,if_name)
+      check_osx_nat(options, gw_if_name, if_name)
     else
-      check_osx_pfctl(options,gw_if_name,if_name)
+      check_osx_pfctl(options, gw_if_name, if_name)
     end
   when /Linux/
-    check_linux_nat(options,gw_if_name,if_name)
+    check_linux_nat(options, gw_if_name, if_name)
   when /Solaris/
     check_solaris_nat(if_name)
   end
@@ -1206,7 +1206,7 @@ def add_cpu_to_vbox_vm(options)
   if options['vcpus'].to_i > 1
     message = "Information:\tSetting number of CPUs to "+options['vcpus']
     command = "#{options['vboxmanage']} modifyvm \"#{options['name']}\" --cpus #{options['vcpus']}"
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   return
 end
@@ -1216,10 +1216,10 @@ end
 def configure_vbox_vnc(options)
   message = "Information:\tEnabling VNC for VirtualBox"
   command = "#{options['vboxmanage']} setproperty vrdeextpack VNC"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   message = "Information:\tEnabling VNC for VirtualBox VM "+options['name']
   command = "#{options['vboxmanage']} modifyvm '#{options['name']}' --vrdeproperty VNCPassword=#{options['vncpassword']}"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
@@ -1239,8 +1239,8 @@ def configure_vbox_vm(options)
   register_vbox_vm(options)
   add_controller_to_vbox_vm(options)
   if !options['file'].to_s.match(/ova$/)
-    create_vbox_hdd(options['name'],options['disk'],options['size'])
-    add_hdd_to_vbox_vm(options['name'],options['disk'])
+    create_vbox_hdd(options['name'], options['disk'], options['size'])
+    add_hdd_to_vbox_vm(options['name'], options['disk'])
   end
   add_memory_to_vbox_vm(options)
   options['socket'] = add_socket_to_vbox_vm(options)
@@ -1268,13 +1268,13 @@ def configure_vbox_vm(options)
   if options['vnc'] == true
     configure_vbox_vnc(options)
   end
-  handle_output(options,"Information:\tCreated VirtualBox VM #{options['name']} with MAC address #{options['mac']}")
+  handle_output(options, "Information:\tCreated VirtualBox VM #{options['name']} with MAC address #{options['mac']}")
   return options
 end
 
 # Check VirtualBox NATd
 
-def check_vbox_natd(options,if_name)
+def check_vbox_natd(options, if_name)
   options = check_vbox_is_installed(options)
   if options['vmnetwork'].to_s.match(/hostonly/)
     check_vbox_hostonly_network(options)
@@ -1292,7 +1292,7 @@ def unconfigure_vbox_vm(options)
     if exists == true
       delete_vbox_vm_config(options)
     else
-      handle_output(options,"Warning:\tVirtualBox VM #{options['name']} does not exist")
+      handle_output(options, "Warning:\tVirtualBox VM #{options['name']} does not exist")
       return exists
     end
   end
@@ -1300,7 +1300,7 @@ def unconfigure_vbox_vm(options)
   sleep(5)
   message = "Information:\tDeleting VirtualBox VM "+options['name']
   command = "#{options['vboxmanage']} unregistervm #{options['name']} --delete"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   delete_vbox_vm_config(options)
   return exists
 end

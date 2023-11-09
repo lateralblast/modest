@@ -10,7 +10,7 @@ end
 
 # Populate post install commands
 
-def populate_pe_post_list(admin_username,admin_password,options)
+def populate_pe_post_list(admin_username, admin_password, options)
   post_list = []
   post_list.push("cmd.exe /c powershell -Command \"Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force\",Set Execution Policy 64 Bit,true")
   post_list.push("C:\\Windows\\SysWOW64\\cmd.exe /c powershell -Command \"Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force\",Set Execution Policy 32 Bit,true")
@@ -100,7 +100,7 @@ def output_pe_client_profile(options,output_file)
       options['license'] = ""
     end
   end
-  post_list = populate_pe_post_list(admin_username,admin_password,options)
+  post_list = populate_pe_post_list(admin_username, admin_password, options)
   xml       = Builder::XmlMarkup.new(:target => xml_output, :indent => 2)
   xml.instruct! :xml, :version => "1.0", :encoding => "UTF-8"
   xml.unattend(:xmlns => "urn:schemas-microsoft-com:unattend") {
@@ -503,7 +503,7 @@ def output_pe_client_profile(options,output_file)
   file.close
   message = "Information:\tValidating Windows configuration for "+options['name']
   command = "xmllint #{output_file}"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
@@ -573,13 +573,13 @@ end
 
 # Output Windows winrm powershell script
 
-def output_psh(options,output_psh,output_file)
-  file = File.open(output_file,"a")
+def output_psh(options, output_psh, output_file)
+  file = File.open(output_file, "a")
   output_psh.each do |item|
     line = item+"\n"
     file.write(line)
   end
   file.close
-  print_contents_of_file(options,"",output_file)
+  print_contents_of_file(options, "", output_file)
   return
 end

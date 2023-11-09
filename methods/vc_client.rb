@@ -5,11 +5,11 @@
 def handle_vcsa_ova(options)
   if options['file'].to_s.match(/iso$/)
     uid = options['uid']
-    check_dir_exists(options,options['baserepodir'])
-    check_dir_owner(options,options['baserepodir'],uid)
+    check_dir_exists(options, options['baserepodir'])
+    check_dir_owner(options, options['baserepodir'], uid)
     options['repodir'] = options['baserepodir']+"/"+options['service']
-    check_dir_exists(options,options['repodir'])
-    check_dir_owner(options,options['repodir'],uid)
+    check_dir_exists(options, options['repodir'])
+    check_dir_owner(options, options['repodir'], uid)
     mount_iso(options)
     copy_iso(options)
     options['file'] = options['repodir']+"/vcsa/vmware-vcsa"
@@ -64,7 +64,7 @@ def deploy_vcsa_vm(options)
         end
       end
     end
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   return
 end
@@ -72,20 +72,20 @@ end
 # Create deployment script
 
 def create_vcsa_deploy_script(options)
-  options['netmask'] = options['netmask'].gsub(/\//,"")
+  options['netmask'] = options['netmask'].gsub(/\//, "")
   uid = %x[id -u].chomp
   if options['verbose'] == true
-    handle_output(options,"Information:\tChecking VCSA client directory")
+    handle_output(options, "Information:\tChecking VCSA client directory")
   end
-  check_dir_exists(options,options['clientdir'])
-  check_dir_owner(options,options['clientdir'],uid)
+  check_dir_exists(options, options['clientdir'])
+  check_dir_owner(options, options['clientdir'], uid)
   service_dir = options['clientdir']+"/"+options['service']
-  check_dir_exists(options,service_dir)
+  check_dir_exists(options, service_dir)
   options['clientdir']  = service_dir+"/"+options['name']
-  check_dir_exists(options,options['clientdir'])
+  check_dir_exists(options, options['clientdir'])
   output_file = options['clientdir']+"/"+options['name']+".sh"
-  check_dir_exists(options,options['clientdir'])
-  file = File.open(output_file,"w")
+  check_dir_exists(options, options['clientdir'])
+  file = File.open(output_file, "w")
   file.write("#!/bin/bash\n")
   file.write("\n")
   file.write("OVFTOOL=\"#{options['ovfbin']}\"\n")
@@ -150,7 +150,7 @@ end
 # Create VCSA JSON file
 
 def create_vcsa_json(options)
-  options['netmask'] = options['netmask'].gsub(/\//,"")
+  options['netmask'] = options['netmask'].gsub(/\//, "")
   if options['service'].to_s.match(/6_[5-6]/)
     json_version = "2.3.0"
   end
@@ -298,21 +298,21 @@ def create_vcsa_json(options)
     end
     uid = %x[id -u].chomp
     if options['verbose'] == true
-      handle_output(options,"Information:\tChecking VCSA JSON configuration directory")
+      handle_output(options, "Information:\tChecking VCSA JSON configuration directory")
     end
-    check_dir_exists(options,options['clientdir'])
-    check_dir_owner(options,options['clientdir'],uid)
+    check_dir_exists(options, options['clientdir'])
+    check_dir_owner(options, options['clientdir'], uid)
     service_dir = options['clientdir']+"/"+options['service']
-    check_dir_exists(options,service_dir)
-    check_dir_owner(options,service_dir,uid)
+    check_dir_exists(options, service_dir)
+    check_dir_owner(options, service_dir, uid)
     options['clientdir']  = service_dir+"/"+options['name']
-    check_dir_exists(options,options['clientdir'])
-    check_dir_owner(options,options['clientdir'],uid)
+    check_dir_exists(options, options['clientdir'])
+    check_dir_owner(options, options['clientdir'], uid)
     output_file = options['clientdir']+"/"+options['name']+".json"
-    check_dir_exists(options,options['clientdir'])
+    check_dir_exists(options, options['clientdir'])
     json   = JSON.parse(string)
     output = JSON.pretty_generate(json)
-    file   = File.open(output_file,"w")
+    file   = File.open(output_file, "w")
     file.write(output)
     file.close()
   return output_file

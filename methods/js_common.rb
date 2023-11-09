@@ -93,9 +93,9 @@ def get_js_iso_update(options)
   end
   message = "Checking:\tSolaris release"
   command = "cat #{release} |head -1 |awk \"{print \\\$4}\""
-  output  = execute_command(options,message,command)
+  output  = execute_command(options, message, command)
   if output.match(/_/)
-    update = output.split(/_/)[1].gsub(/[a-z]/,"")
+    update = output.split(/_/)[1].gsub(/[a-z]/, "")
   else
     case output
     when /1\/06/
@@ -132,18 +132,18 @@ def list_js_isos(options)
   iso_list = get_base_dir_list(options)
   if iso_list.length > 0
     if options['output'].to_s.match(/html/)
-      handle_output(options,"<h1>Available Jumpstart ISOs:</h1>")
-      handle_output(options,"<table border=\"1\">")
-      handle_output(options,"<tr>")
-      handle_output(options,"<th>ISO File</th>")
-      handle_output(options,"<th>Distribution</th>")
-      handle_output(options,"<th>Version</th>")
-      handle_output(options,"<th>Architecture</th>")
-      handle_output(options,"<th>Service Name</th>")
-      handle_output(options,"</tr>")
+      handle_output(options, "<h1>Available Jumpstart ISOs:</h1>")
+      handle_output(options, "<table border=\"1\">")
+      handle_output(options, "<tr>")
+      handle_output(options, "<th>ISO File</th>")
+      handle_output(options, "<th>Distribution</th>")
+      handle_output(options, "<th>Version</th>")
+      handle_output(options, "<th>Architecture</th>")
+      handle_output(options, "<th>Service Name</th>")
+      handle_output(options, "</tr>")
     else
-      handle_output(options,"Available Jumpstart ISOs:")
-      handle_output(options,"") 
+      handle_output(options, "Available Jumpstart ISOs:")
+      handle_output(options, "") 
     end
     iso_list.each do |file_name|
       file_name   = file_name.chomp
@@ -152,40 +152,40 @@ def list_js_isos(options)
       iso_version = iso_info[1..2].join("_")
       iso_arch    = iso_info[4]
       if options['output'].to_s.match(/html/)
-        handle_output(options,"<tr>")
-        handle_output(options,"<td>#{file_name}</td>")
-        handle_output(options,"<td>Solaris</td>")
-        handle_output(options,"<td>#{iso_version}</td>")
-        handle_output(options,"<td>#{iso_arch}</td>")
+        handle_output(options, "<tr>")
+        handle_output(options, "<td>#{file_name}</td>")
+        handle_output(options, "<td>Solaris</td>")
+        handle_output(options, "<td>#{iso_version}</td>")
+        handle_output(options, "<td>#{iso_arch}</td>")
       else
-        handle_output(options,"ISO file:\t#{file_name}")
-        handle_output(options,"Distribution:\tSolaris")
-        handle_output(options,"Version:\t#{iso_version}")
-        handle_output(options,"Architecture:\t#{iso_arch}")
+        handle_output(options, "ISO file:\t#{file_name}")
+        handle_output(options, "Distribution:\tSolaris")
+        handle_output(options, "Version:\t#{iso_version}")
+        handle_output(options, "Architecture:\t#{iso_arch}")
       end
       options['service'] = "sol_"+iso_version+"_"+iso_arch
       options['repodir'] = options['baserepodir']+"/"+options['service']
       if File.directory?(options['repodir'])
         if options['output'].to_s.match(/html/)
-          handle_output(options,"<td>#{options['service']} (exists)</td>")
+          handle_output(options, "<td>#{options['service']} (exists)</td>")
         else
-          handle_output(options,"Information:\tService Name #{options['service']} (exists)")
+          handle_output(options, "Information:\tService Name #{options['service']} (exists)")
         end
       else
         if options['output'].to_s.match(/html/)
-          handle_output(options,"<td>#{options['service']}</td>")
+          handle_output(options, "<td>#{options['service']}</td>")
         else
-          handle_output(options,"Information:\tService Name #{options['service']}")
+          handle_output(options, "Information:\tService Name #{options['service']}")
         end
       end
       if options['output'].to_s.match(/html/)
-        handle_output(options,"</tr>") 
+        handle_output(options, "</tr>") 
       else
-        handle_output(options,"") 
+        handle_output(options, "") 
       end
     end
     if options['output'].to_s.match(/html/)
-      handle_output(options,"</table>")
+      handle_output(options, "</table>")
     end
   end
   return

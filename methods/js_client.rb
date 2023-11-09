@@ -5,7 +5,7 @@
 
 def create_js_sysid_file(options)
   tmp_file = "/tmp/sysid_"+options['name']
-  file=File.open(tmp_file,"w")
+  file=File.open(tmp_file, "w")
   options['q_order'].each do |key|
     if options['q_struct'][key].type == "output"
       if options['q_struct'][key].parameter == ""
@@ -19,8 +19,8 @@ def create_js_sysid_file(options)
   file.close
   message = "Information:\tCreating configuration file "+options['sysid']+" for "+options['name']
   command = "cp #{tmp_file} #{options['sysid']} ; rm #{tmp_file}"
-  execute_command(options,message,command)
-  print_contents_of_file(options,"",options['sysid'])
+  execute_command(options, message, command)
+  print_contents_of_file(options, "", options['sysid'])
   return
 end
 
@@ -28,7 +28,7 @@ end
 
 def create_js_machine_file(options)
   tmp_file = "/tmp/machine_"+options['name']
-  file=File.open(tmp_file,"w")
+  file=File.open(tmp_file, "w")
   options['q_order'].each do |key|
     if options['q_struct'][key].parameter.to_s.match(/install_type|system_type|cluster|partitioning|pool|bootenv/)
       if options['q_struct'][key].type == "output" 
@@ -44,8 +44,8 @@ def create_js_machine_file(options)
   file.close
   message = "Information:\tCreating configuration file "+options['machine']+" for "+options['name']
   command = "cp #{tmp_file} #{options['machine']} ; rm #{tmp_file}"
-  execute_command(options,message,command)
-  print_contents_of_file(options,"",options['machine'])
+  execute_command(options, message, command)
+  print_contents_of_file(options, "", options['machine'])
   return
 end
 
@@ -64,22 +64,22 @@ def create_js_rules_file(options)
       karch_line = "any - - machine."+options['name']+" -"
     end
   end
-  file = File.open(tmp_file1,"w")
+  file = File.open(tmp_file1, "w")
   file.write("#{karch_line}\n")
   file.close
   message = "Information:\tCreating configuration file "+options['rules']+" for "+options['name']
   command = "cp #{tmp_file1} #{options['rules']} ; rm #{tmp_file1}"
-  execute_command(options,message,command)
-  print_contents_of_file(options,"",options['rules'])
+  execute_command(options, message, command)
+  print_contents_of_file(options, "", options['rules'])
   check_sum = %x[sum #{options['rules']} |awk '{print $1}'].strip
-  file = File.open(tmp_file2,"w")
+  file = File.open(tmp_file2, "w")
   file.write("#{karch_line}\n")
   file.write("# version=2 checksum=#{check_sum}\n")
   file.close
   message = "Information:\tCreating configuration file "+ok_file+" for "+options['name']
   command = "cp #{tmp_file2} #{ok_file} ; rm #{tmp_file2}"
-  execute_command(options,message,command)
-  print_contents_of_file(options,"",ok_file)
+  execute_command(options, message, command)
+  print_contents_of_file(options, "", ok_file)
   return karch_line
 end
 
@@ -129,13 +129,13 @@ def create_js_finish_file(options)
   file_array.push("")
   file_array.push("# Assign it to admin")
   file_array.push("chroot /a /usr/sbin/usermod -P'Primary Administrator' ${ADMINUSER}")
-  file = File.open(options['finish'],"w")
+  file = File.open(options['finish'], "w")
   file_array.each do |line|
     line = line+"\n"
     file.write(line)
   end
   file.close()
-  print_contents_of_file(options,"",options['finish'])
+  print_contents_of_file(options, "", options['finish'])
   return
 end
 
@@ -147,7 +147,7 @@ def check_js_config(options)
   if not File.exist?("#{options['clientdir']}/check")
     message = "Information:\tCopying check script "+check_script+" to "+options['clientdir']
     command = "cd #{options['clientdir']} ; cp -p #{check_script} ."
-    output  = execute_command(options,message,command)
+    output  = execute_command(options, message, command)
   end
   return
 end
@@ -163,7 +163,7 @@ end
 
 def configure_js_pxe_client(options)
   if options['arch'].to_s.match(/i386/)
-    tftp_pxe_file = options['mac'].gsub(/:/,"")
+    tftp_pxe_file = options['mac'].gsub(/:/, "")
     tftp_pxe_file = tftp_pxe_file.upcase
     tftp_pxe_file = "01"+tftp_pxe_file+".bios"
     test_file     = options['tftpdir']+"/"+tftp_pxe_file
@@ -171,9 +171,9 @@ def configure_js_pxe_client(options)
       pxegrub_file = options['service']+"/boot/grub/pxegrub"
       message      = "Information:\tCreating PXE boot file for "+options['name']+" with MAC address "+options['mac']
       command      = "cd #{options['tftpdir']} ; ln -s #{pxegrub_file} #{tftp_pxe_file}"
-      execute_command(options,message,command)
+      execute_command(options, message, command)
     end
-    pxe_cfg_file = options['mac'].gsub(/:/,"")
+    pxe_cfg_file = options['mac'].gsub(/:/, "")
     pxe_cfg_file = "01"+pxe_cfg_file.upcase
     pxe_cfg_file = "menu.lst."+pxe_cfg_file
     pxe_cfg_file = options['tftpdir']+"/"+pxe_cfg_file
@@ -181,7 +181,7 @@ def configure_js_pxe_client(options)
     install_url  = options['publisherhost']+":"+options['repodir']
     sysid_url    = options['publisherhost']+":"+sysid_dir
     tmp_file     = "/tmp/pxe_"+options['name']
-    file         = File.open(tmp_file,"w")
+    file         = File.open(tmp_file, "w")
     file.write("default 0\n")
     file.write("timeout 3\n")
     file.write("title Oracle Solaris\n")
@@ -198,8 +198,8 @@ def configure_js_pxe_client(options)
     file.close
     message = "Information:\tCreating PXE boot config file "+pxe_cfg_file
     command = "cp #{tmp_file} #{pxe_cfg_file} ; rm #{tmp_file}"
-    execute_command(options,message,command)
-    print_contents_of_file(options,"",pxe_cfg_file)
+    execute_command(options, message, command)
+    print_contents_of_file(options, "", pxe_cfg_file)
   end
   return
 end
@@ -227,7 +227,7 @@ def unconfigure_js_client(options)
     if File.directory(options['repodir'])
       remove_js_client(options)
     else
-      handle_output(options,"Warning:\tClient #{options['name']} does not exist under service #{options['service']}")
+      handle_output(options, "Warning:\tClient #{options['name']} does not exist under service #{options['service']}")
     end
   end
   service_list = Dir.entries(options['baserepodir'])
@@ -239,7 +239,7 @@ def unconfigure_js_client(options)
         client_list = Dir.entries(clients_dir)
         client_list.each do |dir_name|
           if dir_name.match(/#{options['name']}/)
-            remove_js_client(options['name'],options['repodir'],temp_name)
+            remove_js_client(options['name'], options['repodir'], temp_name)
             return
           end
         end
@@ -257,7 +257,7 @@ def add_install_client(options)
   tool_dir = options['repodir']+"/Solaris_*/Tools"
   message  = "Information:\tAdding jumpstart client #{options['name']}"
   command  = "cd #{tool_dir} ; ./add_install_client -e #{options['mac']} -i #{options['ip']} -s #{options['hostip']}:#{options['repodir']} -c #{options['hostip']}:#{options['clientdir']} -p #{options['hostip']}:#{options['clientdir']} #{options['name']} #{options['karch']}"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
@@ -282,42 +282,42 @@ def configure_js_client(options)
   end
   if options['file'].to_s.match(/flar/)
     if not File.exist?(options['image'])
-      handle_output(options,"Warning:\tFlar file #{options['file']} does not exist")
+      handle_output(options, "Warning:\tFlar file #{options['file']} does not exist")
       quit(options)
     else
       message = "Information:\tMaking sure file is world readable"
       command = "chmod 755 #{options['file']}"
-      execute_command(options,message,command)
+      execute_command(options, message, command)
     end
     export_dir = Pathname.new(options['file'])
     export_dir = export_dir.dirname.to_s
-    add_apache_alias(options,export_dir)
+    add_apache_alias(options, export_dir)
     if not options['service'].to_s.match(/[a-z,A-Z]/)
       options['service'] = Pathname.new(options['file'])
-      options['service'] = options['service'].basename.to_s.gsub(/\.flar/,"")
+      options['service'] = options['service'].basename.to_s.gsub(/\.flar/, "")
     end
   else
     if not options['service'].to_s.match(/i386|sparc/)
       options['service'] = options['service']+"_"+options['arch']
     end
     if not options['service'].to_s.match(/#{options['arch']}/)
-      handle_output(options,"Information:\tService #{options['service']} and Client architecture #{options['arch']} do not match")
+      handle_output(options, "Information:\tService #{options['service']} and Client architecture #{options['arch']} do not match")
      quit(options)
     end
     options['repodir']=options['baserepodir']+"/"+options['service']
     if not File.directory?(options['repodir'])
-      handle_output(options,"Warning:\tService #{options['service']} does not exist")
-      handle_output(options,"") 
+      handle_output(options, "Warning:\tService #{options['service']} does not exist")
+      handle_output(options, "") 
       list_js_services(options)
       quit(options)
     end
   end
   # Create clients directory
   clients_dir = options['clientdir']+"/"+options['service']
-  check_dir_exists(options,clients_dir)
+  check_dir_exists(options, clients_dir)
   # Create client directory
   options['clientdir'] = clients_dir+"/"+options['name']
-  check_dir_exists(options,options['clientdir'])
+  check_dir_exists(options, options['clientdir'])
   # Get release information
   options['repodir'] = options['baserepodir']+"/"+options['service']
   if options['host-os-name'].to_s.match(/Darwin/)
@@ -351,7 +351,7 @@ def configure_js_client(options)
   add_hosts_entry(options)
   add_to_ethers_file(options)
   #export_name = "#{options['name']}_config"
-  #add_nfs_export(options,export_name,options['clientrootdir'])
+  #add_nfs_export(options, export_name, options['clientrootdir'])
   add_install_client(options)
   check_tftp_server(options)
   return

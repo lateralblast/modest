@@ -12,12 +12,12 @@ end
 def configure_vs_alt_repo(options)
   rpm_list = build_vs_alt_rpm_list(options)
   alt_dir  = options['baserepodir']+"/"+options['service']+"/alt"
-  check_dir_exists(options,alt_dir)
+  check_dir_exists(options, alt_dir)
   rpm_list.each do |rpm_url|
     rpm_file = File.basename(rpm_url)
     rpm_file = alt_dir+"/"+rpm_file
     if not File.exist?(rpm_file)
-      wget_file(options,rpm_url,rpm_file)
+      wget_file(options, rpm_url, rpm_file)
     end
   end
   return
@@ -32,7 +32,7 @@ def unconfigure_vs_repo(options)
     if File.symlink?(options['repodir'])
       message = "Information:\tRemoving symlink "+options['repodir']
       command = "rm #{options['repodir']}"
-      execute_command(options,message,command)
+      execute_command(options, message, command)
     else
       destroy_zfs_fs(options['repodir'])
     end
@@ -40,13 +40,13 @@ def unconfigure_vs_repo(options)
     if File.directory?(options['netbootdir'])
       message = "Information:\tRemoving directory "+options['netbootdir']
       command = "rmdir #{options['netbootdir']}"
-      execute_command(options,message,command)
+      execute_command(options, message, command)
     end
   else
     if File.directory?(options['repodir'])
       message = "Information:\tRemoving directory "+options['repodir']
       command = "rm #{options['repodir']}"
-      execute_command(options,message,command)
+      execute_command(options, message, command)
     end
   end
   return
@@ -56,30 +56,30 @@ end
 
 def configure_vs_repo(options)
   if options['host-os-name'].to_s.match(/SunOS/)
-    check_fs_exists(options,options['repodir'])
+    check_fs_exists(options, options['repodir'])
     options['netbootdir'] = options['tftpdir']+"/"+options['service']
     if not File.symlink?(options['repodir'])
       if options['verbose'] == true
-        handle_output(options,"Information:\tChecking vSphere net boot directory")
+        handle_output(options, "Information:\tChecking vSphere net boot directory")
       end
-      check_dir_owner(options,options['netbootdir'],options['uid'])
-      File.symlink(options['repodir'],options['netbootdir'])
+      check_dir_owner(options, options['netbootdir'], options['uid'])
+      File.symlink(options['repodir'], options['netbootdir'])
     end
   end
   if options['host-os-name'].to_s.match(/Linux/)
     options['netbootdir'] = options['tftpdir']+"/"+options['service']
-    check_fs_exists(options,options['netbootdir'])
+    check_fs_exists(options, options['netbootdir'])
     if !File.exist?(options['repodir'])
       if options['verbose'] == true
-        handle_output(options,"Information:\tChecking vSphere net boot directory")
+        handle_output(options, "Information:\tChecking vSphere net boot directory")
       end
-      check_dir_owner(options,options['netbootdir'],options['uid'])
-      File.symlink(options['netbootdir'],options['repodir'])
+      check_dir_owner(options, options['netbootdir'], options['uid'])
+      File.symlink(options['netbootdir'], options['repodir'])
     end
   end
   check_dir = options['repodir']+"/upgrade"
   if options['verbose'] == true
-    handle_output(options,"Information:\tChecking directory #{check_dir} exists")
+    handle_output(options, "Information:\tChecking directory #{check_dir} exists")
   end
   if not File.directory?(check_dir)
     mount_iso(options)
@@ -90,11 +90,11 @@ def configure_vs_repo(options)
   options['clientdir'] = options['clientdir']+"/"+options['service']
   ovf_file = options['clientdir']+"/vmware-ovftools.tar.gz"
   if not File.exist?(ovf_file)
-    wget_file(options,options['ovftarurl'],ovf_file)
+    wget_file(options, options['ovftarurl'], ovf_file)
     if options['host-os-uname'].match(/RedHat/) and options['host-os-version'].match(/^7|^6\.7/)
       message = "Information:\tFixing permission on "+ovf_file
       command = "chcon -R -t httpd_sys_rw_content_t #{ovf_file}"
-      execute_command(options,message,command)
+      execute_command(options, message, command)
     end
   end
   return
@@ -113,26 +113,26 @@ def configure_vs_pxe_boot(options)
   test_dir = options['pxebootdir']+"/usr"
   if not File.directory?(test_dir)
     rpm_dir = options['workdir']+"/rpms"
-    check_dir_exists(options,rpm_dir)
+    check_dir_exists(options, rpm_dir)
     if File.directory?(rpm_dir)
       message  = "Information:\tLocating syslinux package"
       command  = "ls #{rpm_dir} |grep 'syslinux-[0-9]'"
-      output   = execute_command(options,message,command)
+      output   = execute_command(options, message, command)
       rpm_file = output.chomp
       if not rpm_file.match(/syslinux/)
         rpm_file = "syslinux-4.02-7.2.el5.i386.rpm"
         rpm_file = rpm_dir+"/"+rpm_file
         rpm_url  = "https://vault.centos.org/5.11/os/i386/CentOS/syslinux-4.02-7.2.el5.i386.rpm"
-        wget_file(options,rpm_url,rpm_file)
+        wget_file(options, rpm_url, rpm_file)
       else
         rpm_file = rpm_dir+"/"+rpm_file
       end
-      check_dir_exists(options,options['pxebootdir'])
+      check_dir_exists(options, options['pxebootdir'])
       message = "Information:\tCopying PXE boot files from "+rpm_file+" to "+options['pxebootdir']
       command = "cd #{options['pxebootdir']} ; #{options['rpm2cpiobin'] } #{rpm_file} | cpio -iud"
-      output  = execute_command(options,message,command)
+      output  = execute_command(options, message, command)
     else
-      handle_output(options,"Warning:\tSource directory #{rpm_dir} does not exist")
+      handle_output(options, "Warning:\tSource directory #{rpm_dir} does not exist")
       quit(options)
     end
   end
@@ -142,11 +142,11 @@ def configure_vs_pxe_boot(options)
       iso_dir = options['baserepodir']+"/"+options['service']+"/images"
       message = "Information:\tCopying PXE boot images from "+iso_dir+" to "+pxe_image_dir
       command = "cp -r #{iso_dir} #{options['pxebootdir']}"
-      output  = execute_command(options,message,command)
+      output  = execute_command(options, message, command)
     end
   end
   pxe_cfg_dir = options['tftpdir']+"/pxelinux.cfg"
-  check_dir_exists(options,pxe_cfg_dir)
+  check_dir_exists(options, pxe_cfg_dir)
   return
 end
 
@@ -164,13 +164,13 @@ def configure_vs_server(options)
   if options['file'].to_s.match(/[a-z,A-Z]/)
     if File.exist?(options['file'])
       if not options['file'].to_s.match(/VM/)
-        handle_output(options,"Warning:\tISO #{options['file']} does not appear to be VMware distribution")
+        handle_output(options, "Warning:\tISO #{options['file']} does not appear to be VMware distribution")
         quit(options)
       else
         iso_list[0] = options['file']
       end
     else
-      handle_output(options,"Warning:\tISO file #{options['file']} does not exist")
+      handle_output(options, "Warning:\tISO file #{options['file']} does not exist")
     end
   else
     iso_list = get_base_dir_list(options)
@@ -184,15 +184,15 @@ def configure_vs_server(options)
       vs_distro   = vs_distro.downcase
       iso_version = iso_info[3]
       iso_arch    = iso_info[4].split(/\./)[1]
-      iso_version = iso_version.gsub(/\./,"_")
+      iso_version = iso_version.gsub(/\./, "_")
       options['service'] = vs_distro+"_"+iso_version+"_"+iso_arch
       options['repodir'] = options['baserepodir']+"/"+options['service']
-      add_apache_alias(options,options['service'])
+      add_apache_alias(options, options['service'])
       configure_vs_repo(options)
       configure_vs_pxe_boot(options)
     end
   else
-    add_apache_alias(options,options['service'])
+    add_apache_alias(options, options['service'])
     configure_vs_repo(options)
     configure_vs_pxe_boot(options)
   end
@@ -205,10 +205,10 @@ def list_vs_services(options)
   options['method'] = "vs"
   dir_list = get_dir_item_list(options)
   message  = "vSphere Services:"
-  handle_output(options,message)
+  handle_output(options, message)
   dir_list.each do |service|
-    handle_output(options,service)
+    handle_output(options, service)
   end
-  handle_output(options,"")
+  handle_output(options, "")
   return
 end

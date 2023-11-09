@@ -15,15 +15,15 @@ end
 
 # Create Userdata yaml file
 
-def create_aws_user_data_file(options,output_file)
+def create_aws_user_data_file(options, output_file)
   yaml = populate_aws_user_data_yaml()
-  file = File.open(output_file,"w")
+  file = File.open(output_file, "w")
   yaml.each do |item|
     line = item+"\n"
     file.write(line)
   end
   file.close
-  print_contents_of_file(options,"",output_file)
+  print_contents_of_file(options, "", output_file)
   return
 end
 
@@ -32,14 +32,14 @@ end
 def build_aws_config(options)
   exists = check_aws_image_exists(options)
   if exists == true
-    handle_output(options,"Warning:\tAWS image already exists for '#{options['name']}'")
+    handle_output(options, "Warning:\tAWS image already exists for '#{options['name']}'")
     quit(options)
   end
   client_dir = options['clientdir']+"/packer/aws/"+options['name']
   json_file  = client_dir+"/"+options['name']+".json"
   message    = "Information:\tBuilding Packer AWS instance using AMI name '#{options['name']}' using '#{json_file}'"
   command    = "packer build #{json_file}"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
@@ -58,36 +58,36 @@ def connect_to_aws_vm(options)
     ssh_command = "ssh -o StrictHostKeyChecking=no"
   end 
   if not options['ip'].to_s.match(/[0-9]/) and not options['id'].to_s.match(/[0-9]/)
-    handle_output(options,"Warning:\tNo IP or Instance ID specified")
+    handle_output(options, "Warning:\tNo IP or Instance ID specified")
     quit(options)
   end
   if options['adminuser']== options['empty']
-    handle_output(options,"Warning:\tNo user specified")
+    handle_output(options, "Warning:\tNo user specified")
     quit(options)
   end
   if options['key']== options['empty'] and options['keyfile']== options['empty']
     if options['id'].to_s.match(/[0-9]/)
-      options['key'] = get_aws_instance_key_name(options['access'],options['secret'],options['region'],options['id'])
-      handle_output(options,"Information:\tFound key '#{options['key']}' from Instance ID '#{options['id']}'")
+      options['key'] = get_aws_instance_key_name(options['access'], options['secret'], options['region'], options['id'])
+      handle_output(options, "Information:\tFound key '#{options['key']}' from Instance ID '#{options['id']}'")
     else
-      handle_output(options,"Warning:\tNo key specified")
+      handle_output(options, "Warning:\tNo key specified")
       quit(options)
     end
   end
   if not options['ip'].to_s.match(/[0-9]/)
-    options['ip'] = get_aws_instance_ip(options['access'],options['secret'],options['region'],options['id'])
+    options['ip'] = get_aws_instance_ip(options['access'], options['secret'], options['region'], options['id'])
   end
   if options['keyfile']== options['empty']
     options['keyfile'] = options['keydir']+"/"+options['key']+".pem"
   end
   if not File.exist?(options['keyfile'])
-    handle_output(options,"Warning:\tCould not find AWS SSH Key file '#{options['keyfile']}'")
+    handle_output(options, "Warning:\tCould not find AWS SSH Key file '#{options['keyfile']}'")
     quit(options)
   end
   command = "#{ssh_command} -i #{options['keyfile']} #{options['adminuser']}@#{options['ip']}" 
   update_user_ssh_config(options)
   if options['verbose'] == true
-    handle_output(options,"Information:\tExecuting '#{command}'")
+    handle_output(options, "Information:\tExecuting '#{command}'")
   end
   exec "#{command}"
   return
@@ -97,14 +97,14 @@ end
 
 def stop_aws_vm(options)
   if options['id'] == "all"
-    ec2,reservations = get_aws_reservations(options['access'],options['secret'],options['region'])
+    ec2, reservations = get_aws_reservations(options['access'], options['secret'], options['region'])
     reservations.each do |reservation|
       reservation['instances'].each do |instance|
         options['id'] = instance.instance_id
         status        = instance.state.name
         if status.match(/running/)
-          handle_output(options,"Information:\tStopping Instance ID #{options['id']}")
-          ec2 = initiate_aws_ec2_client(options['access'],options['secret'],options['region'])
+          handle_output(options, "Information:\tStopping Instance ID #{options['id']}")
+          ec2 = initiate_aws_ec2_client(options['access'], options['secret'], options['region'])
           ec2.stop_instances(instance_ids:[options['id']])
         end
       end
@@ -117,7 +117,7 @@ def stop_aws_vm(options)
         options['ids'][0] = options['id']
       end
       options['ids'].each do |id|
-        handle_output(options,"Information:\tStopping Instance ID #{id}")
+        handle_output(options, "Information:\tStopping Instance ID #{id}")
         ec2 = initiate_aws_ec2_client(options)
         ec2.stop_instances(instance_ids:[id])
       end
@@ -130,13 +130,13 @@ end
 
 def boot_aws_vm(options)
   if options['id'] == "all"
-    ec2,reservations = get_aws_reservations(options)
+    ec2, reservations = get_aws_reservations(options)
     reservations.each do |reservation|
       reservation['instances'].each do |instance|
         options['id'] = instance.instance_id
         status = instance.state.name
         if not status.match(/running|terminated/)
-          handle_output(options,"Information:\tStarting Instance ID #{options['id']}")
+          handle_output(options, "Information:\tStarting Instance ID #{options['id']}")
           ec2 = initiate_aws_ec2_client(options)
           ec2.start_instances(instance_ids:[options['id']])
         end
@@ -150,7 +150,7 @@ def boot_aws_vm(options)
         options['ids'][0] = options['id']
       end
       options['ids'].each do |id|
-        handle_output(options,"Information:\tStarting Instance ID #{id}")
+        handle_output(options, "Information:\tStarting Instance ID #{id}")
         ec2 = initiate_aws_ec2_client(options)
         ec2.start_instances(instance_ids:[id])
       end
@@ -174,25 +174,25 @@ def delete_aws_vm(options)
     end
     options['ids'].each do |id|
       if not options['id'].to_s.match(/^i/)
-        handle_output(options,"Warning:\tInvalid Instance ID '#{id}'")
+        handle_output(options, "Warning:\tInvalid Instance ID '#{id}'")
         quit(options)
       end
       ec2 = initiate_aws_ec2_client(options)
-      handle_output(options,"Information:\tTerminating Instance ID #{id}")
+      handle_output(options, "Information:\tTerminating Instance ID #{id}")
       ec2.terminate_instances(instance_ids:[id])
     end
   else
     if options['id'].to_s.match(/all/)
-      ec2,reservations = get_aws_reservations(options)
+      ec2, reservations = get_aws_reservations(options)
       reservations.each do |reservation|
         reservation['instances'].each do |instance|
           options['id'] = instance.instance_id
           status        = instance.state.name
           if not status.match(/terminated/)
-            handle_output(options,"Information:\tTerminating Instance ID #{options['id']}")
+            handle_output(options, "Information:\tTerminating Instance ID #{options['id']}")
             ec2.terminate_instances(instance_ids:[options['id']])
           else
-            handle_output(options,"Information:\tInstance ID #{options['id']} already terminated")
+            handle_output(options, "Information:\tInstance ID #{options['id']} already terminated")
           end
         end
       end
@@ -211,7 +211,7 @@ def reboot_aws_vm(options)
       options['ids'][0] = options['id']
     end
     options['ids'].each do |id|
-      handle_output(options,"Information\tRebooting Instance ID #{id}")
+      handle_output(options, "Information\tRebooting Instance ID #{id}")
       ec2 = initiate_aws_ec2_client(options)
       ec2.reboot_instances(instance_ids:[id])
     end
@@ -223,11 +223,11 @@ end
 
 def create_aws_image(options)
   if not options['id'].to_s.match(/[0-9]/)
-    handle_output(options,"Warning:\tNo Instance ID specified")
+    handle_output(options, "Warning:\tNo Instance ID specified")
     quit(options)
   end
   if options['name']== options['empty']
-    ec2,images = get_aws_images(options)
+    ec2, images = get_aws_images(options)
     images.each do |image|
       image_name = image.name
       if image_name.match(/^#{options['name']}$/)
@@ -239,7 +239,7 @@ def create_aws_image(options)
   ec2      = initiate_aws_ec2_client(options)
   image    = ec2.create_image({ dry_run: false, instance_id: options['id'], name: options['name'] })
   image_id = image.image_id
-  handle_output(options,"Information:\tCreated image #{image_id} with name '#{options['name']}' from instance #{options['id']}")
+  handle_output(options, "Information:\tCreated image #{image_id} with name '#{options['name']}' from instance #{options['id']}")
   return
 end
 
@@ -259,20 +259,20 @@ def create_aws_instance(options)
     security_groups = [ security_groups ]
   end
   if key_name == options['empty']
-    handle_output(options,"Warning:\tNo key specified")
+    handle_output(options, "Warning:\tNo key specified")
     quit(options)
   end
   if not image_id.match(/^ami/)
     old_image_id = image_id
-    ec2,image_id = get_aws_image(image_id,options)
-    handle_output(options,"Information:\tFound Image ID #{image_id} for #{old_image_id}")
+    ec2, image_id = get_aws_image(image_id, options)
+    handle_output(options, "Information:\tFound Image ID #{image_id} for #{old_image_id}")
   end
   ec2       = initiate_aws_ec2_client(options)
   instances = []
   begin
     reservations = ec2.run_instances(image_id: image_id, min_count: min_count, max_count: max_count, instance_type: instance_type, dry_run: dry_run, key_name: key_name, security_groups: security_groups,)
   rescue Aws::EC2::Errors::AccessDenied
-    handle_output(options,"Warning:\tUser needs to be specified appropriate rights in AWS IAM")
+    handle_output(options, "Warning:\tUser needs to be specified appropriate rights in AWS IAM")
     quit(options)
   end
   reservations['instances'].each do |instance|
@@ -295,9 +295,9 @@ def export_aws_image(options)
   s3  = create_aws_s3_bucket(options)
   ec2 = initiate_aws_ec2_client(options)
   begin
-    ec2.create_instance_export_task({ description: options['comment'], instance_id: options['id'], target_environment: options['target'], export_to_s3_task: { disk_image_format: options['format'], container_format: options['containertype'], s3_bucket: options['bucket'], s3_prefix: options['prefix'], }, })
+    ec2.create_instance_export_task({ description: options['comment'],  instance_id: options['id'],  target_environment: options['target'],  export_to_s3_task: { disk_image_format: options['format'],  container_format: options['containertype'],  s3_bucket: options['bucket'],  s3_prefix: options['prefix'], }, })
   rescue Aws::EC2::Errors::NotExportable
-    handle_output(options,"Warning:\tOnly imported instances can be exported")
+    handle_output(options, "Warning:\tOnly imported instances can be exported")
   end
   return
 end
@@ -306,7 +306,7 @@ end
 
 def configure_aws_client(options)
   if not options['number'].to_s.match(/[0,9]/)
-    handle_output(options,"Warning:\tIncorrect number of instances specified: '#{options['number']}'")
+    handle_output(options, "Warning:\tIncorrect number of instances specified: '#{options['number']}'")
     quit(options)
   end
   options = handle_aws_values(options)
@@ -319,10 +319,10 @@ end
 def create_aws_install_files(options)
   user_data_file     = ""
   if not options['ami'].to_s.match(/^ami/)
-    ec2,options['ami'] = get_aws_image(options)
+    ec2, options['ami'] = get_aws_image(options)
   end
   options = set_aws_key_file(options)
-  populate_aws_questions(options,user_data_file)
+  populate_aws_questions(options, user_data_file)
   options['service'] = "aws"
   process_questions(options)
   exists = check_aws_key_pair_exists(options)
@@ -331,7 +331,7 @@ def create_aws_install_files(options)
   else
     exists = check_aws_ssh_key_file_exists(options)
     if exists == false
-      handle_output(options,"Warning:\tSSH Key file '#{aws_ssh_key_file}' for AWS Key Pair '#{options['key']}' does not exist")
+      handle_output(options, "Warning:\tSSH Key file '#{aws_ssh_key_file}' for AWS Key Pair '#{options['key']}' does not exist")
       quit(options)
     end
   end
@@ -345,7 +345,7 @@ def list_aws_instances(options)
   if not options['id'].to_s.match(/[0-9]/)
     options['id'] = "all"
   end
-  ec2,reservations = get_aws_reservations(options)
+  ec2, reservations = get_aws_reservations(options)
   reservations.each do |reservation|
     reservation['instances'].each do |instance|
       instance_id = instance.instance_id
@@ -365,7 +365,7 @@ def list_aws_instances(options)
         else
           string = "id="+instance_id+" image="+image_id+" status="+status
         end
-        handle_output(options,string)
+        handle_output(options, string)
       end
     end
   end

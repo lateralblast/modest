@@ -26,32 +26,32 @@ def list_vs_clients(options)
   client_list = get_vs_clients()
   if client_list.length > 0
     if options['output'].to_s.match(/html/)
-      handle_output(options,"<h1>Available vSphere clients:</h1>") 
-      handle_output(options,"<table border=\"1\">")
-      handle_output(options,"<tr>")
-      handle_output(options,"<th>Client</th>")
-      handle_output(options,"<th>Service</th>")
-      handle_output(options,"</tr>")
+      handle_output(options, "<h1>Available vSphere clients:</h1>") 
+      handle_output(options, "<table border=\"1\">")
+      handle_output(options, "<tr>")
+      handle_output(options, "<th>Client</th>")
+      handle_output(options, "<th>Service</th>")
+      handle_output(options, "</tr>")
     else
-      handle_output(options,"")
-      handle_output(options,"Available vSphere clients:")
-      handle_output(options,"")
+      handle_output(options, "")
+      handle_output(options, "Available vSphere clients:")
+      handle_output(options, "")
     end
     client_list.each do |client_info|
       if options['output'].to_s.match(/html/)
-        (options['name'],options['service']) = client_info.split(/ service = /)
-        handle_output(options,"<tr>")
-        handle_output(options,"<td>#{options['name']}</td>")
-        handle_output(options,"<td>#{options['service']}</td>")
-        handle_output(options,"</tr>")
+        (options['name'], options['service']) = client_info.split(/ service = /)
+        handle_output(options, "<tr>")
+        handle_output(options, "<td>#{options['name']}</td>")
+        handle_output(options, "<td>#{options['service']}</td>")
+        handle_output(options, "</tr>")
       else
         handle_output(client_info)
       end
     end
     if options['output'].to_s.match(/html/)
-      handle_output(options,"</table>")
+      handle_output(options, "</table>")
     else
-      handle_output(options,"")
+      handle_output(options, "")
     end
   end
   return
@@ -60,16 +60,16 @@ end
 # Configure client PXE boot
 
 def configure_vs_pxe_client(options)
-  tftp_pxe_file  = options['mac'].gsub(/:/,"")
+  tftp_pxe_file  = options['mac'].gsub(/:/, "")
   tftp_pxe_file  = tftp_pxe_file.upcase
   tftp_boot_file = "boot.cfg.01"+tftp_pxe_file
   tftp_pxe_file  = "01"+tftp_pxe_file+".pxelinux"
   test_file      = options['tftpdir']+"/"+tftp_pxe_file
   if options['verbose'] == true
-    handle_output(options,"Information:\tChecking vSphere TFTP directory")
+    handle_output(options, "Information:\tChecking vSphere TFTP directory")
   end
-  check_dir_exists(options,options['tftpdir'])
-  check_dir_owner(options,options['tftpdir'],options['uid'])
+  check_dir_exists(options, options['tftpdir'])
+  check_dir_owner(options, options['tftpdir'], options['uid'])
   if !File.exist?(test_file)
     message = "Information:\tCreating PXE boot file for "+options['name']+" with MAC address "+options['mac']
     if options['biostype'].to_s.match(/efi/)
@@ -79,32 +79,32 @@ def configure_vs_pxe_client(options)
       pxelinux_file = options['service']+"/usr/share/syslinux/pxelinux.0"
       command = "cd #{options['tftpdir']} ; ln -s #{pxelinux_file} #{tftp_pxe_file}"
     end
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   pxe_cfg_dir   = options['tftpdir']+"/pxelinux.cfg"
   if options['verbose'] == true
-    handle_output(options,"Information:\tChecking vSphere PXE configuration directory")
+    handle_output(options, "Information:\tChecking vSphere PXE configuration directory")
   end
-  check_dir_exists(options,pxe_cfg_dir)
-  check_dir_owner(options,pxe_cfg_dir,options['uid'])
+  check_dir_exists(options, pxe_cfg_dir)
+  check_dir_owner(options, pxe_cfg_dir, options['uid'])
   ks_url     = "http://"+options['hostip']+"/"+options['name']+"/"+options['name']+".cfg"
   #ks_url    = "http://"+options['hostip']+"/clients/"+options['service']+"/"+options['name']+"/"+options['name']+".cfg"
   mboot_file = options['service']+"/mboot.c32"
   if options['biostype'].to_s.match(/efi/)
-    pxe_cfg_dir = options['tftpdir'].to_s+"/"+options['mac'].gsub(/:/,"-")
-    check_dir_exists(options,pxe_cfg_dir)
-    check_dir_owner(options,pxe_cfg_dir,options['uid'])
+    pxe_cfg_dir = options['tftpdir'].to_s+"/"+options['mac'].gsub(/:/, "-")
+    check_dir_exists(options, pxe_cfg_dir)
+    check_dir_owner(options, pxe_cfg_dir, options['uid'])
   else
-    pxe_cfg_file1 = options['mac'].to_s.gsub(/:/,"-")
+    pxe_cfg_file1 = options['mac'].to_s.gsub(/:/, "-")
     pxe_cfg_file1 = "01-"+pxe_cfg_file1
     pxe_cfg_file1 = pxe_cfg_file1.downcase
     pxe_cfg_file1 = pxe_cfg_dir+"/"+pxe_cfg_file1
-    pxe_cfg_file2 = options['mac'].split(":")[0..3].join+"-"+options['mac'].split(":")[4..5].join+"-0000-0000-"+options['mac'].gsub(/\:/,"")
+    pxe_cfg_file2 = options['mac'].split(":")[0..3].join+"-"+options['mac'].split(":")[4..5].join+"-0000-0000-"+options['mac'].gsub(/\:/, "")
     pxe_cfg_file2 = pxe_cfg_file2.downcase
     pxe_cfg_file2 = pxe_cfg_dir+"/"+pxe_cfg_file2
     for pxe_cfg_file in [ pxe_cfg_file1, pxe_cfg_file2 ]
-      verbose_output(options,"Information:\tCreating Menu config file #{pxe_cfg_file}")
-      file = File.open(pxe_cfg_file,"w")
+      verbose_output(options, "Information:\tCreating Menu config file #{pxe_cfg_file}")
+      file = File.open(pxe_cfg_file, "w")
       if options['serial'] == true
         file.write("serial 0 115200\n")
       end
@@ -122,22 +122,22 @@ def configure_vs_pxe_client(options)
       end
       file.write("IPAPPEND 1\n")
       file.close
-      print_contents_of_file(options,"",pxe_cfg_file)
+      print_contents_of_file(options, "", pxe_cfg_file)
     end
   end
   if options['biostype'].to_s.match(/efi/)
-    tftp_boot_file = options['tftpdir'].to_s+"/01-"+options['mac'].to_s.gsub(/:/,"-").downcase+"/boot.cfg"
+    tftp_boot_file = options['tftpdir'].to_s+"/01-"+options['mac'].to_s.gsub(/:/, "-").downcase+"/boot.cfg"
   else
     tftp_boot_file = options['tftpdir'].to_s+"/"+options['service'].to_s+"/"+tftp_boot_file
   end
   esx_boot_file  = options['tftpdir'].to_s+"/"+options['service'].to_s+"/boot.cfg"
   if options['verbose'] == true
-    handle_output(options,"Creating:\tBoot config file #{tftp_boot_file}")
+    handle_output(options, "Creating:\tBoot config file #{tftp_boot_file}")
   end
   copy=[]
   file=IO.readlines(esx_boot_file)
   file.each do |line|
-    line=line.gsub(/\//,"")
+    line=line.gsub(/\//, "")
     if options['text'] == true
       if line.match(/^kernelopt/)
         if not line.match(/text/)
@@ -166,14 +166,14 @@ def configure_vs_pxe_client(options)
   end
   tftp_boot_file_dir = File.dirname(tftp_boot_file)
   if options['verbose'] == true
-    handle_output(options,"Information:\tChecking vSphere TFTP boot file directory")
+    handle_output(options, "Information:\tChecking vSphere TFTP boot file directory")
   end
-  check_dir_exists(options,tftp_boot_file_dir)
-  check_dir_owner(options,options['tftpdir'],options['uid'])
-  check_dir_owner(options,tftp_boot_file_dir,options['uid'])
-  File.open(tftp_boot_file,"w") {|file_data| file_data.puts copy}
-  check_file_owner(options,tftp_boot_file,options['uid'])
-  print_contents_of_file(options,"",tftp_boot_file)
+  check_dir_exists(options, tftp_boot_file_dir)
+  check_dir_owner(options, options['tftpdir'], options['uid'])
+  check_dir_owner(options, tftp_boot_file_dir, options['uid'])
+  File.open(tftp_boot_file, "w") {|file_data| file_data.puts copy}
+  check_file_owner(options, tftp_boot_file, options['uid'])
+  print_contents_of_file(options, "", tftp_boot_file)
   return
 end
 
@@ -182,35 +182,35 @@ end
 def unconfigure_vs_pxe_client(options)
   options['mac'] = get_install_nac(options)
   if not options['mac']
-    handle_output(options,"Warning:\tNo MAC Address entry found for #{options['name']}")
+    handle_output(options, "Warning:\tNo MAC Address entry found for #{options['name']}")
     quit(options)
   end
-  tftp_pxe_file = options['mac'].gsub(/:/,"")
+  tftp_pxe_file = options['mac'].gsub(/:/, "")
   tftp_pxe_file = tftp_pxe_file.upcase
   tftp_pxe_file = "01"+tftp_pxe_file+".pxelinux"
   tftp_pxe_file = options['tftpdir']+"/"+tftp_pxe_file
   if File.exist?(tftp_pxe_file)
     message = "Information:\tRemoving PXE boot file "+tftp_pxe_file+" for "+options['name']
     command = "rm #{tftp_pxe_file}"
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   pxe_cfg_dir   = options['tftpdir']+"/pxelinux.cfg"
-  pxe_cfg_file1 = options['mac'].gsub(/:/,"-")
+  pxe_cfg_file1 = options['mac'].gsub(/:/, "-")
   pxe_cfg_file1 = "01-"+pxe_cfg_file1
   pxe_cfg_file1 = pxe_cfg_file1.downcase
   pxe_cfg_file1 = pxe_cfg_dir+"/"+pxe_cfg_file1
-  pxe_cfg_file2 = options['mac'].split(":")[0..3].join+"-"+options['mac'].split(":")[4..5].join+"-0000-0000-"+options['mac'].gsub(/\:/,"")
+  pxe_cfg_file2 = options['mac'].split(":")[0..3].join+"-"+options['mac'].split(":")[4..5].join+"-0000-0000-"+options['mac'].gsub(/\:/, "")
   pxe_cfg_file2 = pxe_cfg_file2.downcase
   pxe_cfg_file2 = pxe_cfg_dir+"/"+pxe_cfg_file2
   if File.exist?(pxe_cfg_file1)
     message = "Information:\tRemoving PXE boot config file "+pxe_cfg_file1+" for "+options['name']
     command = "rm #{pxe_cfg_file1}"
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   if File.exist?(pxe_cfg_file2)
     message = "Information:\tRemoving PXE boot config file "+pxe_cfg_file2+" for "+options['name']
     command = "rm #{pxe_cfg_file2}"
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   client_info        = get_vs_clients()
   options['service'] = client_info.grep(/#{options['name']}/)[0].split(/ = /)[1].chomp
@@ -219,7 +219,7 @@ def unconfigure_vs_pxe_client(options)
   if File.exist?(ks_cfg_file)
     message = "Information:\tRemoving Kickstart boot config file "+ks_cfg_file+" for "+options['name']
     command = "rm #{ks_cfg_file}"
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   unconfigure_vs_dhcp_client(options)
   return
@@ -244,8 +244,8 @@ end
 def configure_vs_client(options)
   options['repodir'] = options['baserepodir']+"/"+options['service']
   if not File.directory?(options['repodir']) and not File.symlink?(options['repodir'])
-    handle_output(options,"Information:\tWarning service #{options['service']} does not exist")
-    handle_output(options,"")
+    handle_output(options, "Information:\tWarning service #{options['service']} does not exist")
+    handle_output(options, "")
     #list_vs_services(options)
     quit(options)
   end
@@ -253,27 +253,27 @@ def configure_vs_client(options)
   options = populate_vs_questions(options)
   process_questions(options)
   options['clientdir'] = options['clientdir']+"/"+options['service']+"/"+options['name']
-  check_fs_exists(options,options['clientdir'])
+  check_fs_exists(options, options['clientdir'])
   output_file = options['clientdir']+"/"+options['name']+".cfg"
   if File.exist?(output_file)
     File.delete(output_file)
   end
-  output_vs_header(options,output_file)
+  output_vs_header(options, output_file)
   # Output firstboot list
   post_list = populate_vs_firstboot_list(options)
-  output_vs_post_list(post_list,output_file)
+  output_vs_post_list(post_list, output_file)
   # Output post list
   post_list = populate_vs_post_list(options)
-  output_vs_post_list(post_list,output_file)
+  output_vs_post_list(post_list, output_file)
   if output_file
     %x[chmod 755 #{output_file}]
   end
   if options['verbose'] == true
-    print_contents_of_file(options,"",output_file)
+    print_contents_of_file(options, "", output_file)
   end
   configure_vs_pxe_client(options)
   configure_vs_dhcp_client(options)
-  add_apache_alias(options,options['clientdir'])
+  add_apache_alias(options, options['clientdir'])
   add_hosts_entry(options)
   return
 end
@@ -413,18 +413,18 @@ end
 
 # Output the VSphere file header
 
-def output_vs_header(options,output_file)
+def output_vs_header(options, output_file)
   if options['verbose'] == true
-    handle_output(options,"Information:\tCreating vSphere file #{output_file}")
+    handle_output(options, "Information:\tCreating vSphere file #{output_file}")
   end
   dir_name = File.dirname(output_file)
   top_dir  = dir_name.split(/\//)[0..-2].join("/")
   if options['verbose'] == true
-    handle_output(options,"Information:\tChecking vSphere boot header file directory")
+    handle_output(options, "Information:\tChecking vSphere boot header file directory")
   end
-  check_dir_owner(options,top_dir,options['uid'])
-  check_dir_exists(options,dir_name)
-  check_dir_owner(options,dir_name,options['uid'])
+  check_dir_owner(options, top_dir, options['uid'])
+  check_dir_exists(options, dir_name)
+  check_dir_owner(options, dir_name, options['uid'])
   file = File.open(output_file, 'w')
   options['q_order'].each do |key|
     if options['q_struct'][key].type.match(/output/)
@@ -433,7 +433,7 @@ def output_vs_header(options,output_file)
       else
         output=options['q_struct'][key].parameter+" "+options['q_struct'][key].value+"\n"
         if options['verbose'] == true
-          handle_output(options,output)
+          handle_output(options, output)
         end
       end
       file.write(output)
@@ -445,7 +445,7 @@ end
 
 # Output the ks packages list
 
-def output_vs_post_list(post_list,output_file)
+def output_vs_post_list(post_list, output_file)
   file=File.open(output_file, 'a')
   post_list.each do |line|
     output=line+"\n"
@@ -459,12 +459,12 @@ end
 
 def check_vs_install_service(options)
   if !options['service'].to_s.match(/[a-z,A-Z]/)
-    handle_output(options,"Warning:\tService name not given")
+    handle_output(options, "Warning:\tService name not given")
     quit(options)
   end
   client_list=Dir.entries(options['baserepodir'])
   if not client_list.grep(options['service'])
-    handle_output(options,"Warning:\tService name #{options['service']} does not exist")
+    handle_output(options, "Warning:\tService name #{options['service']} does not exist")
     quit(options)
   end
   return

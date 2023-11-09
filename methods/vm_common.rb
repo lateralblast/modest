@@ -4,7 +4,7 @@
 
 def handle_vm_install_status(options)
   if options['status'].to_s.match(/no/)
-    handle_output(options,"Warning:\tVirtualisation application does not exist for #{options['vm']}")
+    handle_output(options, "Warning:\tVirtualisation application does not exist for #{options['vm']}")
     quit(options)
   end
   return
@@ -67,7 +67,7 @@ def get_client_vm_type(options)
   options['vm'] = ""
   options['valid-vm'].each do |test_vm|
     if options['verbose'] == true
-      handle_output(options,"Information:\tChecking if '#{options['name']}' is a '#{test_vm}' VM")
+      handle_output(options, "Information:\tChecking if '#{options['name']}' is a '#{test_vm}' VM")
     end
     exists = eval"[check_#{test_vm}_is_installed(options)]"
     if exists.to_s.match(/yes/)
@@ -148,7 +148,7 @@ def vnc_to_vm(options)
         end
         if options['vncport'] == options['empty']
           if options['vm'].to_s.match(/fusion/)
-            remote_vnc_port = get_fusion_vm_vmx_file_value(options['name'],"remotedisplay.vnc.port")
+            remote_vnc_port = get_fusion_vm_vmx_file_value(options['name'], "remotedisplay.vnc.port")
           end
         else
           remote_vnc_port = options['vncport'] 
@@ -156,24 +156,24 @@ def vnc_to_vm(options)
         if remote_vnc_port.match(/[0-9]/)
           message = "Information:\tChecking noVNC isn't already running"
           command = "ps -ef |grep noVNC |grep #{options['ip']} | grep -v grep"
-          output  = execute_command(options,message,command)
+          output  = execute_command(options, message, command)
           if not output.match(/noVNC/)
             message = "Information:\tStarting noVNC web proxy on port "+local_vnc_port+" and redirecting to "+remote_vnc_port
             command = "cd '#{novnc_dir}' ; ./utils/launch.sh --listen #{local_vnc_port} --vnc #{options['ip']}:#{remote_vnc_port} &"
-            execute_command(options,message,command)
-            handle_output(options,"Information:\tNoVNC started on port #{local_vnc_port}")
+            execute_command(options, message, command)
+            handle_output(options, "Information:\tNoVNC started on port #{local_vnc_port}")
           else
-            handle_output(options,"Information:\tnoVNC already running")
+            handle_output(options, "Information:\tnoVNC already running")
           end
         else
-          handle_output(options,"Warning:\tUnable to determine VNC port for #{options['vmapp']} VM #{options['name']}")
+          handle_output(options, "Warning:\tUnable to determine VNC port for #{options['vmapp']} VM #{options['name']}")
         end
       else
-        handle_output(options,"Warning:\tUnable to determine IP for #{options['vmapp']} VM #{options['name']}")
+        handle_output(options, "Warning:\tUnable to determine IP for #{options['vmapp']} VM #{options['name']}")
       end
     end
   end
-  return options['ip'],local_vnc_port,remote_vnc_port
+  return options['ip'], local_vnc_port, remote_vnc_port
 end
 
 # Get Guest OS type
@@ -202,23 +202,23 @@ def check_vm_network(options)
   vm_if_name = get_vm_if_name(options)
   if options['vmnetwork'].to_s.match(/nat/)
     gw_if_name = get_gw_if_name(options)
-    gw_if_ip   = get_gw_if_ip(options,gw_if_name)
+    gw_if_ip   = get_gw_if_ip(options, gw_if_name)
     options['vmgateway'] = gw_if_ip
   end
   case options['vm']
   when /vbox/
-    options = check_vbox_natd(options,vm_if_name)
+    options = check_vbox_natd(options, vm_if_name)
   when /fusion/
-    options = check_fusion_natd(options,vm_if_name)
+    options = check_fusion_natd(options, vm_if_name)
   when /mp|multipass/
-    options = check_multipass_natd(options,vm_if_name)
+    options = check_multipass_natd(options, vm_if_name)
   end
   if options['host-os-name'].to_s.match(/NT/)
     output = get_win_ip_from_if_name(vm_if_name)
   else
     message = "Information:\tChecking "+vm_if_name+" is configured"
     command = "ifconfig #{vm_if_name} |grep inet"
-    output  = execute_command(options,message,command)
+    output  = execute_command(options, message, command)
   end
   if not output.match(/#{options['hostonlyip']}/)
     message = "Information:\tConfiguring "+vm_if_name
@@ -227,7 +227,7 @@ def check_vm_network(options)
     else
       command = "ifconfig #{vm_if_name} inet #{options['hostonlyip']} netmask #{options['netmask']} up"
     end
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   return options
 end
@@ -460,8 +460,8 @@ def create_vm(options)
   end
   if not options['method'].to_s.match(/[a-z]/) and not options['os-type'].to_s.match(/[a-z]/)
     if options['verbose'] == true
-      handle_output(options,"Warning:\tInstall method or OS not specified")
-      handle_output(options,"Information:\tSetting OS to other")
+      handle_output(options, "Warning:\tInstall method or OS not specified")
+      handle_output(options, "Information:\tSetting OS to other")
     end
     options['method'] = "other"
   end

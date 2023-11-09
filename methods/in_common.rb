@@ -288,8 +288,13 @@ def set_defaults(options,defaults)
   defaults['dnsmasq']         = false
   defaults['domainname']      = "lab.net"
   defaults['download']        = false
+  defaults['installdrivers']  = false
+  defaults['installupdates']  = false
+  defaults['installupgrades'] = false
+  defaults['installsecurity'] = false
+  defaults['preservesources'] = false
   defaults['dpool']           = "dpool"
-  defaults['dryrun']          = false
+  defaults['dry-run']         = false
   defaults['empty']           = "none"
   defaults['enableethernet']  = true
   defaults['enablevnc']       = false
@@ -318,6 +323,7 @@ def set_defaults(options,defaults)
   defaults['hwvirtex']        = "on"
   defaults['imagedir']        = defaults['basedir'].to_s+'/export/images'
   defaults['install']         = "initial_install"
+  defaults['kernel']          = "linux-generic"
   defaults['instances']       = "1,1"
   defaults['ipfamily']        = "ipv4"
   defaults['isodir']          = defaults['basedir'].to_s+'/export/isos'
@@ -338,7 +344,15 @@ def set_defaults(options,defaults)
     if options['vm'].to_s.match(/kvm|mp|multipass/)
       defaults['vmnic'] = "enp1s0"
     else
-      defaults['vmnic'] = "eth0"
+      if options['vm'].to_s.match(/fusion/) and defaults['host-os-arch'].to_s.match(/arm/)
+        if options['biosdevnames'] == false
+          defaults['vmnic'] = "ens160"
+        else
+          defaults['vmnic'] = "eth0"
+        end
+      else
+        defaults['vmnic'] = "eth0"
+      end
     end
   end
   defaults['keyboard']        = "US"
@@ -448,6 +462,7 @@ def set_defaults(options,defaults)
   defaults['unmasked']        = false
   defaults['usemirror']       = false
   defaults['usb']             = true
+  defaults['usbxhci']         = true
   defaults['user']            = %x[whoami].chomp
   defaults['utc']             = "off"
   defaults['vboxadditions']   = "/Applications/VirtualBox.app//Contents/MacOS/VBoxGuestAdditions.iso"
@@ -2004,7 +2019,15 @@ def get_install_service_from_file(options)
   if options['file'].to_s.match(/amd64|x86_64/) || options['vm'].to_s.match(/kvm/)
     options['arch'] = "x86_64"
   else
-    options['arch'] = "i386"
+    if options['file'].to_s.match(/arm/)
+      if options['file'].to_s.match(/64/)
+        options['arch'] = "arm64"
+      else
+        options['arch'] = "arm"
+      end
+    else 
+      options['arch'] = "i386"
+    end
   end
   case options['file'].to_s
   when /purity/
@@ -2045,16 +2068,15 @@ def get_install_service_from_file(options)
         options['method'] = "ps"
         service_version   = service_version+"_"+options['arch']
       end
-      options['release'] = options['file'].to_s.split(/-/)[1].split(/\./)[0..1].join(".")
+      options['release'] = options['file'].to_s.split(/-/)[1].split(/\./)[0..-1].join(".")
     end
-    if options['release'].to_s.split(".")[0].to_i > 20
-      options['release'] = "20.04"
-    end
+#    if options['release'].to_s.split(".")[0].to_i > 20
+#      options['release'] = "20.04"
+#    end
     options['os-variant'] = "ubuntu"+options['release'].to_s
     if options['file'].to_s.match(/live/)
       options['livecd'] = true
     end
-  puts options['service']
   when /purity/
     options['service'] = "purity"
     service_version = options['file'].to_s.split(/_/)[1]
@@ -2227,7 +2249,7 @@ def get_install_service_from_file(options)
   end
   if options['file'].to_s.match(/-arm/) and options['service'].to_s.match(/ubuntu/)
     if options['file'].to_s.match(/live/)
-      options['service'] = "ubuntu_live_"+options['release'].to_s+"_"+options['arch']
+      options['service'] = "ubuntu_"+options['release'].to_s+"_"+options['arch']+"_live"
     else
       options['service'] = "ubuntu_"+options['release'].to_s+"_"+options['arch']
     end

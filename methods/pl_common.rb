@@ -5,7 +5,7 @@
 def attach_file_to_parallels_vm(options)
   message = "Information:\tAttaching Image "+options['file']+" to "+options['name']
   command = "prlctl set \"#{options['name']}\" --device-set cdrom0 --image \"#{options['file']}\""
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
@@ -14,16 +14,16 @@ end
 def detach_file_from_parallels_vm(options)
   message = "Information:\tAttaching Image "+options['file']+" to "+options['name']
   command = "prlctl set \"#{options['name']}\" --device-set cdrom0 --disable\""
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
 # Get Parallels VM OS
 
-def get_parallels_os(options,vm_name)
+def get_parallels_os(options, vm_name)
 	message = "Information:\tDetermining OS for "+vm_name
 	command = "prlctl list --info \"#{vm_name}\" |grep '^OS' |cut -f2 -d:"
-	os_info = execute_command(options,message,command)
+	os_info = execute_command(options, message, command)
 	case os_info
 	when /rhel/
 		os_info = "RedHat Enterprise Linux"
@@ -36,8 +36,8 @@ end
 def get_parallels_vm_status(options)
   message = "Information:\tDetermining status of Parallels VM "+options['name']
   command = "prlctl list \"#{options['name']}\" --info |grep '^Status' |grep ^State |cut -f2 -d:"
-  status  = execute_command(options,message,command)
-  status  = status.chomp.gsub(/\s+/,"")
+  status  = execute_command(options, message, command)
+  status  = status.chomp.gsub(/\s+/, "")
   return status
 end
 
@@ -46,7 +46,7 @@ end
 def get_all_parallels_vms(options)
   message = "Information:\tListing Parallels VMs"
   command = "prlctl list --all |grep -v UUID |awk '{print $4}'"
-  vm_list = execute_command(options,message,command)
+  vm_list = execute_command(options, message, command)
   vm_list = vm_list.split("\n")
   return vm_list
 end
@@ -55,18 +55,18 @@ end
 
 def list_all_parallels_vms(options)
   vm_list = get_all_parallels_vms(options)
-  handle_output(options,"")
-  handle_output(options,"Parallels VMS:")
-  handle_output(options,"")
+  handle_output(options, "")
+  handle_output(options, "Parallels VMS:")
+  handle_output(options, "")
   vm_list.each do |vm_name|
-    os_info = %x[prlctl list --info "#{vm_name}" |grep '^OS' |cut -f2 -d:].chomp.gsub(/^\s+/,"")
+    os_info = %x[prlctl list --info "#{vm_name}" |grep '^OS' |cut -f2 -d:].chomp.gsub(/^\s+/, "")
     case os_info
     when /rhel/
     	os_info = "RedHat Enterprise Linux"
     end
-    handle_output(options,"#{vm_name}\t#{os_info}")
+    handle_output(options, "#{vm_name}\t#{os_info}")
   end
-  handle_output(options,"")
+  handle_output(options, "")
   return
 end
 
@@ -75,16 +75,16 @@ end
 def list_running_parallels_vms(options)
   message = "Information:\tListing running VMs"
   command = "prlctl list --all |grep running |awk '{print $4}'"
-	vm_list = execute_command(options,message,command)
+	vm_list = execute_command(options, message, command)
   vm_list = vm_list.split("\n")
-  handle_output(options,"")
-  handle_output(options,"Running Parallels VMS:")
-  handle_output(options,"")
+  handle_output(options, "")
+  handle_output(options, "Running Parallels VMS:")
+  handle_output(options, "")
   vm_list.each do |vm_name|
-    os_info = get_parallels_os(options,vm_name)
-    handle_output(options,"#{vm_name}\t#{os_info}")
+    os_info = get_parallels_os(options, vm_name)
+    handle_output(options, "#{vm_name}\t#{os_info}")
   end
-  handle_output(options,"")
+  handle_output(options, "")
   return
 end
 
@@ -93,17 +93,17 @@ end
 def list_stopped_parallels_vms(options)
   message = "Information:\tListing stopped VMs"
   command = "prlctl list --all |grep stopped |awk '{print $4}'"
-  vm_list = execute_command(options,message,command)
+  vm_list = execute_command(options, message, command)
   vm_list = vm_list.split("\n")
   vm_list = %x[prlctl list --all |grep stopped |awk '{print $4}'].split("\n")
-  handle_output(options,"")
-  handle_output(options,"Stopped Parallels VMS:")
-  handle_output(options,"")
+  handle_output(options, "")
+  handle_output(options, "Stopped Parallels VMS:")
+  handle_output(options, "")
   vm_list.each do |vm_name|
-    os_info = get_parallels_os(options,vm_name)
-    handle_output(options,"#{vm_name}\t#{os_info}")
+    os_info = get_parallels_os(options, vm_name)
+    handle_output(options, "#{vm_name}\t#{os_info}")
   end
-  handle_output(options,"")
+  handle_output(options, "")
   return
 end
 
@@ -121,7 +121,7 @@ def list_parallels_vms(options)
   else
     dom_command = "prlctl list --all |grep -v UUID |awk '{print $4}'"
   end
-  list_doms(options,dom_type,dom_command)
+  list_doms(options, dom_type, dom_command)
   return
 end
 
@@ -130,17 +130,17 @@ end
 def clone_parallels_vm(options)
   exists = check_parallels_vm_exists(options)
   if exists == false
-    handle_output(options,"Warning:\tParallels VM #{options['name']} does not exist")
+    handle_output(options, "Warning:\tParallels VM #{options['name']} does not exist")
     quit(options)
   end
   message = "Information:\tCloning Parallels VM "+options['name']+" to "+options['clone']
   command = "prlctl clone \"#{options['name']}\" --name \"#{options['clone']}\""
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   if options['ip'].to_s.match(/[0-9]/)
-    add_hosts_entry(options['clone'],options['ip'])
+    add_hosts_entry(options['clone'], options['ip'])
   end
   if options['mac'].to_s.match(/[0-9,a-z,A-Z]/)
-    change_parallels_vm_mac(options['clone'],options['mac'])
+    change_parallels_vm_mac(options['clone'], options['mac'])
   end
   return
 end
@@ -150,8 +150,8 @@ end
 def get_parallels_disk(options)
   message = "Information:\tDetermining directory for Parallels VM "+options['name']
   command = "prlctl list #{options['name']} --info |grep image |awk '{print $4}' |cut -f2 -d="
-  vm_dir  = execute_command(options,message,command)
-  vm_dir  = vm_dir.chomp.gsub(/'/,"")
+  vm_dir  = execute_command(options, message, command)
+  vm_dir  = vm_dir.chomp.gsub(/'/, "")
   return vm_dir
 end
 
@@ -160,8 +160,8 @@ end
 def get_parallels_vm_uuid(options)
   message = "Information:\tDetermining UUID for Parallels VM "+options['name']
   command = "prlctl list --info \"#{options['name']}\" |grep '^ID' |cut -f2 -d:"
-  vm_uuid = vm_uuid.chomp.gsub(/^\s+/,"")
-  vm_uuid = execute_command(options,message,command)
+  vm_uuid = vm_uuid.chomp.gsub(/^\s+/, "")
+  vm_uuid = execute_command(options, message, command)
   return vm_uuid
 end
 
@@ -170,36 +170,36 @@ end
 def check_parallels_hostonly_network(options)
   message = "Information:\tChecking Parallels hostonly network exists"
   command = "prlsrvctl net list |grep ^prls |grep host-only |awk '{print $1}'"
-  if_name = execute_command(options,message,command)
+  if_name = execute_command(options, message, command)
   if_name = if_name.chomp
   if not if_name.match(/prls/)
     message  = "Information:\tDetermining possible Parallels host-only network interface name"
     command  = "prlsrvctl net list |grep ^prls"
-    if_count = execute_command(options,message,command)
+    if_count = execute_command(options, message, command)
     if_count = if_count.grep(/prls/).count.to_s
     if_name  = "prlsnet"+if_count
     message = "Information:\tPlumbing Parallels hostonly network "+if_name
     command = "prlsrvctl net add #{if_name} --type host-only"
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   message  = "Information:\tDetermining Parallels network interface name"
   command  = "prlsrvctl net list |grep ^#{if_name} |awk '{print $3}'"
-  nic_name = execute_command(options,message,command)
+  nic_name = execute_command(options, message, command)
   nic_name = nic_name.chomp
   message = "Information:\tChecking Parallels hostonly network "+nic_name+" has address "+options['hostonlyip']
   command = "ifconfig #{nic_name} |grep inet |awk '{print $2}"
-  host_ip = execute_command(options,message,command)
+  host_ip = execute_command(options, message, command)
   host_ip = host_ip.chomp
   if not host_ip.match(/#{options['hostonlyip']}/)
     message = "Information:\tConfiguring Parallels hostonly network "+nic_name+" with IP "+options['hostonlyip']
     command = "sudo sh -c 'ifconfig #{nic_name} inet #{options['hostonlyip']} netmask #{options['netmask']} up'"
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   gw_if_name = get_gw_if_name(options)
   if options['host-os-release'].split(".")[0].to_i < 14
-    check_osx_nat(gw_if_name,if_name)
+    check_osx_nat(gw_if_name, if_name)
   else
-    check_osx_pfctl(options,gw_if_name,if_name)
+    check_osx_pfctl(options, gw_if_name, if_name)
   end
 	return nic_name
 end
@@ -221,7 +221,7 @@ def control_parallels_vm(options)
     else
       command = "prlctl #{options['status']} \"#{options['name']}\""
     end
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   return
 end
@@ -248,7 +248,7 @@ end
 def add_serial_to_parallels_vm(options)
   message = "Information:\tAdding Serial Port to "+options['name']
   command = "prlctl set \"#{options['name']}\" --add-device serial --ouput /tmp/#{options['name']}"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
@@ -329,7 +329,7 @@ end
 def change_parallels_vm_mem(options)
   message = "Information:\tSetting Parallels VM "+options['name']+" RAM to "+options['memory']
   command = "prlctl set #{options['name']} --memsize #{options['memory']}"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
@@ -338,7 +338,7 @@ end
 def change_parallels_vm_cpu(options)
   message = "Information:\tSetting Parallels VM "+options['name']+" CPUs to "+options['vcpus']
   command = "prlctl set #{options['name']} --cpus #{options['vcpus']}"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
@@ -347,10 +347,10 @@ end
 def change_parallels_vm_mac(options)
   message = "Information:\tSetting Parallels VM "+options['name']+" MAC address to "+options['mac']
   if options['mac'].to_s.match(/:/)
-    options['mac'] = options['mac'].gsub(/:/,"")
+    options['mac'] = options['mac'].gsub(/:/, "")
   end
   command = "prlctl set #{options['name']} --device-set net0 #{options['mac']}"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
@@ -359,9 +359,9 @@ end
 def get_parallels_vm_mac(options)
   message = "Information:\tGetting MAC address for "+options['name']
   command = "prlctl list --info #{options['name']} |grep net0 |grep mac |awk '{print $4}' |cut -f2 -d="
-  vm_mac  = execute_command(options,message,command)
+  vm_mac  = execute_command(options, message, command)
   vm_mac  = vm_mac.chomp
-  vm_mac  = vm_mac.gsub(/\,/,"")
+  vm_mac  = vm_mac.gsub(/\,/, "")
   return vm_mac
 end
 
@@ -374,11 +374,11 @@ def check_parallels_is_installed(options)
     options['status'] = "yes"
     if !File.symlink?("/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/site-packages/prlsdkapi.pth")
       if !File.exist?("/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/prlsdkapi.pth")
-        install_brew_pkg(options,"parallels-virtualization-sdk")
+        install_brew_pkg(options, "parallels-virtualization-sdk")
       else
         command = "ln -s /Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/prlsdkapi.pth /Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/site-packages/prlsdkapi.pth"
         message = "Information:\tSymlinking Parallels SDK Library"
-        execute_command(options,message,command)
+        execute_command(options, message, command)
       end
     end
   end
@@ -391,38 +391,38 @@ def boot_parallels_vm(options)
   check_parallels_hostonly_network(options)
   exists = check_parallels_vm_exists(options)
   if exists == false
-    handle_output(options,"Warning:\tParallels VM #{options['name']} does not exist")
+    handle_output(options, "Warning:\tParallels VM #{options['name']} does not exist")
     quit(options)
   end
   message = "Starting:\tVM "+options['name']
   if options['text'] == true or options['serial'] == true
-    handle_output(options,"")
-    handle_output(options,"Information:\tBooting and connecting to virtual serial port of #{options['name']}")
-    handle_output(options,"")
-    handle_output(options,"To disconnect from this session use CTRL-Q")
-    handle_output(options,"")
-    handle_output(options,"If you wish to re-connect to the serial console of this machine,")
-    handle_output(options,"run the following command")
-    handle_output(options,"")
-    handle_output(options,"socat UNIX-CONNECT:/tmp/#{options['name']} STDIO,raw,echo=0,escape=0x11,icanon=0")
-    handle_output(options,"")
+    handle_output(options, "")
+    handle_output(options, "Information:\tBooting and connecting to virtual serial port of #{options['name']}")
+    handle_output(options, "")
+    handle_output(options, "To disconnect from this session use CTRL-Q")
+    handle_output(options, "")
+    handle_output(options, "If you wish to re-connect to the serial console of this machine,")
+    handle_output(options, "run the following command")
+    handle_output(options, "")
+    handle_output(options, "socat UNIX-CONNECT:/tmp/#{options['name']} STDIO,raw,echo=0,escape=0x11,icanon=0")
+    handle_output(options, "")
     %x[prlctl start #{options['name']}]
   else
     command = "prlctl start #{options['name']} ; open \"/Applications/Parallels Desktop.app\" &"
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   if options['serial'] == true
     system("socat UNIX-CONNECT:/tmp/#{options['name']} STDIO,raw,echo=0,escape=0x11,icanon=0")
   else
-    handle_output(options,"")
-    handle_output(options,"If you wish to connect to the serial console of this machine,")
-    handle_output(options,"run the following command")
-    handle_output(options,"")
-    handle_output(options,"socat UNIX-CONNECT:/tmp/#{options['name']} STDIO,raw,echo=0,escape=0x11,icanon=0")
-    handle_output(options,"")
-    handle_output(options,"To disconnect from this session use CTRL-Q")
-    handle_output(options,"")
-    handle_output(options,"")
+    handle_output(options, "")
+    handle_output(options, "If you wish to connect to the serial console of this machine,")
+    handle_output(options, "run the following command")
+    handle_output(options, "")
+    handle_output(options, "socat UNIX-CONNECT:/tmp/#{options['name']} STDIO,raw,echo=0,escape=0x11,icanon=0")
+    handle_output(options, "")
+    handle_output(options, "To disconnect from this session use CTRL-Q")
+    handle_output(options, "")
+    handle_output(options, "")
   end
   return
 end
@@ -432,7 +432,7 @@ end
 def register_parallels_vm(options)
   message = "Registering Parallels VM "+options['name']
   command = "prlctl create \"#{options['name']}\" --ostype \"#{options['os-type']}\""
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
@@ -446,19 +446,19 @@ def configure_parallels_vm(options)
   disk_name   = get_parallels_disk(options)
   socket_name = "/tmp/#{options['name']}"
   check_parallels_vm_doesnt_exist(options)
-  register_parallels_vm(options['name'],options['os-type'])
+  register_parallels_vm(options['name'], options['os-type'])
   add_serial_to_parallels_vm(options)
-  change_parallels_vm_mem(options['name'],options['memory'])
-  change_parallels_vm_cpu(options['name'],options['vcpus'])
+  change_parallels_vm_mem(options['name'], options['memory'])
+  change_parallels_vm_cpu(options['name'], options['vcpus'])
   if options['file'].to_s.match(/[0-9]|[a-z]/)
-    attach_file_to_parallels_vm(options['name'],options['file'])
+    attach_file_to_parallels_vm(options['name'], options['file'])
   end
   if options['mac'].to_s.match(/[0-9]/)
-    change_parallels_vm_mac(options['name'],options['mac'])
+    change_parallels_vm_mac(options['name'], options['mac'])
   else
     options['mac'] = get_parallels_vm_mac(options)
   end
-  handle_output(options,"Created Parallels VM #{options['name']} with MAC address #{options['mac']}")
+  handle_output(options, "Created Parallels VM #{options['name']} with MAC address #{options['mac']}")
   return
 end
 
@@ -514,7 +514,7 @@ end
 def check_parallels_vm_doesnt_exist(options)
   exists = check_parallels_vm_exists(options)
   if exists == true
-    handle_output(options,"Parallels VM #{options['name']} already exists")
+    handle_output(options, "Parallels VM #{options['name']} already exists")
     quit(options)
   end
   return
@@ -541,16 +541,16 @@ def unconfigure_parallels_vm(options)
   check_parallels_is_installed(options)
   exists = check_parallels_vm_exists(options)
   if exists == false
-    handle_output(options,"Parallels VM #{options['name']} does not exist")
+    handle_output(options, "Parallels VM #{options['name']} does not exist")
     quit(options)
   end
   stop_parallels_vm(options)
   sleep(5)
   message = "Deleting Parallels VM "+options['name']
   command = "prlctl delete #{options['name']}"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   message = "Unregistering Parallels VM "+options['name']
   command = "prlctl unregister #{options['name']}"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end

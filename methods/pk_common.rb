@@ -18,7 +18,7 @@ def check_packer_is_installed(options)
   packer_version = options['packerversion'].to_s
   if !packer_bin.match(/packer/) or !File.exist?(packer_bin)
     if options['host-os-name'].to_s.match(/Darwin/)
-      install_osx_package(options,"packer")
+      install_osx_package(options, "packer")
       packer_bin = %x[which packer].chomp
     else
       if options['host-os-machine'].to_s.match(/64/)
@@ -30,16 +30,16 @@ def check_packer_is_installed(options)
       end
       tmp_file = "/tmp/"+packer_bin
       if not File.exist?(tmp_file)
-        wget_file(options,packer_url,tmp_file)
+        wget_file(options, packer_url, tmp_file)
       end
       if not File.directory?("/usr/local/bin") and not File.symlink?("/usr/local/bin")
         message = "Information:\tCreating /usr/local/bin"
         command = "mkdir /usr/local/bin"
-        execute_command(options,message,command)
+        execute_command(options, message, command)
       end
       message = "Information:\tExtracting and installing Packer"
       command = "sudo sh -c 'cd /tmp ; unzip -o #{tmp_file} ; cp /tmp/packer /usr/local/bin ; chmod +x /usr/local/bin/packer'"
-      execute_command(options,message,command)
+      execute_command(options, message, command)
     end
   end
   options['packer'] = packer_bin

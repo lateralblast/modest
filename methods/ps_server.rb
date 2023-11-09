@@ -5,7 +5,7 @@
 
 def configure_ps_server(options)
   search_string = "ubuntu"
-  configure_linux_server(options,search_string)
+  configure_linux_server(options, search_string)
   return
 end
 
@@ -15,11 +15,11 @@ def list_ps_services(options)
   options['method'] = "ps"
   dir_list = get_dir_item_list(options)
   message  = "Preseed Services:"
-  handle_output(options,message)
+  handle_output(options, message)
   dir_list.each do |service|
-    handle_output(options,service)
+    handle_output(options, service)
   end
-  handle_output(options,"")
+  handle_output(options, "")
   return
 end
 
