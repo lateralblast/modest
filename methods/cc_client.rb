@@ -9,18 +9,19 @@ def populate_cc_user_data(options)
     install_locale = install_locale.split(".")[0]
   end
   if options['livecd'] == true
-    install_target  = "/target"
+    install_target = "/target"
   else
-    install_target  = ""
+    install_target = ""
   end
   install_nameserver = options['q_struct']['nameserver'].value
   install_base_url   = "http://"+options['hostip']+"/"+options['name']
   if options['service'].to_s.match(/ubuntu_2[2-4]/)
-    install_layout  = options['q_struct']['locale'].value.split(".")[0]
+    install_layout = options['q_struct']['locale'].value.split(".")[0]
   else
-    install_layout  = install_locale.split("_")[0]
+    install_layout = install_locale.split("_")[0]
   end
   install_variant = install_locale.split("_")[1].downcase
+  install_country = install_variant
   install_gateway = options['q_struct']['gateway'].value
   admin_shell   = options['q_struct']['admin_shell'].value
   admin_sudo    = options['q_struct']['admin_sudo'].value
@@ -55,6 +56,7 @@ def populate_cc_user_data(options)
   install_timezone = options['timezone'].to_s
   preserve_sources = options['preservesources'].to_s
   install_codename = options['codename'].to_s
+  install_ssh_port = options['packersshport'].to_s
   if !install_codename.to_s.match(/[a-z]/)
     install_codename = get_code_name_from_release_version(options['release'])
   end
@@ -94,8 +96,22 @@ def populate_cc_user_data(options)
 #    user_data.push("      pin: \"release a=#{install_codename}-security\"")
 #    user_data.push("      pin-priority: 200")
 #    user_data.push("    disable_components: []")
-    user_data.push("    geoip: true")
+#    user_data.push("    geoip: true")
     user_data.push("    preserve_sources_list: #{preserve_sources}")
+    user_data.push("    source_list: |")
+    user_data.push("      deb [trusted=yes] http://#{install_country}.archive.ubuntu.com/ubuntu #{install_codename} restricted")
+    user_data.push("      deb [trusted=yes] http://#{install_country}.archive.ubuntu.com/ubuntu #{install_codename}-updates main restricted")
+    user_data.push("      deb [trusted=yes] http://#{install_country}.archive.ubuntu.com/ubuntu #{install_codename} universe")
+    user_data.push("      deb [trusted=yes] http://#{install_country}.archive.ubuntu.com/ubuntu #{install_codename}-updates universe")
+    user_data.push("      deb [trusted=yes] http://#{install_country}.archive.ubuntu.com/ubuntu #{install_codename} multiverse")
+    user_data.push("      deb [trusted=yes] http://#{install_country}.archive.ubuntu.com/ubuntu #{install_codename}-updates multiverse")
+    user_data.push("      deb [trusted=yes] http://#{install_country}.archive.ubuntu.com/ubuntu #{install_codename}-backports main restricted universe multiverse")
+    user_data.push("      deb [trusted=yes] http://#{install_country}.archive.ubuntu.com/ubuntu #{install_codename}-security main restricted")
+    user_data.push("      deb [trusted=yes] http://#{install_country}.archive.ubuntu.com/ubuntu #{install_codename}-security universe")
+    user_data.push("      deb [trusted=yes] http://#{install_country}.archive.ubuntu.com/ubuntu #{install_codename}-security multiverse")
+    user_data.push("    conf: |")
+    user_data.push("      Acquire::https::::Verify-Peer \"false\";")
+    user_data.push("      Acquire::https::::Verify-Host \"false\";")
     user_data.push("    primary:")
     if options['arch'].to_s.match(/arm/)
       user_data.push("    - arches: [arm64, arm]")
@@ -145,45 +161,8 @@ def populate_cc_user_data(options)
     user_data.push("    install-server: true")
     user_data.push("    allow-pw: true")
     user_data.push("  storage:")
-    user_data.push("    config:")
-    user_data.push("    - grub_device: true")
-    user_data.push("      id: disk-#{install_disk}")
-    user_data.push("      path: /dev/#{install_disk}")
-    user_data.push("      ptable: gpt")
-    user_data.push("      type: disk")
-    user_data.push("      wipe: superblock-recursive")
-    user_data.push("    - device: disk-#{install_disk}")
-    user_data.push("      flag: bios_grub")
-    user_data.push("      id: partition-0")
-    user_data.push("      number: 1")
-    user_data.push("      size: 1048576")
-    user_data.push("      type: partition")
-    user_data.push("    - device: disk-#{install_disk}")
-    user_data.push("      id: partition-1")
-    user_data.push("      number: 2")
-    user_data.push("      size: -1")
-    user_data.push("      type: partition")
-    user_data.push("      wipe: superblock")
-    user_data.push("    - name: root_vg")
-    user_data.push("      devices: [partition-1]")
-    user_data.push("      preserve: false")
-    user_data.push("      type: lvm_volgroup")
-    user_data.push("      id: lvm_volgroup-0")
-    user_data.push("    - name: root_lv")
-    user_data.push("      volgroup: lvm_volgroup-0")
-    user_data.push("      size: -1")
-    user_data.push("      wipe: superblock")
-    user_data.push("      preserve: false")
-    user_data.push("      type: lvm_partition")
-    user_data.push("      id: lvm_partition-0")
-    user_data.push("    - fstype: ext4")
-    user_data.push("      id: format-0")
-    user_data.push("      type: format")
-    user_data.push("      volume: lvm_partition-0")
-    user_data.push("    - device: format-0")
-    user_data.push("      id: mount-0")
-    user_data.push("      path: /")
-    user_data.push("      type: mount")
+    user_data.push("    layout:")
+    user_data.push("      name: lvm")
     if install_security.to_s.match(/true/)
       user_data.push("  updates: security")
     end
@@ -262,20 +241,22 @@ def populate_cc_user_data(options)
       end
     end
     if !options['vm'].to_s.match(/mp|multipass/)
+      late_exec_data.push("echo '# This file describes the network interfaces available on your system' > #{netplan_file}")
+      late_exec_data.push("echo '# For more information, see netplan(5).' >> #{netplan_file}")
+      late_exec_data.push("echo 'network:' >> #{netplan_file}")
+      late_exec_data.push("echo '  version: 2' >> #{netplan_file}")
+#      late_exec_data.push("echo '  renderer: networkd' >> #{netplan_file}")
+      late_exec_data.push("echo '  ethernets:' >> #{netplan_file}")
+      late_exec_data.push("echo '    #{install_nic}:' >> #{netplan_file}")
       if options['dhcp'] == false || options['dnsmasq'] == true
-        late_exec_data.push("echo '# This file describes the network interfaces available on your system' > #{netplan_file}")
-        late_exec_data.push("echo '# For more information, see netplan(5).' >> #{netplan_file}")
-        late_exec_data.push("echo 'network:' >> #{netplan_file}")
-        late_exec_data.push("echo '  version: 2' >> #{netplan_file}")
-        late_exec_data.push("echo '  renderer: networkd' >> #{netplan_file}")
-        late_exec_data.push("echo '  ethernets:' >> #{netplan_file}")
-        late_exec_data.push("echo '    #{install_nic}:' >> #{netplan_file}")
+        late_exec_data.push("echo '      addresses: [#{install_ip}/#{install_cidr}]' >> #{netplan_file}")
+        late_exec_data.push("echo '      gateway4: #{install_gateway}' >> #{netplan_file}")
       else
-        if disable_dhcp.match(/true/)
-          late_exec_data.push("echo '      addresses: [#{install_ip}/#{install_cidr}]' >> #{netplan_file}")
-          late_exec_data.push("echo '      gateway4: #{install_gateway}' >> #{netplan_file}")
-        else
-          late_exec_data.push("echo '      dhcp4: true' >> #{netplan_file}")
+        late_exec_data.push("echo '      dhcp4: true' >> #{netplan_file}")
+      end
+      if options['type'].to_s.match(/packer/)
+        if install_ssh_port.to_i != 22
+          late_exec_data.push("echo 'Port #{install_ssh_port}' >> #{install_target}/etc/ssh/sshd_config")
         end
       end
       if options['serial'] == true || options['biosdevnames'] == true

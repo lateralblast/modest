@@ -350,6 +350,11 @@ def build_packer_config(options)
     handle_output(options, "Warning:\tJSON configuration file \"#{json_file}\" for #{options['name']} does not exist")
     quit(options)
   end
+  if options['vm'].to_s.match(/fusion/) and options['vmnetwork'].to_s.match(/hostonly/)
+    if_name = options['vmnet'].to_s
+    gw_if_name = get_gw_if_name(options)
+    check_nat(options, gw_if_name, if_name)
+  end
 	message = "Information:\tBuilding Packer Image "+json_file
   if options['verbose'] == true
     if options['host-os-name'].to_s.match(/NT/)
@@ -465,6 +470,9 @@ def create_packer_ps_install_files(options)
   output_file = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/"+options['name']+".cfg"
   check_dir_exists(options, options['clientdir'])
   delete_file(options, output_file)
+  if options['vm'].to_s.match(/fusion/)
+    options = get_fusion_vm_rootdisk(options)
+  end
   options = populate_ps_questions(options)
   process_questions(options)
   if !options['service'].to_s.match(/purity/)

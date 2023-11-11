@@ -33,8 +33,7 @@ end
 # Check PF is configure on OS X 10.10 and later
 
 def check_osx_pfctl(options, gw_if_name, if_name)
-  output = check_osx_ip_forwarding(options, gw_if_name)
-  if not output.to_s.match(/#{gw_if_name}/) or not output.to_s.match(/#{if_name}/) or output.to_s.match(/killswitch/) or options['force'] == true
+  if options['vmnetwork'].to_s.match(/hostonly/)
     pf_file = options['workdir']+"/pfctl_config"
     if File.exist?(pf_file)
       File.delete(pf_file)

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      7.6.3
+# Version:      7.6.9
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -364,6 +364,7 @@ begin
     ['--outputfile', REQUIRED],       # Output file (KVM)
     ['--packages', REQUIRED],         # Specify additional packages to install
     ['--packer', REQUIRED],           # Packer binary
+    ['--packersshport', REQUIRED],    # Packer binary
     ['--packerversion', REQUIRED],    # Packer version
     ['--panic', REQUIRED],            # Panic (KVM)
     ['--parallel', REQUIRED],         # Parallel (KVM)

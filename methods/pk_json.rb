@@ -58,7 +58,8 @@ def create_packer_json(options)
   numvcpus          = options['vcpus'].to_s
   mac_address       = options['mac'].to_s
   usb               = options['usb'].to_s
-  usb_xhci_present   = options['usbxhci'].to_s
+  ssh_port          = options['packersshport'].to_s
+  usb_xhci_present  = options['usbxhci'].to_s
   disk_adapter_type = options['diskinterface'].to_s
   if options['vm'].to_s.match(/fusion/)
     if hw_version.to_i >= 20
@@ -136,7 +137,7 @@ def create_packer_json(options)
         ks_ip = options['vmgateway']
       end
     end
-    natpf_ssh_rule = "packerssh,tcp,"+options['ip']+",2222,"+options['ip']+",22"
+    natpf_ssh_rule = "packerssh,tcp,"+options['ip']+","+ssh_port+","+options['ip']+",22"
   else
     if options['httpbindaddress'] != options['empty']
       ks_ip = options['httpbindaddress']
@@ -563,8 +564,8 @@ def create_packer_json(options)
       wait_time2 = "<wait210>"
     end
     install_domain    = options['domainname']
-    ssh_host_port_min = "2222"
-    ssh_host_port_max = "2222"
+    ssh_host_port_min = ssh_port
+    ssh_host_port_max = ssh_port
     net_config        = "/etc/network/interfaces"
     script_url        = "http://"+options['vmgateway']+":8888/"+options['vm']+"/"+options['name']+"/setup.sh"
     script_file       = packer_dir+"/"+options['vm']+"/"+options['name']+"/setup.sh"
@@ -682,7 +683,7 @@ def create_packer_json(options)
                    "<wait3>echo '"+ssh_username+" ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/"+ssh_username+"<enter>"+
                    "<wait3>useradd -p '"+admin_crypt+"' -g "+ssh_username+" -G "+admin_group+" -d "+admin_home+" -s /bin/bash -m "+ssh_username+"<enter>"+
                    "<wait3>echo 'UseDNS No' >> /etc/ssh/sshd_config<enter>"+
-                   "<wait3>echo 'Port 2222' >> /etc/ssh/sshd_config ; service ssh restart<enter>"+
+                   "<wait3>echo 'Port #{ssh_port}' >> /etc/ssh/sshd_config ; service ssh restart<enter>"+
                    "<wait3>echo '# The primary network interface' >> #{net_config}<enter>"+
                    "<wait3>echo 'auto #{install_nic}' >> #{net_config}<enter>"+
                    "<wait3>echo 'iface #{install_nic} inet static' >> #{net_config}<enter>"+

@@ -3,7 +3,7 @@
 
 # Set defaults
 
-def set_defaults(options,defaults)
+def set_defaults(options, defaults)
   # Declare OS defaults
   defaults['home'] = ENV['HOME']
   defaults['host-os-name']     = %x[uname].chomp
@@ -44,7 +44,7 @@ def set_defaults(options,defaults)
   if defaults['host-os-name'].to_s.match(/SunOS|Darwin|NT/)
     if defaults['host-os-name'].to_s.match(/SunOS/)
       if File.exist?("/etc/release")
-        defaults['host-os-revision'] = %x[cat /etc/release |grep Solaris |head -1].chomp.gsub(/^\s+/,"")
+        defaults['host-os-revision'] = %x[cat /etc/release |grep Solaris |head -1].chomp.gsub(/^\s+/, "")
       end
       if defaults['host-os-release'].to_s.match(/\./)
         if defaults['host-os-release'].to_s.match(/^5/)
@@ -328,6 +328,7 @@ def set_defaults(options,defaults)
   defaults['ipfamily']        = "ipv4"
   defaults['isodir']          = defaults['basedir'].to_s+'/export/isos'
   defaults['region']          = "ap-southeast-2"
+  defaults['packersshport']   = "2222"
   if options['vm']
     if options['vm'].to_s.match(/aws/)
       defaults['keydir'] = ENV['HOME'].to_s+"/.ssh/aws"
@@ -513,7 +514,7 @@ end
 
 # Set some parameter once we have more details
 
-def reset_defaults(options,defaults)
+def reset_defaults(options, defaults)
   if options['file'].to_s.match(/[a-z]/)
     defaults['arch'] = get_install_arch_from_file(options)
     if !options['service'].to_s.match(/[a-z]/)
@@ -762,12 +763,15 @@ def reset_defaults(options,defaults)
       end
     end
   end
+  if options['vmnetwork'].to_s.match(/hostonly/)
+    options['packersshport'] = "22"
+  end
   return defaults
 end
 
 # Clean up options
 
-def cleanup_options(options,defaults)
+def cleanup_options(options, defaults)
   options['host-os-packages'] = defaults['host-os-packages']
   if options['vm'].to_s.match(/parallels/)
     options['vmapp'] = "Parallels Desktop"
@@ -782,32 +786,35 @@ def cleanup_options(options,defaults)
   # Handle OS option
   if options['os-type'] != options['empty']
     options['os-type'] = options['os-type'].to_s.downcase
-    options['os-type'] = options['os-type'].gsub(/^win$/,"windows")
-    options['os-type'] = options['os-type'].gsub(/^sol$/,"solaris")
+    options['os-type'] = options['os-type'].gsub(/^win$/, "windows")
+    options['os-type'] = options['os-type'].gsub(/^sol$/, "solaris")
   end
   # Some clean up of parameters
   if options['method'] != options['empty']
     options['method'] = options['method'].to_s.downcase
-    options['method'] = options['method'].to_s.gsub(/kickstart/,"js")
-    options['method'] = options['method'].to_s.gsub(/preseed/,"ps")
-    options['method'] = options['method'].to_s.gsub(/jumpstart/,"js")
-    options['method'] = options['method'].to_s.gsub(/autoyast/,"ay")
-    options['method'] = options['method'].to_s.gsub(/vsphere|esx/,"vs")
+    options['method'] = options['method'].to_s.gsub(/kickstart/, "js")
+    options['method'] = options['method'].to_s.gsub(/preseed/, "ps")
+    options['method'] = options['method'].to_s.gsub(/jumpstart/, "js")
+    options['method'] = options['method'].to_s.gsub(/autoyast/, "ay")
+    options['method'] = options['method'].to_s.gsub(/vsphere|esx/, "vs")
   end
   # Handle OS switch
   if options['os-type'] != options['empty']
     options['os-type'] = options['os-type'].to_s.downcase
-    options['os-type'] = options['os-type'].to_s.gsub(/windows/,"win")
-    options['os-type'] = options['os-type'].to_s.gsub(/scientificlinux|scientific/,"sl")
-    options['os-type'] = options['os-type'].to_s.gsub(/oel/,"oraclelinux")
-    options['os-type'] = options['os-type'].to_s.gsub(/esx|esxi|vsphere/,"vmware")
-    options['os-type'] = options['os-type'].to_s.gsub(/^suse$/,"opensuse")
-    options['os-type'] = options['os-type'].to_s.gsub(/solaris/,"sol")
-    options['os-type'] = options['os-type'].to_s.gsub(/redhat/,"rhel")
+    options['os-type'] = options['os-type'].to_s.gsub(/windows/, "win")
+    options['os-type'] = options['os-type'].to_s.gsub(/scientificlinux|scientific/, "sl")
+    options['os-type'] = options['os-type'].to_s.gsub(/oel/, "oraclelinux")
+    options['os-type'] = options['os-type'].to_s.gsub(/esx|esxi|vsphere/, "vmware")
+    options['os-type'] = options['os-type'].to_s.gsub(/^suse$/, "opensuse")
+    options['os-type'] = options['os-type'].to_s.gsub(/solaris/ ,"sol")
+    options['os-type'] = options['os-type'].to_s.gsub(/redhat/, "rhel")
   end
   # Handle VMware Workstation
   if options['vm'].to_s.match(/vmware|workstation/)
     options['vm'] = "fusion"
+  end
+  if options['vm'].to_s.match(/fusion/) and options['vmnetwork'].to_s.match(/hostonly/)
+    options = get_fusion_hostonly_network(options)
   end
   # Handle keys
   if options['nokeys'] == true
@@ -903,22 +910,22 @@ def set_hostonly_info(options)
   end
   if hostonly_subnet == host_subnet
     output = "Warning:\tHost and Hostonly network are the same"
-    handle_output(options,output)
+    handle_output(options, output)
     hostonly_subnet = host_subnet.to_i+10
     hostonly_subnet = hostonly_subnet.to_s
     output = "Information:\tChanging hostonly network to "+hostonly_base+"."+hostonly_subnet+".0"
-    handle_output(options,output)
+    handle_output(options, output)
     options['force'] = true
   end
   if install_subnet == host_subnet
     if options['dhcp'] == false
       output = "Warning:\tHost and client network are the same"
-      handle_output(options,output)
+      handle_output(options, output)
       install_subnet = host_subnet.to_i+10
       install_subnet = install_subnet.to_s
       options['ip'] = options['ip'].split(".")[0]+"."+options['ip'].split(".")[1]+"."+install_subnet+"."+options['ip'].split(".")[3]
       output = "Information:\tChanging Client IP to "+hostonly_base+"."+hostonly_subnet+".0"
-      handle_output(options,output)
+      handle_output(options, output)
       options['force'] = true
     end
   end
@@ -950,10 +957,10 @@ def get_my_ip(options)
       end
     end
   end
-  output = execute_command(options,message,command)
+  output = execute_command(options, message, command)
   output = output.chomp
   output = output.strip
-  output = output.gsub(/\s+|\n/,"")
+  output = output.gsub(/\s+|\n/, "")
   output = output.strip
   return output
 end
@@ -1025,46 +1032,46 @@ def print_help(options)
   long_switch  = ""
   short_switch = ""
   help_info    = ""
-  handle_output(options,"")
-  handle_output(options,"Usage: #{options['script']}")
-  handle_output(options,"")
+  handle_output(options, "")
+  handle_output(options, "Usage: #{options['script']}")
+  handle_output(options, "")
   option_list = get_valid_options()
   option_list.each do |line|
     if not line.match(/file_array/)
       help_info    = line.split(/# /)[1]
       switches     = line.split(/,/)
-      long_switch  = switches[0].gsub(/\[/,"").gsub(/\s+/,"")
-      short_switch = switches[1].gsub(/\s+/,"")
+      long_switch  = switches[0].gsub(/\[/, "").gsub(/\s+/, "")
+      short_switch = switches[1].gsub(/\s+/, "")
       if short_switch.match(/REQ|BOOL/)
         short_switch = ""
       end
-      if long_switch.gsub(/\s+/,"").length < 7
-        handle_output(options,"#{long_switch},\t\t\t#{short_switch}\t#{help_info}")
+      if long_switch.gsub(/\s+/, "").length < 7
+        handle_output(options, "#{long_switch},\t\t\t#{short_switch}\t#{help_info}")
       else
-        if long_switch.gsub(/\s+/,"").length < 15
-          handle_output(options,"#{long_switch},\t\t#{short_switch}\t#{help_info}")
+        if long_switch.gsub(/\s+/, "").length < 15
+          handle_output(options, "#{long_switch},\t\t#{short_switch}\t#{help_info}")
         else
-          handle_output(options,"#{long_switch},\t#{short_switch}\t#{help_info}")
+          handle_output(options, "#{long_switch},\t#{short_switch}\t#{help_info}")
         end
       end
     end
   end
-  handle_output(options,"")
+  handle_output(options, "")
   return
 end
 
 # Output if verbose flag set
 
-def verbose_output(options,text)
+def verbose_output(options, text)
   if options['verbose'] == true
-    options = handle_output(options,text)
+    options = handle_output(options, text)
   end
   return options
 end
 
 # Handle output
 
-def handle_output(options,text)
+def handle_output(options, text)
   if options['output'].to_s.match(/html/)
     if text == ""
       text = "<br>"
@@ -1079,7 +1086,7 @@ end
 
 # HTML header
 
-def html_header(pipe,title)
+def html_header(pipe, title)
   pipe.push("<html>")
   pipe.push("<header>")
   pipe.push("<title>")
@@ -1102,32 +1109,32 @@ end
 
 def get_version()
   file_array = IO.readlines $0
-  version    = file_array.grep(/^# Version/)[0].split(":")[1].gsub(/^\s+/,'').chomp
-  packager   = file_array.grep(/^# Packager/)[0].split(":")[1].gsub(/^\s+/,'').chomp
-  name       = file_array.grep(/^# Name/)[0].split(":")[1].gsub(/^\s+/,'').chomp
-  return version,packager,name
+  version    = file_array.grep(/^# Version/)[0].split(":")[1].gsub(/^\s+/, '').chomp
+  packager   = file_array.grep(/^# Packager/)[0].split(":")[1].gsub(/^\s+/, '').chomp
+  name       = file_array.grep(/^# Name/)[0].split(":")[1].gsub(/^\s+/, '').chomp
+  return version,packager, name
 end
 
 # Print script version information
 
 def print_version(options)
-  (version,packager,name) = get_version()
-  handle_output(options,"#{name} v. #{version} #{packager}")
+  (version, packager, name) = get_version()
+  handle_output(options, "#{name} v. #{version} #{packager}")
   return
 end
 
 # Set file perms
 
-def set_file_perms(file_name,file_perms)
+def set_file_perms(file_name, file_perms)
   message = "Information:\tSetting permissions on file '#{file_name}' to '#{file_perms}'"
   command = "chmod #{file_perms} \"#{file_name}\""
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
 # Write array to file
 
-def write_array_to_file(options,file_array,file_name,file_mode)
+def write_array_to_file(options, file_array, file_name, file_mode)
   dir_name = Pathname.new(file_name).dirname
   if !Dir.exist?(dir_name)
     FileUtils.mkpath(dir_name)
@@ -1137,7 +1144,7 @@ def write_array_to_file(options,file_array,file_name,file_mode)
   else
     file_mode = "w"
   end
-  file = File.open(file_name,file_mode)
+  file = File.open(file_name, file_mode)
   file_array.each do |line|
     if not line.match(/\n/)
       line = line+"\n"
@@ -1145,7 +1152,7 @@ def write_array_to_file(options,file_array,file_name,file_mode)
     file.write(line)
   end
   file.close
-  print_contents_of_file(options,"",file_name)
+  print_contents_of_file(options, "", file_name)
   return
 end
 
@@ -1197,9 +1204,9 @@ def update_user_ssh_config(options)
       host_string = host_string+" "+options['id']
     end
     if not File.exist?(ssh_config)
-      file = File.open(ssh_config,"w")
+      file = File.open(ssh_config, "w")
     else
-      file = File.open(ssh_config,"a")
+      file = File.open(ssh_config, "a")
     end
     file.write(host_string+"\n")
     if options['sshkeyfile'].to_s.match(/[A-Z]|[a-z]|[0-9]/)
@@ -1222,7 +1229,7 @@ def delete_user_ssh_config(options)
   host_list   = get_user_ssh_config(options)
   if not host_list == options['empty']
     host_info  = host_list.split(/\n/)[0].chomp
-    handle_output(options,"Warning:\tRemoving entries for '#{host_info}'")
+    handle_output(options, "Warning:\tRemoving entries for '#{host_info}'")
     ssh_config = options['sshconfig']
     ssh_data   = File.readlines(ssh_config)
     new_data   = []
@@ -1239,7 +1246,7 @@ def delete_user_ssh_config(options)
         new_data.push(line)
       end
     end
-    file = File.open(ssh_config,"w")
+    file = File.open(ssh_config, "w")
     new_data.each do |line|
       file.write(line)
     end
@@ -1254,7 +1261,7 @@ def check_vnc_install(options)
   if not File.directory?(options['novncdir'])
     message = "Information:\tCloning noVNC from "+$novnc_url
     command = "git clone #{$novnc_url}"
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
 end
 
@@ -1263,35 +1270,35 @@ end
 def get_win_default_if_name(options)
   message = "Information:\tDeterming default interface name"
   command = "wmic nic where NetConnectionStatus=2 get NetConnectionID |grep -v NetConnectionID |head -1"
-  default = execute_command(options,message,command)
+  default = execute_command(options, message, command)
   default = default.strip_control_and_extended_characters
-  default = default.gsub(/^\s+|\s+$/,"")
+  default = default.gsub(/^\s+|\s+$/, "")
   return(default)
 end
 
 # Get Windows interface MAC address
 
-def get_win_if_mac(options,if_name)
+def get_win_if_mac(options, if_name)
   if options['host-os-name'].to_s.match(/NT/) and if_name.match(/\s+/)
     if_name = if_name.split(/\s+/)[0]
-    if_name = if_name.gsub(/"/,"")
+    if_name = if_name.gsub(/"/, "")
     if_name = "%"+if_name+"%"
   end
   message = "Information:\tDeterming MAC address for '#{if_name}'"
   command = "wmic nic where \"netconnectionid like '#{if_name}'\" get macaddress"
-  nic_mac = execute_command(options,message,command)
+  nic_mac = execute_command(options, message, command)
   nic_mac = nic_mac.strip_control_and_extended_characters
   nic_mac = nic_mac.split(/\s+/)[1]
-  nic_mac = nic_mac.gsub(/^\s+|\s+$/,"")
+  nic_mac = nic_mac.gsub(/^\s+|\s+$/, "")
   return(nic_mac)
 end
 
 # Get Windows IP from MAC
 
-def get_win_ip_form_mac(options,nic_mac)
+def get_win_ip_form_mac(options, nic_mac)
   message = "Information:\tDeterming IP address from MAC address '#{nic_mac}'"
   command = "wmic nicconfig get macaddress,ipaddress |grep \"#{nic_mac}\""
-  host_ip = execute_command(options,message,command)
+  host_ip = execute_command(options, message, command)
   host_ip = host_ip.strip_control_and_extended_characters
   host_ip = host_ip.split(/\s+/)[0]
   host_ip = host_ip.split(/"/)[1]
@@ -1302,16 +1309,16 @@ end
 
 def get_win_default_host(options)
   if_name = get_win_default_if_name(options)
-  nic_mac = get_win_if_mac(options,if_name)
-  host_ip = get_win_ip_form_mac(options,nic_mac)
+  nic_mac = get_win_if_mac(options, if_name)
+  host_ip = get_win_ip_form_mac(options, nic_mac)
   return host_ip
 end
 
 # Get Windows IP from interface name
 
 def get_win_ip_from_if_name(if_name)
-  nic_mac = get_win_if_mac(options,if_name)
-  host_ip = get_win_ip_form_mac(options,nic_mac)
+  nic_mac = get_win_if_mac(options, if_name)
+  host_ip = get_win_ip_form_mac(options, nic_mac)
   return host_ip
 end
 
@@ -1334,9 +1341,9 @@ def get_default_host(options)
       when /Linux/
         command = "ifconfig #{options['nic']} |grep inet |grep -v inet6"
       end
-      host_ip = execute_command(options,message,command)
+      host_ip = execute_command(options, message, command)
       if host_ip.match(/inet/)
-        host_ip = host_ip.gsub(/^\s+/,"").split(/\s+/)[1]
+        host_ip = host_ip.gsub(/^\s+/, "").split(/\s+/)[1]
       end
       if host_ip.match(/addr:/)
         host_ip = host_ip.split(/:/)[1].split(/ /)[0]
@@ -1353,7 +1360,7 @@ end
 
 # Get default route IP
 
-def get_gw_if_ip(options,gw_if_name)
+def get_gw_if_ip(options, gw_if_name)
   if options['host-os-name'].to_s.match(/NT/)
     gw_if_ip = get_win_default_host
   else
@@ -1363,7 +1370,7 @@ def get_gw_if_ip(options,gw_if_name)
     else
       command = "sudo sh -c \"netstat -rn |grep ^default |head -1 |awk '{print \\\$2}'\""
     end
-    gw_if_ip = execute_command(options,message,command)
+    gw_if_ip = execute_command(options, message, command)
     gw_if_ip = gw_if_ip.chomp
   end
   return gw_if_ip
@@ -1389,7 +1396,7 @@ def get_gw_if_name(options)
         end
       end
     end
-    gw_if_name = execute_command(options,message,command)
+    gw_if_name = execute_command(options, message, command)
     gw_if_name = gw_if_name.chomp
   end
   return gw_if_name
@@ -1468,10 +1475,10 @@ def check_local_config(options)
   end
   # Check base dirs exist
   if options['verbose'] == true
-    handle_output(options,"Information:\tChecking base repository directory")
+    handle_output(options, "Information:\tChecking base repository directory")
   end
-  check_dir_exists(options,options['baserepodir'])
-  check_dir_owner(options,options['baserepodir'],options['uid'])
+  check_dir_exists(options, options['baserepodir'])
+  check_dir_owner(options, options['baserepodir'], options['uid'])
   if options['vm'].to_s.match(/vbox/)
     options = set_vbox_bin(options)
   end
@@ -1479,10 +1486,10 @@ def check_local_config(options)
     check_ssh_keys(options)
   end
   if options['verbose'] == true
-    handle_output(options,"Information:\tHome directory #{options['home']}")
+    handle_output(options, "Information:\tHome directory #{options['home']}")
   end
   if not options['workdir'].to_s.match(/[a-z,A-Z,0-9]/)
-    dir_name = File.basename(options['script'],".*")
+    dir_name = File.basename(options['script'], ".*")
     if options['uid'] == false
       options['workdir'] = "/opt/"+dir_name
     else
@@ -1490,21 +1497,21 @@ def check_local_config(options)
     end
   end
   if options['verbose'] == true
-    handle_output(options,"Information:\tSetting work directory to #{options['workdir']}")
+    handle_output(options, "Information:\tSetting work directory to #{options['workdir']}")
   end
   if not options['tmpdir'].match(/[a-z,A-Z,0-9]/)
     options['tmpdir'] = options['workdir']+"/tmp"
   end
   if options['verbose'] == true
-    handle_output(options,"Information:\tSetting temporary directory to #{options['workdir']}")
+    handle_output(options, "Information:\tSetting temporary directory to #{options['workdir']}")
   end
   # Get OS name and set system settings appropriately
   if options['verbose'] == true
-    handle_output(options,"Information:\tChecking work directory")
+    handle_output(options, "Information:\tChecking work directory")
   end
-  check_dir_exists(options,options['workdir'])
-  check_dir_owner(options,options['workdir'],options['uid'])
-  check_dir_exists(options,options['tmpdir'])
+  check_dir_exists(options, options['workdir'])
+  check_dir_owner(options, options['workdir'], options['uid'])
+  check_dir_exists(options, options['tmpdir'])
   if options['host-os-name'].to_s.match(/Linux/)
     options['host-os-release'] = %x[lsb_release -r |awk '{print $2}'].chomp
   end
@@ -1532,16 +1539,16 @@ def check_local_config(options)
       check_dpool(options)
       check_tftpd(options)
       check_local_publisher(options)
-      install_sol11_pkg(options,"pkg:/system/boot/network")
-      install_sol11_pkg(options,"installadm")
-      install_sol11_pkg(options,"lftp")
-      check_dir_exists(options,"/etc/netboot")
+      install_sol11_pkg(options, "pkg:/system/boot/network")
+      install_sol11_pkg(options, "installadm")
+      install_sol11_pkg(options, "lftp")
+      check_dir_exists(options, "/etc/netboot")
     end
     if options['host-os-name'].to_s.match(/SunOS/) and not options['host-os-release'].match(/11/)
-      check_dir_exists(options,"/tftpboot")
+      check_dir_exists(options, "/tftpboot")
     end
     if options['verbose'] == true
-      handle_output(options,"Information:\tSetting apache allow range to #{options['apacheallow']}")
+      handle_output(options, "Information:\tSetting apache allow range to #{options['apacheallow']}")
     end
     if options['host-os-name'].to_s.match(/SunOS/)
       if options['host-os-name'].to_s.match(/SunOS/) and options['host-os-release'].match(/11/)
@@ -1550,10 +1557,10 @@ def check_local_config(options)
       check_sol_bind(options)
     end
     if options['host-os-name'].to_s.match(/Linux/)
-      install_package(options,"apache2")
-      install_package(options,"rpm2cpio")
-      install_package(options,"shim")
-      install_package(options,"shim-signed")
+      install_package(options, "apache2")
+      install_package(options, "rpm2cpio")
+      install_package(options, "shim")
+      install_package(options, "shim-signed")
       options['apachedir'] = "/etc/httpd"
       if options['host-os-uname'].match(/RedHat|CentOS/)
         check_yum_xinetd(options)
@@ -1598,11 +1605,11 @@ def check_local_config(options)
     if !File.exist?("/usr/local/bin/brew") && !File.exist?("/opt/homebrew/bin/brew") && !File.exist?("/usr/homebrew/bin/brew")
       message = "Installing:\tBrew for OS X"
       command = "ruby -e \"$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)\""
-      execute_command(options,message,command)
+      execute_command(options, message, command)
     end
   end
   if options['verbose'] == true
-    handle_output(options,"Information:\tChecking work bin directory")
+    handle_output(options, "Information:\tChecking work bin directory")
   end
   work_bin_dir = options['workdir']+"/bin"
 #  [ "rpm2cpio", "rpm" ].each do |pkg_name|
@@ -1614,38 +1621,38 @@ def check_local_config(options)
       if File.exist?(pkg_bin)
         installed = true
         options[option] = pkg_bin
-        check_file_executable(options,pkg_bin)
+        check_file_executable(options, pkg_bin)
       end
     end
     if installed == false
-      install_package(options,pkg_name)
+      install_package(options, pkg_name)
       [ "/bin", "/usr/local/bin", "/opt/local/bin", "/opt/homebrew/bin", work_bin_dir ].each do |bin_dir|
         pkg_bin = bin_dir+"/"+pkg_name
         if File.exist?(pkg_bin)
           options[option] = pkg_bin
-          check_file_executable(options,pkg_bin)
+          check_file_executable(options, pkg_bin)
         end
       end
     end
   end
   [ options['workdir'], options['bindir'], options['rpmdir'], options['backupdir'] ].each do |test_dir|
     if options['verbose'] == true
-      handle_output(options,"Information:\tChecking #{test_dir} directory")
+      handle_output(options, "Information:\tChecking #{test_dir} directory")
     end
-    check_dir_exists(options,test_dir)
-    check_dir_owner(options,test_dir,options['uid'])
+    check_dir_exists(options, test_dir)
+    check_dir_owner(options, test_dir, options['uid'])
   end
   return options
 end
 
 # Check script is executable
 
-def check_file_executable(options,file_name)
+def check_file_executable(options, file_name)
   if File.exist?(file_name)
     if not File.executable?(file_name)
       message = "Information:\tMaking '#{file_name}' executable"
       command = "chmod +x '#{file_name}'"
-      execute_command(options,message,command)
+      execute_command(options, message, command)
     end
   end
   return
@@ -1653,16 +1660,16 @@ end
 
 # Print valid list
 
-def print_valid_list(options,message,valid_list)
-  handle_output(options,"")
-  handle_output(options,message)
-  handle_output(options,"")
-  handle_output(options,"Available options:")
-  handle_output(options,"")
+def print_valid_list(options, message, valid_list)
+  handle_output(options, "")
+  handle_output(options, message)
+  handle_output(options, "")
+  handle_output(options, "Available options:")
+  handle_output(options, "")
   valid_list.each do |item|
-    handle_output(options,item)
+    handle_output(options, item)
   end
-  handle_output(options,"")
+  handle_output(options, "")
   return
 end
 
@@ -1673,12 +1680,12 @@ def print_changelog()
     changelog = File.readlines("changelog")
     changelog = changelog.reverse
     changelog.each_with_index do |line, index|
-      line = line.gsub(/^# /,"")
+      line = line.gsub(/^# /, "")
       if line.match(/^[0-9]/)
         handle_output(line)
-        text = changelog[index-1].gsub(/^# /,"")
-        handle_output(options,text)
-        handle_output(options,"")
+        text = changelog[index-1].gsub(/^# /, "")
+        handle_output(options, text)
+        handle_output(options, "")
       end
     end
   end
@@ -1690,7 +1697,7 @@ end
 def check_dpool(options)
   message = "Information:\tChecking for alternate pool for LDoms"
   command = "zfs list |grep \"^#{options['dpool']}\""
-  output  = execute_command(options,message,command)
+  output  = execute_command(options, message, command)
   if not output.match(/dpool/)
     options['dpool'] = "rpool"
   end
@@ -1699,12 +1706,12 @@ end
 
 # Copy packages to local packages directory
 
-def download_pkg(options,remote_file)
+def download_pkg(options, remote_file)
   local_file = File.basename(remote_file)
   if not File.exist?(local_file)
     message = "Information:\tFetching "+remote_file+" to "+local_file
     command = "wget #{remote_file} -O #{local_file}"
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   return
 end
@@ -1725,11 +1732,11 @@ end
 
 def check_password(install_password)
   if not install_password.match(/[A-Z]/)
-    handle_output(options,"Warning:\tPassword does not contain and upper case character")
+    handle_output(options, "Warning:\tPassword does not contain and upper case character")
     quit(options)
   end
   if not install_password.match(/[0-9]/)
-    handle_output(options,"Warning:\tPassword does not contain a number")
+    handle_output(options, "Warning:\tPassword does not contain a number")
     quit(options)
   end
   return
@@ -1753,14 +1760,14 @@ end
 
 # Attach DMG
 
-def attach_dmg(pkg_file,app_name)
+def attach_dmg(pkg_file, app_name)
   tmp_dir = %x[sudo sh -c 'echo Y | hdiutil attach "#{pkg_file}" |tail -1 |cut -f3-'].chomp
   if not tmp_dir.match(/[a-z,A-Z]/)
     tmp_dir = %x[ls -rt /Volumes |grep "#{app_name}" |tail -1].chomp
     tmp_dir = "/Volumes/"+tmp_dir
   end
   if $werbose_mode == true
-    handle_output(options,"Information:\tDMG mounted on #{tmp_dir}")
+    handle_output(options, "Information:\tDMG mounted on #{tmp_dir}")
   end
   return tmp_dir
 end
@@ -1770,17 +1777,17 @@ end
 def check_osx_ovftool()
   options['ovfbin'] = "/Applications/VMware OVF Tool/ovftool"
   if not File.exist?(options['ovfbin'])
-    handle_output(options,"Warning:\tOVF Tool not installed")
+    handle_output(options, "Warning:\tOVF Tool not installed")
     ovftool_dmg = options['ovfdmgurl'].split(/\?/)[0]
     ovftool_dmg = File.basename(ovftool_dmg)
-    wget_file(options,options['ovfdmgurl'],ovftool_dmg)
-    handle_output(options,"Information:\tInstalling OVF Tool")
+    wget_file(options, options['ovfdmgurl'], ovftool_dmg)
+    handle_output(options, "Information:\tInstalling OVF Tool")
     app_name = "VMware OVF Tool"
-    tmp_dir  = attach_dmg(ovftool_dmg,app_name)
+    tmp_dir  = attach_dmg(ovftool_dmg, app_name)
     pkg_file = tmp_dir+"/VMware OVF Tool.pkg"
     message = "Information:\tInstalling package "+pkg_file
     command = "/usr/sbin/installer -pkg #{pkg_bin} -target /"
-    execute_command(options,message,command)
+    execute_command(options, message, command)
     detach_dmg(tmp_dir)
   end
   return
@@ -1788,11 +1795,11 @@ end
 
 # SCP file to remote host
 
-def scp_file(options,local_file,remote_file)
+def scp_file(options, local_file, remote_file)
   if options['verbose'] == true
-    handle_output(options,"Information:\tCopying file \""+local_file+"\" to \""+options['server']+":"+remote_file+"\"")
+    handle_output(options, "Information:\tCopying file \""+local_file+"\" to \""+options['server']+":"+remote_file+"\"")
   end
-  Net::SCP.start(options['server'],options['serveradmin'], :password => options['serverpassword'], :paranoid => false) do |scp|
+  Net::SCP.start(options['server'], options['serveradmin'], :password => options['serverpassword'], :paranoid => false) do |scp|
     scp.upload! local_file, remote_file
   end
   return
@@ -1800,11 +1807,11 @@ end
 
 # Execute SSH command
 
-def execute_ssh_command(options,command)
+def execute_ssh_command(options, command)
   if options['verbose'] == true
-    handle_output(options,"Information:\tExecuting command \""+command+"\" on server "+options['server'])
+    handle_output(options, "Information:\tExecuting command \""+command+"\" on server "+options['server'])
   end
-  Net::SSH.start(options['server'],options['serveradmin'], :password => options['serverpassword'], :paranoid => false) do |ssh|
+  Net::SSH.start(options['server'], options['serveradmin'], :password => options['serverpassword'], :paranoid => false) do |ssh|
     ssh.exec!(command)
   end
   return
@@ -1855,7 +1862,7 @@ def get_client_config(options)
     end
     config_files.each do |config_file|
       if File.exist?(config_file)
-        print_contents_of_file(options,"",config_file)
+        print_contents_of_file(options, "", config_file)
       end
     end
   end
@@ -1885,11 +1892,11 @@ def get_install_method(options)
   service_dir = options['baserepodir']+"/"+options['service']
   if File.directory?(service_dir) or File.symlink?(service_dir)
     if options['verbose'] == true
-      handle_output(options,"Information:\tFound directory #{service_dir}")
-      handle_output(options,"Information:\tDetermining service type")
+      handle_output(options, "Information:\tFound directory #{service_dir}")
+      handle_output(options, "Information:\tDetermining service type")
     end
   else
-    handle_output(options,"Warning:\tService #{options['service']} does not exist")
+    handle_output(options, "Warning:\tService #{options['service']} does not exist")
   end
   options['method'] = ""
   test_file = service_dir+"/vmware-esx-base-osl.txt"
@@ -1937,7 +1944,7 @@ def unconfigure_server(options)
       unconfigure_xb_server(options) 
     end
   else
-    handle_output(options,"Warning:\tCould not determine service type for #{options['service']}")
+    handle_output(options, "Warning:\tCould not determine service type for #{options['service']}")
   end
   return
 end
@@ -1995,14 +2002,14 @@ end
 
 def describe_file(options)
   options = get_install_service_from_file(options)
-  handle_output(options,"")
-  handle_output(options,"Install File:\t\t#{options['file']}")
-  handle_output(options,"Install Service:\t#{options['service']}")
-  handle_output(options,"Install OS:\t\t#{options['os-type']}")
-  handle_output(options,"Install Method:\t\t#{options['method']}")
-  handle_output(options,"Install Release:\t#{options['release']}")
-  handle_output(options,"Install Architecture:\t#{options['arch']}")
-  handle_output(options,"Install Label:\t#{options['label']}")
+  handle_output(options, "")
+  handle_output(options, "Install File:\t\t#{options['file']}")
+  handle_output(options, "Install Service:\t#{options['service']}")
+  handle_output(options, "Install OS:\t\t#{options['os-type']}")
+  handle_output(options, "Install Method:\t\t#{options['method']}")
+  handle_output(options, "Install Release:\t#{options['release']}")
+  handle_output(options, "Install Architecture:\t#{options['arch']}")
+  handle_output(options, "Install Label:\t#{options['label']}")
   return
 end
 
@@ -2050,17 +2057,17 @@ def get_install_service_from_file(options)
         if options['file'].to_s.match(/-arm/)
           options['arch'] = options['file'].to_s.split(/-/)[-1].split(/\./)[0]
         else
-          options['arch'] = options['file'].to_s.split(/-/)[3].split(/\./)[0].gsub(/amd64/,"x86_64")
+          options['arch'] = options['file'].to_s.split(/-/)[3].split(/\./)[0].gsub(/amd64/, "x86_64")
         end
       else
         options['release'] = options['file'].to_s.split(/-/)[1].split(/\./)[0..1].join(".")
-        options['arch']    = options['file'].to_s.split(/-/)[4].split(/\./)[0].gsub(/amd64/,"x86_64")
+        options['arch']    = options['file'].to_s.split(/-/)[4].split(/\./)[0].gsub(/amd64/, "x86_64")
       end
-      service_version = options['service'].to_s.+"_"+options['release'].to_s.gsub(/\./,"_")+options['arch']+to_s
+      service_version = options['service'].to_s.+"_"+options['release'].to_s.gsub(/\./, "_")+options['arch']+to_s
       options['os-type'] = "linux"
       options['os-variant'] = "ubuntu"+options['release'].to_s
     else
-      service_version = options['file'].to_s.split(/-/)[1].gsub(/\./,"_").gsub(/_iso/,"")
+      service_version = options['file'].to_s.split(/-/)[1].gsub(/\./, "_").gsub(/_iso/, "")
       if options['file'].to_s.match(/live/)
         options['method'] = "ci"
         service_version   = service_version+"_live_"+options['arch']
@@ -2084,19 +2091,19 @@ def get_install_service_from_file(options)
     options['arch']    = "x86_64"
   when /vCenter-Server-Appliance|VCSA/
     options['service'] = "vcsa"
-    service_version = options['file'].to_s.split(/-/)[3..4].join(".").gsub(/\./,"_").gsub(/_iso/,"")
+    service_version = options['file'].to_s.split(/-/)[3..4].join(".").gsub(/\./, "_").gsub(/_iso/, "")
     options['method']  = "image"
-    options['release'] = options['file'].to_s.split(/-/)[3..4].join(".").gsub(/\.iso/,"")
+    options['release'] = options['file'].to_s.split(/-/)[3..4].join(".").gsub(/\.iso/, "")
     options['arch']    = "x86_64"
   when /VMvisor-Installer/
     options['service'] = "vmware"
     options['arch']    = "x86_64"
-    service_version = options['file'].to_s.split(/-/)[3].gsub(/\./,"_")+"_"+options['arch']
+    service_version = options['file'].to_s.split(/-/)[3].gsub(/\./, "_")+"_"+options['arch']
     options['method']  = "vs"
-    options['release'] = options['file'].to_s.split(/-/)[3].gsub(/update/,"")
+    options['release'] = options['file'].to_s.split(/-/)[3].gsub(/update/, "")
   when /CentOS/
     options['service'] = "centos"
-    service_version = options['file'].to_s.split(/-/)[1..2].join(".").gsub(/\./,"_").gsub(/_iso/,"")
+    service_version = options['file'].to_s.split(/-/)[1..2].join(".").gsub(/\./, "_").gsub(/_iso/, "")
     options['os-type'] = options['service']
     options['method']  = "ks"
     options['release'] = options['file'].to_s.split(/-/)[1]
@@ -2117,32 +2124,32 @@ def get_install_service_from_file(options)
       when /1810/
         options['release'] = "7.6"
       end
-      service_version = options['release'].gsub(/\./,"_")+"_"+options['arch']
+      service_version = options['release'].gsub(/\./, "_")+"_"+options['arch']
     end
   when /Fedora-Server/
     options['service'] = "fedora"
     if options['file'].to_s.match(/DVD/)
-      service_version = options['file'].split(/-/)[-1].gsub(/\./,"_").gsub(/_iso/,"_")
-      service_arch    = options['file'].split(/-/)[-2].gsub(/\./,"_").gsub(/_iso/,"_")
-      options['release'] = options['file'].split(/-/)[-1].gsub(/\.iso/,"")
+      service_version = options['file'].split(/-/)[-1].gsub(/\./, "_").gsub(/_iso/, "_")
+      service_arch    = options['file'].split(/-/)[-2].gsub(/\./, "_").gsub(/_iso/, "_")
+      options['release'] = options['file'].split(/-/)[-1].gsub(/\.iso/, "")
     else
-      service_version = options['file'].split(/-/)[-2].gsub(/\./,"_").gsub(/_iso/,"_")
-      service_arch    = options['file'].split(/-/)[-3].gsub(/\./,"_").gsub(/_iso/,"_")
-      options['release'] = options['file'].split(/-/)[-2].gsub(/\.iso/,"")
+      service_version = options['file'].split(/-/)[-2].gsub(/\./, "_").gsub(/_iso/, "_")
+      service_arch    = options['file'].split(/-/)[-3].gsub(/\./, "_").gsub(/_iso/, "_")
+      options['release'] = options['file'].split(/-/)[-2].gsub(/\.iso/, "")
     end
     service_version = service_version+"_"+service_arch
     options['method']  = "ks"
   when /OracleLinux/
     options['service'] = "oel"
-    service_version = options['file'].split(/-/)[1..2].join(".").gsub(/\./,"_").gsub(/R|U/,"")
+    service_version = options['file'].split(/-/)[1..2].join(".").gsub(/\./, "_").gsub(/R|U/, "")
     service_arch    = options['file'].split(/-/)[-2]
     service_version = service_version+"_"+service_arch
-    options['release'] = options['file'].split(/-/)[1..2].join(".").gsub(/[a-z,A-Z]/,"")
+    options['release'] = options['file'].split(/-/)[1..2].join(".").gsub(/[a-z,A-Z]/, "")
     options['method']  = "ks"
   when /openSUSE/
     options['service'] = "opensuse"
-    service_version = options['file'].split(/-/)[1].gsub(/\./,"_").gsub(/_iso/,"")
-    service_arch    = options['file'].split(/-/)[-1].gsub(/\./,"_").gsub(/_iso/,"")
+    service_version = options['file'].split(/-/)[1].gsub(/\./, "_").gsub(/_iso/, "")
+    service_arch    = options['file'].split(/-/)[-1].gsub(/\./, "_").gsub(/_iso/, "")
     service_version = service_version+"_"+service_arch
     options['method']  = "ay"
     options['release'] = options['file'].split(/-/)[1]
@@ -2150,15 +2157,15 @@ def get_install_service_from_file(options)
     options['service'] = "rhel"
     options['method']  = "ks"
     if options['file'].to_s.match(/beta|8\.[0-9]/)
-      service_version = options['file'].split(/-/)[1..2].join(".").gsub(/\./,"_").gsub(/_iso/,"")
+      service_version = options['file'].split(/-/)[1..2].join(".").gsub(/\./, "_").gsub(/_iso/, "")
       options['release'] = options['file'].split(/-/)[1]
     else
-      service_version = options['file'].split(/-/)[2..3].join(".").gsub(/\./,"_").gsub(/_iso/,"")
+      service_version = options['file'].split(/-/)[2..3].join(".").gsub(/\./, "_").gsub(/_iso/, "")
       options['release'] = options['file'].split(/-/)[2]
     end 
   when /SLE/
     options['service'] = "sles"
-    service_version = options['file'].split(/-/)[1..2].join("_").gsub(/[A-Z]/,"")
+    service_version = options['file'].split(/-/)[1..2].join("_").gsub(/[A-Z]/, "")
     service_arch    = options['file'].split(/-/)[4]
     if service_arch.match(/DVD/)
       service_arch    = options['file'].split(/-/)[5]
@@ -2168,7 +2175,7 @@ def get_install_service_from_file(options)
     options['release'] = options['file'].split(/-/)[1]
   when /sol/
     options['service'] = "sol"
-    options['release'] = options['file'].split(/-/)[1].gsub(/_/,".")
+    options['release'] = options['file'].split(/-/)[1].gsub(/_/, ".")
     if options['release'].to_i > 10
       if options['file'].to_s.match(/1111/)
         options['release'] = "11.0"
@@ -2176,19 +2183,19 @@ def get_install_service_from_file(options)
       options['method']  = "ai"
       options['arch']    = "x86_64"
     else
-      options['release'] = options['file'].split(/-/)[1..2].join(".").gsub(/u/,"")
+      options['release'] = options['file'].split(/-/)[1..2].join(".").gsub(/u/, "")
       options['method']  = "js"
       options['arch']    = "i386"
     end
     service_version = options['release']+"_"+options['arch']
-    service_version = service_version.gsub(/\./,"_")
+    service_version = service_version.gsub(/\./, "_")
   when /V[0-9][0-9][0-9][0-9][0-9]/
     isofile_bin = %[which isofile].chomp
     if isofile_bin.match(/not found/)
       options = install_package("cdrtools")
       isofile_bin = %x[which isofile].chomp
       if isofile_bin.match(/not found/)
-        handle_output(options,"Warning:\tUtility isofile not found")
+        handle_output(options, "Warning:\tUtility isofile not found")
         quit(options)
       end
     end
@@ -2208,33 +2215,33 @@ def get_install_service_from_file(options)
       if not wiminfo_bin.match(/wiminfo/)
         message = "Information:\tInstall wiminfo (wimlib/wimtools)"
         if options['host-os-name'].to_s.match(/Darwin/)
-          install_package(options,"wimlib")
+          install_package(options, "wimlib")
         else
-          install_package(options,"wimtools")
+          install_package(options, "wimtools")
         end
         wiminfo_bin = %x[which wiminfo]
         if not wiminfo_bin.match(/wiminfo/)
-          handle_output(options,"Warning:\tCannnot find wiminfo (required to determine version of windows from ISO)")
+          handle_output(options, "Warning:\tCannnot find wiminfo (required to determine version of windows from ISO)")
           quit(options)
         end
       end
       message = "Information:\tDeterming version of Windows from: "+wim_file
       command = "wiminfo \"#{wim_file}\" 1| grep ^Description"
-      output  = execute_command(options,message,command)
-      options['label']   = output.chomp.split(/\:/)[1].gsub(/^\s+/,"").gsub(/CORE/,"")
-      service_version = output.split(/Description:/)[1].gsub(/^\s+|SERVER|Server/,"").downcase.gsub(/\s+/,"_").split(/_/)[1..-1].join("_")
+      output  = execute_command(options, message, command)
+      options['label']   = output.chomp.split(/\:/)[1].gsub(/^\s+/, "").gsub(/CORE/, "")
+      service_version = output.split(/Description:/)[1].gsub(/^\s+|SERVER|Server/, "").downcase.gsub(/\s+/, "_").split(/_/)[1..-1].join("_")
       message = "Information:\tDeterming architecture of Windows from: "+wim_file
       command = "wiminfo \"#{wim_file}\" 1| grep ^Architecture"
-      output  = execute_command(options,message,command)
-      options['arch'] = output.chomp.split(/\:/)[1].gsub(/^\s+/,"")
+      output  = execute_command(options, message, command)
+      options['arch'] = output.chomp.split(/\:/)[1].gsub(/^\s+/, "")
       umount_iso(options)
     end
     service_version = service_version+"_"+options['release']+"_"+options['arch']
-    service_version = service_version.gsub(/__/,"_")
+    service_version = service_version.gsub(/__/, "_")
     options['method'] = "pe"
   end
   if !options['vm'].to_s.match(/kvm/)
-    options['service'] = options['service']+"_"+service_version.gsub(/__/,"_")
+    options['service'] = options['service']+"_"+service_version.gsub(/__/, "_")
   else
     if options['file'].to_s.match(/cloudimg/) && options['file'].to_s.match(/ubuntu/)
       options['os-type'] = "linux"
@@ -2245,7 +2252,7 @@ def get_install_service_from_file(options)
         options['os-type'] = options['service']
       end
     end
-    options['service'] = options['service']+"_"+service_version.gsub(/__/,"_")
+    options['service'] = options['service']+"_"+service_version.gsub(/__/, "_")
   end
   if options['file'].to_s.match(/-arm/) and options['service'].to_s.match(/ubuntu/)
     if options['file'].to_s.match(/live/)
@@ -2253,11 +2260,11 @@ def get_install_service_from_file(options)
     else
       options['service'] = "ubuntu_"+options['release'].to_s+"_"+options['arch']
     end
-    options['service'] = options['service'].gsub(/\./,"_")
+    options['service'] = options['service'].gsub(/\./, "_")
   end
   if options['verbose'] == true
-    handle_output(options,"Information:\tSetting service name to #{options['service']}")
-    handle_output(options,"Information:\tSetting OS name to #{options['os-type']}")
+    handle_output(options, "Information:\tSetting service name to #{options['service']}")
+    handle_output(options, "Information:\tSetting OS name to #{options['os-type']}")
   end
   return(options)
 end
@@ -2317,7 +2324,7 @@ def configure_server(options)
   end
   if not options['method'].to_s.match(/[a-z,A-Z]/)
     if not options['file'].to_s.match(/[a-z,A-Z]/)
-      handle_output(options,"Warning:\tCould not determine service name")
+      handle_output(options, "Warning:\tCould not determine service name")
       quit(options)
     else
       options['method'] = get_install_method_from_iso(options)
@@ -2375,7 +2382,7 @@ end
 # List all services
 
 def list_all_services(options)
-  handle_output(options,"")
+  handle_output(options, "")
   list_ai_services(options)
   list_ay_services(options)
   list_image_services(options)
@@ -2399,7 +2406,7 @@ def check_hostname(options)
   host_chars = options['name'].split()
   host_chars.each do |char|
     if not char.match(/[a-z,A-Z,0-9]|-/)
-      handle_output(options,"Invalid hostname: #{options['name'].join()}")
+      handle_output(options, "Invalid hostname: #{options['name'].join()}")
       quit(options)
     end
   end
@@ -2477,14 +2484,14 @@ def get_dir_item_list(options)
     case options['os-type']
     when "OracleLinux"
       if options['release'].to_s.match(/\./)
-        (major,minor)   = options['release'].split(/\./)
+        (major, minor)   = options['release'].split(/\./)
         release_search = "-R"+major+"-U"+minor
       else
         release_search = "-R"+options['release']
       end
     when /sol/
       if options['release'].to_s.match(/\./)
-        (major,minor)   = options['release'].split(/\./)
+        (major, minor)   = options['release'].split(/\./)
         if options['release'].to_s.match(/^10/)
           release_search = major+"-u"+minor
         else
@@ -2499,12 +2506,12 @@ def get_dir_item_list(options)
   if options['arch'] != options['empty']
     if options['arch'].to_s.match(/[a-z,A-Z]/)
      if options['os-type'].to_s.match(/sol/)
-        arch_search = options['arch'].gsub(/i386|x86_64/,"x86")
+        arch_search = options['arch'].gsub(/i386|x86_64/, "x86")
       end
       if options['os-type'].to_s.match(/ubuntu/)
-        arch_search = options['arch'].gsub(/x86_64/,"amd64")
+        arch_search = options['arch'].gsub(/x86_64/, "amd64")
       else
-        arch_search = options['arch'].gsub(/amd64/,"x86_64")
+        arch_search = options['arch'].gsub(/amd64/, "x86_64")
       end
     end
   end
@@ -2553,7 +2560,7 @@ def get_item_version_info(file_name)
           iso_version = iso_info[1]+".0"
         else
           iso_version = iso_info[1]+"."+iso_info[2]
-          iso_version = iso_version.gsub(/SP/,"")
+          iso_version = iso_version.gsub(/SP/, "")
         end
       else
         if iso_distro.match(/sl$/)
@@ -2565,12 +2572,12 @@ def get_item_version_info(file_name)
           if iso_distro.match(/oel|rhel/)
             if file_name =~ /-rc-/
               iso_version = iso_info[1..3].join(".")
-              iso_version = iso_version.gsub(/server/,"")
+              iso_version = iso_version.gsub(/server/, "")
             else
               iso_version = iso_info[1..2].join(".")
-              iso_version = iso_version.gsub(/[a-z,A-Z]/,"")
+              iso_version = iso_version.gsub(/[a-z,A-Z]/, "")
             end
-            iso_version = iso_version.gsub(/^\./,"")
+            iso_version = iso_version.gsub(/^\./, "")
           else
             iso_version = iso_info[1]
           end
@@ -2631,7 +2638,7 @@ def get_item_version_info(file_name)
       iso_arch    = iso_info[3]
     end
   end
-  return iso_distro,iso_version,iso_arch
+  return iso_distro, iso_version, iso_arch
 end
 
 # List ISOs
@@ -2646,7 +2653,7 @@ end
 def list_items(options)
   if !options['output'].to_s.match(/html/) && !options['vm'].to_s.match(/mp|multipass/)
     string = options['isodir'].to_s+":"
-    handle_output(options,string)
+    handle_output(options, string)
   end
   if options['file'] == options['empty']
     iso_list = get_base_dir_list(options)
@@ -2656,18 +2663,18 @@ def list_items(options)
   end
   if iso_list.length > 0
     if options['output'].to_s.match(/html/)
-      handle_output(options,"<h1>Available ISO(s)/Image(s):</h1>")
-      handle_output(options,"<table border=\"1\">")
-      handle_output(options,"<tr>")
-      handle_output(options,"<th>ISO/Image File</th>")
-      handle_output(options,"<th>Distribution</th>")
-      handle_output(options,"<th>Version</th>")
-      handle_output(options,"<th>Architecture</th>")
-      handle_output(options,"<th>Service Name</th>")
-      handle_output(options,"</tr>")
+      handle_output(options, "<h1>Available ISO(s)/Image(s):</h1>")
+      handle_output(options, "<table border=\"1\">")
+      handle_output(options, "<tr>")
+      handle_output(options, "<th>ISO/Image File</th>")
+      handle_output(options, "<th>Distribution</th>")
+      handle_output(options, "<th>Version</th>")
+      handle_output(options, "<th>Architecture</th>")
+      handle_output(options, "<th>Service Name</th>")
+      handle_output(options, "</tr>")
     else
-      handle_output(options,"Available ISO(s)/Images(s):")
-      handle_output(options,"") 
+      handle_output(options, "Available ISO(s)/Images(s):")
+      handle_output(options, "") 
     end
     iso_list.each do |file_name|
       file_name = file_name.chomp
@@ -2677,44 +2684,44 @@ def list_items(options)
         iso_version  = file_name.split(/ \s+/)[-2]
         file_name    = file_name.split(/ \s+/)[0]
       else
-        (linux_distro,iso_version,iso_arch) = get_linux_version_info(file_name)
+        (linux_distro, iso_version, iso_arch) = get_linux_version_info(file_name)
       end
       if options['output'].to_s.match(/html/)
-        handle_output(options,"<tr>")
-        handle_output(options,"<td>#{file_name}</td>")
-        handle_output(options,"<td>#{linux_distro}</td>")
-        handle_output(options,"<td>#{iso_version}</td>")
-        handle_output(options,"<td>#{iso_arch}</td>")
+        handle_output(options, "<tr>")
+        handle_output(options, "<td>#{file_name}</td>")
+        handle_output(options, "<td>#{linux_distro}</td>")
+        handle_output(options, "<td>#{iso_version}</td>")
+        handle_output(options, "<td>#{iso_arch}</td>")
       else
-        handle_output(options,"ISO/Image file:\t#{file_name}")
-        handle_output(options,"Distribution:\t#{linux_distro}")
-        handle_output(options,"Version:\t#{iso_version}")
-        handle_output(options,"Architecture:\t#{iso_arch}")
+        handle_output(options, "ISO/Image file:\t#{file_name}")
+        handle_output(options, "Distribution:\t#{linux_distro}")
+        handle_output(options, "Version:\t#{iso_version}")
+        handle_output(options, "Architecture:\t#{iso_arch}")
       end
-      iso_version = iso_version.gsub(/\./,"_")
-      options['service'] = linux_distro.downcase.gsub(/\s+|\.|-/,"_").gsub(/_lts_/,"")+"_"+iso_version+"_"+iso_arch
+      iso_version = iso_version.gsub(/\./, "_")
+      options['service'] = linux_distro.downcase.gsub(/\s+|\.|-/, "_").gsub(/_lts_/, "")+"_"+iso_version+"_"+iso_arch
       options['repodir'] = options['baserepodir']+"/"+options['service']
       if File.directory?(options['repodir'])
         if options['output'].to_s.match(/html/)
-          handle_output(options,"<td>#{options['service']} (exists)</td>")
+          handle_output(options, "<td>#{options['service']} (exists)</td>")
         else
-          handle_output(options,"Service Name:\t#{options['service']} (exists)")
+          handle_output(options, "Service Name:\t#{options['service']} (exists)")
         end
       else
         if options['output'].to_s.match(/html/)
-          handle_output(options,"<td>#{options['service']}</td>")
+          handle_output(options, "<td>#{options['service']}</td>")
         else
-          handle_output(options,"Service Name:\t#{options['service']}")
+          handle_output(options, "Service Name:\t#{options['service']}")
         end
       end
       if options['output'].to_s.match(/html/)
-        handle_output(options,"</tr>")
+        handle_output(options, "</tr>")
       else
-        handle_output(options,"") 
+        handle_output(options, "") 
       end
     end
     if options['output'].to_s.match(/html/)
-      handle_output(options,"</table>")
+      handle_output(options, "</table>")
     end
   end
   return
@@ -2726,21 +2733,21 @@ def connect_to_virtual_serial(options)
   if options['vm'].to_s.match(/ldom|gdom/)
     connect_to_gdom_console(options)
   else
-    handle_output(options,"")
-    handle_output(options,"Connecting to serial port of #{options['name']}")
-    handle_output(options,"")
-    handle_output(options,"To disconnect from this session use CTRL-Q")
-    handle_output(options,"")
-    handle_output(options,"If you wish to re-connect to the serial console of this machine,")
-    handle_output(options,"run the following command:")
-    handle_output(options,"")
-    handle_output(options,"#{options['script']} --action=console --vm=#{options['vm']} --name = #{options['name']}")
-    handle_output(options,"")
-    handle_output(options,"or:")
-    handle_output(options,"")
-    handle_output(options,"socat UNIX-CONNECT:/tmp/#{options['name']} STDIO,raw,echo=0,escape=0x11,icanon=0")
-    handle_output(options,"")
-    handle_output(options,"")
+    handle_output(options, "")
+    handle_output(options, "Connecting to serial port of #{options['name']}")
+    handle_output(options, "")
+    handle_output(options, "To disconnect from this session use CTRL-Q")
+    handle_output(options, "")
+    handle_output(options, "If you wish to re-connect to the serial console of this machine,")
+    handle_output(options, "run the following command:")
+    handle_output(options, "")
+    handle_output(options, "#{options['script']} --action=console --vm=#{options['vm']} --name = #{options['name']}")
+    handle_output(options, "")
+    handle_output(options, "or:")
+    handle_output(options, "")
+    handle_output(options, "socat UNIX-CONNECT:/tmp/#{options['name']} STDIO,raw,echo=0,escape=0x11,icanon=0")
+    handle_output(options, "")
+    handle_output(options, "")
     system("socat UNIX-CONNECT:/tmp/#{options['name']} STDIO,raw,echo=0,escape=0x11,icanon=0")
   end
   return
@@ -2772,13 +2779,13 @@ def get_install_service_from_client_name(options)
   options['service'] = ""
   message = "Information:\tFinding client configuration directory for #{options['name']}"
   command = "find #{options['clientdir']} -name #{options['name']} |grep '#{options['name']}$'"
-  options['clientdir'] = execute_command(options,message,command)
+  options['clientdir'] = execute_command(options, message, command)
   options['clientdir'] = options['clientdir'].chomp
   if options['verbose'] == true
     if File.directory?(options['clientdir'])
-      handle_output(options,"Information:\tNo client directory found for #{options['name']}")
+      handle_output(options, "Information:\tNo client directory found for #{options['name']}")
     else
-      handle_output(options,"Information:\tClient directory found #{options['clientdir']}")
+      handle_output(options, "Information:\tClient directory found #{options['clientdir']}")
       if options['clientdir'].to_s.match(/packer/)
         handle_output = "Information:\tInstall method is Packer"
       end
@@ -2793,12 +2800,12 @@ end
 def get_client_dir(options)
   message = "Information:\tFinding client configuration directory for #{options['name']}"
   command = "find #{options['clientdir']} -name #{options['name']} |grep '#{options['name']}$'"
-  options['clientdir'] = execute_command(options,message,command).chomp
+  options['clientdir'] = execute_command(options, message, command).chomp
   if options['verbose'] == true
     if File.directory?(options['clientdir'])
-      handle_output(options,"Information:\tNo client directory found for #{options['name']}")
+      handle_output(options, "Information:\tNo client directory found for #{options['name']}")
     else
-      handle_output(options,"Information:\tClient directory found #{options['clientdir']}")
+      handle_output(options, "Information:\tClient directory found #{options['clientdir']}")
     end
   end
   return options['clientdir']
@@ -2815,10 +2822,10 @@ def delete_client_dir(options)
       else
         message = "Information:\tRemoving client configuration files for #{options['name']}"
         command = "rm #{options['clientdir']}/*"
-        execute_command(options,message,command)
+        execute_command(options, message, command)
         message = "Information:\tRemoving client configuration directory #{options['clientdir']}"
         command = "rmdir #{options['clientdir']}"
-        execute_command(options,message,command)
+        execute_command(options, message, command)
       end
     end
   end
@@ -2948,25 +2955,25 @@ def list_clients(options)
   if service_list.length > 0
     if options['output'].to_s.match(/html/)
       if options['service'].to_s.match(/[a-z,A-Z]/)
-        handle_output(options,"<h1>Available #{options['service']} clients:</h1>")
+        handle_output(options, "<h1>Available #{options['service']} clients:</h1>")
       else
-        handle_output(options,"<h1>Available clients:</h1>")
+        handle_output(options, "<h1>Available clients:</h1>")
       end
-      handle_output(options,"<table border=\"1\">")
-      handle_output(options,"<tr>")
-      handle_output(options,"<th>Client</th>")
-      handle_output(options,"<th>Service</th>")
-      handle_output(options,"<th>IP</th>")
-      handle_output(options,"<th>MAC</th>")
-      handle_output(options,"</tr>")
+      handle_output(options, "<table border=\"1\">")
+      handle_output(options, "<tr>")
+      handle_output(options, "<th>Client</th>")
+      handle_output(options, "<th>Service</th>")
+      handle_output(options, "<th>IP</th>")
+      handle_output(options, "<th>MAC</th>")
+      handle_output(options, "</tr>")
     else
-      handle_output(options,"")
+      handle_output(options, "")
       if options['service'].to_s.match(/[a-z,A-Z]/)
-        handle_output(options,"Available #{options['service']} clients:")
+        handle_output(options, "Available #{options['service']} clients:")
       else
-        handle_output(options,"Available clients:")
+        handle_output(options, "Available clients:")
       end
-      handle_output(options,"")
+      handle_output(options, "")
     end
     service_list.each do |service_name|
       if service_name.match(/#{search_string}|#{service_name}/) and service_name.match(/[a-z,A-Z]/)
@@ -2980,14 +2987,14 @@ def list_clients(options)
               options['mac'] = get_install_mac(options)
               if File.directory?(options['clientdir'])
                 if options['output'].to_s.match(/html/)
-                  handle_output(options,"<tr>")
-                  handle_output(options,"<td>#{client_name}</td>")
-                  handle_output(options,"<td>#{service_name}</td>")
-                  handle_output(options,"<td>#{client_ip}</td>")
-                  handle_output(options,"<td>#{client_mac}</td>")
-                  handle_output(options,"</tr>")
+                  handle_output(options, "<tr>")
+                  handle_output(options, "<td>#{client_name}</td>")
+                  handle_output(options, "<td>#{service_name}</td>")
+                  handle_output(options, "<td>#{client_ip}</td>")
+                  handle_output(options, "<td>#{client_mac}</td>")
+                  handle_output(options, "</tr>")
                 else
-                  handle_output(options,"#{client_name}\t[ service = #{service_name}, ip = #{client_ip}, mac = #{client_mac} ] ")
+                  handle_output(options, "#{client_name}\t[ service = #{service_name}, ip = #{client_ip}, mac = #{client_mac} ] ")
                 end
               end
             end
@@ -3007,22 +3014,22 @@ end
 
 def list_ovas()
   file_list = Dir.entries(options['isodir'])
-  handle_output(options,"")
-  handle_output(options,"Virtual Appliances:")
-  handle_output(options,"")
+  handle_output(options, "")
+  handle_output(options, "Virtual Appliances:")
+  handle_output(options, "")
   file_list.each do |file_name|
     if file_name.match(/ova$/)
       handle_output(file_name)
     end
   end
-  handle_output(options,"")
+  handle_output(options, "")
 end
 
 # Check directory user ownership
 
-def check_dir_owner(options,dir_name,uid)
+def check_dir_owner(options, dir_name, uid)
   if dir_name.match(/^\/$/) or dir_name == ""
-    handle_output(options,"Warning:\tDirectory name not set")
+    handle_output(options, "Warning:\tDirectory name not set")
     quit(options)
   end
   test_uid = File.stat(dir_name).uid
@@ -3033,23 +3040,23 @@ def check_dir_owner(options,dir_name,uid)
     else
       command = "chown -R #{uid.to_s} \"#{dir_name}\""
     end
-    execute_command(options,message,command)
+    execute_command(options, message, command)
     message = "Information:\tChanging permissions of "+dir_name+" to "+uid.to_s
     if dir_name.to_s.match(/^\/etc/)
       command = "sudo chmod -R u+w \"#{dir_name}\""
     else
       command = "chmod -R u+w \"#{dir_name}\""
     end
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   return
 end
 
 # Check directory group read ownership
 
-def check_dir_group(options,dir_name,dir_gid,dir_mode)
+def check_dir_group(options, dir_name, dir_gid, dir_mode)
   if dir_name.match(/^\/$/) or dir_name == ""
-    handle_output(options,"Warning:\tDirectory name not set")
+    handle_output(options, "Warning:\tDirectory name not set")
     quit(options)
   end
   test_gid = File.stat(dir_name).gid
@@ -3060,21 +3067,21 @@ def check_dir_group(options,dir_name,dir_gid,dir_mode)
     else
       command = "chgrp -R #{dir_gid.to_s} \"#{dir_name}\""
     end
-    execute_command(options,message,command)
+    execute_command(options, message, command)
     message = "Information:\tChanging group permissions of "+dir_name+" to "+dir_gid.to_s
     if dir_name.to_s.match(/^\/etc/)
       command = "sudo chmod -R g+#{dir_mode} \"#{dir_name}\""
     else
       command = "chmod -R g+#{dir_mode} \"#{dir_name}\""
     end
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   return
 end
 
 # Check file user ownership
 
-def check_file_owner(options,file_name,uid)
+def check_file_owner(options, file_name, uid)
   test_uid = File.stat(file_name).uid
   if test_uid != uid.to_i
     message = "Information:\tChanging ownership of "+file_name+" to "+uid.to_s
@@ -3083,32 +3090,32 @@ def check_file_owner(options,file_name,uid)
     else
       command = "chown #{uid.to_s} #{file_name}"
     end
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   return
 end
 
 # Get group gid
 
-def get_group_gid(options,group) 
+def get_group_gid(options, group) 
   message = "Information:\tGetting GID of "+group
   command = "getent group #{group} |cut -f3 -d:"
-  output  = execute_command(options,message,command)
+  output  = execute_command(options, message, command)
   output  = output.chomp
   return(output)
 end
 
 # Check file user ownership
 
-def check_file_group(options,file_name,file_gid,file_mode)
+def check_file_group(options, file_name, file_gid, file_mode)
   test_gid = File.stat(file_name).gid
   if test_gid != file_gid.to_i
     message = "Information:\tChanging group ownership of "+file_name+" to "+file_gid.to_s
     command = "chgrp #{file_gid.to_s} \"#{file_name}\""
-    execute_command(options,message,command)
+    execute_command(options, message, command)
     message = "Information:\tChanging group permissions of "+file_name+" to "+file_gid.to_s
     command = "chmod g+#{file_mode} \"#{file_name}\""
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   return
 end
@@ -3126,7 +3133,7 @@ def check_python_module_is_installed(install_module)
   if exists == false
     message = "Information:\tInstalling python model '#{install_module}'"
     command = "pip install #{install_module}"
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   return
 end
@@ -3138,8 +3145,8 @@ def mask_contents_of_file(file_name)
   output = []
   input.each do |line|
     if line.match(/secret_key|access_key/) and not line.match(/\{\{/)
-      (param,value) = line.split(/:/)
-      value = value.gsub(/[A-Z]|[a-z]|[0-9]/,"X")
+      (param, value) = line.split(/:/)
+      value = value.gsub(/[A-Z]|[a-z]|[0-9]/, "X")
       line  = param+":"+value
     end
     output.push(line)
@@ -3149,7 +3156,7 @@ end
 
 # Print contents of file
 
-def print_contents_of_file(options,message,file_name)
+def print_contents_of_file(options, message, file_name)
   if options['verbose'] == true or options['output'].to_s.match(/html/)
     if File.exist?(file_name)
       if options['unmasked'] == false
@@ -3158,40 +3165,40 @@ def print_contents_of_file(options,message,file_name)
         output = File.readlines(file_name)
       end
       if options['output'].to_s.match(/html/)
-        handle_output(options,"<table border=\"1\">")
-        handle_output(options,"<tr>")
+        handle_output(options, "<table border=\"1\">")
+        handle_output(options, "<tr>")
         if message.length > 1
-          handle_output(options,"<th>#{message}</th>")
+          handle_output(options, "<th>#{message}</th>")
         else
-          handle_output(options,"<th>#{file_name}</th>")
+          handle_output(options, "<th>#{file_name}</th>")
         end
-        handle_output(options,"<tr>")
-        handle_output(options,"<td>")
-        handle_output(options,"<pre>")
+        handle_output(options, "<tr>")
+        handle_output(options, "<td>")
+        handle_output(options, "<pre>")
         output.each do |line|
-          handle_output(options,"#{line}")
+          handle_output(options, "#{line}")
         end
-        handle_output(options,"</pre>")
-        handle_output(options,"</td>")
-        handle_output(options,"</tr>")
-        handle_output(options,"</table>")
+        handle_output(options, "</pre>")
+        handle_output(options, "</td>")
+        handle_output(options, "</tr>")
+        handle_output(options, "</table>")
       else
         if options['verbose'] == true
-          handle_output(options,"")
+          handle_output(options, "")
           if message.length > 1
-            handle_output(options,"Information:\t#{message}")
+            handle_output(options, "Information:\t#{message}")
           else
-            handle_output(options,"Information:\tContents of file #{file_name}")
+            handle_output(options, "Information:\tContents of file #{file_name}")
           end
-          handle_output(options,"")
+          handle_output(options, "")
           output.each do |line|
-            handle_output(options,line)
+            handle_output(options, line)
           end
-          handle_output(options,"")
+          handle_output(options, "")
         end
       end
     else
-      handle_output(options,"Warning:\tFile #{file_name} does not exist")
+      handle_output(options, "Warning:\tFile #{file_name} does not exist")
     end
   end
   return
@@ -3199,26 +3206,26 @@ end
 
 # Show output of command
 
-def show_output_of_command(message,output)
+def show_output_of_command(message, output)
   if options['output'].to_s.match(/html/)
-    handle_output(options,"<table border=\"1\">")
-    handle_output(options,"<tr>")
-    handle_output(options,"<th>#{message}</th>")
-    handle_output(options,"<tr>")
-    handle_output(options,"<td>")
-    handle_output(options,"<pre>")
-    handle_output(options,"#{output}")
-    handle_output(options,"</pre>")
-    handle_output(options,"</td>")
-    handle_output(options,"</tr>")
-    handle_output(options,"</table>")
+    handle_output(options, "<table border=\"1\">")
+    handle_output(options, "<tr>")
+    handle_output(options, "<th>#{message}</th>")
+    handle_output(options, "<tr>")
+    handle_output(options, "<td>")
+    handle_output(options, "<pre>")
+    handle_output(options, "#{output}")
+    handle_output(options, "</pre>")
+    handle_output(options, "</td>")
+    handle_output(options, "</tr>")
+    handle_output(options, "</table>")
   else
     if options['verbose'] == true
-      handle_output(options,"")
-      handle_output(options,"Information:\t#{message}:")
-      handle_output(options,"")
-      handle_output(options,output)
-      handle_output(options,"")
+      handle_output(options, "")
+      handle_output(options, "Information:\t#{message}:")
+      handle_output(options, "")
+      handle_output(options, output)
+      handle_output(options, "")
     end
   end
   return
@@ -3232,14 +3239,14 @@ def check_tftp_server(options)
       if !File.exist?("/lib/svc/manifest/network/tftp-udp.xml")
         message  = "Checking:\tTFTP entry in /etc/inetd.conf"
         command  = "cat /etc/inetd.conf |grep '^tftp' |grep -v '^#'"
-        output   = execute_command(options,message,command)
+        output   = execute_command(options, message, command)
         if not output.match(/tftp/)
           message = "Information:\tCreating TFTP inetd entry"
           command = "echo \"tftp dgram udp wait root /usr/sbin/in.tftpd in.tftpd -s #{options['tftpdir']}\" >> /etc/inetd.conf"
-          output  = execute_command(options,message,command)
+          output  = execute_command(options, message, command)
           message = "Information:\tImporting TFTP inetd entry into service manifest"
           command = "inetconv -i /etc/inet/inetd.conf"
-          output  = execute_command(options,message,command)
+          output  = execute_command(options, message, command)
           message = "Information:\tImporting manifests"
           command = "svcadm restart svc:/system/manifest-import"
         end
@@ -3259,12 +3266,12 @@ def add_bootparams_entry(options)
   if !File.exist?(file_name)
     message = "Information:\tCreating #{file_name}"
     command = "touch #{file_name}"
-    execute_command(options,message,command)
-    check_file_owner(options,file_name,options['uid'])
+    execute_command(options, message, command)
+    check_file_owner(options, file_name, options['uid'])
     File.open(file_name, "w") { |f| f.write "#{options['mac']} #{options['name']}\n" }
     return
   else
-    check_file_owner(options,file_name,options['uid'])
+    check_file_owner(options, file_name, options['uid'])
     file = IO.readlines(file_name)
     lines = []
     file.each do |line|
@@ -3303,7 +3310,7 @@ def add_bootparams_entry(options)
     if options['host-os-release'].to_s.match(/11/)
       message = "Information:\tRestarting bootparams service"
       command = "svcadm restart svc:/network/rpc/bootparams:default"
-      execute_command(options,message,command)
+      execute_command(options, message, command)
     end
   end
   return
@@ -3311,37 +3318,37 @@ end
 
 # Add NFS export
 
-def add_nfs_export(options,export_name,export_dir)
+def add_nfs_export(options, export_name, export_dir)
   network_address = options['publisherhost'].split(/\./)[0..2].join(".")+".0"
   if options['host-os-name'].to_s.match(/SunOS/)
     if options['host-os-release'].match(/11/)
       message  = "Enabling:\tNFS share on "+export_dir
       command  = "zfs set sharenfs=on #{options['zpoolname']}#{export_dir}"
-      output   = execute_command(options,message,command)
+      output   = execute_command(options, message, command)
       message  = "Information:\tSetting NFS access rights on "+export_dir
       command  = "zfs set share=name=#{export_name},path=#{export_dir},prot=nfs,anon=0,sec=sys,ro=@#{network_address}/24 #{options['zpoolname']}#{export_dir}"
-      output   = execute_command(options,message,command)
+      output   = execute_command(options, message, command)
     else
       dfs_file = "/etc/dfs/dfstab"
       message  = "Checking:\tCurrent NFS exports for "+export_dir
       command  = "cat #{dfs_file} |grep '#{export_dir}' |grep -v '^#'"
-      output   = execute_command(options,message,command)
+      output   = execute_command(options, message, command)
       if not output.match(/#{export_dir}/)
-        backup_file(options,dfs_file)
+        backup_file(options, dfs_file)
         export  = "share -F nfs -o ro=@#{network_address},anon=0 #{export_dir}"
         message = "Adding:\tNFS export for "+export_dir
         command = "echo '#{export}' >> #{dfs_file}"
-        execute_command(options,message,command)
+        execute_command(options, message, command)
         message = "Refreshing:\tNFS exports"
         command = "shareall -F nfs"
-        execute_command(options,message,command)
+        execute_command(options, message, command)
       end
     end
   else
     dfs_file = "/etc/exports"
     message  = "Checking:\tCurrent NFS exports for "+export_dir
     command  = "cat #{dfs_file} |grep '#{export_dir}' |grep -v '^#'"
-    output   = execute_command(options,message,command)
+    output   = execute_command(options, message, command)
     if not output.match(/#{export_dir}/)
       if options['host-os-name'].to_s.match(/Darwin/)
         export = "#{export_dir} -alldirs -maproot=root -network #{network_address} -mask #{options['netmask']}"
@@ -3350,14 +3357,14 @@ def add_nfs_export(options,export_name,export_dir)
       end
       message = "Adding:\tNFS export for "+export_dir
       command = "echo '#{export}' >> #{dfs_file}"
-      execute_command(options,message,command)
+      execute_command(options, message, command)
       message = "Refreshing:\tNFS exports"
       if options['host-os-name'].to_s.match(/Darwin/)
         command = "nfsd stop ; nfsd start"
       else
         command = "/sbin/exportfs -a"
       end
-      execute_command(options,message,command)
+      execute_command(options, message, command)
     end
   end
   return
@@ -3371,31 +3378,31 @@ def remove_nfs_export(export_dir)
     if zfs_test.match(/#{export_dir}/)
       message = "Disabling:\tNFS share on "+export_dir
       command = "zfs set sharenfs=off #{options['zpoolname']}#{export_dir}"
-      execute_command(options,message,command)
+      execute_command(options, message, command)
     else
       if options['verbose'] == true
-        handle_output(options,"Information:\tZFS filesystem #{options['zpoolname']}#{export_dir} does not exist")
+        handle_output(options, "Information:\tZFS filesystem #{options['zpoolname']}#{export_dir} does not exist")
       end
     end
   else
     dfs_file = "/etc/exports"
     message  = "Checking:\tCurrent NFS exports for "+export_dir
     command  = "cat #{dfs_file} |grep '#{export_dir}' |grep -v '^#'"
-    output   = execute_command(options,message,command)
+    output   = execute_command(options, message, command)
     if output.match(/#{export_dir}/)
-      backup_file(options,dfs_file)
+      backup_file(options, dfs_file)
       tmp_file = "/tmp/dfs_file"
       message  = "Removing:\tExport "+export_dir
       command  = "cat #{dfs_file} |grep -v '#{export_dir}' > #{tmp_file} ; cat #{tmp_file} > #{dfs_file} ; rm #{tmp_file}"
-      execute_command(options,message,command)
+      execute_command(options, message, command)
       if options['host-os-name'].to_s.match(/Darwin/)
         message  = "Restarting:\tNFS daemons"
         command  = "nfsd stop ; nfsd start"
-        execute_command(options,message,command)
+        execute_command(options, message, command)
       else
         message  = "Restarting:\tNFS daemons"
         command  = "service nfsd restart"
-        execute_command(options,message,command)
+        execute_command(options, message, command)
       end
     end
   end
@@ -3406,7 +3413,7 @@ end
 
 def check_same_arch(options)
   if not options['host-os-arch'].to_s.match(/#{options['arch']}/)
-    handle_output(options,"Warning:\tSystem and Zone Architecture do not match")
+    handle_output(options, "Warning:\tSystem and Zone Architecture do not match")
     quit(options)
   end
   return
@@ -3414,11 +3421,11 @@ end
 
 # Delete file
 
-def delete_file(options,file_name)
+def delete_file(options, file_name)
   if File.exist?(file_name)
     message = "Removing:\tFile "+file_name
     command = "rm #{file_name}"
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
 end
 
@@ -3446,7 +3453,7 @@ def check_ssh_keys(options)
   ssh_key_bits = options['sshkeybits'].to_s
   if not File.exist?(ssh_key_file)
     if options['verbose'] == true
-      handle_output(options,"Generating:\tPublic SSH key file #{ssh_key_file}")
+      handle_output(options, "Generating:\tPublic SSH key file #{ssh_key_file}")
     end
     command = "ssh-keygen -t #{ssh_key_type} -b #{ssh_key_bits} -f #{ssh_key_file}"
     system(command)
@@ -3483,12 +3490,12 @@ def check_dhcpd_config(options)
   if File.exist?(options['dhcpdfile'])
     message = "Checking:\tDHCPd config for subnet entry"
     command = "cat #{options['dhcpdfile']} | grep -v '^#' |grep 'subnet #{network_address}'"
-    output  = execute_command(options,message,command)
+    output  = execute_command(options, message, command)
   end
   if !output.match(/subnet/) && !output.match(/#{network_address}/)
     tmp_file    = "/tmp/dhcpd"
     backup_file = options['dhcpdfile']+options['backupsuffix']
-    file = File.open(tmp_file,"w")
+    file = File.open(tmp_file, "w")
     file.write("\n")
     if options['host-os-name'].to_s.match(/SunOS|Linux/)
       file.write("default-lease-time 900;\n")
@@ -3558,18 +3565,18 @@ def check_dhcpd_config(options)
     if File.exist?(options['dhcpdfile'])
       message = "Information:\tArchiving DHCPd configuration file "+options['dhcpdfile']+" to "+backup_file
       command = "cp #{options['dhcpdfile']} #{backup_file}"
-      execute_command(options,message,command)
+      execute_command(options, message, command)
     end
     message = "Information:\tCreating DHCPd configuration file "+options['dhcpdfile']
     command = "cp #{tmp_file} #{options['dhcpdfile']}"
-    execute_command(options,message,command)
+    execute_command(options, message, command)
     if options['host-os-name'].to_s.match(/SunOS/) and options['host-os-release'].match(/5\.11/)
       message = "Information:\tSetting DHCPd listening interface to "+options['nic']
       command = "svccfg -s svc:/network/dhcp/server:ipv4 setprop config/listen_ifnames = astring: #{options['nic']}"
-      execute_command(options,message,command)
+      execute_command(options, message, command)
       message = "Information:\tRefreshing DHCPd service"
       command = "svcadm refresh svc:/network/dhcp/server:ipv4"
-      execute_command(options,message,command)
+      execute_command(options, message, command)
     end
     restart_dhcpd(options)
   end
@@ -3578,24 +3585,24 @@ end
 
 # Check package is installed
 
-def check_rhel_package(options,package)
+def check_rhel_package(options, package)
   message = "Information\tChecking "+package+" is installed"
   command = "rpm -q #{package}"
-  output  = execute_command(options,message,command)
+  output  = execute_command(options, message, command)
   if not output.match(/#{package}/)
     message = "installing:\t"+package
     command = "yum -y install #{package}"
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   return
 end
 
 # Check firewall is enabled
 
-def check_rhel_service(options,service)
+def check_rhel_service(options, service)
   message = "Information:\tChecking "+service+" is installed"
   command = "service #{service} status |grep dead"
-  output  = execute_command(options,message,command)
+  output  = execute_command(options, message, command)
   if output.match(/dead/)
     message = "Enabling:\t"+service
     if options['host-os-release'].match(/^7/)
@@ -3604,43 +3611,43 @@ def check_rhel_service(options,service)
     else
       command = "chkconfig --level 345 #{service} on"
     end
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   return
 end
 
 # Check service is enabled
 
-def check_rhel_firewall(options,service,port_info)
+def check_rhel_firewall(options, service, port_info)
   if options['host-os-release'].match(/^7/)
     message = "Information:\tChecking firewall configuration for "+service
     command = "firewall-cmd --list-services |grep #{service}"
-    output  = execute_command(options,message,command)
+    output  = execute_command(options, message, command)
     if not output.match(/#{service}/)
       message = "Information:\tAdding firewall rule for "+service
       command = "firewall-cmd --add-service=#{service} --permanent"
-      execute_command(options,message,command)
+      execute_command(options, message, command)
     end
     if port_info.match(/[0-9]/)
       message = "Information:\tChecking firewall configuration for "+port_info
       command = "firewall-cmd --list-all |grep #{port_info}"
-      output  = execute_command(options,message,command)
+      output  = execute_command(options, message, command)
       if not output.match(/#{port_info}/)
         message = "Information:\tAdding firewall rule for "+port_info
         command = "firewall-cmd --zone=public --add-port=#{port_info} --permanent"
-        execute_command(options,message,command)
+        execute_command(options, message, command)
       end
     end
   else
     if port_info.match(/[0-9]/)
-      (port_no,protocol) = port_info.split(/\//)
+      (port_no, protocol) = port_info.split(/\//)
       message = "Information:\tChecking firewall configuration for "+service+" on "+port_info
       command = "iptables --list-rules |grep #{protocol} |grep #{port_no}"
-      output  = execute_command(options,message,command)
+      output  = execute_command(options, message, command)
       if not output.match(/#{protocol}/)
         message = "Information:\tAdding firewall rule for "+service
         command = "iptables -I INPUT -p #{protocol} --dport #{port_no} -j ACCEPT ; iptables save"
-        execute_command(options,message,command)
+        execute_command(options, message, command)
       end
     end
   end
@@ -3650,65 +3657,65 @@ end
 # Check httpd enabled on Centos / Redhat
 
 def check_yum_xinetd(options)
-  check_rhel_package(options,"xinetd")
-  check_rhel_firewall(options,"xinetd","")
-  check_rhel_service(options,"xinetd")
+  check_rhel_package(options, "xinetd")
+  check_rhel_firewall(options, "xinetd", "")
+  check_rhel_service(options, "xinetd")
   return
 end
 
 # Check TFTPd enabled on CentOS / RedHat
 
 def check_yum_tftpd(options)
-  check_dir_exists(options,options['tftpdir'])
-  check_rhel_package(options,"tftp-server")
-  check_rhel_firewall(options,"tftp","")
-  check_rhel_service(options,"tftp")
+  check_dir_exists(options, options['tftpdir'])
+  check_rhel_package(options, "tftp-server")
+  check_rhel_firewall(options, "tftp", "")
+  check_rhel_service(options, "tftp")
   return
 end
 
 # Check DHCPd enabled on CentOS / RedHat
 
 def check_yum_dhcpd(options)
-  check_rhel_package(options,"dhcp")
-  check_rhel_firewall(options,"dhcp","69/udp")
-  check_rhel_service(options,"dhcpd")
+  check_rhel_package(options, "dhcp")
+  check_rhel_firewall(options, "dhcp", "69/udp")
+  check_rhel_service(options, "dhcpd")
   return
 end
 
 # Check httpd enabled on Centos / Redhat
 
 def check_yum_httpd()
-  check_rhel_package(options,"httpd")
-  check_rhel_firewall(options,"http","80/tcp")
-  check_rhel_service(options,"httpd")
+  check_rhel_package(options, "httpd")
+  check_rhel_firewall(options, "http", "80/tcp")
+  check_rhel_service(options, "httpd")
   return
 end
 
 # Check Ubuntu / Debian package is installed
 
-def check_apt_package(options,package)
+def check_apt_package(options, package)
   message = "Information:\tChecking "+package+" is installed"
   command = "dpkg -l | grep '#{package}' |grep 'ii'"
-  output  = execute_command(options,message,command)
+  output  = execute_command(options, message, command)
   if not output.match(/#{package}/)
     message = "Information:\tInstalling "+package
     command = "apt-get -y -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confnew install #{package}"
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   return
 end
 
 # Check Ubuntu / Debian firewall
 
-def check_apt_firewall(options,service,port_info)
+def check_apt_firewall(options, service, port_info)
   if File.exist?("/usr/bin/ufw")
     message = "Information:\tChecking "+service+" is allowed by firewall"
     command = "ufw status |grep #{service} |grep ALLOW"
-    output = execute_command(options,message,command)
+    output = execute_command(options, message, command)
     if not output.match(/ALLOW/)
       message = "Information:\tAdding "+service+" to firewall allow rules"
       command = "ufw allow #{service} #{port_info}"
-      execute_command(options,message,command)
+      execute_command(options, message, command)
     end
   end
   return
@@ -3716,17 +3723,17 @@ end
 
 # Check Ubuntu / Debian service
 
-def check_apt_service(options,service)
+def check_apt_service(options, service)
   message = "Information:\tChecking "+service+" is installed"
   command = "service #{service} status |grep dead"
-  output  = execute_command(options,message,command)
+  output  = execute_command(options, message, command)
   if output.match(/dead/)
     message = "Information:\tEnabling: "+service
     command = "systemctl enable #{service}.service"
-    execute_command(options,message,command)
+    execute_command(options, message, command)
     message = "Information:\tStarting: "+service
     command = "systemctl start #{service}.service"
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   return
 end
@@ -3734,35 +3741,35 @@ end
 # Check TFTPd enabled on Debian / Ubuntu
 
 def check_apt_tftpd(options)
-  check_dir_exists(options,options['tftpdir'])
-  check_apt_package(options,"tftpd-hpa")
-  check_apt_firewall(options,"tftp","")
-  check_apt_service(options,"tftp")
+  check_dir_exists(options, options['tftpdir'])
+  check_apt_package(options, "tftpd-hpa")
+  check_apt_firewall(options, "tftp", "")
+  check_apt_service(options, "tftp")
   return
 end
 
 # Check DHCPd enabled on Ubuntu / Debian
 
 def check_apt_dhcpd(options)
-  check_apt_package(options,"isc-dhcp-server")
-  check_apt_firewall(options,"dhcp","69/udp")
-  check_apt_service(options,"isc-dhcp-server")
+  check_apt_package(options, "isc-dhcp-server")
+  check_apt_firewall(options, "dhcp", "69/udp")
+  check_apt_service(options, "isc-dhcp-server")
   return
 end
 
 # Check httpd enabled on Ubunut / Debian
 
 def check_apt_httpd(options)
-  check_apt_package(options,"httpd")
-  check_apt_firewall(options,"http","80/tcp")
-  check_apt_service(options,"httpd")
+  check_apt_package(options, "httpd")
+  check_apt_firewall(options, "http", "80/tcp")
+  check_apt_service(options, "httpd")
   return
 end
 
 # Restart a service
 
-def restart_service(options,service)
-  refresh_service(options,service)
+def restart_service(options, service)
+  refresh_service(options, service)
   return
 end
 
@@ -3770,8 +3777,8 @@ end
 
 def restart_xinetd(options)
   service = "xinetd"
-  service = get_service_name(options,service)
-  refresh_service(options,service)
+  service = get_service_name(options, service)
+  refresh_service(options, service)
   return
 end
 
@@ -3780,11 +3787,11 @@ end
 def restart_tftpd(options)
   if options['host-os-name'].to_s.match(/Linux/)
     service = "tftpd-hpa"
-    refresh_service(options,service)
+    refresh_service(options, service)
   else
     service = "tftp"
-    service = get_service_name(options,service)
-    refresh_service(options,service)
+    service = get_service_name(options, service)
+    refresh_service(options, service)
   end
   return
 end
@@ -3793,8 +3800,8 @@ end
 
 def restart_firewalld(options)
   service = "firewalld"
-  service = get_service_name(options,service)
-  refresh_service(options,service)
+  service = get_service_name(options, service)
+  refresh_service(options, service)
   return
 end
 
@@ -3805,40 +3812,40 @@ def check_tftpd_config(options)
     tmp_file   = "/tmp/tftp"
     pxelinux_file = "/usr/lib/PXELINUX/pxelinux.0"
     if !File.exist?(pxelinux_file)
-      options = install_package(options,"pxelinux")
-      options = install_package(options,"syslinux")
+      options = install_package(options, "pxelinux")
+      options = install_package(options, "syslinux")
     end
     syslinux_file = "/usr/lib/syslinux/modules/bios/ldlinux.c32"
     pxelinux_dir  = options['tftpdir']
     pxelinux_tftp = pxelinux_dir+"/pxelinux.0"
     syslinux_tftp = pxelinux_dir+"/ldlinux.c32"
     if options['verbose'] == true
-      handle_output(options,"Information:\tChecking PXE directory")
+      handle_output(options, "Information:\tChecking PXE directory")
     end
-    check_dir_exists(options,pxelinux_dir)
-    check_dir_owner(options,pxelinux_dir,options['uid'])
+    check_dir_exists(options, pxelinux_dir)
+    check_dir_owner(options, pxelinux_dir, options['uid'])
     if !File.exist?(pxelinux_tftp)
       if !File.exist?(pxelinux_file)
-        options = install_package(options,"pxelinux")
+        options = install_package(options, "pxelinux")
       end
       if File.exist?(pxelinux_file)
         message = "Information:\tCopying '#{pxelinux_file}' to '#{pxelinux_tftp}'"
         command = "cp #{pxelinux_file} #{pxelinux_tftp}"
-        execute_command(options,message,command)
+        execute_command(options, message, command)
       else
-        handle_output(options,"Warning:\tTFTP boot file pxelinux.0 does not exist")
+        handle_output(options, "Warning:\tTFTP boot file pxelinux.0 does not exist")
       end
     end
     if !File.exist?(syslinux_tftp)
       if !File.exist?(syslinux_tftp)
-        options = install_package(options,"syslinux")
+        options = install_package(options, "syslinux")
       end
       if File.exist?(syslinux_file)
         message = "Information:\tCopying '#{syslinux_file}' to '#{syslinux_tftp}'"
         command = "cp #{syslinux_file} #{syslinux_tftp}"
-        execute_command(options,message,command)
+        execute_command(options, message, command)
       else
-        handle_output(options,"Warning:\tTFTP boot file ldlinux.c32 does not exist")
+        handle_output(options, "Warning:\tTFTP boot file ldlinux.c32 does not exist")
       end
     end
     if options['host-os-uname'].match(/Ubuntu|Debian/)
@@ -3846,16 +3853,16 @@ def check_tftpd_config(options)
     else
       check_yum_tftpd(options)
     end
-    check_dir_exists(options,options['tftpdir'])
+    check_dir_exists(options, options['tftpdir'])
     if options['host-os-uname'].match(/RedHat|CentOS/)
       if Integer(options['host-os-version']) > 6
         message = "Checking SELinux tftp permissions"
         command = "getsebool -a | grep tftp |grep home"
-        output  = execute_command(options,message,command)
+        output  = execute_command(options, message, command)
         if output.match(/off/)
           message = "Information:\ySetting SELinux tftp permissions"
           command = "setsebool -P tftp_home_dir 1"
-          execute_command(options,message,command)
+          execute_command(options, message, command)
         end
         restart_firewalld(options)
       end
@@ -3871,23 +3878,23 @@ def check_tftpd_dir(options)
   if options['host-os-name'].to_s.match(/SunOS/)
     old_tftp_dir = "/tftpboot"
     if options['verbose'] == true
-      handle_output(options,"Information:\tChecking TFTP directory")
+      handle_output(options, "Information:\tChecking TFTP directory")
     end
-    check_dir_exists(options,options['tftpdir'])
-    check_dir_owner(options,options['tftpdir'],options['uid'])
+    check_dir_exists(options, options['tftpdir'])
+    check_dir_owner(options, options['tftpdir'], options['uid'])
     if not File.symlink?(old_tftp_dir)
       message = "Information:\tSymlinking #{old_tftp_dir} to #{options['tftpdir']}}"
       command = "ln -s #{options['tftpdir']} #{old_tftp_dir}"
-      output  = execute_command(options,message,command)
-#      File.symlink(options['tftpdir'],old_tftp_dir)
+      output  = execute_command(options, message, command)
+#      File.symlink(options['tftpdir'], old_tftp_dir)
     end
     message = "Checking:\tTFTPd service boot directory configuration"
     command = "svcprop -p inetd_start/exec svc:network/tftp/udp"
-    output  = execute_command(options,message,command)
+    output  = execute_command(options, message, command)
     if not output.match(/netboot/)
       message = "Information:\tSetting TFTPd boot directory to "+options['tftpdir']
       command = "svccfg -s svc:network/tftp/udp setprop inetd_start/exec = astring: \"/usr/sbin/in.tftpd\\ -s\\ /etc/netboot\""
-      execute_command(options,message,command)
+      execute_command(options, message, command)
     end
   end
   return
@@ -3900,7 +3907,7 @@ def check_network_device_exists(options)
   net_dev = options['network'].to_s
   message = "Information:\tChecking network device #{net_dev} exists"
   command = "ifconfig #{net_dev} |grep ether"
-  output  = execute_command(options,message,command)
+  output  = execute_command(options, message, command)
   if output.match(/ether/)
     exists = true
   end
@@ -3914,7 +3921,7 @@ def check_network_bridge_exists(options)
   net_dev = options['bridge'].to_s
   message = "Information:\tChecking network device #{net_dev} exists"
   command = "ifconfig #{net_dev} |grep ether"
-  output  = execute_command(options,message,command)
+  output  = execute_command(options, message, command)
   if output.match(/ether/)
     exists = true
   end
@@ -3923,16 +3930,16 @@ end
 
 # Check NAT
 
-def check_nat(options,gw_if_name,if_name)
+def check_nat(options, gw_if_name, if_name)
   case options['host-os-name'].to_s
   when /Darwin/
     if options['host-os-release'].split(".")[0].to_i < 14
-      check_osx_nat(gw_if_name,if_name)
+      check_osx_nat(gw_if_name, if_name)
     else
-      check_osx_pfctl(options,gw_if_name,if_name)
+      check_osx_pfctl(options, gw_if_name, if_name)
     end
   when /Linux/
-    check_linux_nat(options,gw_if_name,if_name)
+    check_linux_nat(options, gw_if_name, if_name)
   end
   return
 end
@@ -3942,7 +3949,7 @@ end
 def check_tftpd(options)
   check_tftpd_dir(options)
   if options['host-os-name'].to_s.match(/SunOS/)
-    enable_service(options,"svc:/network/tftp/udp:default")
+    enable_service(options, "svc:/network/tftp/udp:default")
   end
   if options['host-os-name'].to_s.match(/Darwin/)
     check_osx_tftpd()
@@ -3980,7 +3987,7 @@ def get_install_mac(options)
         found_client = true
       end
       if line.match(/hardware ethernet/) and found_client == true
-        mac_address = line.split(/\s+/)[3].gsub(/\;/,"")
+        mac_address = line.split(/\s+/)[3].gsub(/\;/, "")
         return mac_address
       end
     end
@@ -4008,32 +4015,32 @@ def add_dnsmasq_entry(options)
   hosts_file  = "/etc/hosts." + options['scriptname'].to_s
   message = "Checking:\tChecking DNSmasq config file for hosts."+options['scriptname'].to_s
   command = "cat #{config_file} |grep -v '^#' |grep '#{options['scriptname'].to_s}' |grep 'addn-hosts'"
-  output  = execute_command(options,message,command)
+  output  = execute_command(options, message, command)
   if not output.match(/#{options['scriptname'].to_s}/)
-    backup_file(options,config_file)
+    backup_file(options, config_file)
     message = "Information:\tAdding hosts file "+hosts_file+" to "+config_file
     command = "echo \"addn-hosts=#{hosts_file}\" >> #{config_file}"
-    output  = execute_command(options,message,command)
+    output  = execute_command(options, message, command)
   end
   message = "Checking:\tHosts file #{hosts_file}for #{options['name']}"
   command = "cat #{hosts_file} |grep -v '^#' |grep '#{options['name']}' |grep '#{options['ip']}'"
-  output  = execute_command(options,message,command)
+  output  = execute_command(options, message, command)
   if not output.match(/#{options['name'].to_s}/)
-    backup_file(options,hosts_file)
+    backup_file(options, hosts_file)
     message = "Adding:\t\tHost "+options['name'].to_s+" to "+hosts_file
     command = "echo \"#{options['ip']}\\t#{options['name']}.local\\t#{options['name']}\\t# #{options['adminuser']}\" >> #{hosts_file}"
-    output  = execute_command(options,message,command)
+    output  = execute_command(options, message, command)
     if options['host-os-name'].to_s.match(/Darwin/)
       pfile   = "/Library/LaunchDaemons/homebrew.mxcl.dnsmasq.plist"
       if File.exist?(pfile)
         service = "dnsmasq"
-        service = get_service_name(options,service)
-        refresh_service(option,service)
+        service = get_service_name(options, service)
+        refresh_service(option, service)
       end
     else
       service = "dnsmasq"
-      service = get_service_name(options,service)
-      refresh_service(options,service)
+      service = get_service_name(options, service)
+      refresh_service(options, service)
     end
   end
   return
@@ -4045,12 +4052,12 @@ def add_hosts_entry(options)
   hosts_file = "/etc/hosts"
   message    = "Checking:\tHosts file for "+options['name']
   command    = "cat #{hosts_file} |grep -v '^#' |grep '#{options['name']}' |grep '#{options['ip']}'"
-  output     = execute_command(options,message,command)
+  output     = execute_command(options, message, command)
   if not output.match(/#{options['name']}/)
-    backup_file(options,hosts_file)
+    backup_file(options, hosts_file)
     message = "Adding:\t\tHost "+options['name']+" to "+hosts_file
     command = "echo \"#{options['ip']}\\t#{options['name']}.local\\t#{options['name']}\\t# #{options['adminuser']}\" >> #{hosts_file}"
-    output  = execute_command(options,message,command)
+    output  = execute_command(options, message, command)
   end
   if options['dnsmasq'] == true
     add_dnsmasq_entry(options) 
@@ -4062,15 +4069,15 @@ end
 
 def remove_hosts_entry(options)
   hosts_file = "/etc/hosts"
-  remove_hosts_file_entry(options,hosts_file)
+  remove_hosts_file_entry(options, hosts_file)
   if options['dnsmasq'] == true
     hosts_file = "/etc/hosts."+options['scriptname'].to_s
-    remove_hosts_file_entry(options,hosts_file)
+    remove_hosts_file_entry(options, hosts_file)
   end
   return
 end
 
-def remove_hosts_file_entry(options,hosts_file)
+def remove_hosts_file_entry(options, hosts_file)
   tmp_file = "/tmp/hosts"
   message  = "Checking:\tHosts file for "+options['name']
   if options['ip'].to_s.match(/[0-9]/)
@@ -4078,7 +4085,7 @@ def remove_hosts_file_entry(options,hosts_file)
   else
     command = "cat #{hosts_file} |grep -v '^#' |grep '#{options['name']}'"
   end
-  output = execute_command(options,message,command)
+  output = execute_command(options, message, command)
   copy   = []
   if output.match(/#{options['name']}/)
     file_info=IO.readlines(hosts_file)
@@ -4093,14 +4100,14 @@ def remove_hosts_file_entry(options,hosts_file)
         end
       end
     end
-    File.open(tmp_file,"w") {|file| file.puts copy}
+    File.open(tmp_file, "w") {|file| file.puts copy}
     message = "Updating:\tHosts file "+hosts_file
     if options['host-os-name'].to_s.match(/Darwin/)
       command = "sudo sh -c 'cp #{tmp_file} #{hosts_file} ; rm #{tmp_file}'"
     else
       command = "cp #{tmp_file} #{hosts_file} ; rm #{tmp_file}"
     end
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   return
 end
@@ -4113,7 +4120,7 @@ def add_dhcp_client(options)
   end
   tmp_file = "/tmp/dhcp_"+options['name']
   if not options['arch'].to_s.match(/sparc/)
-    tftp_pxe_file = options['mac'].gsub(/:/,"")
+    tftp_pxe_file = options['mac'].gsub(/:/, "")
     tftp_pxe_file = tftp_pxe_file.upcase
     if options['service'].to_s.match(/sol/)
       suffix = ".bios"
@@ -4130,10 +4137,10 @@ def add_dhcp_client(options)
   end
   message = "Checking:\fIf DHCPd configuration contains "+options['name']
   command = "cat #{options['dhcpdfile']} | grep '#{options['name']}'"
-  output  = execute_command(options,message,command)
+  output  = execute_command(options, message, command)
   if not output.match(/#{options['name']}/)
-    backup_file(options,options['dhcpdfile'])
-    file = File.open(tmp_file,"w")
+    backup_file(options, options['dhcpdfile'])
+    file = File.open(tmp_file, "w")
     file_info=IO.readlines(options['dhcpdfile'])
     file_info.each do |line|
       file.write(line)
@@ -4157,7 +4164,7 @@ def add_dhcp_client(options)
     file.close
     message = "Updating:\tDHCPd file "+options['dhcpdfile']
     command = "cp #{tmp_file} #{options['dhcpdfile']} ; rm #{tmp_file}"
-    execute_command(options,message,command)
+    execute_command(options, message, command)
     restart_dhcpd(options)
   end
   check_dhcpd(options)
@@ -4172,10 +4179,10 @@ def remove_dhcp_client(options)
   copy      = []
   if !File.exist?(options['dhcpdfile'])
     if options['verbose'] == true
-      handle_output(options,"Warning:\tFile #{options['dhcpdfile']} does not exist")
+      handle_output(options, "Warning:\tFile #{options['dhcpdfile']} does not exist")
     end
   else
-    check_file_owner(options,options['dhcpdfile'],options['uid'])
+    check_file_owner(options, options['dhcpdfile'], options['uid'])
     file_info = IO.readlines(options['dhcpdfile'])
     file_info.each do |line|
       if line.match(/^host #{options['name']}/)
@@ -4188,26 +4195,26 @@ def remove_dhcp_client(options)
         found=0
       end
     end
-    File.open(options['dhcpdfile'],"w") {|file| file.puts copy}
+    File.open(options['dhcpdfile'], "w") {|file| file.puts copy}
   end
   return
 end
 
 # Backup file
 
-def backup_file(options,file_name)
+def backup_file(options, file_name)
   date_string = get_date_string(options)
   backup_file = File.basename(file_name)+"."+date_string
   backup_file = options['backupdir'].to_s+"/"+backup_file
   message     = "Archiving:\tFile "+file_name+" to "+backup_file
   command     = "cp #{file_name} #{backup_file}"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
 # Wget a file
 
-def wget_file(options,file_url,file_name)
+def wget_file(options, file_url, file_name)
   if options['download'] == true
     wget_test = %[which wget].chomp
     if wget_test.match(/bin/)
@@ -4216,9 +4223,9 @@ def wget_file(options,file_url,file_name)
       command  = "curl -o #{file_name } #{file_url}"
     end
     file_dir = File.dirname(file_name)
-    check_dir_exists(options,file_dir)
+    check_dir_exists(options, file_dir)
     message  = "Fetching:\tURL "+file_url+" to "+file_name
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   return
 end
@@ -4231,12 +4238,12 @@ def add_to_ethers_file(options)
   if !File.exist?(file_name)
     message = "Information:\tCreating #{file_name}"
     command = "touch #{file_name}"
-    execute_command(options,message,command)
-    check_file_owner(options,file_name,options['uid'])
+    execute_command(options, message, command)
+    check_file_owner(options, file_name, options['uid'])
     File.open(file_name, "w") { |f| f.write "#{options['mac']} #{options['name']}\n" }
     return
   else
-    check_file_owner(options,file_name,options['uid'])
+    check_file_owner(options, file_name, options['uid'])
     file = IO.readlines(file_name)
     lines = []
     file.each do |line|
@@ -4274,7 +4281,7 @@ def get_install_mac(options)
   if File.exist?(ethers_file)
     message = "Checking:\tFile "+ethers_file+" for "+options['name']+" MAC address"
     command = "cat #{ethers_file} |grep '#{options['name']} '|awk \"{print \\$2}\""
-    mac_add = execute_command(options,message,command)
+    mac_add = execute_command(options, message, command)
     mac_add = mac_add.chomp
   end
   if not output.match(/[0-9]/)
@@ -4287,7 +4294,7 @@ def get_install_mac(options)
       if found == true
         if line.match(/ethernet/)
           mac_add = line.split(/ ethernet /)[1]
-          mac_add = options['mac'].gsub(/\;/,"")
+          mac_add = options['mac'].gsub(/\;/, "")
           return mac_add
         end
       end
@@ -4299,7 +4306,7 @@ end
 # Check if a directory exists
 # If not create it
 
-def check_dir_exists(options,dir_name)
+def check_dir_exists(options, dir_name)
   output = ""
   dir_name = dir_name.to_s
   if !File.directory?(dir_name) && !File.symlink?(dir_name)
@@ -4310,7 +4317,7 @@ def check_dir_exists(options,dir_name)
       else
         command = "mkdir -p \"#{dir_name}\""
       end
-      output  = execute_command(options,message,command)
+      output  = execute_command(options, message, command)
     end
   end
   return output
@@ -4318,12 +4325,12 @@ end
 
 # Check a filesystem / directory exists
 
-def check_fs_exists(options,dir_name)
+def check_fs_exists(options, dir_name)
   output = ""
   if options['host-os-name'].to_s.match(/SunOS/)
-    output = check_zfs_fs_exists(options,dir_name)
+    output = check_zfs_fs_exists(options, dir_name)
   else
-    check_dir_exists(options,dir_name)
+    check_dir_exists(options, dir_name)
   end
   return output
 end
@@ -4331,7 +4338,7 @@ end
 # Check if a ZFS filesystem exists
 # If not create it
 
-def check_zfs_fs_exists(options,dir_name)
+def check_zfs_fs_exists(options, dir_name)
   output = ""
   if not File.directory?(dir_name)
     if options['host-os-name'].to_s.match(/SunOS/)
@@ -4357,14 +4364,14 @@ def check_zfs_fs_exists(options,dir_name)
       end
       message = "Information:\tCreating "+dir_name+" with mount point "+mount_dir
       command = "zfs create -o mountpoint=#{mount_dir} #{zfs_name}"
-      execute_command(options,message,command)
+      execute_command(options, message, command)
       if dir_name.match(/vmware_|openbsd_|coreos_/) or options['host-os-release'].to_i > 10
         message = "Information:\tSymlinking "+mount_dir+" to "+dir_name
         command = "ln -s #{mount_dir} #{dir_name}"
-        execute_command(options,message,command)
+        execute_command(options, message, command)
       end
     else
-      check_dir_exists(options,dir_name)
+      check_dir_exists(options, dir_name)
     end
   end
   return output
@@ -4372,7 +4379,7 @@ end
 
 # Destroy a ZFS filesystem
 
-def destroy_zfs_fs(options,ir_name)
+def destroy_zfs_fs(options, dir_name)
   output = ""
   zfs_list = %x[zfs list |grep -v NAME |awk '{print $5}' |grep "^#{dir_name}$'].chomp
   if zfs_list.match(/#{dir_name}/)
@@ -4385,7 +4392,7 @@ def destroy_zfs_fs(options,ir_name)
         end
         message = "Warning:\tDestroying "+dir_name
         command = "zfs destroy -r -f #{zfs_name}"
-        output  = execute_command(options,message,command)
+        output  = execute_command(options, message, command)
         if dir_name.match(/netboot/)
           enable_service(service)
         end
@@ -4402,9 +4409,9 @@ end
 # Prints command if verbose switch is on
 # Does not execute cerver/client import/create operations in test mode
 
-def execute_command(options,message,command)
+def execute_command(options, message, command)
   if !command
-    handle_output(options,"Warning:\tEmpty command")
+    handle_output(options, "Warning:\tEmpty command")
     return
   end
   if command.match(/prlctl/) and !options['host-os-name'].to_s.match(/Darwin/)
@@ -4421,7 +4428,7 @@ def execute_command(options,message,command)
   execute = 0
   if options['verbose'] == true
     if message.match(/[a-z,A-Z,0-9]/)
-      handle_output(options,message)
+      handle_output(options, message)
     end
   end
   if options['test'] == true
@@ -4454,7 +4461,7 @@ def execute_command(options,message,command)
         end
         if command.match(/snap/)
           if !File.exist?("/usr/bin/snap")
-            check_apt_package(options,"snapd")
+            check_apt_package(options, "snapd")
           end
           command = "sudo sh -c '"+command+"'"
         end
@@ -4467,8 +4474,8 @@ def execute_command(options,message,command)
       end
       if options['host-os-name'].to_s.match(/NT/) && command.match(/netsh/)
         batch_file = "/tmp/script.bat"
-        File.write(batch_file,command)
-        handle_output(options,"Information:\tCreating batch file '#{batch_file}' to run command '#{command}"'')
+        File.write(batch_file, command)
+        handle_output(options, "Information:\tCreating batch file '#{batch_file}' to run command '#{command}"'')
         command = "cygstart --action=runas "+batch_file
       end
     end
@@ -4479,12 +4486,12 @@ def execute_command(options,message,command)
         sudo_check = %x[getent group #{options['sudogroup']}].chomp
       end
       if !sudo_check.match(/#{options['user']}/)
-        handle_output(options,"Warning:\tUser #{options['user']} is not in sudoers group")
+        handle_output(options, "Warning:\tUser #{options['user']} is not in sudoers group")
         exit
       end
     end
     if options['verbose'] == true
-      handle_output(options,"Executing:\t#{command}")
+      handle_output(options, "Executing:\t#{command}")
     end
     if options['executehost'].to_s.match(/localhost/)
       output = %x[#{command}]
@@ -4497,11 +4504,11 @@ def execute_command(options,message,command)
   if options['verbose'] == true
     if output.length > 1
       if not output.match(/\n/)
-        handle_output(options,"Output:\t\t#{output}")
+        handle_output(options, "Output:\t\t#{output}")
       else
         multi_line_output = output.split(/\n/)
         multi_line_output.each do |line|
-          handle_output(options,"Output:\t\t#{line}")
+          handle_output(options, "Output:\t\t#{line}")
         end
       end
     end
@@ -4515,11 +4522,11 @@ def get_date_string(options)
   time = Time.new
   time = time.to_a
   date = Time.utc(*time)
-  date_string = date.to_s.gsub(/\s+/,"_")
-  date_string = date_string.gsub(/:/,"_")
-  date_string = date_string.gsub(/-/,"_")
+  date_string = date.to_s.gsub(/\s+/, "_")
+  date_string = date_string.gsub(/:/, "_")
+  date_string = date_string.gsub(/-/, "_")
   if options['verbose'] == true
-    handle_output(options,"Information:\tSetting date string to #{date_string}")
+    handle_output(options, "Information:\tSetting date string to #{date_string}")
   end
   return date_string
 end
@@ -4537,14 +4544,14 @@ def restart_dhcpd(options)
   if options['host-os-name'].to_s.match(/SunOS/)
     function = "refresh"
     service  = "svc:/network/dhcp/server:ipv4"
-    output   = handle_smf_service(options,function,service)
+    output   = handle_smf_service(options, function, service)
   else
     if options['host-os-name'].to_s.match(/Linux/)
       service = "isc-dhcp-server"
     else
       service = "dhcpd"
     end
-    refresh_service(options,service)
+    refresh_service(options, service)
   end
   return output
 end
@@ -4555,26 +4562,26 @@ def check_dhcpd(options)
   message = "Checking:\tDHCPd is running"
   if options['host-os-name'].to_s.match(/SunOS/)
     command = "svcs -l svc:/network/dhcp/server:ipv4"
-    output  = execute_command(options,message,command)
+    output  = execute_command(options, message, command)
     if output.match(/disabled/)
       function         = "enable"
       smf_install_service = "svc:/network/dhcp/server:ipv4"
-      output           = handle_smf_service(function,smf_install_service)
+      output           = handle_smf_service(function, smf_install_service)
     end
     if output.match(/maintenance/)
       function         = "refresh"
       smf_install_service = "svc:/network/dhcp/server:ipv4"
-      output           = handle_smf_service(function,smf_install_service)
+      output           = handle_smf_service(function, smf_install_service)
     end
   end
   if options['host-os-name'].to_s.match(/Darwin/)
     command = "ps aux |grep '/usr/local/bin/dhcpd' |grep -v grep"
-    output  = execute_command(options,message,command)
+    output  = execute_command(options, message, command)
     if not output.match(/dhcp/)
       service = "dhcp"
-      check_osx_service_is_enabled(options,service)
+      check_osx_service_is_enabled(options, service)
       service = "dhcp"
-      refresh_service(options,service)
+      refresh_service(options, service)
     end
     check_osx_tftpd()
   end
@@ -4584,13 +4591,13 @@ end
 # Get service basename
 
 def get_service_base_name(options)
-  base_service = options['service'].to_s.gsub(/_i386|_x86_64|_sparc/,"")
+  base_service = options['service'].to_s.gsub(/_i386|_x86_64|_sparc/, "")
   return base_service
 end
 
 # Get service name
 
-def get_service_name(options,service)
+def get_service_name(options, service)
   if options['host-os-name'].to_s.match(/SunOS/)
     if service.to_s.match(/apache/)
       service = "svc:/network/http:apache22"
@@ -4615,45 +4622,45 @@ end
 
 # Enable service
 
-def enable_service(options,service_name)
+def enable_service(options, service_name)
   if options['host-os-name'].to_s.match(/SunOS/)
-    output = enable_smf_service(options,service_name)
+    output = enable_smf_service(options, service_name)
   end
   if options['host-os-name'].to_s.match(/Darwin/)
-    output = enable_osx_service(options,service_name)
+    output = enable_osx_service(options, service_name)
   end
   if options['host-os-name'].to_s.match(/Linux/)
-    output = enable_linux_service(options,service_name)
+    output = enable_linux_service(options, service_name)
   end
   return output
 end
 
 # Disable service
 
-def disable_service(options,service_name)
+def disable_service(options, service_name)
   if options['host-os-name'].to_s.match(/SunOS/)
-    output = disable_smf_service(options,service_name)
+    output = disable_smf_service(options, service_name)
   end
   if options['host-os-name'].to_s.match(/Darwin/)
-    output = disable_osx_service(options,service_name)
+    output = disable_osx_service(options, service_name)
   end
   if options['host-os-name'].to_s.match(/Linux/)
-    output = disable_linux_service(options,service_name)
+    output = disable_linux_service(options, service_name)
   end
   return output
 end
 
 # Refresh / Restart service
 
-def refresh_service(options,service_name)
+def refresh_service(options, service_name)
   if options['host-os-name'].to_s.match(/SunOS/)
-    output = refresh_smf_service(options,service_name)
+    output = refresh_smf_service(options, service_name)
   end
   if options['host-os-name'].to_s.match(/Darwin/)
-    output = refresh_osx_service(options,service_name)
+    output = refresh_osx_service(options, service_name)
   end
   if options['host-os-name'].to_s.match(/Linux/)
-    restart_linux_service(options,service_name)
+    restart_linux_service(options, service_name)
   end
   return output
 end
@@ -4665,8 +4672,8 @@ def get_ipv4_default_route(options)
     if options['host-os-name'].to_s.match(/Darwin/)
       message = "Information:\tDetermining default route"
       command = "route -n get default |grep gateway |cut -f2 -d:"
-      output  = execute_command(options,message,command)
-      ipv4_default_route = output.chomp.gsub(/\s+/,"")
+      output  = execute_command(options, message, command)
+      ipv4_default_route = output.chomp.gsub(/\s+/, "")
     else
       octets    = options['ip'].split(/\./)
       octets[3] = options['gatewaynode']
@@ -4692,15 +4699,15 @@ def get_base_dir_list(options)
   end
   search_string = options['search']
   if options['isodir'] == nil or options['isodir'] == "none" and options['file'] == options['empty']
-    handle_output(options,"Warning:\tNo valid ISO directory specified")
+    handle_output(options, "Warning:\tNo valid ISO directory specified")
     quit(options)
   end
   iso_list = []
   if options['verbose'] == true
-    handle_output(options,"Checking:\t#{options['isodir']}")
+    handle_output(options, "Checking:\t#{options['isodir']}")
   end
   if options['file'] == options['empty']
-    check_fs_exists(options,options['isodir'])
+    check_fs_exists(options, options['isodir'])
     case options['type'].to_s
     when /iso/
       iso_list = Dir.entries(options['isodir']).grep(/iso$|ISO$/)
@@ -4717,7 +4724,7 @@ def get_base_dir_list(options)
     end
     if search_string.match(/sol_11/)
       if not iso_list.grep(/full/)
-        handle_output(options,"Warning:\tNo full repository ISO images exist in #{options['isodir']}")
+        handle_output(options, "Warning:\tNo full repository ISO images exist in #{options['isodir']}")
         if options['test'] != true
           quit(options)
         end
@@ -4732,11 +4739,11 @@ end
 
 # Check client architecture
 
-def check_client_arch(options,opt)
+def check_client_arch(options, opt)
   if not options['arch'].to_s.match(/i386|sparc|x86_64/)
     if opt['F'] or opt['O']
       if opt['A']
-        handle_output(options,"Information:\tSetting architecture to x86_64")
+        handle_output(options, "Information:\tSetting architecture to x86_64")
         options['arch'] = "x86_64"
       end
     end
@@ -4749,8 +4756,8 @@ def check_client_arch(options,opt)
     end
   end
   if not options['arch'].to_s.match(/i386|sparc|x86_64/)
-    handle_output(options,"Warning:\tInvalid architecture specified")
-    handle_output(options,"Warning:\tUse --arch i386, --arch x86_64 or --arch sparc")
+    handle_output(options, "Warning:\tInvalid architecture specified")
+    handle_output(options, "Warning:\tUse --arch i386, --arch x86_64 or --arch sparc")
     quit(options)
   end
   return options['arch']
@@ -4761,9 +4768,9 @@ end
 def check_install_mac(options)
   if !options['mac'].to_s.match(/:/)
     if options['mac'].to_s.split(":").length != 6 
-      handle_output(options,"Warning:\tInvalid MAC address")
+      handle_output(options, "Warning:\tInvalid MAC address")
       options['mac'] = generate_mac_address(options['vm'])
-      handle_output(options,"Information:\tGenerated new MAC address: #{options['mac']}")
+      handle_output(options, "Information:\tGenerated new MAC address: #{options['mac']}")
     else
       chars       = options['mac'].split(//)
       options['mac'] = chars[0..1].join+":"+chars[2..3].join+":"+chars[4..5].join+":"+chars[6..7].join+":"+chars[8..9].join+":"+chars[10..11].join
@@ -4771,14 +4778,14 @@ def check_install_mac(options)
   end
   macs = options['mac'].split(":")
   if macs.length != 6
-    handle_output(options,"Warning:\tInvalid MAC address")
+    handle_output(options, "Warning:\tInvalid MAC address")
     quit(options)
   end
   macs.each do |mac|
     if mac =~ /[G-Z]|[g-z]/
-      handle_output(options,"Warning:\tInvalid MAC address")
+      handle_output(options, "Warning:\tInvalid MAC address")
       options['mac'] = generate_mac_address(options['vm'])
-      handle_output(options,"Information:\tGenerated new MAC address: #{options['mac']}")
+      handle_output(options, "Information:\tGenerated new MAC address: #{options['mac']}")
     end
   end
   return options['mac']
@@ -4796,11 +4803,11 @@ def check_install_ip(options)
   options['ips'].each do |test_ip|
     ips = test_ip.split(".")
     if ips.length != 4 
-      handle_output(options,"Warning:\tInvalid IP Address")
+      handle_output(options, "Warning:\tInvalid IP Address")
     end
     ips.each do |ip|
       if ip =~ /[a-z,A-Z]/ or ip.length > 3 or ip.to_i > 254
-        handle_output(options,"Warning:\tInvalid IP Address")
+        handle_output(options, "Warning:\tInvalid IP Address")
       end
     end
   end
@@ -4810,7 +4817,7 @@ end
 
 # Add apache proxy
 
-def add_apache_proxy(options,service_base_name)
+def add_apache_proxy(options, service_base_name)
   service = "apache"
   if options['host-os-name'].to_s.match(/SunOS/)
     if options['osverstion'].to_s.match(/11/) && options['host-os-update'].to_s.match(/4/)
@@ -4827,19 +4834,19 @@ def add_apache_proxy(options,service_base_name)
   if options['host-os-name'].to_s.match(/Linux/)
     apache_config_file = options['apachedir']+"/conf/httpd.conf"
     if !File.exist?(apache_config_file)
-      options = install_package(options,"apache2")
+      options = install_package(options, "apache2")
     end
   end
   a_check = %x[cat #{apache_config_file} |grep #{service_base_name}]
   if not a_check.match(/#{service_base_name}/)
     message = "Information:\tArchiving "+apache_config_file+" to "+apache_config_file+".no_"+service_base_name
     command = "cp #{apache_config_file} #{apache_config_file}.no_#{service_base_name}"
-    execute_command(options,message,command)
+    execute_command(options, message, command)
     message = "Adding:\t\tProxy entry to "+apache_config_file
     command = "echo 'ProxyPass /"+service_base_name+" http://"+options['publisherhost']+":"+options['publisherport']+" nocanon max=200' >>"+apache_config_file
-    execute_command(options,message,command)
-    enable_service(options,service)
-    refresh_service(options,service)
+    execute_command(options, message, command)
+    enable_service(options, service)
+    refresh_service(options, service)
   end
   return
 end
@@ -4865,23 +4872,23 @@ def remove_apache_proxy(service_base_name)
   end
   message = "Checking:\tApache confing file "+apache_config_file+" for "+service_base_name
   command = "cat #{apache_config_file} |grep '#{service_base_name}'"
-  a_check = execute_command(options,message,command)
+  a_check = execute_command(options, message, command)
   if a_check.match(/#{service_base_name}/)
     restore_file = apache_config_file+".no_"+service_base_name
     if File.exist?(restore_file)
       message = "Restoring:\t"+restore_file+" to "+apache_config_file
       command = "cp #{restore_file} #{apache_config_file}"
-      execute_command(options,message,command)
+      execute_command(options, message, command)
       service = "apache"
-      refresh_service(options,service)
+      refresh_service(options, service)
     end
   end
 end
 
 # Add apache alias
 
-def add_apache_alias(options,service_base_name)
-  options = install_package(options,"apache2")
+def add_apache_alias(options, service_base_name)
+  options = install_package(options, "apache2")
   if service_base_name.match(/^\//)
     apache_alias_dir  = service_base_name
     service_base_name = File.basename(service_base_name)
@@ -4911,21 +4918,21 @@ def add_apache_alias(options,service_base_name)
     tmp_file = "/tmp/httpd.conf"
     message  = "Checking:\tApache confing file "+apache_config_file+" for "+service_base_name
     command  = "cat #{apache_config_file} |grep '/#{service_base_name}'"
-    a_check  = execute_command(options,message,command)
+    a_check  = execute_command(options, message, command)
     message  = "Information:\tChecking Apache Version"
     command  = "apache2 -V 2>&1 |grep version |tail -1"
-    a_vers   = execute_command(options,message,command)
+    a_vers   = execute_command(options, message, command)
     if not a_check.match(/#{service_base_name}/)
       message = "Information:\tArchiving Apache config file "+apache_config_file+" to "+apache_config_file+".no_"+service_base_name
       command = "cp #{apache_config_file} #{apache_config_file}.no_#{service_base_name}"
-      execute_command(options,message,command)
+      execute_command(options, message, command)
       if options['verbose'] == true
-        handle_output(options,"Adding:\t\tDirectory and Alias entry to #{apache_config_file}")
+        handle_output(options, "Adding:\t\tDirectory and Alias entry to #{apache_config_file}")
       end
       message = "Copying:\tApache config file so it can be edited"
       command = "cp #{apache_config_file} #{tmp_file} ; chown #{options['uid']} #{tmp_file}"
-      execute_command(options,message,command)
-      output = File.open(tmp_file,"a")
+      execute_command(options, message, command)
+      output = File.open(tmp_file, "a")
       output.write("<Directory #{apache_alias_dir}>\n")
       output.write("Options Indexes FollowSymLinks\n")
       if a_vers.match(/2\.4/)
@@ -4938,7 +4945,7 @@ def add_apache_alias(options,service_base_name)
       output.close
       message = "Updating:\tApache config file"
       command = "cp #{tmp_file} #{apache_config_file} ; rm #{tmp_file}"
-      execute_command(options,message,command)
+      execute_command(options, message, command)
     end
     if options['host-os-name'].to_s.match(/SunOS|Linux/)
       if options['host-os-name'].to_s.match(/Linux/)
@@ -4958,8 +4965,8 @@ def add_apache_alias(options,service_base_name)
           service = "apache"
         end
       end
-      enable_service(options,service)
-      refresh_service(options,service)
+      enable_service(options, service)
+      refresh_service(options, service)
     end
     if options['host-os-name'].to_s.match(/Linux/)
       if options['host-os-uname'].match(/RedHat/)
@@ -4967,7 +4974,7 @@ def add_apache_alias(options,service_base_name)
           httpd_p = "httpd_sys_rw_content_t"
           message = "Information:\tFixing permissions on "+options['clientdir']
           command = "chcon -R -t #{httpd_p} #{options['clientdir']}"
-          execute_command(options,message,command)
+          execute_command(options, message, command)
         end
       end
     end
@@ -4994,15 +5001,15 @@ end
 # If there is something mounted there already it will unmount it
 
 def mount_iso(options)
-  handle_output(options,"Information:\tProcessing: #{options['file']}")
-  output  = check_dir_exists(options,options['mountdir'])
+  handle_output(options, "Information:\tProcessing: #{options['file']}")
+  output  = check_dir_exists(options, options['mountdir'])
   message = "Checking:\tExisting mounts"
   command = "df |awk '{print $NF}' |grep '^#{options['mountdir']}$'"
-  output  = execute_command(options,message,command)
+  output  = execute_command(options, message, command)
   if output.match(/[a-z,A-Z]/)
     message = "Information:\tUnmounting: "+options['mountdir']
     command = "umount "+options['mountdir']
-    output  = execute_command(options,message,command)
+    output  = execute_command(options, message, command)
   end
   message = "Information:\tMounting ISO "+options['file']+" on "+options['mountdir']
   if options['host-os-name'].to_s.match(/SunOS/)
@@ -5011,7 +5018,7 @@ def mount_iso(options)
   if options['host-os-name'].to_s.match(/Darwin/)
     command = "hdiutil attach -nomount \"#{options['file']}\" |head -1 |awk \"{print \\\$1}\""
     if options['verbose'] == true
-      handle_output(options,"Executing:\t#{command}")
+      handle_output(options, "Executing:\t#{command}")
     end
     disk_id = %x[#{command}]
     disk_id = disk_id.chomp
@@ -5032,7 +5039,7 @@ def mount_iso(options)
       command = "sudo mount -t udf -o ro "+options['file']+" "+options['mountdir']
     end
   end
-  output  = execute_command(options,message,command)
+  output  = execute_command(options, message, command)
   readme1 = options['mountdir']+"/README.TXT"
   readme2 = options['mountdir']+"/readme.txt"
   if File.exist?(readme1) || File.exist?(readme2)
@@ -5042,12 +5049,12 @@ def mount_iso(options)
       if options['host-os-name'].to_s.match(/Darwin/)
         command = "hdiutil attach -nomount \"#{options['file']}\" |head -1 |awk \"{print \\\$1}\""
         if options['verbose'] == true
-          handle_output(options,"Executing:\t#{command}")
+          handle_output(options, "Executing:\t#{command}")
         end
         disk_id = %x[#{command}]
         disk_id = disk_id.chomp
         command = "sudo mount -t udf -o ro "+disk_id+" "+options['mountdir']
-        output  = execute_command(options,message,command)
+        output  = execute_command(options, message, command)
       end
     end
   end
@@ -5092,8 +5099,8 @@ def mount_iso(options)
     end
   end
   if not File.directory?(iso_test_dir) and not File.exist?(iso_test_dir) and not options['file'].to_s.match(/DVD2\.iso|2of2\.iso|repo-full|VCSA/)
-    handle_output(options,"Warning:\tISO did not mount, or this is not a repository ISO")
-    handle_output(options,"Warning:\t#{iso_test_dir} does not exist")
+    handle_output(options, "Warning:\tISO did not mount, or this is not a repository ISO")
+    handle_output(options, "Warning:\t#{iso_test_dir} does not exist")
     if options['test'] != true
       umount_iso(options)
       quit(options)
@@ -5104,15 +5111,15 @@ end
 
 # Check my directory exists
 
-def check_my_dir_exists(options,dir_name)
+def check_my_dir_exists(options, dir_name)
   if not File.directory?(dir_name) and not File.symlink?(dir_name)
     if options['verbose'] == true
-      handle_output(options,"Information:\tCreating directory '#{dir_name}'")
+      handle_output(options, "Information:\tCreating directory '#{dir_name}'")
     end
     system("mkdir #{dir_name}")
   else
     if options['verbose'] == true
-      handle_output(options,"Information:\tDirectory '#{dir_name}' already exists")
+      handle_output(options, "Information:\tDirectory '#{dir_name}' already exists")
     end
   end
   return
@@ -5121,12 +5128,12 @@ end
 # Check ISO mounted for OS X based server
 
 def check_osx_iso_mount(options)
-  check_dir_exists(options,options['mountdir'])
+  check_dir_exists(options, options['mountdir'])
   test_dir = options['mountdir']+"/boot"
   if not File.directory?(test_dir)
     message = "Mounting:\ISO "+options['file']+" on "+options['mountdir']
     command = "hdiutil mount #{options['file']} -mountpoint #{options['mountdir']}"
-    output  = execute_command(options,message,command)
+    output  = execute_command(options, message, command)
   end
   return output
 end
@@ -5135,7 +5142,7 @@ end
 
 def copy_iso(options)
   if options['verbose'] == true
-    handle_output(options,"Checking:\tIf we can copy data from full repo ISO")
+    handle_output(options, "Checking:\tIf we can copy data from full repo ISO")
   end
   if options['file'].to_s.match(/sol/)
     iso_test_dir = options['mountdir']+"/repo"
@@ -5146,7 +5153,7 @@ def copy_iso(options)
       if File.directory?(iso_test_dir)
         iso_repo_dir = options['mountdir']
       else
-        handle_output(options,"Warning:\tRepository source directory does not exist")
+        handle_output(options, "Warning:\tRepository source directory does not exist")
         if options['test'] != true
           quit(options)
         end
@@ -5173,7 +5180,7 @@ def copy_iso(options)
     end
   end
   if not File.directory?(options['repodir']) and not File.symlink?(options['repodir']) and not options['file'].to_s.match(/\.iso/)
-    handle_output(options,"Warning:\tRepository directory #{options['repodir']} does not exist")
+    handle_output(options, "Warning:\tRepository directory #{options['repodir']} does not exist")
     if options['test'] != true
       quit(options)
     end
@@ -5181,30 +5188,30 @@ def copy_iso(options)
   if not File.directory?(test_dir) or options['file'].to_s.match(/DVD2\.iso|2of2\.iso/)
     if options['file'].to_s.match(/sol/)
       if not File.directory?(iso_repo_dir)
-        handle_output(options,"Warning:\tRepository source directory #{iso_repo_dir} does not exist")
+        handle_output(options, "Warning:\tRepository source directory #{iso_repo_dir} does not exist")
         if options['test'] != true
           quit(options)
         end
       end
       message = "Copying:\t"+iso_repo_dir+" contents to "+options['repodir']
       command = "rsync -a #{iso_repo_dir}/. #{options['repodir']}"
-      output  = execute_command(options,message,command)
+      output  = execute_command(options, message, command)
       if options['host-os-name'].to_s.match(/SunOS/)
         message = "Rebuilding:\tRepository in "+options['repodir']
         command = "pkgrepo -s #{options['repodir']} rebuild"
-        output  = execute_command(options,message,command)
+        output  = execute_command(options, message, command)
       end
     else
-      check_dir_exists(options,test_dir)
+      check_dir_exists(options, test_dir)
       message = "Copying:\t"+iso_repo_dir+" contents to "+options['repodir']
       command = "rsync -a #{iso_repo_dir}/. #{options['repodir']}"
       if options['repodir'].to_s.match(/sles_12/)
         if not options['file'].to_s.match(/2\.iso/)
-          output  = execute_command(options,message,command)
+          output  = execute_command(options, message, command)
         end
       else
-        handle_output(options,message)
-        output  = execute_command(options,message,command)
+        handle_output(options, message)
+        output  = execute_command(options, message, command)
       end
     end
   end
@@ -5213,36 +5220,36 @@ end
 
 # List domains/zones/etc instances
 
-def list_doms(options,dom_type,dom_command)
+def list_doms(options, dom_type, dom_command)
   message = "Information:\nAvailable #{dom_type}(s)"
   command = dom_command
-  output  = execute_command(options,message,command)
+  output  = execute_command(options, message, command)
   output  = output.split("\n")
   if output.length > 0
     if options['output'].to_s.match(/html/)
-      handle_output(options,"<h1>Available #{dom_type}(s)</h1>")
-      handle_output(options,"<table border=\"1\">")
-      handle_output(options,"<tr>")
-      handle_output(options,"<th>Service</th>")
-      handle_output(options,"</tr>")
+      handle_output(options, "<h1>Available #{dom_type}(s)</h1>")
+      handle_output(options, "<table border=\"1\">")
+      handle_output(options, "<tr>")
+      handle_output(options, "<th>Service</th>")
+      handle_output(options, "</tr>")
     else
-      handle_output(options,"")
-      handle_output(options,"Available #{dom_type}(s):")
-      handle_output(options,"")
+      handle_output(options, "")
+      handle_output(options, "Available #{dom_type}(s):")
+      handle_output(options, "")
     end
     output.each do |line|
       line = line.chomp
-      line = line.gsub(/\s+$/,"")
+      line = line.gsub(/\s+$/, "")
       if options['output'].to_s.match(/html/)
-        handle_output(options,"<tr>")
-        handle_output(options,"<td>#{line}</td>")
-        handle_output(options,"</tr>")
+        handle_output(options, "<tr>")
+        handle_output(options, "<td>#{line}</td>")
+        handle_output(options, "</tr>")
       else
-        handle_output(options,line)
+        handle_output(options, line)
       end
     end
     if options['output'].to_s.match(/html/)
-      handle_output(options,"</table>")
+      handle_output(options, "</table>")
     end
   end
   return
@@ -5305,7 +5312,7 @@ def umount_iso(options)
   if options['host-os-name'].to_s.match(/Darwin/)
     command = "df |grep \"#{options['mountdir']}$\" |head -1 |awk \"{print \\\$1}\""
     if options['verbose'] == true
-      handle_output(options,"Executing:\t#{command}")
+      handle_output(options, "Executing:\t#{command}")
     end
     disk_id = %x[#{command}]
     disk_id = disk_id.chomp
@@ -5313,25 +5320,25 @@ def umount_iso(options)
   if options['host-os-name'].to_s.match(/Darwin/)
     message = "Detaching:\tISO device "+disk_id
     command = "sudo hdiutil detach #{disk_id}"
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   else
     message = "Unmounting:\tISO mounted on "+options['mountdir']
     command = "umount #{options['mountdir']}"
-    execute_command(options,message,command)
+    execute_command(options, message, command)
   end
   return
 end
 
 # Clear a service out of maintenance mode
 
-def clear_service(options,smf_service)
+def clear_service(options, smf_service)
   message    = "Checking:\tStatus of service "+smf_service
   command    = "sleep 5 ; svcs -a |grep \"#{options['service']}\" |awk \"{print \\\$1}\""
-  output     = execute_command(options,message,command)
+  output     = execute_command(options, message, command)
   if output.match(/maintenance/)
     message    = "Clearing:\tService "+smf_service
     command    = "svcadm clear #{smf_service}"
-    output     = execute_command(options,message,command)
+    output     = execute_command(options, message, command)
   end
   return
 end
@@ -5342,16 +5349,16 @@ end
 
 def clear_solaris_dhcpd(options)
   smf_service = "svc:/network/dhcp/server:ipv4"
-  clear_service(options,smf_service)
+  clear_service(options, smf_service)
   return
 end
 
 # Brew install a package on OS X
 
-def brew_install(options,pkg_name)
+def brew_install(options, pkg_name)
   command = "brew install #{pkg_name}"
   message = "Information:\tInstalling #{pkg_name}"
-  execute_command(options,message,command)
+  execute_command(options, message, command)
   return
 end
 
@@ -5381,9 +5388,9 @@ end
 
 def check_perms(options)
   if options['verbose'] == true
-    handle_output(options,"Information:\tChecking client directory")
+    handle_output(options, "Information:\tChecking client directory")
   end
-  check_dir_exists(options,options['clientdir'])
-  check_dir_owner(options,options['clientdir'],options['uid'])
+  check_dir_exists(options, options['clientdir'])
+  check_dir_owner(options, options['clientdir'], options['uid'])
   return
 end

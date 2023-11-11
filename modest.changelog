@@ -1527,3 +1527,15 @@
 # Added fix for keyboard not working on Packer and VMware Fusion on Apple Silicon
 # 7.6.3: Fri 10 Nov 2023 10:33:15 AEDT
 # Code cleanup and more fixes for VMware Fusion on Apple Silicon
+# 7.6.4: Fri 10 Nov 2023 21:21:43 AEDT
+# Improvements and fixes for VMware Fusion on MacOS
+# 7.6.5: Sat 11 Nov 2023 09:47:33 AEDT
+# Fixed IP forwarding for hostonly networks on VMware Fusion
+# 7.6.6: Sat 11 Nov 2023 13:18:54 AEDT
+# Improved disk device detection for Packer and VMware Fusion
+# 7.6.7: Sat 11 Nov 2023 13:21:41 AEDT
+# Simplified Packer storage config for Ubuntu installation
+# 7.6.8: Sat 11 Nov 2023 13:58:55 AEDT
+# Added Packer SSH Port switch
+# 7.6.9: Sat 11 Nov 2023 22:21:51 AEDT
+# Added VMware Fusion network check to boot option
