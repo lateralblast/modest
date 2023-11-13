@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      7.6.9
+# Version:      7.7.0
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -279,8 +279,8 @@ begin
     ['--httpportmax', REQUIRED],      # Packer HTTP port max
     ['--httpportmin', REQUIRED],      # Packer HTTP port min
     ['--hvm', BOOLEAN],               # HVM (KVM)
-    ['--hwvirtex', REQUIRED],          # hwvirtex (on/off)
-    ['--hwversion', REQUIRED],         # VMware Hardware Version
+    ['--hwvirtex', REQUIRED],         # hwvirtex (on/off)
+    ['--hwversion', REQUIRED],        # VMware Hardware Version
     ['--imagedir', REQUIRED],         # Base Image Directory
     ['--id', REQUIRED],               # AWS Instance ID
     ['--idmap', REQUIRED],            # ID map (KVM) 

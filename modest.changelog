@@ -1539,3 +1539,5 @@
 # Added Packer SSH Port switch
 # 7.6.9: Sat 11 Nov 2023 22:21:51 AEDT
 # Added VMware Fusion network check to boot option
+# 7.7.0: Mon 13 Nov 2023 18:07:57 AEDT
+# Updated version of Packer
