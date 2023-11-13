@@ -326,8 +326,8 @@ def configure_packer_client(options)
       options['label'] = "none"
     end
   end
-  create_packer_json(options)
-	return
+  options = create_packer_json(options)
+	return options
 end
 
 # Build a packer config

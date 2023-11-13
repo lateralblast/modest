@@ -867,35 +867,35 @@ def create_packer_json(options)
       boot_command  = "<esc><wait> linux "+kernel_string+"text install ks="+ks_url+"<enter><wait>"
     end
     if options['guest'].class == Array
-  	  options['guest'] = options['guest'].join
+      options['guest'] = options['guest'].join
     end
     #shutdown_command = "echo '#{options['q_struct']['admin_password'].value}' |sudo -S /sbin/halt -h -p"
     if options['vmnetwork'].to_s.match(/hostonly|bridged/)
       shutdown_command = "sudo /usr/sbin/shutdown -P now"
     end
   end
-	controller = controller.gsub(/sas/, "scsi")
-	case options['vm']
-	when /vbox|virtualbox/
-		vm_type = "virtualbox-iso"
+  controller = controller.gsub(/sas/, "scsi")
+  case options['vm']
+  when /vbox|virtualbox/
+    vm_type = "virtualbox-iso"
     mac_address = mac_address.gsub(/:/, "")
-	when /fusion|vmware/
-		vm_type = "vmware-iso"
+  when /fusion|vmware/
+    vm_type = "vmware-iso"
   when /parallels/
     vm_type = "parallels-iso"
-	end
-	if options['checksum'] == true
-		md5_file = options['file']+".md5"
-		if File.exist?(md5_file)
-			install_md5 = File.readlines(md5_file)[0]
-		else
-			install_md5 = %x[md5 "#{options['file']}" |awk '{print $4}'].chomp
-		end
-		install_checksum      = install_md5
-		install_checksum_type = "md5"
-	else
-		install_checksum      = ""
-		install_checksum_type = "none"
+  end
+  if options['checksum'] == true
+    md5_file = options['file']+".md5"
+    if File.exist?(md5_file)
+      install_md5 = File.readlines(md5_file)[0]
+    else
+      install_md5 = %x[md5 "#{options['file']}" |awk '{print $4}'].chomp
+    end
+    install_checksum      = install_md5
+    install_checksum_type = "md5"
+  else
+    install_checksum      = ""
+    install_checksum_type = "none"
   end
   if install_checksum_type == "none"
     install_checksum = "none"
@@ -927,11 +927,11 @@ def create_packer_json(options)
     when /vbox/
       if options['vmnetwork'].to_s.match(/hostonly|bridged/)
         json_data = {
-        	:variables => {
-        		:hostname => options['name'],
+          :variables => {
+            :hostname => options['name'],
             :net_config => net_config
-        	},
-        	:builders => [
+          },
+          :builders => [
             :name                 => vm_name,
             :vm_name              => vm_name,
             :guest_additions_mode => guest_additions_mode,
@@ -956,21 +956,21 @@ def create_packer_json(options)
             :boot_wait            => boot_wait,
             :boot_command         => boot_command,
             :format               => output_format,
-      			:vboxmanage => [
-      				[ "modifyvm", "{{.Name}}", "--memory", memsize ],
+            :vboxmanage => [
+              [ "modifyvm", "{{.Name}}", "--memory", memsize ],
               [ "modifyvm", "{{.Name}}", "--audio", audio ],
               [ "modifyvm", "{{.Name}}", "--mouse", mouse ],
               [ "modifyvm", "{{.Name}}", "--hwvirtex", hwvirtex ],
               [ "modifyvm", "{{.Name}}", "--rtcuseutc", rtcuseutc ],
               [ "modifyvm", "{{.Name}}", "--vtxvpid", vtxvpid ],
               [ "modifyvm", "{{.Name}}", "--vtxux", vtxux ],
-      				[ "modifyvm", "{{.Name}}", "--cpus", numvcpus ],
+              [ "modifyvm", "{{.Name}}", "--cpus", numvcpus ],
               [ "modifyvm", "{{.Name}}", nic_command1, nic_config1 ],
               [ "modifyvm", "{{.Name}}", nic_command2, nic_config2 ],
               [ "modifyvm", "{{.Name}}", nic_command3, nic_config3 ],
               [ "modifyvm", "{{.Name}}", "--macaddress1", mac_address ],
-      			]
-      		]
+            ]
+          ]
         }
       else
         json_data = {
@@ -2283,11 +2283,11 @@ def create_packer_json(options)
     when /vbox/
       if options['vmnetwork'].to_s.match(/hostonly|bridged/)
         json_data = {
-        	:variables => {
-        		:hostname => options['name'],
+          :variables => {
+            :hostname => options['name'],
             :net_config => net_config
-        	},
-        	:builders => [
+          },
+          :builders => [
             :name                 => vm_name,
             :vm_name              => vm_name,
             :guest_additions_mode => guest_additions_mode,
@@ -2315,21 +2315,21 @@ def create_packer_json(options)
             :boot_wait            => boot_wait,
             :boot_command         => boot_command,
             :format               => output_format,
-      			:vboxmanage => [
-      				[ "modifyvm", "{{.Name}}", "--memory", memsize ],
+            :vboxmanage => [
+              [ "modifyvm", "{{.Name}}", "--memory", memsize ],
               [ "modifyvm", "{{.Name}}", "--audio", audio ],
               [ "modifyvm", "{{.Name}}", "--mouse", mouse ],
               [ "modifyvm", "{{.Name}}", "--hwvirtex", hwvirtex ],
               [ "modifyvm", "{{.Name}}", "--rtcuseutc", rtcuseutc ],
               [ "modifyvm", "{{.Name}}", "--vtxvpid", vtxvpid ],
               [ "modifyvm", "{{.Name}}", "--vtxux", vtxux ],
-      				[ "modifyvm", "{{.Name}}", "--cpus", numvcpus ],
+              [ "modifyvm", "{{.Name}}", "--cpus", numvcpus ],
               [ "modifyvm", "{{.Name}}", nic_command1, nic_config1 ],
               [ "modifyvm", "{{.Name}}", nic_command2, nic_config2 ],
               [ "modifyvm", "{{.Name}}", nic_command3, nic_config3 ],
               [ "modifyvm", "{{.Name}}", "--macaddress1", mac_address ],
-      			]
-      		]
+            ]
+          ]
         }
       else
         json_data = {
@@ -2730,7 +2730,7 @@ def create_packer_json(options)
   delete_file(options,json_file)
   File.write(json_file,json_output)
   print_contents_of_file(options,"",json_file)
-  return communicator
+  return options
 end
 
 # Create Packer JSON file for AWS
