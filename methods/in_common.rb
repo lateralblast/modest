@@ -6,6 +6,7 @@
 def set_defaults(options, defaults)
   # Declare OS defaults
   defaults['home'] = ENV['HOME']
+  defaults['user'] = ENV['USER']
   defaults['host-os-name']     = %x[uname].chomp
   defaults['host-os-arch']     = %x[uname -p].chomp
   defaults['host-os-machine']  = %x[uname -m].chomp
@@ -3027,21 +3028,23 @@ end
 
 # Check directory user ownership
 
-def check_dir_owner(options, dir_name, uid)
+def check_dir_owner(options, dir_name, dir_uid)
+  message ="Information:\tChecking directory #{dir_name} is owned by user #{dir_uid}"
+  handle_output(options, message)
   if dir_name.match(/^\/$/) or dir_name == ""
     handle_output(options, "Warning:\tDirectory name not set")
     quit(options)
   end
   test_uid = File.stat(dir_name).uid
-  if test_uid.to_i != uid.to_i
-    message = "Information:\tChanging ownership of "+dir_name+" to "+uid.to_s
+  if test_uid.to_i != dir_uid.to_i
+    message = "Information:\tChanging ownership of "+dir_name+" to "+dir_uid.to_s
     if dir_name.to_s.match(/^\/etc/)
-      command = "sudo chown -R #{uid.to_s} \"#{dir_name}\""
+      command = "sudo chown -R #{dir_uid.to_s} \"#{dir_name}\""
     else
-      command = "chown -R #{uid.to_s} \"#{dir_name}\""
+      command = "chown -R #{dir_uid.to_s} \"#{dir_name}\""
     end
     execute_command(options, message, command)
-    message = "Information:\tChanging permissions of "+dir_name+" to "+uid.to_s
+    message = "Information:\tChanging permissions of "+dir_name+" to "+dir_uid.to_s
     if dir_name.to_s.match(/^\/etc/)
       command = "sudo chmod -R u+w \"#{dir_name}\""
     else
@@ -3059,38 +3062,95 @@ def check_dir_group(options, dir_name, dir_gid, dir_mode)
     handle_output(options, "Warning:\tDirectory name not set")
     quit(options)
   end
-  test_gid = File.stat(dir_name).gid
-  if test_gid.to_i != dir_gid.to_i
-    message = "Information:\tChanging group ownership of "+dir_name+" to "+dir_gid.to_s
-    if dir_name.to_s.match(/^\/etc/)
-      command = "sudo chgrp -R #{dir_gid.to_s} \"#{dir_name}\""
-    else
-      command = "chgrp -R #{dir_gid.to_s} \"#{dir_name}\""
+  if File.directory?(dir_name)
+    test_gid = File.stat(dir_name).gid
+    if test_gid.to_i != dir_gid.to_i
+      message = "Information:\tChanging group ownership of "+dir_name+" to "+dir_gid.to_s
+      if dir_name.to_s.match(/^\/etc/)
+        command = "sudo chgrp -R #{dir_gid.to_s} \"#{dir_name}\""
+      else
+        command = "chgrp -R #{dir_gid.to_s} \"#{dir_name}\""
+      end
+      execute_command(options, message, command)
+      message = "Information:\tChanging group permissions of "+dir_name+" to "+dir_gid.to_s
+      if dir_name.to_s.match(/^\/etc/)
+        command = "sudo chmod -R g+#{dir_mode} \"#{dir_name}\""
+      else
+        command = "chmod -R g+#{dir_mode} \"#{dir_name}\""
+      end
+      execute_command(options, message, command)
     end
-    execute_command(options, message, command)
-    message = "Information:\tChanging group permissions of "+dir_name+" to "+dir_gid.to_s
-    if dir_name.to_s.match(/^\/etc/)
-      command = "sudo chmod -R g+#{dir_mode} \"#{dir_name}\""
-    else
-      command = "chmod -R g+#{dir_mode} \"#{dir_name}\""
-    end
+  else
+    message = "Warning:\tDirectory #{dir_name} does not exist"
+    handle_output(options, message)
+  end
+  return
+end
+
+# Check user member of group
+
+def check_group_member(options, user_name, group_name)
+  message = "Information:\tChecking user #{user_name} is a member group #{group_name}"
+  command = "getent group #{group_name} |cut -f1 -d:"
+  output  = execute_command(options, message, command)
+  if not output.match(/#{user_name}/)
+    message = "Information:\tAdding user #{user_name} to group #{group_name}"
+    command = "usermod -a -G #{group_name} #{user_name}"
     execute_command(options, message, command)
   end
   return
 end
 
+# Check file permissions
+
+def check_file_perms(options, file_name, file_perms)
+  if File.exist?(file_name)
+    message = "Information:\tChecking permissions of file #{file_name} and set to #{file_perms}"
+    if options['host-os-name'].to_s.match(/Darwin/)
+      command = "stat -f %p #{file_name}"
+    else
+      command = "stat -c %a #{file_name}"
+    end
+    test_perms = execute_command(options, message, command)
+    if not test_perms.match(/#{file_perms}$/)
+      message = "Information:\tSetting permissions of file #{file_name} to #{file_perms}"
+      command = "sudo chmod #{file_perms} #{file_name}"
+      execute_command(options, message, command)
+    end
+  else
+    message = "Warning:\tFile #{file_name} does not exist"
+    handle_output(options, message)
+  end
+  return
+end
+
+def check_file_mode(options, file_name, file_mode)
+  check_file_perms(options, file_name, file_mode)
+  return
+end
+
 # Check file user ownership
 
-def check_file_owner(options, file_name, uid)
-  test_uid = File.stat(file_name).uid
-  if test_uid != uid.to_i
-    message = "Information:\tChanging ownership of "+file_name+" to "+uid.to_s
-    if file_name.to_s.match(/^\/etc/)
-      command = "sudo chown #{uid.to_s} #{file_name}"
-    else
-      command = "chown #{uid.to_s} #{file_name}"
+def check_file_owner(options, file_name, file_uid)
+  message ="Information:\tChecking file #{file_name} is owned by user #{file_uid}"
+  handle_output(options, message)
+  if file_uid.match(/[a-z]/)
+    file_uid = %x[id -u #{file_uid}]
+  end
+  if File.exist?(file_name)
+    test_uid = File.stat(file_name).uid
+    if test_uid != file_uid.to_i
+      message = "Information:\tChanging ownership of "+file_name+" to "+file_uid.to_s
+      if file_name.to_s.match(/^\/etc/)
+        command = "sudo chown #{file_uid.to_s} #{file_name}"
+      else
+        command = "chown #{file_uid.to_s} #{file_name}"
+      end
+      execute_command(options, message, command)
     end
-    execute_command(options, message, command)
+  else
+    message = "Warning:\tFile #{file_name} does not exist"
+    handle_output(options, message)
   end
   return
 end
@@ -3105,17 +3165,24 @@ def get_group_gid(options, group)
   return(output)
 end
 
-# Check file user ownership
+# Check file group ownership
 
-def check_file_group(options, file_name, file_gid, file_mode)
-  test_gid = File.stat(file_name).gid
-  if test_gid != file_gid.to_i
-    message = "Information:\tChanging group ownership of "+file_name+" to "+file_gid.to_s
-    command = "chgrp #{file_gid.to_s} \"#{file_name}\""
-    execute_command(options, message, command)
-    message = "Information:\tChanging group permissions of "+file_name+" to "+file_gid.to_s
-    command = "chmod g+#{file_mode} \"#{file_name}\""
-    execute_command(options, message, command)
+def check_file_group(options, file_name, file_gid)
+  message ="Information:\tChecking file #{file_name} is owned by group #{file_gid}"
+  handle_output(options, message)
+  if file_gid.match(/[a-z]/)
+    file_gid = get_group_gid(options, file_gid)
+  end
+  if File.exist?(file_name)
+    test_gid = File.stat(file_name).gid
+    if test_gid != file_gid.to_i
+      message = "Information:\tChanging group ownership of "+file_name+" to "+file_gid.to_s
+      command = "chgrp #{file_gid.to_s} \"#{file_name}\""
+      execute_command(options, message, command)
+    end
+  else
+    message = "Warning:\tFile #{file_name} does not exist"
+    handle_output(options, message)
   end
   return
 end
@@ -4440,7 +4507,7 @@ def execute_command(options, message, command)
   end
   if execute == true
     if options['uid'] != 0
-      if !command.match(/brew |sw_vers|id |groups|hg|pip|VBoxManage|vboxmanage|netstat|df|vmrun|noVNC|docker|packer|ansible-playbook|virt-install|virsh|qemu|^ls|multipass/) && !options['host-os-name'].to_s.match(/NT/)
+      if !command.match(/brew |sw_vers|id |groups|hg|pip|VBoxManage|vboxmanage|netstat|df|vmrun|noVNC|docker|packer|ansible-playbook|^ls|multipass/) && !options['host-os-name'].to_s.match(/NT/)
         if options['sudo'] == true
           command = "sudo sh -c '"+command+"'"
         else

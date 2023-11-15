@@ -1543,3 +1543,9 @@
 # Updated version of Packer
 # 7.7.1: Mon 13 Nov 2023 20:39:46 AEDT
 # Bug fixes
+# 7.7.2: Tue 14 Nov 2023 13:09:13 AEDT
+# Various KVM improvements
+# 7.7.3: Wed 15 Nov 2023 15:04:21 AEDT
+# Added check for KVM permissions
+# 7.7.4: Wed Nov 15 04:06:15 PM AEDT 2023
+# Some cleanup of file/directory permissions check (more needed)

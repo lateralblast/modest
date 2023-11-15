@@ -50,13 +50,17 @@ def import_packer_kvm_vm(options)
     handle_output(options, "Warning:\tPacker KVM VM QCOW image for #{options['name']} does not exist")
     quit(options)
   end
+  if not options['os-variant'].to_s.match(/[a-z]/) or options['os-variant'].to_s.match(/none/)
+    handle_output(options, "Warning:\tOS Variant (--os-variant) not specified")
+    quit(options)
+  end
   qcow_file = images_dir+"/"+options['name']
   if File.exist?(qcow_file)
     message = "Information:\tImporting QCOW file for Packer KVM VM "+options['name']
     if options['text'] == true or options['headless'] == true or options['serial'] == true
-      command = "virt-install --import --noreboot --name #{options['name']} --memory #{options['memory']} --disk \"#{qcow_file}\" --graphics none --network bridge=#{options['bridge']}"
+      command = "virt-install --import --noreboot --os-variant #{options['os-variant']} --name #{options['name']} --memory #{options['memory']} --disk \"#{qcow_file}\" --graphics none --network bridge=#{options['bridge']}"
     else
-      command = "virt-install --import --noreboot --name #{options['name']} --memory #{options['memory']} --disk \"#{qcow_file}\" --graphics vnc --network bridge=#{options['bridge']}"
+      command = "virt-install --import --noreboot --os-variant #{options['os-variant']} --name #{options['name']} --memory #{options['memory']} --disk \"#{qcow_file}\" --graphics vnc --network bridge=#{options['bridge']}"
     end
     execute_command(options, message, command)
   else
@@ -66,9 +70,40 @@ def import_packer_kvm_vm(options)
   return
 end
 
+# Check KVM permissions
+
+def check_kvm_permissions(options)
+  user_name = options['user'].to_s 
+  group_names = [ "kvm", "libvirt", "libvirt-qemu", "libvirt-dnsmasq" ]
+  for group_name in group_names
+    check_group_member(options, user_name, group_name)
+  end
+  file_name  = "/dev/kvm"
+  file_owner = "root"
+  file_group = "kvm"
+  file_perms = "660"
+  check_file_owner(options, file_name, file_owner)
+  check_file_group(options, file_name, file_group)
+  check_file_perms(options, file_name, file_perms)
+  file_name = "/etc/udev/rules.d/65-kvm.rules"
+  file_owner = "root"
+  file_group = "root"
+  file_perms = "660"
+  if not File.exist?(file_name)
+    message = "Information:\tCreating file #{file_name}"
+    handle_output(options, message)
+    %x[sudo sh -c "echo 'KERNEL==\"kvm\", GROUP=\"kvm\", MODE=\"0660\"' > #{file_name}"]
+  end
+  check_file_owner(options, file_name, file_owner)
+  check_file_group(options, file_name, file_group)
+  check_file_perms(options, file_name, file_perms)
+  return
+end
+
 # Check KVM is installed
 
 def check_kvm_is_installed(options)
+  check_kvm_permissions(options)
   if_name = get_vm_if_name(options)
   if options['vmnet'].to_s.match(/hostonly/) && options['bridge'].to_s.match(/virbr/)
     check_kvm_hostonly_network(options, if_name)
@@ -116,12 +151,14 @@ def check_kvm_is_installed(options)
     file_mode = "w"
     check_dir_exists(options, dir_name)
     check_dir_owner(options, dir_name, options['uid'])
+    check_file_perms(options, file_name, file_mode)
     write_array_to_file(options, file_array, file_name, file_mode)
     check_dir_owner(options, dir_name, "0")
     file_gid  = get_group_gid(options, options['kvmgroup'])
     file_mode = "w"
-    check_file_group(options, file_name, file_gid, file_mode)
+    check_file_group(options, file_name, file_gid)
     check_file_owner(options, file_name, "0")
+    check_file_perms(options, file_name, file_mode)
     restart_linux_service(options, "libvirtd.service")
   else
     if !File.readlines(file_name).grep(/#{file_line}/).any?

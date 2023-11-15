@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      7.7.1
+# Version:      7.7.4
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -357,6 +357,7 @@ begin
     ['--number', REQUIRED],           # Number of AWS instances
     ['--object', REQUIRED],           # AWS S3 object
     ['--opencsw', REQUIRED],          # OpenCSW Mirror / Repo
+    ['--os-info', REQUIRED],          # OS Info
     ['--os-type', REQUIRED],          # OS Type 
     ['--os-variant', REQUIRED],       # OS Variant 
     ['--output', REQUIRED],           # Output format (e.g. text/html)
@@ -1783,6 +1784,9 @@ def handle_action(options)
       if options['check'].to_s.match(/dnsmasq/)
         check_dnsmasq(options)
       end
+      if options['vm'].to_s.match(/kvm/)
+        check_kvm_permissions(options)
+      end
       if options['type'].to_s.match(/bridge/) && options['vm'].to_s.match(/kvm/)
         check_kvm_network_bridge(options)      
       end
@@ -2585,5 +2589,6 @@ if options['name'].to_s.match(/\,/)
   end
 else
   options = handle_action(options)
+end
 
 quit(options)
