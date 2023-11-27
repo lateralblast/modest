@@ -150,3 +150,55 @@ def uninstall_pkg(pkg_name)
   end
   return
 end
+
+# Check RHEL package is installed
+
+def check_rhel_package(options, package)
+  message = "Information\tChecking "+package+" is installed"
+  command = "rpm -q #{package}"
+  output  = execute_command(options, message, command)
+  if not output
+    output = ""
+  end
+  if not output.match(/#{package}/)
+    message = "installing:\t"+package
+    command = "yum -y install #{package}"
+    execute_command(options, message, command)
+  end
+  return
+end
+
+# Check Arch package is installed
+
+def check_arch_package(options, package)
+  message = "Information\tChecking "+package+" is installed"
+  command = "pacman -Q #{package}"
+  output  = execute_command(options, message, command)
+  output  = output.chomp.split(" ")[0]
+  if not output
+    output = ""
+  end
+  if not output.match(/#{package}/)
+    message = "installing:\t"+package
+    command = "pacman -Sy #{package}"
+    execute_command(options, message, command)
+  end
+  return
+end
+
+# Check Ubuntu / Debian package is installed
+
+def check_apt_package(options, package)
+  message = "Information:\tChecking "+package+" is installed"
+  command = "dpkg -l | grep '#{package}' |grep 'ii'"
+  output  = execute_command(options, message, command)
+  if not output
+    output = ""
+  end
+  if not output.match(/#{package}/)
+    message = "Information:\tInstalling "+package
+    command = "apt-get -y -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confnew install #{package}"
+    execute_command(options, message, command)
+  end
+  return
+end

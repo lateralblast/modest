@@ -1549,3 +1549,19 @@
 # Added check for KVM permissions
 # 7.7.4: Wed Nov 15 04:06:15 PM AEDT 2023
 # Some cleanup of file/directory permissions check (more needed)
+# 7.7.5: Thu Nov 23 18:43:58 AEDT 2023
+# Added code to check KVM network/bridge is created and online
+# 7.7.6: Fri Nov 24 09:34:15 AEDT 2023
+# Bug fixes
+# 7.7.7: Fri Nov 24 14:14:38 AEDT 2023
+# Fixes for Linux on KVM and Packer
+# 7.7.8: Fri Nov 24 18:14:18 AEDT 2023
+# Fixes for Windows on KVM and Packer
+# 7.7.9: Fri Nov 24 18:14:18 AEDT 2023
+# Added check to make sure bridge is active
+# 7.8.0: Fri Nov 24 22:49:02 AEDT 2023
+# Fixed Packer Windows on KVM with NAT network
+# 7.8.1: Mon 27 Nov 2023 09:56:47 AEDT
+# Added initial Arch Linux support for KVM
+# 7.8.2: Mon 27 Nov 2023 14:57:52 AEDT
+# Added more support for Arch Linux

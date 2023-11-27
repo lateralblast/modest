@@ -65,7 +65,7 @@ end
 
 # Configure Ubunut LXC server
 
-def configure_ubuntu_lxc_server(server_type)
+def configure_ubuntu_lxc_server(options, server_type)
   config_file  = "/etc/network/interfaces"
   if server_type.match(/public/)
     message = "Checking:\tLXC network configuration"
@@ -111,7 +111,7 @@ def configure_ubuntu_lxc_server(server_type)
       command = "cp #{tmp_file} #{config_file} ; rm #{tmp_file}"
       execute_command(options, message, command)
       service = "networking"
-      restart_service(service)
+      restart_service(options, service)
     end
   end
   return

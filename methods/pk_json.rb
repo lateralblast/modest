@@ -61,6 +61,8 @@ def create_packer_json(options)
   ssh_port          = options['packersshport'].to_s
   usb_xhci_present  = options['usbxhci'].to_s
   disk_adapter_type = options['diskinterface'].to_s
+  boot_command      = ""
+  virtio_file       = options['virtiofile'].to_s
   if options['vm'].to_s.match(/fusion/)
     if hw_version.to_i >= 20
       disk_adapter_type = "nvme"
@@ -175,10 +177,25 @@ def create_packer_json(options)
     vm_type = "qemu"
     disk_format = "qcow2"
     if options['vm'].to_s.match(/kvm/)
-      accelerator    = "kvm"
-      disk_interface = "virtio"
-      net_device     = "virtio-net"
-      nic_device     = "virtio"
+      accelerator = "kvm"
+      if options['service'].to_s.match(/windows/)
+        if File.exist?(virtio_file)
+          disk_interface = "ide"
+          net_device     = "e1000"
+          ssh_port       = winrm_port
+          ssh_host_port_min = winrm_port
+          ssh_host_port_max = winrm_port
+#          disk_interface = "virtio-scsi"
+#          net_device     = "virtio-net"
+        else 
+          disk_interface = "ide"
+          net_device     = "e1000"
+        end
+      else
+        disk_interface = "virtio"
+        net_device     = "virtio-net"
+        nic_device     = "virtio"
+      end
       net_bridge     = options['bridge'].to_s
     end
   end
@@ -735,9 +752,13 @@ def create_packer_json(options)
 #                      "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
 #                      "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
 #                      "<bs><bs><bs><bs><bs>linux /casper/vmlinuz --- "
-        boot_header = "<wait>e<wait><down><wait><down><wait><down><wait><leftCtrlOn>e<leftCtrlOff>"+
-                      "<bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
-                      "--- "
+        if not options['service'].to_s.match(/22_04_3/)
+          boot_header = "<wait>e<wait><down><wait><down><wait><down><wait><leftCtrlOn>e<leftCtrlOff>"+
+                        "<bs><bs><bs><bs><bs><bs><bs><bs><bs>"+
+                        "--- "
+        else
+          boot_header = "<wait>e<wait><down><wait><down><wait><down><wait><leftCtrlOn>e<leftCtrlOff> "
+        end
         boot_footer = "<wait><f10><wait><enter>"
 #        boot_footer  = ""
       else
@@ -2075,16 +2096,16 @@ def create_packer_json(options)
               :winrm_timeout        => ssh_timeout,
               :winrm_use_ssl        => winrm_use_ssl,
               :winrm_insecure       => winrm_insecure,
-              :ssh_host             => ssh_host,
-              :ssh_port             => ssh_port,
-              :ssh_host_port_min    => ssh_host_port_min,
-              :ssh_host_port_max    => ssh_host_port_max,
-              :ssh_username         => ssh_username,
-              :ssh_password         => ssh_password,
-              :ssh_timeout          => ssh_timeout,
+#              :ssh_host             => ssh_host,
+#              :ssh_port             => ssh_port,
+#              :ssh_host_port_min    => ssh_host_port_min,
+#              :ssh_host_port_max    => ssh_host_port_max,
+#              :ssh_username         => ssh_username,
+#              :ssh_password         => ssh_password,
+#              :ssh_timeout          => ssh_timeout,
               :shutdown_command     => shutdown_command,
               :shutdown_timeout     => shutdown_timeout,
-              :ssh_pty              => ssh_pty,
+#              :ssh_pty              => ssh_pty,
               :iso_checksum         => install_checksum,
               :http_directory       => http_dir,
               :http_port_min        => http_port_min,
@@ -2132,33 +2153,34 @@ def create_packer_json(options)
               :winrm_timeout        => ssh_timeout,
               :winrm_use_ssl        => winrm_use_ssl,
               :winrm_insecure       => winrm_insecure,
-              :ssh_host             => ssh_host,
-              :ssh_port             => ssh_port,
-              :ssh_host_port_min    => ssh_host_port_min,
-              :ssh_host_port_max    => ssh_host_port_max,
-              :ssh_username         => ssh_username,
-              :ssh_password         => ssh_password,
-              :ssh_timeout          => ssh_timeout,
+#              :ssh_host             => ssh_host,
+#              :ssh_port             => ssh_port,
+#              :ssh_host_port_min    => ssh_host_port_min,
+#              :ssh_host_port_max    => ssh_host_port_max,
+#              :ssh_username         => ssh_username,
+#              :ssh_password         => ssh_password,
+#              :ssh_timeout          => ssh_timeout,
               :shutdown_command     => shutdown_command,
               :shutdown_timeout     => shutdown_timeout,
-              :ssh_pty              => ssh_pty,
+#              :ssh_pty              => ssh_pty,
               :iso_checksum         => install_checksum,
               :http_directory       => http_dir,
               :http_port_min        => http_port_min,
               :http_port_max        => http_port_max,
               :http_bind_address    => ks_ip,
               :boot_wait            => boot_wait,
-              :boot_command         => boot_command,
+#              :boot_command         => boot_command,
               :format               => disk_format,
               :accelerator          => accelerator,
               :disk_interface       => disk_interface,
               :net_device           => net_device,
               :net_bridge           => net_bridge,
               :qemuargs             => [
-                [ "-serial", "stdio" ],
-                [ "-cpu", "host" ],
-                [ "-m", memsize ],
-                [ "-smp", "cpus="+numvcpus ]
+#                [ "-cdrom",   "#{virtio_file}" ],
+                [ "-serial",  "stdio" ],
+                [ "-cpu",     "host" ],
+                [ "-m",       memsize ],
+                [ "-smp",     "cpus="+numvcpus ]
               ],
               :floppy_files         => [
                 unattended_xml,
@@ -2184,21 +2206,13 @@ def create_packer_json(options)
               :communicator         => communicator,
               :iso_url              => iso_url,
               :winrm_port           => winrm_port,
-              :winrm_host           => winrm_host,
               :winrm_username       => ssh_username,
               :winrm_password       => ssh_password,
               :winrm_timeout        => ssh_timeout,
               :winrm_use_ssl        => winrm_use_ssl,
               :winrm_insecure       => winrm_insecure,
-              :ssh_port             => ssh_port,
-              :ssh_host_port_min    => ssh_host_port_min,
-              :ssh_host_port_max    => ssh_host_port_max,
-              :ssh_username         => ssh_username,
-              :ssh_password         => ssh_password,
-              :ssh_timeout          => ssh_timeout,
               :shutdown_command     => shutdown_command,
               :shutdown_timeout     => shutdown_timeout,
-              :ssh_pty              => ssh_pty,
               :iso_checksum         => install_checksum,
               :http_directory       => http_dir,
               :http_port_min        => http_port_min,
@@ -2238,21 +2252,13 @@ def create_packer_json(options)
               :communicator         => communicator,
               :iso_url              => iso_url,
               :winrm_port           => winrm_port,
-              :winrm_host           => winrm_host,
               :winrm_username       => ssh_username,
               :winrm_password       => ssh_password,
               :winrm_timeout        => ssh_timeout,
               :winrm_use_ssl        => winrm_use_ssl,
               :winrm_insecure       => winrm_insecure,
-              :ssh_port             => ssh_port,
-              :ssh_host_port_min    => ssh_host_port_min,
-              :ssh_host_port_max    => ssh_host_port_max,
-              :ssh_username         => ssh_username,
-              :ssh_password         => ssh_password,
-              :ssh_timeout          => ssh_timeout,
               :shutdown_command     => shutdown_command,
               :shutdown_timeout     => shutdown_timeout,
-              :ssh_pty              => ssh_pty,
               :iso_checksum         => install_checksum,
               :http_directory       => http_dir,
               :http_port_min        => http_port_min,

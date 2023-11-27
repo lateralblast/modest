@@ -2,7 +2,7 @@
 
 # Configure MAAS server components
 
-def configure_maas_server()
+def configure_maas_server(options)
   maas_url = "http://"+options['hostip']+"/MAAS/"
   if options['host-os-uname'].match(/Ubuntu/)
     message = "Information:\tChecking installation status of MAAS"
@@ -21,9 +21,9 @@ def configure_maas_server()
       command = "echo '' |apt-get install -y apt-get install maas dnsmasq debmirror"
       execute_command(options, message, command)
       service = "apache"
-      restart_service(service)
+      restart_service(options, service)
       service = "avahi-daemon"
-      restart_service(service)
+      restart_service(options, service)
       message = "Information:\tCreating MAAS Admin"
       command = "maas createadmin --username = #{options['maasadmin']} --email=#{options['maasemail']} --password=#{options['maaspassword']}"
       execute_command(options, message, command)

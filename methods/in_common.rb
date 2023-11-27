@@ -163,7 +163,7 @@ def set_defaults(options, defaults)
         defaults['hostonlyip'] = "192.168.52.1"
       end
       if defaults['host-os-name'].to_s.match(/Linux/)
-        defaults['nic'] = %x[netstat -rn |grep UG].chomp.split()[-1]
+        defaults['nic'] = %x[netstat -rn |grep UG |head -1].chomp.split()[-1]
       end
     when /VirtualBox/
       defaults['vmgateway']  = "192.168.56.1"
@@ -344,7 +344,11 @@ def set_defaults(options, defaults)
     defaults['vmnic'] = options['clientnic'].to_s
   else
     if options['vm'].to_s.match(/kvm|mp|multipass/)
-      defaults['vmnic'] = "enp1s0"
+      if options['biosdevnames'] == false
+        defaults['vmnic'] = "enp1s0"
+      else
+        defaults['vmnic'] = "eth0"
+      end
     else
       if options['vm'].to_s.match(/fusion/) and defaults['host-os-arch'].to_s.match(/arm/)
         if options['biosdevnames'] == false
@@ -376,7 +380,7 @@ def set_defaults(options, defaults)
   defaults['manifest']        = "modest"
   defaults['masked']          = false
   defaults['memory']          = "2048"
-  defaults['vcpus']           = "1"
+  defaults['vcpus']           = "2"
   defaults['mirror']          = defaults['country'].to_s.downcase+'.archive.ubuntu.com'
   defaults['mirrordir']       = "/ubuntu"
   defaults['mirrorurl']       = defaults['mirror'].to_s+defaults['mirrordir'].to_s
@@ -442,7 +446,11 @@ def set_defaults(options, defaults)
   defaults['sshpty']          = true
   defaults['sshtimeout']      = "20m"
   defaults['sudo']            = true
-  defaults['sudogroup']       = "sudo"
+  if defaults['host-os-uname'].to_s.match(/Endeavour|Arch/)
+    defaults['sudogroup'] = "wheel"
+  else
+    defaults['sudogroup'] = "sudo"
+  end
   defaults['suffix']          = defaults['scriptname'].to_s
   defaults['systemlocale']    = "C"
   defaults['target']          = "vmware"
@@ -473,6 +481,7 @@ def set_defaults(options, defaults)
   defaults['vgname']          = "vg01"
   defaults['vnc']             = false
   defaults['verbose']         = "false"
+  defaults['virtiofile']      = ""
   defaults['virtualdevice']   = "lsilogic"
   defaults['vmntools']        = false
   defaults['vmnetwork']       = "hostonly"
@@ -691,10 +700,14 @@ def reset_defaults(options, defaults)
   when /vcsa/
     defaults['size'] = "tiny"
   when /packer/
-    if options['method'].to_s.match(/vs/)
+    if options['vmnetwork'].to_s.match(/hostonly/)
       defaults['sshport'] = "22"
-    else
-      defaults['sshport'] = "2222"
+    else  
+      if options['method'].to_s.match(/vs/)
+        defaults['sshport'] = "22"
+      else
+        defaults['sshport'] = "2222"
+      end
     end
     defaults['sshportmax'] = defaults['sshport']
     defaults['sshportmin'] = defaults['sshport']
@@ -1385,7 +1398,7 @@ def get_gw_if_name(options)
   else
     message = "Information:\tGetting interface name of default router"
     if options['host-os-name'].to_s.match(/Linux/)
-      command = "sudo sh -c \"netstat -rn |grep UG |awk '{print \\\$8}'\""
+      command = "sudo sh -c \"netstat -rn |grep UG |awk '{print \\\$8}' |head -1\""
     else
       if options['host-os-release'].to_s.match(/^19/)
         command = "sudo sh -c \"netstat -rn |grep ^default |grep UGS |tail -1 |awk '{print \\\$4}'\""
@@ -1559,7 +1572,11 @@ def check_local_config(options)
     end
     if options['host-os-name'].to_s.match(/Linux/)
       install_package(options, "apache2")
-      install_package(options, "rpm2cpio")
+      if options['host-os-uname'].to_s.match(/Endeavour|Arch/)
+        install_package(options, "rpmextract")
+      else
+        install_package(options, "rpm2cpio")
+      end
       install_package(options, "shim")
       install_package(options, "shim-signed")
       options['apachedir'] = "/etc/httpd"
@@ -3134,7 +3151,7 @@ end
 def check_file_owner(options, file_name, file_uid)
   message ="Information:\tChecking file #{file_name} is owned by user #{file_uid}"
   handle_output(options, message)
-  if file_uid.match(/[a-z]/)
+  if file_uid.to_s.match(/[a-z]/)
     file_uid = %x[id -u #{file_uid}]
   end
   if File.exist?(file_name)
@@ -3170,7 +3187,7 @@ end
 def check_file_group(options, file_name, file_gid)
   message ="Information:\tChecking file #{file_name} is owned by group #{file_gid}"
   handle_output(options, message)
-  if file_gid.match(/[a-z]/)
+  if file_gid.to_s.match(/[a-z]/)
     file_gid = get_group_gid(options, file_gid)
   end
   if File.exist?(file_name)
@@ -3650,20 +3667,6 @@ def check_dhcpd_config(options)
   return
 end
 
-# Check package is installed
-
-def check_rhel_package(options, package)
-  message = "Information\tChecking "+package+" is installed"
-  command = "rpm -q #{package}"
-  output  = execute_command(options, message, command)
-  if not output.match(/#{package}/)
-    message = "installing:\t"+package
-    command = "yum -y install #{package}"
-    execute_command(options, message, command)
-  end
-  return
-end
-
 # Check firewall is enabled
 
 def check_rhel_service(options, service)
@@ -3755,20 +3758,6 @@ def check_yum_httpd()
   check_rhel_package(options, "httpd")
   check_rhel_firewall(options, "http", "80/tcp")
   check_rhel_service(options, "httpd")
-  return
-end
-
-# Check Ubuntu / Debian package is installed
-
-def check_apt_package(options, package)
-  message = "Information:\tChecking "+package+" is installed"
-  command = "dpkg -l | grep '#{package}' |grep 'ii'"
-  output  = execute_command(options, message, command)
-  if not output.match(/#{package}/)
-    message = "Information:\tInstalling "+package
-    command = "apt-get -y -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confnew install #{package}"
-    execute_command(options, message, command)
-  end
   return
 end
 
@@ -3987,9 +3976,9 @@ def check_network_bridge_exists(options)
   exists  = false
   net_dev = options['bridge'].to_s
   message = "Information:\tChecking network device #{net_dev} exists"
-  command = "ifconfig #{net_dev} |grep ether"
+  command = "ifconfig -a |grep #{net_dev}:"
   output  = execute_command(options, message, command)
-  if output.match(/ether/)
+  if output.match(/#{net_dev}/)
     exists = true
   end
   return exists
@@ -4553,8 +4542,8 @@ def execute_command(options, message, command)
         sudo_check = %x[getent group #{options['sudogroup']}].chomp
       end
       if !sudo_check.match(/#{options['user']}/)
-        handle_output(options, "Warning:\tUser #{options['user']} is not in sudoers group")
-        exit
+        handle_output(options, "Warning:\tUser #{options['user']} is not in sudoers group #{options['sudogroup']}")
+        quit(options)
       end
     end
     if options['verbose'] == true
@@ -4701,6 +4690,16 @@ def enable_service(options, service_name)
   end
   return output
 end
+
+# Start service
+
+def start_service(options, service_name)
+  if options['host-os-name'].to_s.match(/Linux/)
+    output = start_linux_service(options, service_name)
+  end
+  return output
+end
+
 
 # Disable service
 

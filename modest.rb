@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      7.7.4
+# Version:      7.8.2
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -474,6 +474,7 @@ begin
     ['--version', BOOLEAN],           # Display version information
     ['--video', BOOLEAN],             # Video (KVM)
     ['--virtdir', REQUIRED],          # Base Client Directory
+    ['--virtiofile', REQUIRED],       # VirtIO driver file/cdrom
     ['--virtualdevice', REQUIRED],    # Virtual disk device (e.g. lsilogic)
     ['--virt-type', BOOLEAN],         # Virtualisation type (KVM)
     ['--vlanid',  REQUIRED],          # VLAN ID

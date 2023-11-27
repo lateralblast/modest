@@ -249,9 +249,11 @@ def populate_ps_first_boot_list(options)
   end
   post_list.push("")
   if options['type'].to_s.match(/packer/)
-    post_list.push("echo 'Port 22' >> #{install_target}/etc/ssh/sshd_config")
-    post_list.push("echo 'Port 2222' >> #{install_target}/etc/ssh/sshd_config")
-    post_list.push("")
+    if not options['vmnetwork'].to_s.match(/hostonly/)
+      post_list.push("echo 'Port 22' >> #{install_target}/etc/ssh/sshd_config")
+      post_list.push("echo 'Port 2222' >> #{install_target}/etc/ssh/sshd_config")
+      post_list.push("")
+    end
   end
   if options['service'].to_s.match(/live/) || options['vm'].to_s.match(/mp|multipass/)
     post_list.push("curtin in-target --target=/target -- apt install setserial net-tools")

@@ -9,6 +9,7 @@ end
 # Check KVM hostonly network
 
 def check_kvm_hostonly_network(options, if_name)
+  check_kvm_network_bridge(options)
   gw_if_name = get_gw_if_name(options)
   check_nat(options, gw_if_name, if_name)
   return
@@ -23,6 +24,16 @@ def check_kvm_network_bridge_exists(options)
   command = "virsh net-list --all |grep #{net_dev}"
   output  = execute_command(options, message, command)
   if output.match(/#{net_dev}/)
+    if output.match(/inactive/)
+      handle_output(options, "Warning:\tDefault KVM network #{net_dev}is not active")
+      output  = execute_command(options,message, command)
+      message = "Information:\tSetting KVM default network to autostart"
+      command = "virsh net-autostart #{net_dev}"
+      execute_command(options, message, command)
+      message = "Information:\tStarting KVM default network"
+      command = "virsh net-start #{net_dev}"
+      execute_command(options, message, command)
+    end
     exists = true
   end
   return exists
@@ -97,15 +108,51 @@ def check_kvm_permissions(options)
   check_file_owner(options, file_name, file_owner)
   check_file_group(options, file_name, file_group)
   check_file_perms(options, file_name, file_perms)
+  file_name = "/etc/firewalld/firewalld.conf"
+  if options['host-os-uname'].to_s.match(/Endeavour|Arch/) and File.exist?(file_name)
+    temp_name = "/tmp/firewalld.conf"
+    param = "FirewallBackend"
+    value = "iptables"
+    message = "Information:\tChecking #{param} is set to #{value} in #{file_name}"
+    handle_output(options, message)
+    check = %x[cat #{file_name} |grep ^FirewallBackend ].chomp
+    if not check.match(/#{value}/)
+      message = "Warning:\tParameter #{param} is no set to #{value} in #{file_name}"
+      handle_output(options, message)
+      message = "Information:\tSetting parameter #{param} to #{value} in #{file_name}"
+      %x[sudo cp #{file_name} #{file_name}.orig]
+      %x[sudo sh -c 'cat #{file_name} | grep -v "^#{param}=nftables" >> #{temp_name}']
+      %x[sudo sh -c 'echo "#{param}=#{value}" >> #{temp_name}']
+      %s[sudo sh -c 'cat #{temp_name} > #{file_name}']
+    end
+  end
   return
 end
 
 # Check KVM is installed
 
 def check_kvm_is_installed(options)
+  if not File.exist?("/usr/bin/virt-install")
+    message = "Information:\tInstalling KVM"
+    handle_output(options, message)
+    if options['host-os-uname'].to_s.match(/Ubuntu/)
+      pkg_list = [ "qemu-kvm", "qemu-utils", "libvirt-clients", "libvirt-daemon-system", "bridge-utils", "virt-manager", "virt-viewer", "cloud-image-utils", "libosinfo-bin" ]
+    end
+    if options['host-os-uname'].to_s.match(/Endeavour|Arch/)
+      pkg_list = [ "qemu-full", "virt-manager", "virt-viewer", "dnsmasq", "bridge-utils", "libguestfs", "ebtables", "vde2", "openbsd-netcat", "cloud-image-utils", "libosinfo" ]
+    end
+    pkg_list.each do |pkg_name|
+      install_linux_package(options, pkg_name)
+    end
+  end
+  if options['host-os-uname'].to_s.match(/Endeavour|Arch/)
+    enable_service(options, "libvirtd.service")
+    start_service(options, "libvirtd.service")
+  end
+  check_kvm_default_network(options)
   check_kvm_permissions(options)
   if_name = get_vm_if_name(options)
-  if options['vmnet'].to_s.match(/hostonly/) && options['bridge'].to_s.match(/virbr/)
+  if options['vmnet'].to_s.match(/hostonly/) and options['bridge'].to_s.match(/virbr/) or options['action'].to_s.match(/check/)
     check_kvm_hostonly_network(options, if_name)
   end
   if not options['host-os-name'].match(/Linux/)
@@ -116,18 +163,9 @@ def check_kvm_is_installed(options)
   message = "Information:\tChecking KVM is installed"
   command = "ifconfig -a |grep #{gw_if_name}"
   output  = execute_command(options, message, command)
-  if !output.match(/#{gw_if_name}/) || !File.exist?("/usr/bin/virt-install")
-    message = "Information:\tInstalling KVM"
-    handle_output(options, message)
-    pkg_list = [ "qemu-kvm", "qemu-utils", "libvirt-clients", "libvirt-daemon-system", "bridge-utils", "virt-manager", "cloud-image-utils", "libosinfo-bin" ]
-    pkg_list.each do |pkg_name|
-      install_linux_package(options, pkg_name)
-    end
-  else
-    if_name = get_vm_if_name(options)
-    check_linux_nat(options, gw_if_name, if_name)
-  end
-  if !File.exist?("/usr/bin/cloud-localds")
+  if_name = get_vm_if_name(options)
+  check_linux_nat(options, gw_if_name, if_name)
+  if not File.exist?("/usr/bin/cloud-localds")
     pkg_name = "cloud-image-utils"
     install_linux_package(options, pkg_name)
   end
@@ -244,44 +282,63 @@ def convert_kvm_image(options)
   return
 end
 
+# Check KVM network default interface
+
+def check_kvm_default_network(options)
+  message = "Information:\tChecking KVM default network is active"
+  command = "virsh net-list --all |grep default"
+  output  = execute_command(options,message, command)
+  if output.match(/inactive/)
+    handle_output(options, "Warning:\tDefault KVM network is not active")
+    output  = execute_command(options,message, command)
+    message = "Information:\tSetting KVM default network to autostart"
+    command = "virsh net-autostart default"
+    execute_command(options, message, command)
+    message = "Information:\tStarting KVM default network"
+    command = "virsh net-start default"
+    execute_command(options, message, command)
+  end
+  return
+end
+
 # Check KVM network bridge
 
 def check_kvm_network_bridge(options)
-  exists = check_network_bridge_exists(options)
-  if exists == false
-    net_dev = options['bridge'].to_s
-    handle_output(options, "Warning:\tNetwork bridge #{net_dev} doesn't exist")
-    quit(options)
-  end
   exists = check_kvm_network_bridge_exists(options)
   if exists == true 
-    message = "Warning:\tKVM VM #{options['bridge']} already exists"
+    message = "Information:\tKVM VM #{options['bridge']} already exists"
     handle_output(options, message)
-    quit(options)
-  end
-  kvm_bridge  = options['bridge'].to_s
-  bridge_file = "/tmp/"+kvm_bridge.to_s+"_bridge.xml"
-  if File.exist?(bridge_file)
-    File.delete(bridge_file)
-  end
-  file = File.open(bridge_file, "w")
-  file.write("<network>\n")
-  file.write("  <name>#{kvm_bridge}</name>\n")
-  file.write("  <forward mode=\"bridge\"/>\n")
-  file.write("  <bridge name=\"#{kvm_bridge}\" />\n")
-  file.write("</network>\n")
-  file.close
-  print_contents_of_file(options, "", bridge_file)
-  if File.exist?(bridge_file)
-    message = "Information:\tImporting KVM bridge config for #{kvm_bridge}" 
-    command = "virsh net-define #{bridge_file}"
-    execute_command(options, message, command)
-    message = "Information:\tStarting KVM bridge #{kvm_bridge} config"
-    command = "virsh net-start #{kvm_bridge}"
-    execute_command(options, message, command)
-    message = "Information:\tSetting KVM bridge #{kvm_bridge} config to autostart"
-    command = "virsh net-autostart #{kvm_bridge}"
-    execute_command(options, message, command)
+    exists = check_network_bridge_exists(options)
+    if exists == false
+      net_dev = options['bridge'].to_s
+      handle_output(options, "Warning:\tNetwork bridge #{net_dev} does not exist")
+      check_kvm_default_network(options)
+    end
+  else
+    kvm_bridge  = options['bridge'].to_s
+    bridge_file = "/tmp/"+kvm_bridge.to_s+"_bridge.xml"
+    if File.exist?(bridge_file)
+      File.delete(bridge_file)
+    end
+    file = File.open(bridge_file, "w")
+    file.write("<network>\n")
+    file.write("  <name>#{kvm_bridge}</name>\n")
+    file.write("  <forward mode=\"bridge\"/>\n")
+    file.write("  <bridge name=\"#{kvm_bridge}\" />\n")
+    file.write("</network>\n")
+    file.close
+    print_contents_of_file(options, "", bridge_file)
+    if File.exist?(bridge_file)
+      message = "Information:\tImporting KVM bridge config for #{kvm_bridge}" 
+      command = "virsh net-define #{bridge_file}"
+      execute_command(options, message, command)
+      message = "Information:\tSetting KVM bridge #{kvm_bridge} config to autostart"
+      command = "virsh net-autostart #{kvm_bridge}"
+      execute_command(options, message, command)
+      message = "Information:\tStarting KVM bridge #{kvm_bridge} config"
+      command = "virsh net-start #{kvm_bridge}"
+      execute_command(options, message, command)
+    end
   end
 end
 
@@ -297,14 +354,14 @@ def configure_kvm_client(options)
   end
   exists = check_kvm_network_bridge_exists(options)
   if exists == false 
-    message = "Warning:\tKVM VM #{options['bridge']} doesn't exists"
+    message = "Warning:\tKVM network bridge #{options['bridge']} does not exists"
     handle_output(options, message)
     quit(options)
   end
   exists = check_network_bridge_exists(options)
   if exists == false
     net_dev = options['bridge'].to_s
-    handle_output(options, "Warning:\tNetwork bridge #{net_dev} doesn't exist")
+    handle_output(options, "Warning:\tNetwork bridge #{net_dev} does not exist")
     quit(options)
   end
   if options['import'] == true

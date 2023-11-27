@@ -241,6 +241,7 @@ def populate_cc_user_data(options)
       end
     end
     if !options['vm'].to_s.match(/mp|multipass/)
+      late_exec_data.push("rm #{install_target}/etc/netplan/*")
       late_exec_data.push("echo '# This file describes the network interfaces available on your system' > #{netplan_file}")
       late_exec_data.push("echo '# For more information, see netplan(5).' >> #{netplan_file}")
       late_exec_data.push("echo 'network:' >> #{netplan_file}")
