@@ -1567,3 +1567,5 @@
 # Added more support for Arch Linux
 # 7.8.3: Tue 28 Nov 2023 15:22:34 AEDT
 # Added support for RHEL 9.3
+# 7.8.4: Tue 28 Nov 2023 19:39:12 AEDT
+# Fixed shutdown command for Packer RHEL builds

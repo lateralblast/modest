@@ -870,6 +870,7 @@ def create_packer_json(options)
     else
       boot_command = "<tab><wait><bs><bs><bs><bs><bs><bs>=0 "+kernel_string+"inst.text inst.method=cdrom inst.repo=cdrom:/dev/sr0 inst.ks="+ks_url+" ip=dhcp<enter><wait>"
     end
+    shutdown_command = "sudo /usr/sbin/shutdown -P now"
 #  when /rhel_7/
 #    ks_file       = options['vm']+"/"+options['name']+"/"+options['name']+".cfg"
 #    ks_url        = "http://#{ks_ip}:#{options['httpport']}/"+ks_file
@@ -891,9 +892,7 @@ def create_packer_json(options)
       options['guest'] = options['guest'].join
     end
     #shutdown_command = "echo '#{options['q_struct']['admin_password'].value}' |sudo -S /sbin/halt -h -p"
-    if options['vmnetwork'].to_s.match(/hostonly|bridged/)
-      shutdown_command = "sudo /usr/sbin/shutdown -P now"
-    end
+    shutdown_command = "sudo /usr/sbin/shutdown -P now"
   end
   controller = controller.gsub(/sas/, "scsi")
   case options['vm']
