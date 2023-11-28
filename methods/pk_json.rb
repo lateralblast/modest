@@ -77,7 +77,7 @@ def create_packer_json(options)
     case options['service'].to_s
     when /win/
       parallels_tools_flavor = "win"
-    when /ubuntu|rhel|sles/
+    when /ubuntu|rhel|sles|rocky|alma/
       parallels_tools_flavor = "lin"
     when /mac|osx/
       parallels_tools_flavor = "mac"
@@ -233,7 +233,7 @@ def create_packer_json(options)
     nic_command3 = "--bridgeadapter1"
     nic_config3  = "#{nic_name}"
   end
-  if options['service'].to_s.match(/el_8|centos_8/)
+  if options['service'].to_s.match(/[el,centos,rocky,alma]_8/)
     virtual_dev = "pvscsi"
   end
   if options['service'].to_s.match(/sol_10/)
@@ -855,7 +855,7 @@ def create_packer_json(options)
     shutdown_command  = ""
     ssh_host_port_min = "22"
     ssh_host_port_max = "22"
-  when /fedora|el_[8,9]|centos_[8,9]/
+  when /fedora|[el,centos,rocky,alma]_[8,9]/
     tools_upload_flavor = ""
     tools_upload_path   = ""
     ks_file      = options['vm']+"/"+options['name']+"/"+options['name']+".cfg"

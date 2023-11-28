@@ -259,7 +259,7 @@ def populate_ks_questions(options)
   options['q_struct'][name] = config
   options['q_order'].push(name)
 
-  if not options['service'].to_s.match(/rhel_9/)
+  if not options['service'].to_s.match(/[el,centos,rocky,alma]_9/)
     name   = "options['type']"
     config = qs.new(
       type      = "output",
@@ -315,7 +315,7 @@ def populate_ks_questions(options)
   options['q_struct'][name] = config
   options['q_order'].push(name)
 
-  if not options['service'].to_s.match(/fedora|centos_[6,7,8,9]|sl_[6,7,8,9]|el_[6,7,8,9]/)
+  if not options['service'].to_s.match(/fedora|[centos,sl,el,rocky,alma]_[6,7,8,9]/)
     name   = "support_language"
     config = qs.new(
       type      = "output",
@@ -638,7 +638,7 @@ def populate_ks_questions(options)
   options['q_struct'][name] = config
   options['q_order'].push(name)
 
-  if options['service'].to_s.match(/el_[8,9]|centos_[8,9]/)
+  if options['service'].to_s.match(/[centos,el,rocky,alma]_[8,9]/)
     enabled_services = ""
   else
     enabled_services = "ntp"
@@ -670,7 +670,7 @@ def populate_ks_questions(options)
   options['q_struct'][name] = config
   options['q_order'].push(name)
 
-  if not options['service'].to_s.match(/fedora|el_[8,9]|centos_[8,9]/)
+  if not options['service'].to_s.match(/fedora|[centos,el,rocky,alma]_[8,9]/)
 
     name   = "services"
     config = qs.new(
@@ -803,7 +803,7 @@ def populate_ks_questions(options)
   options['q_struct'][name] = config
   options['q_order'].push(name)
 
-  if options['service'].to_s.match(/rhel_9/)
+  if options['service'].to_s.match(/[centos,rhel,rocky,alma]_9/)
     name   = "authselect"
     config = qs.new(
       type      = "output",
@@ -869,7 +869,7 @@ def populate_ks_questions(options)
   options['q_order'].push(name)
 
   name = "zerombr"
-  if options['service'].to_s.match(/fedora|el_[7,8,9]|centos_[7,8,9]|sl_[7,8,9]/)
+  if options['service'].to_s.match(/fedora|[centos,el,sl,rocky,alma]_[7,8,9]/)
     config = qs.new(
       type      = "output",
       question  = "Zero MBR",

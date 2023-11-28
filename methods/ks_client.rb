@@ -409,7 +409,7 @@ def configure_ks_client(options)
     end
   end
   delete_file(options,output_file)
-  if options['service'].to_s.match(/fedora|rhel|centos|sl_|oel/)
+  if options['service'].to_s.match(/fedora|rhel|centos|sl_|oel|rocky|alma/)
     options = populate_ks_questions(options)
     process_questions(options)
     output_ks_header(options,output_file)
@@ -519,7 +519,7 @@ def populate_ks_post_list(options)
     post_list.push("echo 'default via #{gateway_ip} dev #{nic_name}' > /etc/sysconfig/network-scripts/route-eth0")
   end
   post_list.push("")
-  if options['service'].to_s.match(/centos|fedora|sl_|el/)
+  if options['service'].to_s.match(/centos|fedora|sl_|el|alma|rocky/)
     if options['service'].to_s.match(/centos_5|fedora_18|rhel_5|sl_5|oel_5/)
       epel_url = "http://"+options['epel']+"/pub/epel/5/i386/epel-release-5-4.noarch.rpm"
     end
@@ -547,7 +547,7 @@ def populate_ks_post_list(options)
   if options['service'].to_s.match(/sl_/)
     post_list.push("sed -i 's,#{$default_sl_mirror},#{$local_sl_mirror},g' #{repo_file}")
   end
-  if options['service'].to_s.match(/_[5,6]/)
+  if options['service'].to_s.match(/_[5,6,7]/)
     if options['service'].to_s.match(/_5/)
       epel_url = "http://"+options['epel']+"/pub/epel/5/"+options['arch']+"/epel-release-5-4.noarch.rpm"
     end
@@ -584,7 +584,7 @@ def populate_ks_post_list(options)
     post_list.push("")
     post_list.push("# Configure Packstack")
     post_list.push("")
-    if options['service'].to_s.match(/el_[7,8,9]|centos_7/)
+    if options['service'].to_s.match(/[centos,el,rocky,alma]_[7,8,9]/)
       post_list.push("yum update -y")
       post_list.push("systemctl disable firewalld")
       post_list.push("systemctl stop firewalld")
@@ -644,7 +644,7 @@ def populate_ks_post_list(options)
     post_list.push("chmod 755 /etc/rc.modules")
     post_list.push("")
   end
-  if options['service'].to_s.match(/rhel_|centos_/)
+  if options['service'].to_s.match(/rhel_|centos_|rocky_|alma_/)
     post_list.push("# Add host entry")
     post_list.push("")
     #post_list.push("echo '#{options['ip']} #{options['name']}' >> /etc/hosts")
@@ -683,7 +683,7 @@ def populate_ks_post_list(options)
     post_list.push("fi")
     post_list.push("")
   end
-  if options['service'].to_s.match(/rhel|centos/)
+  if options['service'].to_s.match(/rhel|centos|rocky|alma/)
     post_list.push("# Enable serial console")
     post_list.push("")
     post_list.push("grubby --update-kernel=ALL --args=\"console=ttyS0\"")
@@ -720,7 +720,7 @@ end
 
 def populate_ks_pkg_list(options)
   pkg_list = []
-  if options['service'].to_s.match(/centos|fedora|rhel|sl_|oel/)
+  if options['service'].to_s.match(/centos|fedora|rhel|sl_|oel|rocky|alma/)
     if not options['service'].to_s.match(/fedora/)
       pkg_list.push("@base")
     end
@@ -752,11 +752,11 @@ def populate_ks_pkg_list(options)
         pkg_list.push("ruby-libs")
       end
     end
-    if not options['service'].to_s.match(/fedora|el_[7,8,9]|centos_[6,7,8,9]/)
+    if not options['service'].to_s.match(/fedora|[centos,el,rocky,alma]_[6,7,8,9]/)
       pkg_list.push("grub")
       pkg_list.push("libselinux-ruby")
     end
-    if options['service'].to_s.match(/el_[7,8,9]|centos_[7,8,9]/)
+    if options['service'].to_s.match(/[centos,el,rocky,alma]_[7,8,9]/)
       pkg_list.push("iscsi-initiator-utils")
     end
     if not options['service'].to_s.match(/centos_6/)
@@ -794,15 +794,15 @@ def populate_ks_pkg_list(options)
       end
       pkg_list.push("gcc")
       pkg_list.push("gcc-c++")
-      if not options['service'].to_s.match(/centos_|el_[8,9]/)
+      if not options['service'].to_s.match(/centos_|[el,rocky,alma]_[8,9]/)
         pkg_list.push("dhcp")
       end
-      if not options['service'].to_s.match(/el_9/)
+      if not options['service'].to_s.match(/[el,centos,rocky,alma]_9/)
         pkg_list.push("xinetd")
       end
       pkg_list.push("tftp-server")
     end
-    if not options['service'].to_s.match(/el_|centos_/)
+    if not options['service'].to_s.match(/el_|centos_|rocky_|alma_/)
       pkg_list.push("libgnome-keyring")
     end
     if not options['service'].to_s.match(/rhel_5/)
@@ -813,7 +813,7 @@ def populate_ks_pkg_list(options)
       pkg_list.push("net-tools")
       pkg_list.push("bind-utils")
     end
-    if not options['service'].to_s.match(/fedora|el_[8,9]|centos_[8,9]/)
+    if not options['service'].to_s.match(/fedora|[centos,el,rocky,alma]_[8,9]/)
       pkg_list.push("ntp")
     end
     pkg_list.push("rsync")
@@ -857,7 +857,7 @@ def output_ks_pkg_list(options,pkg_list,output_file)
     output = pkg_name+"\n"
     file.write(output)
   end
-  if options['service'].to_s.match(/fedora_[19,20]|[centos,rhel,oel,sl]_[7,8,9]/)
+  if options['service'].to_s.match(/fedora_[19,20]|[centos,rhel,oel,sl,rocky,alma]_[7,8,9]/)
     output   = "\n%end\n"
     file.write(output)
   end
@@ -872,7 +872,7 @@ end
 
 def output_ks_post_list(options,post_list,output_file)
   tmp_file = "/tmp/postinstall_"+options['name']
-  if options['service'].to_s.match(/centos|fedora|rhel|sl_|oel/)
+  if options['service'].to_s.match(/centos|fedora|rhel|sl_|oel|rocky|alma/)
     message = "Information:\tAppending post install script "+output_file
     command = "cp #{output_file} #{tmp_file}"
     file=File.open(tmp_file, 'a')
@@ -888,7 +888,7 @@ def output_ks_post_list(options,post_list,output_file)
     output = line+"\n"
     file.write(output)
   end
-  if options['service'].to_s.match(/fedora_[19,20]|[centos,el,sl]_[7,8,9]/)
+  if options['service'].to_s.match(/fedora_[19,20]|[centos,el,sl,rocky,alma]_[7,8,9]/)
     output   = "\n%end\n"
     file.write(output)
   end

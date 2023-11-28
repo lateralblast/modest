@@ -444,7 +444,7 @@ def set_defaults(options, defaults)
   defaults['sshkeybits']      = "2048"
   defaults['sshport']         = "22"
   defaults['sshpty']          = true
-  defaults['sshtimeout']      = "20m"
+  defaults['sshtimeout']      = "1h"
   defaults['sudo']            = true
   if defaults['host-os-uname'].to_s.match(/Endeavour|Arch/)
     defaults['sudogroup'] = "wheel"
@@ -861,7 +861,7 @@ end
 # Get architecture from model
 
 def get_arch_from_model(options)
-  if options['model'].to_s.to_lower.match(/^t/)
+  if options['model'].to_s.downcase.match(/^t/)
     options['arch'] = "sun4v"
   else
     options['arch'] = "sun4u"
@@ -2186,6 +2186,11 @@ def get_install_service_from_file(options)
         options['release'] = options['file'].split(/-/)[1]
       end
     end 
+  when /Rocky|Alma/
+    options['service'] = File.basename(options['file']).to_s.split(/-/)[0].downcase.gsub(/linux/,"")
+    options['method']  = "ks"
+    service_version = options['file'].split(/-/)[1..2].join(".").gsub(/\./, "_").gsub(/_iso/, "")
+    options['release'] = options['file'].split(/-/)[1]
   when /SLE/
     options['service'] = "sles"
     service_version = options['file'].split(/-/)[1..2].join("_").gsub(/[A-Z]/, "")

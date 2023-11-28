@@ -1569,3 +1569,5 @@
 # Added support for RHEL 9.3
 # 7.8.4: Tue 28 Nov 2023 19:39:12 AEDT
 # Fixed shutdown command for Packer RHEL builds
+# 7.8.5: Tue 28 Nov 2023 20:47:13 AEDT
+# Added initial Rocky and Alma Linux support
