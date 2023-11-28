@@ -20,6 +20,10 @@ Known to be working:
 - Solaris 11 AI
 - Solaris 10 Jumpstart
 
+Issues:
+- Packer Windows installs do not work for host-only network configs (Packer issue)
+  - set vmnetwork to NAT
+
 This tool is designed to greatly simplify the creation of VMs for testing purposes.
 
 With a single command line command you can create and manage VMware Fusion and VirtualBox VMs.
@@ -49,9 +53,7 @@ and HTTP based install services, eg:
 - Simplify creation and build of VMs with Packer
   - Linux (RHEL, OEL, SuSE, Ubuntu, CentOS, Fedora, Scientific)
   - Solaris 10 & 11
-  - Windows 2008 R2 & 2012 R2
-  - Windows 2016 PR5 (No WM Tools and License Key support)
-  - Windows 2019
+  - Windows Server 2008 R2, 2012 R2, 2016, 2019, 2022
   - ESXi
   - Create AMIs
 - AWS support
@@ -76,9 +78,15 @@ Currently supported host Operating Systems:
 Currently supported virtualisation software:
 
 - VirtualBox
-- VMware Fusion
+- VMware Workstation / Fusion
 - KVM (Requires Packer 1.4.3 or later)
 - Docker (in development)
+- Multipass
+
+Less supported (have not been recently tested)
+- Parallels
+- Zones
+- Solaris OVM
 
 Currently supported deployment software:
 
@@ -155,7 +163,7 @@ Packer support
 - Simplify creation of Packer images for VirtualBox and VMware Fusion
 - Currently supports Solaris 10, Solaris 11,
   Linux (RHEL, OEL, SuSE, Ubuntu, CentOS, Fedorac, Scientific),
-  Windows 2008 R2, and Windows 2012 R2
+  Windows Server 2008 R2, 2012 R2, 2016, 2019, 2022
   ESXi
 
 Linux Container Creation
