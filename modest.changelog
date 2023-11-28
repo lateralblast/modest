@@ -1565,3 +1565,5 @@
 # Added initial Arch Linux support for KVM
 # 7.8.2: Mon 27 Nov 2023 14:57:52 AEDT
 # Added more support for Arch Linux
+# 7.8.3: Tue 28 Nov 2023 15:22:34 AEDT
+# Added support for RHEL 9.3

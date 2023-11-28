@@ -855,7 +855,7 @@ def create_packer_json(options)
     shutdown_command  = ""
     ssh_host_port_min = "22"
     ssh_host_port_max = "22"
-  when /fedora|el_8|centos_8/
+  when /fedora|el_[8,9]|centos_[8,9]/
     tools_upload_flavor = ""
     tools_upload_path   = ""
     ks_file      = options['vm']+"/"+options['name']+"/"+options['name']+".cfg"
@@ -2733,6 +2733,10 @@ def create_packer_json(options)
     end
   end
   json_output = JSON.pretty_generate(json_data)
+  json_dir = File.dirname(json_file)
+  if not Dir.exist?(json_dir)
+    FileUtils.mkdir_p(json_dir)
+  end
   delete_file(options,json_file)
   File.write(json_file,json_output)
   print_contents_of_file(options,"",json_file)

@@ -584,7 +584,7 @@ def populate_ks_post_list(options)
     post_list.push("")
     post_list.push("# Configure Packstack")
     post_list.push("")
-    if options['service'].to_s.match(/el_[7,8]|centos_7/)
+    if options['service'].to_s.match(/el_[7,8,9]|centos_7/)
       post_list.push("yum update -y")
       post_list.push("systemctl disable firewalld")
       post_list.push("systemctl stop firewalld")
@@ -740,7 +740,7 @@ def populate_ks_pkg_list(options)
           pkg_list.push("tk")
         end
       end
-      if not options['service'].to_s.match(/fedora|_[6,7,8]/)
+      if not options['service'].to_s.match(/fedora|_[6,7,8,9]/)
         pkg_list.push("ruby")
         pkg_list.push("ruby-irb")
         pkg_list.push("rubygems")
@@ -752,11 +752,11 @@ def populate_ks_pkg_list(options)
         pkg_list.push("ruby-libs")
       end
     end
-    if not options['service'].to_s.match(/fedora|el_[7,8]|centos_[6,7,8]/)
+    if not options['service'].to_s.match(/fedora|el_[7,8,9]|centos_[6,7,8,9]/)
       pkg_list.push("grub")
       pkg_list.push("libselinux-ruby")
     end
-    if options['service'].to_s.match(/el_[7,8]|centos_[7,8]/)
+    if options['service'].to_s.match(/el_[7,8,9]|centos_[7,8,9]/)
       pkg_list.push("iscsi-initiator-utils")
     end
     if not options['service'].to_s.match(/centos_6/)
@@ -794,10 +794,12 @@ def populate_ks_pkg_list(options)
       end
       pkg_list.push("gcc")
       pkg_list.push("gcc-c++")
-      if not options['service'].to_s.match(/centos_|el_8/)
+      if not options['service'].to_s.match(/centos_|el_[8,9]/)
         pkg_list.push("dhcp")
       end
-      pkg_list.push("xinetd")
+      if not options['service'].to_s.match(/el_9/)
+        pkg_list.push("xinetd")
+      end
       pkg_list.push("tftp-server")
     end
     if not options['service'].to_s.match(/el_|centos_/)
@@ -811,7 +813,7 @@ def populate_ks_pkg_list(options)
       pkg_list.push("net-tools")
       pkg_list.push("bind-utils")
     end
-    if not options['service'].to_s.match(/fedora|el_8|centos_8/)
+    if not options['service'].to_s.match(/fedora|el_[8,9]|centos_[8,9]/)
       pkg_list.push("ntp")
     end
     pkg_list.push("rsync")
@@ -855,7 +857,7 @@ def output_ks_pkg_list(options,pkg_list,output_file)
     output = pkg_name+"\n"
     file.write(output)
   end
-  if options['service'].to_s.match(/fedora_[19,20]|[centos,rhel,oel,sl]_[7,8]/)
+  if options['service'].to_s.match(/fedora_[19,20]|[centos,rhel,oel,sl]_[7,8,9]/)
     output   = "\n%end\n"
     file.write(output)
   end
@@ -886,7 +888,7 @@ def output_ks_post_list(options,post_list,output_file)
     output = line+"\n"
     file.write(output)
   end
-  if options['service'].to_s.match(/fedora_[19,20]|[centos,el,sl]_[7,8]/)
+  if options['service'].to_s.match(/fedora_[19,20]|[centos,el,sl]_[7,8,9]/)
     output   = "\n%end\n"
     file.write(output)
   end
@@ -894,7 +896,6 @@ def output_ks_post_list(options,post_list,output_file)
   message = "Information:\tCreating post install script "+output_file
 #  command = "cat #{tmp_file} >> #{output_file} ; rm #{tmp_file}"
   execute_command(options,message,command)
-  print_contents_of_file(options,"",output_file)
   return
 end
 

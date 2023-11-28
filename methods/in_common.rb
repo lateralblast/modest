@@ -2178,8 +2178,13 @@ def get_install_service_from_file(options)
       service_version = options['file'].split(/-/)[1..2].join(".").gsub(/\./, "_").gsub(/_iso/, "")
       options['release'] = options['file'].split(/-/)[1]
     else
-      service_version = options['file'].split(/-/)[2..3].join(".").gsub(/\./, "_").gsub(/_iso/, "")
-      options['release'] = options['file'].split(/-/)[2]
+      if options['file'].to_s.match(/server/)
+        service_version = options['file'].split(/-/)[2..3].join(".").gsub(/\./, "_").gsub(/_iso/, "")
+        options['release'] = options['file'].split(/-/)[2]
+      else
+        service_version = options['file'].split(/-/)[1..2].join(".").gsub(/\./, "_").gsub(/_iso/, "")
+        options['release'] = options['file'].split(/-/)[1]
+      end
     end 
   when /SLE/
     options['service'] = "sles"
@@ -5148,7 +5153,7 @@ def mount_iso(options)
       if options['file'].to_s.match(/rhel-server-5/)
         iso_test_dir = options['mountdir']+"/Server"
       else
-        if options['file'].to_s.match(/rhel-8/)
+        if options['file'].to_s.match(/rhel-[8,9]/)
           iso_test_dir = options['mountdir']+"/BaseOS/Packages"
         else
           iso_test_dir = options['mountdir']+"/Packages"

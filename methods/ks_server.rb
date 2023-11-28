@@ -122,7 +122,7 @@ def configure_ks_pxe_boot(options)
         if options['service'].to_s.match(/rhel_5/)
           rpm_dir = options['baserepodir']+"/"+options['service']+"/Server"
         else
-          if options['service'].to_s.match(/rhel_8/)
+          if options['service'].to_s.match(/rhel_[8,9]/)
             rpm_dir = options['baserepodir']+"/"+options['service']+"/BaseOS/Packages"
           else
             rpm_dir = options['baserepodir']+"/"+options['service']+"/Packages"
