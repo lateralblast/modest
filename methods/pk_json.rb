@@ -63,6 +63,16 @@ def create_packer_json(options)
   disk_adapter_type = options['diskinterface'].to_s
   boot_command      = ""
   virtio_file       = options['virtiofile'].to_s
+  if options['vm'].to_s.match(/kvm/)
+    file_name = "/usr/share/ovmf/OVMF.fd"
+    if File.exist?(file_name)
+      bios_file = file_name
+    end
+    file_name = "/usr/share/edk2/x64/OVMF.fd"
+    if File.exist?(file_name)
+      bios_file = file_name
+    end
+  end
   if options['vm'].to_s.match(/fusion/)
     if hw_version.to_i >= 20
       disk_adapter_type = "nvme"
@@ -844,17 +854,18 @@ def create_packer_json(options)
       boot_command = "<enter><wait>O<wait> ks="+ks_url+" ksdevice=vmnic0 netdevice=vmnic0 ip="+options['ip']+" netmask="+options['netmask']+" gateway="+options['vmgateway']+"<wait><enter><wait>"
     else
       if options['vm'].to_s.match(/kvm/)
-        net_device     = "vmxnet3"
+        net_device     = "e1000e"
         disk_interface = "ide"
-        boot_command   = "<enter><wait>O<wait> ks="+ks_url+" ip="+options['ip']+" netmask="+options['netmask']+" gateway="+options['vmgateway']+"<wait><enter><wait>"
+        boot_command   = "<enter><wait><leftShiftOn>O<leftShiftOff><wait> netdevice=vmnic0 ip="+options['ip']+" netmask="+options['netmask']+" gateway="+options['vmgateway']+" ks="+ks_url+"<wait><enter><wait>"
       else
         boot_command = "<enter><wait>O<wait> ks="+ks_url+" ksdevice=vmnic0 netdevice=vmnic0 ip="+options['ip']+" netmask="+options['netmask']+" gateway="+options['vmgateway']+"<wait><enter><wait>"
       end
     end
     ssh_username      = "root"
-    shutdown_command  = ""
+#    shutdown_command  = "poweroff; while true; do sleep 10; done;"
     ssh_host_port_min = "22"
     ssh_host_port_max = "22"
+#    communicator      = "ssh"
   when /fedora|[el,centos,rocky,alma]_[8,9]/
     tools_upload_flavor = ""
     tools_upload_path   = ""
@@ -1145,6 +1156,7 @@ def create_packer_json(options)
               :vm_name              => vm_name,
               :type                 => vm_type,
               :headless             => headless_mode,
+              :communicator         => communicator,
               :output_directory     => image_dir,
               :disk_size            => disk_size,
               :iso_url              => iso_url,
@@ -1190,6 +1202,7 @@ def create_packer_json(options)
               :vm_name              => vm_name,
               :type                 => vm_type,
               :headless             => headless_mode,
+#              :communicator         => communicator,
               :output_directory     => image_dir,
               :disk_size            => disk_size,
               :iso_url              => iso_url,
@@ -2095,16 +2108,8 @@ def create_packer_json(options)
               :winrm_timeout        => ssh_timeout,
               :winrm_use_ssl        => winrm_use_ssl,
               :winrm_insecure       => winrm_insecure,
-#              :ssh_host             => ssh_host,
-#              :ssh_port             => ssh_port,
-#              :ssh_host_port_min    => ssh_host_port_min,
-#              :ssh_host_port_max    => ssh_host_port_max,
-#              :ssh_username         => ssh_username,
-#              :ssh_password         => ssh_password,
-#              :ssh_timeout          => ssh_timeout,
               :shutdown_command     => shutdown_command,
               :shutdown_timeout     => shutdown_timeout,
-#              :ssh_pty              => ssh_pty,
               :iso_checksum         => install_checksum,
               :http_directory       => http_dir,
               :http_port_min        => http_port_min,
@@ -2152,30 +2157,20 @@ def create_packer_json(options)
               :winrm_timeout        => ssh_timeout,
               :winrm_use_ssl        => winrm_use_ssl,
               :winrm_insecure       => winrm_insecure,
-#              :ssh_host             => ssh_host,
-#              :ssh_port             => ssh_port,
-#              :ssh_host_port_min    => ssh_host_port_min,
-#              :ssh_host_port_max    => ssh_host_port_max,
-#              :ssh_username         => ssh_username,
-#              :ssh_password         => ssh_password,
-#              :ssh_timeout          => ssh_timeout,
               :shutdown_command     => shutdown_command,
               :shutdown_timeout     => shutdown_timeout,
-#              :ssh_pty              => ssh_pty,
               :iso_checksum         => install_checksum,
               :http_directory       => http_dir,
               :http_port_min        => http_port_min,
               :http_port_max        => http_port_max,
               :http_bind_address    => ks_ip,
               :boot_wait            => boot_wait,
-#              :boot_command         => boot_command,
               :format               => disk_format,
               :accelerator          => accelerator,
               :disk_interface       => disk_interface,
               :net_device           => net_device,
               :net_bridge           => net_bridge,
               :qemuargs             => [
-#                [ "-cdrom",   "#{virtio_file}" ],
                 [ "-serial",  "stdio" ],
                 [ "-cpu",     "host" ],
                 [ "-m",       memsize ],

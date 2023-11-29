@@ -399,6 +399,11 @@ def populate_vs_firstboot_list(options)
     post_list.push("sed -i '/no-auto-partition/ s/$/ text nofb com1_baud=115200 com1_Port=0x3f8 tty2Port=com1 gdbPort=none logPort=none/' /bootbank/boot.cfg")
     post_list.push("")
   end
+  post_list.push("# enable & start ESXi Shell (TSM)")
+  post_list.push("sed -i -E 's,^(PasswordAuthentication ).*,\1yes,g' /etc/ssh/sshd_config")
+  post_list.push("vim-cmd hostsvc/enable_esx_shell")
+  post_list.push("vim-cmd hostsvc/start_esx_shell")
+  post_list.push("")
   post_list.push("reboot")
   return post_list
 end

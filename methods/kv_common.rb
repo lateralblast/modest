@@ -120,11 +120,21 @@ def check_kvm_permissions(options)
       message = "Warning:\tParameter #{param} is no set to #{value} in #{file_name}"
       handle_output(options, message)
       message = "Information:\tSetting parameter #{param} to #{value} in #{file_name}"
+      handle_output(options, message)
       %x[sudo cp #{file_name} #{file_name}.orig]
       %x[sudo sh -c 'cat #{file_name} | grep -v "^#{param}=nftables" >> #{temp_name}']
       %x[sudo sh -c 'echo "#{param}=#{value}" >> #{temp_name}']
       %s[sudo sh -c 'cat #{temp_name} > #{file_name}']
     end
+  end
+  file_name = "/etc/modprobe.d/qemu-system-x86.conf"
+  if not File.exist?(file_name)
+    message = "Warning:\tFile #{file_name} does not exist"
+    handle_output(options, message)
+    message = "Information:\tCreating #{file_name}"
+    handle_output(options, message)
+    %x[sudo sh -c "echo \"options kvm ignore_msrs=1 report_ignored_msrs=0\" >> #{file_name}"]
+    %x[sudo sh -c "echo \"options kvm_intel nested=1 enable_apicv=0 ept=1\" >> #{file_name}"]
   end
   return
 end
@@ -501,7 +511,7 @@ def configure_kvm_import_client(options)
     case options['os-variant'].to_s
     when /ubuntu/
       options = populate_ps_questions(options)
-    when /rhel/
+    when /rhel|esx|vmware/
       options = populate_ks_questions(options)
     when /vs/
       options = populate_vs_questions(options)

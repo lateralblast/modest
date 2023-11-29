@@ -4,7 +4,7 @@
 MODEST
 ======
 
-Version: 7.8.5
+Version: 7.8.6
 
 Introduction
 ------------
@@ -163,7 +163,7 @@ Packer support
 - Simplify creation of Packer images for VirtualBox and VMware Fusion
 - Currently supports Solaris 10, Solaris 11,
   Linux (RHEL, OEL, SuSE, Ubuntu, CentOS, Fedorac, Scientific),
-  Windows Server 2008 R2, 2012 R2, 2016, 2019, 2022
+  Windows Server 2008 R2, 2012 R2, 2016, 2019, 202
   ESXi
 
 Linux Container Creation

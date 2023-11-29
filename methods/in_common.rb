@@ -531,6 +531,10 @@ def reset_defaults(options, defaults)
       defaults['service'] = get_install_service_from_file(options)
     end
   end
+  if options['file'].to_s.match(/VMware-VMvisor-Installer/)
+    defaults['vcpus']  = "4"
+    defaults['memory'] = "4096"
+  end
   if defaults['host-os-arch'].to_s.match(/^arm/) 
     defaults['machine']  = "arm64"
     defaults['arch']     = "arm64"
@@ -2119,6 +2123,7 @@ def get_install_service_from_file(options)
     service_version = options['file'].to_s.split(/-/)[3].gsub(/\./, "_")+"_"+options['arch']
     options['method']  = "vs"
     options['release'] = options['file'].to_s.split(/-/)[3].gsub(/update/, "")
+    options['os-variant'] = "unknown"
   when /CentOS/
     options['service'] = "centos"
     service_version = options['file'].to_s.split(/-/)[1..2].join(".").gsub(/\./, "_").gsub(/_iso/, "")
@@ -2784,20 +2789,22 @@ end
 # Set some VMware ESXi VM defaults
 
 def configure_vmware_esxi_defaults()
-  options['memory']    = "4096"
-  options['vcpus']     = "2"
-  options['os-type']   = "ESXi"
-  options['controller']= "ide"
+  options['memory']     = "4096"
+  options['vcpus']      = "4"
+  options['os-type']    = "ESXi"
+  options['controller'] = "ide"
+  options['os-variant'] = "unknown"
   return
 end
 
 # Set some VMware vCenter defaults
 
 def configure_vmware_vcenter_defaults()
-  options['memory']    = "4096"
-  options['vcpus']     = "2"
-  options['os-type']   = "ESXi"
-  options['controller']= "ide"
+  options['memory']     = "4096"
+  options['vcpus']      = "4"
+  options['os-type']    = "ESXi"
+  options['controller'] = "ide"
+  options['os-variant'] = "unknown"
   return
 end
 

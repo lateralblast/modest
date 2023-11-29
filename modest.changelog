@@ -1571,3 +1571,5 @@
 # Fixed shutdown command for Packer RHEL builds
 # 7.8.5: Tue 28 Nov 2023 20:47:13 AEDT
 # Added initial Rocky and Alma Linux support
+# 7.8.6: Thu 30 Nov 2023 00:27:06 AEDT
+# Added support for building ESXi 7 and 8 inside KVM with Packer

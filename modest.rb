@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      7.8.5
+# Version:      7.8.6
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -1689,13 +1689,7 @@ if options['method'] != options['empty']
   when /vsphere|esx|vmware|vs/
     info_examples     = "vs"
     options['method'] = "vs"
-    if options['memory'] == options['memory']
-      options['memory'] = "4096"
-    end
-    if options['vcpus'] == options['vcpus']
-      options['vcpus'] = "2"
-    end
-    options['controller']= "ide"
+    options['controller'] = "ide"
   when /bsd|xb/
     info_examples     = "xb"
     options['method'] = "xb"
