@@ -109,7 +109,7 @@ def check_kvm_permissions(options)
   check_file_group(options, file_name, file_group)
   check_file_perms(options, file_name, file_perms)
   file_name = "/etc/firewalld/firewalld.conf"
-  if options['host-os-uname'].to_s.match(/Endeavour|Arch/) and File.exist?(file_name)
+  if options['host-lsb-description'].to_s.match(/Endeavour|Arch/) and File.exist?(file_name)
     temp_name = "/tmp/firewalld.conf"
     param = "FirewallBackend"
     value = "iptables"
@@ -145,17 +145,17 @@ def check_kvm_is_installed(options)
   if not File.exist?("/usr/bin/virt-install")
     message = "Information:\tInstalling KVM"
     handle_output(options, message)
-    if options['host-os-uname'].to_s.match(/Ubuntu/)
+    if options['host-os-unamea'].to_s.match(/Ubuntu/)
       pkg_list = [ "qemu-kvm", "qemu-utils", "libvirt-clients", "libvirt-daemon-system", "bridge-utils", "virt-manager", "virt-viewer", "cloud-image-utils", "libosinfo-bin" ]
     end
-    if options['host-os-uname'].to_s.match(/Endeavour|Arch/)
+    if options['host-lsb-description'].to_s.match(/Endeavour|Arch/)
       pkg_list = [ "qemu-full", "virt-manager", "virt-viewer", "dnsmasq", "bridge-utils", "libguestfs", "ebtables", "vde2", "openbsd-netcat", "cloud-image-utils", "libosinfo" ]
     end
     pkg_list.each do |pkg_name|
       install_linux_package(options, pkg_name)
     end
   end
-  if options['host-os-uname'].to_s.match(/Endeavour|Arch/)
+  if options['host-lsb-description'].to_s.match(/Endeavour|Arch/)
     enable_service(options, "libvirtd.service")
     start_service(options, "libvirtd.service")
   end
@@ -165,7 +165,7 @@ def check_kvm_is_installed(options)
   if options['vmnet'].to_s.match(/hostonly/) and options['bridge'].to_s.match(/virbr/) or options['action'].to_s.match(/check/)
     check_kvm_hostonly_network(options, if_name)
   end
-  if not options['host-os-name'].match(/Linux/)
+  if not options['host-os-uname'].match(/Linux/)
     handle_output(options, "Warning:\tPlatform does not support KVM")
     quit(options)
   end
@@ -652,7 +652,7 @@ end
 # List KVM VMs
 
 def list_kvm_vms(options)
-  if !options['host-os-name'].match(/Linux/)
+  if !options['host-os-uname'].match(/Linux/)
     return
   end
   command   = "virsh list --all"

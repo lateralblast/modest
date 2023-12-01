@@ -4,7 +4,7 @@
 
 def check_lxc_is_installed(options)
   message = "Information:\tChecking LXC Packages are installed"
-  if options['host-os-uname'].match(/Ubuntu/)
+  if options['host-os-unamea'].match(/Ubuntu/)
     command = "dpkg -l lxc"
     output  = execute_command(options, message, command)
     if output.match(/no packages/)

@@ -7,22 +7,22 @@ def set_defaults(options, defaults)
   # Declare OS defaults
   defaults['home'] = ENV['HOME']
   defaults['user'] = ENV['USER']
-  defaults['host-os-name']     = %x[uname].chomp
-  defaults['host-os-arch']     = %x[uname -p].chomp
-  defaults['host-os-machine']  = %x[uname -m].chomp
-  defaults['host-os-uname']    = %x[uname -a].chomp
-  defaults['host-os-release']  = %x[uname -r].chomp
+  defaults['host-os-uname']  = %x[uname].chomp
+  defaults['host-os-unamep'] = %x[uname -p].chomp
+  defaults['host-os-unamem'] = %x[uname -m].chomp
+  defaults['host-os-unamea'] = %x[uname -a].chomp
+  defaults['host-os-unamer'] = %x[uname -r].chomp
   defaults['host-os-packages'] = []
-  if defaults['host-os-name'].to_s.match(/Darwin/)
-    defaults['host-os-arch']   = %x[uname -m].chomp
+  if defaults['host-os-uname'].to_s.match(/Darwin/)
+    defaults['host-os-unamep']   = %x[uname -m].chomp
     defaults['host-os-memory'] = %x[system_profiler SPHardwareDataType |grep Memory |awk '{print $2}'].chomp
     defaults['host-os-cpu'] = %x[sysctl hw.ncpu |awk '{print $2}']
     if File.exist?("/usr/local/bin/brew")
       defaults['host-os-packages'] = %x[/usr/local/bin/brew list].split(/\s+|\n/)
     end
   else
-    if defaults['host-os-name'].to_s.match(/Linux/)
-      if defaults['host-os-uname'].to_s.match(/Ubuntu/)
+    if defaults['host-os-uname'].to_s.match(/Linux/)
+      if defaults['host-os-unamea'].to_s.match(/Ubuntu/)
         defaults['host-os-packages'] = %x[dpkg -l |awk '{print $2}'].split(/\s+|\n/)
       end
       defaults['host-os-memory'] = %x[free -g |grep ^Mem |awk '{print $2}'].chomp
@@ -37,19 +37,19 @@ def set_defaults(options, defaults)
     if output.match(/docker/)
       defaults['host-os'] = "Docker"
     else
-      defaults['host-os'] = defaults['host-os-uname'].to_s
+      defaults['host-os'] = defaults['host-os-unamea'].to_s
     end
   else
-    defaults['host-os'] = defaults['host-os-uname'].to_s
+    defaults['host-os'] = defaults['host-os-unamea'].to_s
   end
-  if defaults['host-os-name'].to_s.match(/SunOS|Darwin|NT/)
-    if defaults['host-os-name'].to_s.match(/SunOS/)
+  if defaults['host-os-uname'].to_s.match(/SunOS|Darwin|NT/)
+    if defaults['host-os-uname'].to_s.match(/SunOS/)
       if File.exist?("/etc/release")
         defaults['host-os-revision'] = %x[cat /etc/release |grep Solaris |head -1].chomp.gsub(/^\s+/, "")
       end
-      if defaults['host-os-release'].to_s.match(/\./)
-        if defaults['host-os-release'].to_s.match(/^5/)
-          defaults['host-os-version'] = defaults['host-os-release'].to_s.split(/\./)[1]
+      if defaults['host-os-unamer'].to_s.match(/\./)
+        if defaults['host-os-unamer'].to_s.match(/^5/)
+          defaults['host-os-version'] = defaults['host-os-unamer'].to_s.split(/\./)[1]
         end
         if defaults['host-os-version'].to_s.match(/^11/)
           os_version_string = %x[uname -v].chomp
@@ -67,11 +67,11 @@ def set_defaults(options, defaults)
       defaults['host-os-version'] = %x[sw_vers |grep ProductVersion |awk '{print $2}'].chomp
     end
   end  
-  if defaults['host-os-release'].to_s.match(/\./)
-    defaults['host-os-major'] = defaults['host-os-release'].to_s.split(/\./)[0]
-    defaults['os-minor']      = defaults['host-os-release'].to_s.split(/\./)[1]
+  if defaults['host-os-unamer'].to_s.match(/\./)
+    defaults['host-os-major'] = defaults['host-os-unamer'].to_s.split(/\./)[0]
+    defaults['os-minor']      = defaults['host-os-unamer'].to_s.split(/\./)[1]
   else
-    defaults['host-os-major'] = defaults['host-os-release']
+    defaults['host-os-major'] = defaults['host-os-unamer']
     defaults['os-minor'] = "0"
   end
   # Declare valid defaults
@@ -103,12 +103,12 @@ def set_defaults(options, defaults)
                                 'pxe', 'nic', 'network' ]
   defaults['valid-target']  = [ 'citrix', 'vmware', 'windows' ]
   # VM related defaults
-  if defaults['host-os-arch'].to_s.match(/sparc/)
+  if defaults['host-os-unamep'].to_s.match(/sparc/)
     if defaults['host-os-major'] = %x[uname -r].split(/\./)[1].to_i > 9
       defaults['valid-vm']       = [ 'zone', 'cdom', 'gdom', 'aws' ]
     end
   else
-    case defaults['host-os-name']
+    case defaults['host-os-uname']
     when /not recognised/
       handle_output(options,"Information:\tAt the moment Cygwin is required to run on Windows")
     when /NT/
@@ -135,9 +135,13 @@ def set_defaults(options, defaults)
       else
         defaults['lsb'] = "/usr/bin/lsb_release"
       end
-      defaults['host-os-uname']   = %x[#{defaults['lsb']} -i -s].chomp
-      defaults['host-os-release'] = %x[#{defaults['lsb']} -r -s].chomp
-      defaults['host-os-version'] = %x[#{defaults['lsb']} -r -s].chomp.split(".")[0]
+      defaults['host-lsb-all'] = %x[#{defaults['lsb']} -a].chomp
+      defaults['host-lsb-id']  = %x[#{defaults['lsb']} -i -s].chomp
+      defaults['host-lsb-release']  = %x[#{defaults['lsb']} -r -s].chomp
+      defaults['host-lsb-version']  = %x[#{defaults['lsb']} -v -s].chomp
+      defaults['host-lsb-codename'] = %x[#{defaults['lsb']} -c -s].chomp
+      defaults['host-lsb-distributor'] = %x[#{defaults['lsb']} -i -s].chomp
+      defaults['host-lsb-description'] = %x[#{defaults['lsb']} -d -s].chomp
     when /Darwin/
       defaults['nic']    = "en0"
       defaults['ovfbin'] = "/Applications/VMware OVF Tool/ovftool"
@@ -145,12 +149,12 @@ def set_defaults(options, defaults)
     end
     case defaults['host-os-platform']
     when /VMware/
-      if defaults['host-os-name'].to_s.match(/Darwin/) && defaults['host-os-version'].to_i > 10
+      if defaults['host-os-uname'].to_s.match(/Darwin/) && defaults['host-os-version'].to_i > 10
         if options['vmnetwork'].to_s.match(/nat/)
           defaults['vmgateway']  = "192.168.158.1"
           defaults['hostonlyip'] = "192.168.158.1"
         else
-          if defaults['host-os-name'].to_s.match(/Darwin/) && defaults['host-os-version'].to_i > 11
+          if defaults['host-os-uname'].to_s.match(/Darwin/) && defaults['host-os-version'].to_i > 11
             defaults['vmgateway']  = "192.168.2.1"
             defaults['hostonlyip'] = "192.168.2.1"
           else
@@ -162,7 +166,7 @@ def set_defaults(options, defaults)
         defaults['vmgateway']  = "192.168.52.1"
         defaults['hostonlyip'] = "192.168.52.1"
       end
-      if defaults['host-os-name'].to_s.match(/Linux/)
+      if defaults['host-os-uname'].to_s.match(/Linux/)
         defaults['nic'] = %x[netstat -rn |grep UG |head -1].chomp.split()[-1]
       end
     when /VirtualBox/
@@ -170,7 +174,7 @@ def set_defaults(options, defaults)
       defaults['hostonlyip'] = "192.168.56.1"
       defaults['nic']        = "eth0"
     when /Parallels/
-      if defaults['host-os-name'].to_s.match(/Darwin/) && defaults['host-os-version'].to_i > 10
+      if defaults['host-os-uname'].to_s.match(/Darwin/) && defaults['host-os-version'].to_i > 10
         defaults['vmgateway']  = "10.211.55.1"
         defaults['hostonlyip'] = "10.211.55.1"
       else
@@ -180,7 +184,7 @@ def set_defaults(options, defaults)
     else
       defaults['vmgateway']  = "192.168.55.1"
       defaults['hostonlyip'] = "192.168.55.1"
-      if defaults['host-os-name'].to_s.match(/Linux/)
+      if defaults['host-os-uname'].to_s.match(/Linux/)
         defaults['nic'] = "eth0"
         network_test = %x[ifconfig -a |grep eth0].chomp
         if !network_test.match(/eth0/)
@@ -197,7 +201,7 @@ def set_defaults(options, defaults)
   # Declare other defaults
   defaults['virtdir'] = ""
   defaults['basedir'] = ""
-  if defaults['host-os-name'].match(/Darwin/) && defaults['host-os-major'].to_i > 18
+  if defaults['host-os-uname'].match(/Darwin/) && defaults['host-os-major'].to_i > 18
     #defaults['basedir']  = "/System/Volumes/Data"
     #defaults['mountdir'] = '/System/Volumes/Data/cdrom'
     defaults['basedir']  = defaults['home'].to_s+"/Documents/modest"
@@ -353,7 +357,7 @@ def set_defaults(options, defaults)
         defaults['vmnic'] = "eth0"
       end
     else
-      if options['vm'].to_s.match(/fusion/) and defaults['host-os-arch'].to_s.match(/arm/)
+      if options['vm'].to_s.match(/fusion/) and defaults['host-os-unamep'].to_s.match(/arm/)
         if options['biosdevnames'] == false
           defaults['vmnic'] = "ens160"
         else
@@ -450,7 +454,7 @@ def set_defaults(options, defaults)
   defaults['sshpty']          = true
   defaults['sshtimeout']      = "1h"
   defaults['sudo']            = true
-  if defaults['host-os-uname'].to_s.match(/Endeavour|Arch/)
+  if defaults['host-lsb-description'].to_s.match(/Endeavour|Arch/)
     defaults['sudogroup'] = "wheel"
   else
     defaults['sudogroup'] = "sudo"
@@ -539,7 +543,7 @@ def reset_defaults(options, defaults)
     defaults['vcpus']  = "4"
     defaults['memory'] = "4096"
   end
-  if defaults['host-os-arch'].to_s.match(/^arm/) 
+  if defaults['host-os-unamep'].to_s.match(/^arm/) 
     defaults['machine']  = "arm64"
     defaults['arch']     = "arm64"
     defaults['biostype'] = "efi"
@@ -570,7 +574,7 @@ def reset_defaults(options, defaults)
     end
     defaults['features']  = "kvm_hidden=on"
     defaults['vmnetwork'] = "hostonly"
-    if defaults['host-os-arch'].to_s.match(/^x/) 
+    if defaults['host-os-unamep'].to_s.match(/^x/) 
       defaults['machine'] = "q35"
       defaults['arch']    = "x86_64"
     end
@@ -613,7 +617,7 @@ def reset_defaults(options, defaults)
     end
     defaults['size']  = "20G"
     defaults['dhcp']  = true
-    if defaults['host-os-name'].to_s.match(/Darwin/)
+    if defaults['host-os-uname'].to_s.match(/Darwin/)
       defaults['vmnet'] = "bridge100"
     else
       defaults['vmnet'] = "mpqemubr0"
@@ -623,7 +627,7 @@ def reset_defaults(options, defaults)
     defaults['memory']  = "1G"
     defaults['release'] = "20.04"
     defaults['vmnetwork'] = "hostonly"
-    if defaults['host-os-name'].to_s.match(/Darwin/) && defaults['host-os-version'].to_i > 11
+    if defaults['host-os-uname'].to_s.match(/Darwin/) && defaults['host-os-version'].to_i > 11
       defaults['vmgateway']  = "192.168.64.1"
       defaults['hostonlyip'] = "192.168.64.1"
     else
@@ -631,7 +635,7 @@ def reset_defaults(options, defaults)
       defaults['hostonlyip'] = "172.16.10.1"
     end
   when /parallels/
-    if defaults['host-os-name'].to_s.match(/Darwin/) && defaults['host-os-version'].to_i > 10
+    if defaults['host-os-uname'].to_s.match(/Darwin/) && defaults['host-os-version'].to_i > 10
       defaults['vmgateway']  = "10.211.55.1"
       defaults['hostonlyip'] = "10.211.55.1"
     else
@@ -640,12 +644,12 @@ def reset_defaults(options, defaults)
     end
   when /fusion/
     defaults['hwversion'] = get_fusion_version(options)
-    if defaults['host-os-name'].to_s.match(/Darwin/) && defaults['host-os-version'].to_i > 10
+    if defaults['host-os-uname'].to_s.match(/Darwin/) && defaults['host-os-version'].to_i > 10
       if options['vmnetwork'].to_s.match(/nat/)
         defaults['vmgateway']  = "192.168.158.1"
         defaults['hostonlyip'] = "192.168.158.1"
       else
-        if defaults['host-os-name'].to_s.match(/Darwin/) && defaults['host-os-version'].to_i > 11
+        if defaults['host-os-uname'].to_s.match(/Darwin/) && defaults['host-os-version'].to_i > 11
           defaults['vmgateway']  = "192.168.2.1"
           defaults['hostonlyip'] = "192.168.2.1"
         else
@@ -901,11 +905,11 @@ def set_hostonly_info(options)
   hostonly_base  = "192.168"
   case options['vm']
   when /vmware|vmx|fusion/
-    if options['host-os-name'].to_s.match(/Darwin/) && options['host-os-version'].to_i > 10
+    if options['host-os-uname'].to_s.match(/Darwin/) && options['host-os-version'].to_i > 10
       if options['vmnetwork'].to_s.match(/nat/)
         hostonly_subnet = "158"
       else
-        if options['host-os-name'].to_s.match(/Darwin/) && options['host-os-version'].to_i > 11
+        if options['host-os-uname'].to_s.match(/Darwin/) && options['host-os-version'].to_i > 11
           hostonly_subnet = "2"
         else
           hostonly_subnet = "104"
@@ -916,7 +920,7 @@ def set_hostonly_info(options)
     end
   when /parallels/
     hostonly_base  = "10.211"
-    if options['host-os-name'].to_s.match(/Darwin/) && options['host-os-version'].to_i > 10
+    if options['host-os-uname'].to_s.match(/Darwin/) && options['host-os-version'].to_i > 10
       hostonly_subnet      = "55"
     else
       hostonly_subnet      = "54"
@@ -963,13 +967,13 @@ end
 
 def get_my_ip(options)
   message = "Information:\tDetermining IP of local machine"
-  if !options['host-os-name'].to_s.match(/[a-z]/)
-   options['host-os-name'] = %x[uname]
+  if !options['host-os-uname'].to_s.match(/[a-z]/)
+   options['host-os-uname'] = %x[uname]
   end
-  if options['host-os-name'].to_s.match(/Darwin/)
+  if options['host-os-uname'].to_s.match(/Darwin/)
     command = "ipconfig getifaddr en0"
   else
-    if options['host-os-name'].to_s.match(/SunOS/)
+    if options['host-os-uname'].to_s.match(/SunOS/)
       command = "/usr/sbin/ifconfig -a | awk \"BEGIN { count=0; } { if ( \\\$1 ~ /inet/ ) { count++; if( count==2 ) { print \\\$2; } } }\""
     else
       if options['vm'].to_s == "kvm"
@@ -1301,7 +1305,7 @@ end
 # Get Windows interface MAC address
 
 def get_win_if_mac(options, if_name)
-  if options['host-os-name'].to_s.match(/NT/) and if_name.match(/\s+/)
+  if options['host-os-uname'].to_s.match(/NT/) and if_name.match(/\s+/)
     if_name = if_name.split(/\s+/)[0]
     if_name = if_name.gsub(/"/, "")
     if_name = "%"+if_name+"%"
@@ -1351,11 +1355,11 @@ def get_default_host(options)
     options['hostip'] = ""
   end
   if !options['hostip'].to_s.match(/[0-9]/)
-    if options['host-os-name'].to_s.match(/NT/)
+    if options['host-os-uname'].to_s.match(/NT/)
       host_ip = get_win_default_host
     else
       message = "Information:\tDetermining Default host IP"
-      case options['host-os-name']
+      case options['host-os-uname']
       when /SunOS/
         command = "/usr/sbin/ifconfig -a | awk \"BEGIN { count=0; } { if ( \\\$1 ~ /inet/ ) { count++; if( count==2 ) { print \\\$2; } } }\""
       when /Darwin/
@@ -1383,11 +1387,11 @@ end
 # Get default route IP
 
 def get_gw_if_ip(options, gw_if_name)
-  if options['host-os-name'].to_s.match(/NT/)
+  if options['host-os-uname'].to_s.match(/NT/)
     gw_if_ip = get_win_default_host
   else
     message = "Information:\tGetting IP of default router"
-    if options['host-os-name'].to_s.match(/Linux/)
+    if options['host-os-uname'].to_s.match(/Linux/)
       command = "sudo sh -c \"netstat -rn |grep UG |awk '{print \\\$2}'\""
     else
       command = "sudo sh -c \"netstat -rn |grep ^default |head -1 |awk '{print \\\$2}'\""
@@ -1401,14 +1405,14 @@ end
 # Get default route interface
 
 def get_gw_if_name(options)
-  if options['host-os-name'].to_s.match(/NT/)
+  if options['host-os-uname'].to_s.match(/NT/)
     gw_if_ip = get_win_default_if_name(options)
   else
     message = "Information:\tGetting interface name of default router"
-    if options['host-os-name'].to_s.match(/Linux/)
+    if options['host-os-uname'].to_s.match(/Linux/)
       command = "sudo sh -c \"netstat -rn |grep UG |awk '{print \\\$8}' |head -1\""
     else
-      if options['host-os-release'].to_s.match(/^19/)
+      if options['host-os-unamer'].to_s.match(/^19/)
         command = "sudo sh -c \"netstat -rn |grep ^default |grep UGS |tail -1 |awk '{print \\\$4}'\""
       else
         if options['host-os-version'].to_i > 10
@@ -1431,13 +1435,13 @@ def get_vm_if_name(options)
   when /parallels/
     if_name = "prlsnet0"
   when /virtualbox|vbox/
-    if options['host-os-name'].to_s.match(/NT/)
+    if options['host-os-uname'].to_s.match(/NT/)
       if_name = "\"VirtualBox Host-Only Ethernet Adapter\""
     else
       if_name = options['vmnet'].to_s
     end
   when /vmware|fusion/
-    if options['host-os-name'].to_s.match(/NT/)
+    if options['host-os-uname'].to_s.match(/NT/)
       if_name = "\"VMware Network Adapter VMnet1\""
     else
       if_name = options['vmnet'].to_s
@@ -1451,12 +1455,12 @@ end
 # Set config file locations
 
 def set_local_config(options)
-  if options['host-os-name'].to_s.match(/Linux/)
+  if options['host-os-uname'].to_s.match(/Linux/)
 #    options['tftpdir']   = "/var/lib/tftpboot"
     options['tftpdir']   = "/srv/tftp"
     options['dhcpdfile'] = "/etc/dhcp/dhcpd.conf"
   end
-  if options['host-os-name'].to_s.match(/Darwin/)
+  if options['host-os-uname'].to_s.match(/Darwin/)
     options['tftpdir']   = "/private/tftpboot"
     options['dhcpdfile'] = "/usr/local/etc/dhcpd.conf"
   end
@@ -1534,10 +1538,10 @@ def check_local_config(options)
   check_dir_exists(options, options['workdir'])
   check_dir_owner(options, options['workdir'], options['uid'])
   check_dir_exists(options, options['tmpdir'])
-  if options['host-os-name'].to_s.match(/Linux/)
-    options['host-os-release'] = %x[lsb_release -r |awk '{print $2}'].chomp
+  if options['host-os-uname'].to_s.match(/Linux/)
+    options['host-os-unamer'] = %x[lsb_release -r |awk '{print $2}'].chomp
   end
-  if options['host-os-uname'].match(/Ubuntu/)
+  if options['host-os-unamea'].match(/Ubuntu/)
     options['lxcdir'] = "/var/lib/lxc"
   end
   options['hostip'] = get_default_host(options)
@@ -1549,7 +1553,7 @@ def check_local_config(options)
     end
   end
   if options['mode'].to_s.match(/server/)
-    if options['host-os-name'].to_s.match(/Darwin/)
+    if options['host-os-uname'].to_s.match(/Darwin/)
       options['tftpdir']   = "/private/tftpboot"
       options['dhcpdfile'] = "/usr/local/etc/dhcpd.conf"
     end
@@ -1557,7 +1561,7 @@ def check_local_config(options)
       options['tftpdir']   = "/export/tftpboot"
       options['dhcpdfile'] = "/export/etc/dhcpd.conf"
     end
-    if options['host-os-name'].to_s.match(/SunOS/) and options['host-os-release'].match(/11/)
+    if options['host-os-uname'].to_s.match(/SunOS/) and options['host-os-unamer'].match(/11/)
       check_dpool(options)
       check_tftpd(options)
       check_local_publisher(options)
@@ -1566,21 +1570,21 @@ def check_local_config(options)
       install_sol11_pkg(options, "lftp")
       check_dir_exists(options, "/etc/netboot")
     end
-    if options['host-os-name'].to_s.match(/SunOS/) and not options['host-os-release'].match(/11/)
+    if options['host-os-uname'].to_s.match(/SunOS/) and not options['host-os-unamer'].match(/11/)
       check_dir_exists(options, "/tftpboot")
     end
     if options['verbose'] == true
       handle_output(options, "Information:\tSetting apache allow range to #{options['apacheallow']}")
     end
-    if options['host-os-name'].to_s.match(/SunOS/)
-      if options['host-os-name'].to_s.match(/SunOS/) and options['host-os-release'].match(/11/)
+    if options['host-os-uname'].to_s.match(/SunOS/)
+      if options['host-os-uname'].to_s.match(/SunOS/) and options['host-os-unamer'].match(/11/)
         check_dpool(options)
       end
       check_sol_bind(options)
     end
-    if options['host-os-name'].to_s.match(/Linux/)
+    if options['host-os-uname'].to_s.match(/Linux/)
       install_package(options, "apache2")
-      if options['host-os-uname'].to_s.match(/Endeavour|Arch/)
+      if options['host-lsb-description'].to_s.match(/Endeavour|Arch/)
         install_package(options, "rpmextract")
       else
         install_package(options, "rpm2cpio")
@@ -1588,7 +1592,7 @@ def check_local_config(options)
       install_package(options, "shim")
       install_package(options, "shim-signed")
       options['apachedir'] = "/etc/httpd"
-      if options['host-os-uname'].match(/RedHat|CentOS/)
+      if options['host-os-unamea'].match(/RedHat|CentOS/)
         check_yum_xinetd(options)
         check_yum_tftpd(options)
         check_yum_dhcpd(options)
@@ -1598,7 +1602,7 @@ def check_local_config(options)
       else
         check_apt_tftpd(options)
         check_apt_dhcpd(options)
-        if options['host-os-uname'].to_s.match(/Ubuntu/)
+        if options['host-os-unamea'].to_s.match(/Ubuntu/)
           options['tftpdir']   = "/srv/tftp"
         else
           options['tftpdir']   = "/var/lib/tftpboot"
@@ -1609,11 +1613,11 @@ def check_local_config(options)
       check_tftpd_config(options)
     end
   else
-    if options['host-os-name'].to_s.match(/Linux/)
+    if options['host-os-uname'].to_s.match(/Linux/)
       options['tftpdir']   = "/var/lib/tftpboot"
       options['dhcpdfile'] = "/etc/dhcp/dhcpd.conf"
     end
-    if options['host-os-name'].to_s.match(/Darwin/)
+    if options['host-os-uname'].to_s.match(/Darwin/)
       options['tftpdir']   = "/private/tftpboot"
       options['dhcpdfile'] = "/usr/local/etc/dhcpd.conf"
     end
@@ -1621,13 +1625,13 @@ def check_local_config(options)
       options['tftpdir']   = "/export/tftpboot"
       options['dhcpdfile'] = "/export/etc/dhcpd.conf"
     end
-    if options['host-os-name'].to_s.match(/SunOS/) and options['host-os-version'].to_s.match(/11/)
+    if options['host-os-uname'].to_s.match(/SunOS/) and options['host-os-version'].to_s.match(/11/)
       check_dhcpd_config(options)
       check_tftpd_config(options)
     end
   end
   # If runnning on OS X check we have brew installed
-  if options['host-os-name'].to_s.match(/Darwin/)
+  if options['host-os-uname'].to_s.match(/Darwin/)
     if !File.exist?("/usr/local/bin/brew") && !File.exist?("/opt/homebrew/bin/brew") && !File.exist?("/usr/homebrew/bin/brew")
       message = "Installing:\tBrew for OS X"
       command = "ruby -e \"$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)\""
@@ -1771,7 +1775,7 @@ end
 # Check ovftool is installed
 
 def check_ovftool_exists()
-  if options['host-os-name'].to_s.match(/Darwin/)
+  if options['host-os-uname'].to_s.match(/Darwin/)
     check_osx_ovftool()
   end
   return
@@ -2251,7 +2255,7 @@ def get_install_service_from_file(options)
       wiminfo_bin = %x[which wiminfo]
       if not wiminfo_bin.match(/wiminfo/)
         message = "Information:\tInstall wiminfo (wimlib/wimtools)"
-        if options['host-os-name'].to_s.match(/Darwin/)
+        if options['host-os-uname'].to_s.match(/Darwin/)
           install_package(options, "wimlib")
         else
           install_package(options, "wimtools")
@@ -2355,7 +2359,7 @@ end
 # Configure a service
 
 def configure_server(options)
-  if options['host-os-name'].to_s.match(/Darwin/)
+  if options['host-os-uname'].to_s.match(/Darwin/)
     check_osx_dhcpd_installed()
     create_osx_dhcpd_plist()
   end
@@ -2716,7 +2720,7 @@ def list_items(options)
     iso_list.each do |file_name|
       file_name = file_name.chomp
       if options['vm'].to_s.match(/mp|multipass/)
-        iso_arch     = options['host-os-machine'].to_s
+        iso_arch     = options['host-os-unamem'].to_s
         linux_distro = file_name.split(/ \s+/)[-1]
         iso_version  = file_name.split(/ \s+/)[-2]
         file_name    = file_name.split(/ \s+/)[0]
@@ -2856,7 +2860,7 @@ def delete_client_dir(options)
   options['clientdir'] = get_client_dir(options)
   if File.directory?(options['clientdir'])
     if options['clientdir'].to_s.match(/[a-z]/)
-      if options['host-os-name'].to_s.match(/SunOS/)
+      if options['host-os-uname'].to_s.match(/SunOS/)
         destroy_zfs_fs(options['clientdir'])
       else
         message = "Information:\tRemoving client configuration files for #{options['name']}"
@@ -3144,7 +3148,7 @@ end
 def check_file_perms(options, file_name, file_perms)
   if File.exist?(file_name)
     message = "Information:\tChecking permissions of file #{file_name} and set to #{file_perms}"
-    if options['host-os-name'].to_s.match(/Darwin/)
+    if options['host-os-uname'].to_s.match(/Darwin/)
       command = "stat -f %p #{file_name}"
     else
       command = "stat -c %a #{file_name}"
@@ -3339,8 +3343,8 @@ end
 # Check TFTP server
 
 def check_tftp_server(options)
-  if options['host-os-name'].to_s.match(/SunOS/)
-    if options['host-os-release'].match(/11/)
+  if options['host-os-uname'].to_s.match(/SunOS/)
+    if options['host-os-unamer'].match(/11/)
       if !File.exist?("/lib/svc/manifest/network/tftp-udp.xml")
         message  = "Checking:\tTFTP entry in /etc/inetd.conf"
         command  = "cat /etc/inetd.conf |grep '^tftp' |grep -v '^#'"
@@ -3412,7 +3416,7 @@ def add_bootparams_entry(options)
     File.open(file_name, "w") do |file|
       lines.each { |line| file.puts(line) }
     end
-    if options['host-os-release'].to_s.match(/11/)
+    if options['host-os-unamer'].to_s.match(/11/)
       message = "Information:\tRestarting bootparams service"
       command = "svcadm restart svc:/network/rpc/bootparams:default"
       execute_command(options, message, command)
@@ -3425,8 +3429,8 @@ end
 
 def add_nfs_export(options, export_name, export_dir)
   network_address = options['publisherhost'].split(/\./)[0..2].join(".")+".0"
-  if options['host-os-name'].to_s.match(/SunOS/)
-    if options['host-os-release'].match(/11/)
+  if options['host-os-uname'].to_s.match(/SunOS/)
+    if options['host-os-unamer'].match(/11/)
       message  = "Enabling:\tNFS share on "+export_dir
       command  = "zfs set sharenfs=on #{options['zpoolname']}#{export_dir}"
       output   = execute_command(options, message, command)
@@ -3455,7 +3459,7 @@ def add_nfs_export(options, export_name, export_dir)
     command  = "cat #{dfs_file} |grep '#{export_dir}' |grep -v '^#'"
     output   = execute_command(options, message, command)
     if not output.match(/#{export_dir}/)
-      if options['host-os-name'].to_s.match(/Darwin/)
+      if options['host-os-uname'].to_s.match(/Darwin/)
         export = "#{export_dir} -alldirs -maproot=root -network #{network_address} -mask #{options['netmask']}"
       else
         export = "#{export_dir} #{network_address}/24(ro,no_root_squash,async,no_subtree_check)"
@@ -3464,7 +3468,7 @@ def add_nfs_export(options, export_name, export_dir)
       command = "echo '#{export}' >> #{dfs_file}"
       execute_command(options, message, command)
       message = "Refreshing:\tNFS exports"
-      if options['host-os-name'].to_s.match(/Darwin/)
+      if options['host-os-uname'].to_s.match(/Darwin/)
         command = "nfsd stop ; nfsd start"
       else
         command = "/sbin/exportfs -a"
@@ -3478,7 +3482,7 @@ end
 # Remove NFS export
 
 def remove_nfs_export(export_dir)
-  if options['host-os-name'].to_s.match(/SunOS/)
+  if options['host-os-uname'].to_s.match(/SunOS/)
     zfs_test = %x[zfs list |grep #{export_dir}].chomp
     if zfs_test.match(/#{export_dir}/)
       message = "Disabling:\tNFS share on "+export_dir
@@ -3500,7 +3504,7 @@ def remove_nfs_export(export_dir)
       message  = "Removing:\tExport "+export_dir
       command  = "cat #{dfs_file} |grep -v '#{export_dir}' > #{tmp_file} ; cat #{tmp_file} > #{dfs_file} ; rm #{tmp_file}"
       execute_command(options, message, command)
-      if options['host-os-name'].to_s.match(/Darwin/)
+      if options['host-os-uname'].to_s.match(/Darwin/)
         message  = "Restarting:\tNFS daemons"
         command  = "nfsd stop ; nfsd start"
         execute_command(options, message, command)
@@ -3517,7 +3521,7 @@ end
 # Check we are running on the right architecture
 
 def check_same_arch(options)
-  if not options['host-os-arch'].to_s.match(/#{options['arch']}/)
+  if not options['host-os-unamep'].to_s.match(/#{options['arch']}/)
     handle_output(options, "Warning:\tSystem and Zone Architecture do not match")
     quit(options)
   end
@@ -3569,7 +3573,7 @@ end
 # Check IPS tools installed on OS other than Solaris
 
 def check_ips(options)
-  if options['host-os-name'].to_s.match(/Darwin/)
+  if options['host-os-uname'].to_s.match(/Darwin/)
     check_osx_ips(options)
   end
   return
@@ -3578,7 +3582,7 @@ end
 # Check Apache enabled
 
 def check_apache_config(options)
-  if options['host-os-name'].to_s.match(/Darwin/)
+  if options['host-os-uname'].to_s.match(/Darwin/)
     service = "apache"
     check_osx_service_is_enabled(service)
   end
@@ -3602,11 +3606,11 @@ def check_dhcpd_config(options)
     backup_file = options['dhcpdfile']+options['backupsuffix']
     file = File.open(tmp_file, "w")
     file.write("\n")
-    if options['host-os-name'].to_s.match(/SunOS|Linux/)
+    if options['host-os-uname'].to_s.match(/SunOS|Linux/)
       file.write("default-lease-time 900;\n")
       file.write("max-lease-time 86400;\n")
     end
-    if options['host-os-name'].to_s.match(/Linux/)
+    if options['host-os-uname'].to_s.match(/Linux/)
       file.write("option space pxelinux;\n")
       file.write("option pxelinux.magic code 208 = string;\n")
       file.write("option pxelinux.configfile code 209 = text;\n")
@@ -3615,7 +3619,7 @@ def check_dhcpd_config(options)
       file.write("option architecture-type code 93 = unsigned integer 16;\n")
     end
     file.write("\n")
-    if options['host-os-name'].to_s.match(/SunOS/)
+    if options['host-os-uname'].to_s.match(/SunOS/)
       file.write("authoritative;\n")
       file.write("\n")
       file.write("option arch code 93 = unsigned integer 16;\n")
@@ -3640,7 +3644,7 @@ def check_dhcpd_config(options)
       file.write("allow booting;\n")
       file.write("allow bootp;\n")
     end
-    if options['host-os-name'].to_s.match(/Linux/)
+    if options['host-os-uname'].to_s.match(/Linux/)
       file.write("class \"pxeclients\" {\n")
       file.write("  match if substring (option vendor-class-identifier, 0, 9) = \"PXEClient\";\n")
       file.write("  if option architecture-type = 00:07 {\n")
@@ -3651,7 +3655,7 @@ def check_dhcpd_config(options)
       file.write("}\n")
     end
     file.write("\n")
-    if options['host-os-name'].to_s.match(/SunOS|Linux/)
+    if options['host-os-uname'].to_s.match(/SunOS|Linux/)
       file.write("subnet #{network_address} netmask #{options['netmask']} {\n")
       if options['verbose'] == true
 
@@ -3675,7 +3679,7 @@ def check_dhcpd_config(options)
     message = "Information:\tCreating DHCPd configuration file "+options['dhcpdfile']
     command = "cp #{tmp_file} #{options['dhcpdfile']}"
     execute_command(options, message, command)
-    if options['host-os-name'].to_s.match(/SunOS/) and options['host-os-release'].match(/5\.11/)
+    if options['host-os-uname'].to_s.match(/SunOS/) and options['host-os-unamer'].match(/5\.11/)
       message = "Information:\tSetting DHCPd listening interface to "+options['nic']
       command = "svccfg -s svc:/network/dhcp/server:ipv4 setprop config/listen_ifnames = astring: #{options['nic']}"
       execute_command(options, message, command)
@@ -3696,7 +3700,7 @@ def check_rhel_service(options, service)
   output  = execute_command(options, message, command)
   if output.match(/dead/)
     message = "Enabling:\t"+service
-    if options['host-os-release'].match(/^7/)
+    if options['host-os-unamer'].match(/^7/)
       command = "systemctl enable #{service}.service"
       command = "systemctl start #{service}.service"
     else
@@ -3710,7 +3714,7 @@ end
 # Check service is enabled
 
 def check_rhel_firewall(options, service, port_info)
-  if options['host-os-release'].match(/^7/)
+  if options['host-os-unamer'].match(/^7/)
     message = "Information:\tChecking firewall configuration for "+service
     command = "firewall-cmd --list-services |grep #{service}"
     output  = execute_command(options, message, command)
@@ -3862,7 +3866,7 @@ end
 # Restart tftpd
 
 def restart_tftpd(options)
-  if options['host-os-name'].to_s.match(/Linux/)
+  if options['host-os-uname'].to_s.match(/Linux/)
     service = "tftpd-hpa"
     refresh_service(options, service)
   else
@@ -3885,7 +3889,7 @@ end
 # Check tftpd config for Linux(turn on in xinetd config file /etc/xinetd.d/tftp)
 
 def check_tftpd_config(options)
-  if options['host-os-name'].to_s.match(/Linux/)
+  if options['host-os-uname'].to_s.match(/Linux/)
     tmp_file   = "/tmp/tftp"
     pxelinux_file = "/usr/lib/PXELINUX/pxelinux.0"
     if !File.exist?(pxelinux_file)
@@ -3925,13 +3929,13 @@ def check_tftpd_config(options)
         handle_output(options, "Warning:\tTFTP boot file ldlinux.c32 does not exist")
       end
     end
-    if options['host-os-uname'].match(/Ubuntu|Debian/)
+    if options['host-os-unamea'].match(/Ubuntu|Debian/)
       check_apt_tftpd(options)
     else
       check_yum_tftpd(options)
     end
     check_dir_exists(options, options['tftpdir'])
-    if options['host-os-uname'].match(/RedHat|CentOS/)
+    if options['host-os-unamea'].match(/RedHat|CentOS/)
       if Integer(options['host-os-version']) > 6
         message = "Checking SELinux tftp permissions"
         command = "getsebool -a | grep tftp |grep home"
@@ -3952,7 +3956,7 @@ end
 # Check tftpd directory
 
 def check_tftpd_dir(options)
-  if options['host-os-name'].to_s.match(/SunOS/)
+  if options['host-os-uname'].to_s.match(/SunOS/)
     old_tftp_dir = "/tftpboot"
     if options['verbose'] == true
       handle_output(options, "Information:\tChecking TFTP directory")
@@ -4008,9 +4012,9 @@ end
 # Check NAT
 
 def check_nat(options, gw_if_name, if_name)
-  case options['host-os-name'].to_s
+  case options['host-os-uname'].to_s
   when /Darwin/
-    if options['host-os-release'].split(".")[0].to_i < 14
+    if options['host-os-unamer'].split(".")[0].to_i < 14
       check_osx_nat(gw_if_name, if_name)
     else
       check_osx_pfctl(options, gw_if_name, if_name)
@@ -4025,10 +4029,10 @@ end
 
 def check_tftpd(options)
   check_tftpd_dir(options)
-  if options['host-os-name'].to_s.match(/SunOS/)
+  if options['host-os-uname'].to_s.match(/SunOS/)
     enable_service(options, "svc:/network/tftp/udp:default")
   end
-  if options['host-os-name'].to_s.match(/Darwin/)
+  if options['host-os-uname'].to_s.match(/Darwin/)
     check_osx_tftpd()
   end
   return
@@ -4075,10 +4079,10 @@ end
 # Check dnsmasq
 
 def check_dnsmasq(options)
-  if options['host-os-name'].to_s.match(/Linux/)
+  if options['host-os-uname'].to_s.match(/Linux/)
     check_linux_dnsmasq(options)
   end
-  if options['host-os-name'].to_s.match(/Darwin/)
+  if options['host-os-uname'].to_s.match(/Darwin/)
     check_osx_dnsmasq(options)
   end
   return
@@ -4107,7 +4111,7 @@ def add_dnsmasq_entry(options)
     message = "Adding:\t\tHost "+options['name'].to_s+" to "+hosts_file
     command = "echo \"#{options['ip']}\\t#{options['name']}.local\\t#{options['name']}\\t# #{options['adminuser']}\" >> #{hosts_file}"
     output  = execute_command(options, message, command)
-    if options['host-os-name'].to_s.match(/Darwin/)
+    if options['host-os-uname'].to_s.match(/Darwin/)
       pfile   = "/Library/LaunchDaemons/homebrew.mxcl.dnsmasq.plist"
       if File.exist?(pfile)
         service = "dnsmasq"
@@ -4179,7 +4183,7 @@ def remove_hosts_file_entry(options, hosts_file)
     end
     File.open(tmp_file, "w") {|file| file.puts copy}
     message = "Updating:\tHosts file "+hosts_file
-    if options['host-os-name'].to_s.match(/Darwin/)
+    if options['host-os-uname'].to_s.match(/Darwin/)
       command = "sudo sh -c 'cp #{tmp_file} #{hosts_file} ; rm #{tmp_file}'"
     else
       command = "cp #{tmp_file} #{hosts_file} ; rm #{tmp_file}"
@@ -4404,7 +4408,7 @@ end
 
 def check_fs_exists(options, dir_name)
   output = ""
-  if options['host-os-name'].to_s.match(/SunOS/)
+  if options['host-os-uname'].to_s.match(/SunOS/)
     output = check_zfs_fs_exists(options, dir_name)
   else
     check_dir_exists(options, dir_name)
@@ -4418,7 +4422,7 @@ end
 def check_zfs_fs_exists(options, dir_name)
   output = ""
   if not File.directory?(dir_name)
-    if options['host-os-name'].to_s.match(/SunOS/)
+    if options['host-os-uname'].to_s.match(/SunOS/)
       if dir_name.match(/clients/)
         root_dir = dir_name.split(/\//)[0..-2].join("/")
         if not File.directory?(root_dir)
@@ -4430,7 +4434,7 @@ def check_zfs_fs_exists(options, dir_name)
       else
         zfs_name = options['zpoolname']+dir_name
       end
-      if dir_name.match(/vmware_|openbsd_|coreos_/) or options['host-os-release'].to_i > 10
+      if dir_name.match(/vmware_|openbsd_|coreos_/) or options['host-os-unamer'].to_i > 10
         options['service'] = File.basename(dir_name)
         mount_dir    = options['tftpdir']+"/"+options['service']
         if not File.directory?(mount_dir)
@@ -4442,7 +4446,7 @@ def check_zfs_fs_exists(options, dir_name)
       message = "Information:\tCreating "+dir_name+" with mount point "+mount_dir
       command = "zfs create -o mountpoint=#{mount_dir} #{zfs_name}"
       execute_command(options, message, command)
-      if dir_name.match(/vmware_|openbsd_|coreos_/) or options['host-os-release'].to_i > 10
+      if dir_name.match(/vmware_|openbsd_|coreos_/) or options['host-os-unamer'].to_i > 10
         message = "Information:\tSymlinking "+mount_dir+" to "+dir_name
         command = "ln -s #{mount_dir} #{dir_name}"
         execute_command(options, message, command)
@@ -4491,7 +4495,7 @@ def execute_command(options, message, command)
     handle_output(options, "Warning:\tEmpty command")
     return
   end
-  if command.match(/prlctl/) and !options['host-os-name'].to_s.match(/Darwin/)
+  if command.match(/prlctl/) and !options['host-os-uname'].to_s.match(/Darwin/)
     return
   else
     if command.match(/prlctl/)
@@ -4517,7 +4521,7 @@ def execute_command(options, message, command)
   end
   if execute == true
     if options['uid'] != 0
-      if !command.match(/brew |sw_vers|id |groups|hg|pip|VBoxManage|vboxmanage|netstat|df|vmrun|noVNC|docker|packer|ansible-playbook|^ls|multipass/) && !options['host-os-name'].to_s.match(/NT/)
+      if !command.match(/brew |sw_vers|id |groups|hg|pip|VBoxManage|vboxmanage|netstat|df|vmrun|noVNC|docker|packer|ansible-playbook|^ls|multipass/) && !options['host-os-uname'].to_s.match(/NT/)
         if options['sudo'] == true
           command = "sudo sh -c '"+command+"'"
         else
@@ -4549,7 +4553,7 @@ def execute_command(options, message, command)
           command = "sudo sh -c '"+command+"'"
         end
       end
-      if options['host-os-name'].to_s.match(/NT/) && command.match(/netsh/)
+      if options['host-os-uname'].to_s.match(/NT/) && command.match(/netsh/)
         batch_file = "/tmp/script.bat"
         File.write(batch_file, command)
         handle_output(options, "Information:\tCreating batch file '#{batch_file}' to run command '#{command}"'')
@@ -4557,7 +4561,7 @@ def execute_command(options, message, command)
       end
     end
     if command.match(/^sudo/)
-      if options['host-os-name'].to_s.match(/Darwin/)
+      if options['host-os-uname'].to_s.match(/Darwin/)
         sudo_check = %x[dscacheutil -q group -a name admin |grep users]
       else
         sudo_check = %x[getent group #{options['sudogroup']}].chomp
@@ -4618,12 +4622,12 @@ end
 # Restart DHCPd
 
 def restart_dhcpd(options)
-  if options['host-os-name'].to_s.match(/SunOS/)
+  if options['host-os-uname'].to_s.match(/SunOS/)
     function = "refresh"
     service  = "svc:/network/dhcp/server:ipv4"
     output   = handle_smf_service(options, function, service)
   else
-    if options['host-os-name'].to_s.match(/Linux/)
+    if options['host-os-uname'].to_s.match(/Linux/)
       service = "isc-dhcp-server"
     else
       service = "dhcpd"
@@ -4637,7 +4641,7 @@ end
 
 def check_dhcpd(options)
   message = "Checking:\tDHCPd is running"
-  if options['host-os-name'].to_s.match(/SunOS/)
+  if options['host-os-uname'].to_s.match(/SunOS/)
     command = "svcs -l svc:/network/dhcp/server:ipv4"
     output  = execute_command(options, message, command)
     if output.match(/disabled/)
@@ -4651,7 +4655,7 @@ def check_dhcpd(options)
       output           = handle_smf_service(function, smf_install_service)
     end
   end
-  if options['host-os-name'].to_s.match(/Darwin/)
+  if options['host-os-uname'].to_s.match(/Darwin/)
     command = "ps aux |grep '/usr/local/bin/dhcpd' |grep -v grep"
     output  = execute_command(options, message, command)
     if not output.match(/dhcp/)
@@ -4675,7 +4679,7 @@ end
 # Get service name
 
 def get_service_name(options, service)
-  if options['host-os-name'].to_s.match(/SunOS/)
+  if options['host-os-uname'].to_s.match(/SunOS/)
     if service.to_s.match(/apache/)
       service = "svc:/network/http:apache22"
     end
@@ -4683,7 +4687,7 @@ def get_service_name(options, service)
       service = "svc:/network/dhcp/server:ipv4"
     end
   end
-  if options['host-os-name'].to_s.match(/Darwin/)
+  if options['host-os-uname'].to_s.match(/Darwin/)
     if service.to_s.match(/apache/)
       service = "org.apache.httpd"
     end
@@ -4700,13 +4704,13 @@ end
 # Enable service
 
 def enable_service(options, service_name)
-  if options['host-os-name'].to_s.match(/SunOS/)
+  if options['host-os-uname'].to_s.match(/SunOS/)
     output = enable_smf_service(options, service_name)
   end
-  if options['host-os-name'].to_s.match(/Darwin/)
+  if options['host-os-uname'].to_s.match(/Darwin/)
     output = enable_osx_service(options, service_name)
   end
-  if options['host-os-name'].to_s.match(/Linux/)
+  if options['host-os-uname'].to_s.match(/Linux/)
     output = enable_linux_service(options, service_name)
   end
   return output
@@ -4715,7 +4719,7 @@ end
 # Start service
 
 def start_service(options, service_name)
-  if options['host-os-name'].to_s.match(/Linux/)
+  if options['host-os-uname'].to_s.match(/Linux/)
     output = start_linux_service(options, service_name)
   end
   return output
@@ -4725,13 +4729,13 @@ end
 # Disable service
 
 def disable_service(options, service_name)
-  if options['host-os-name'].to_s.match(/SunOS/)
+  if options['host-os-uname'].to_s.match(/SunOS/)
     output = disable_smf_service(options, service_name)
   end
-  if options['host-os-name'].to_s.match(/Darwin/)
+  if options['host-os-uname'].to_s.match(/Darwin/)
     output = disable_osx_service(options, service_name)
   end
-  if options['host-os-name'].to_s.match(/Linux/)
+  if options['host-os-uname'].to_s.match(/Linux/)
     output = disable_linux_service(options, service_name)
   end
   return output
@@ -4740,13 +4744,13 @@ end
 # Refresh / Restart service
 
 def refresh_service(options, service_name)
-  if options['host-os-name'].to_s.match(/SunOS/)
+  if options['host-os-uname'].to_s.match(/SunOS/)
     output = refresh_smf_service(options, service_name)
   end
-  if options['host-os-name'].to_s.match(/Darwin/)
+  if options['host-os-uname'].to_s.match(/Darwin/)
     output = refresh_osx_service(options, service_name)
   end
-  if options['host-os-name'].to_s.match(/Linux/)
+  if options['host-os-uname'].to_s.match(/Linux/)
     restart_linux_service(options, service_name)
   end
   return output
@@ -4756,7 +4760,7 @@ end
 
 def get_ipv4_default_route(options)
   if !options['gateway'].to_s.match(/[0-9]/)
-    if options['host-os-name'].to_s.match(/Darwin/)
+    if options['host-os-uname'].to_s.match(/Darwin/)
       message = "Information:\tDetermining default route"
       command = "route -n get default |grep gateway |cut -f2 -d:"
       output  = execute_command(options, message, command)
@@ -4906,7 +4910,7 @@ end
 
 def add_apache_proxy(options, service_base_name)
   service = "apache"
-  if options['host-os-name'].to_s.match(/SunOS/)
+  if options['host-os-uname'].to_s.match(/SunOS/)
     if options['osverstion'].to_s.match(/11/) && options['host-os-update'].to_s.match(/4/)
       apache_config_file = options['apachedir']+"/2.4/httpd.conf"
       service = "apache24"
@@ -4915,10 +4919,10 @@ def add_apache_proxy(options, service_base_name)
       service = "apache22"
     end
   end
-  if options['host-os-name'].to_s.match(/Darwin/)
+  if options['host-os-uname'].to_s.match(/Darwin/)
     apache_config_file = options['apachedir']+"/httpd.conf"
   end
-  if options['host-os-name'].to_s.match(/Linux/)
+  if options['host-os-uname'].to_s.match(/Linux/)
     apache_config_file = options['apachedir']+"/conf/httpd.conf"
     if !File.exist?(apache_config_file)
       options = install_package(options, "apache2")
@@ -4942,7 +4946,7 @@ end
 
 def remove_apache_proxy(service_base_name)
   service = "apache"
-  if options['host-os-name'].to_s.match(/SunOS/)
+  if options['host-os-uname'].to_s.match(/SunOS/)
     if options['osverstion'].to_s.match(/11/) && options['host-os-update'].to_s.match(/4/)
       apache_config_file = options['apachedir']+"/2.4/httpd.conf"
       service = "apache24"
@@ -4951,10 +4955,10 @@ def remove_apache_proxy(service_base_name)
       service = "apache22"
     end
   end
-  if options['host-os-name'].to_s.match(/Darwin/)
+  if options['host-os-uname'].to_s.match(/Darwin/)
     apache_config_file = options['apachedir']+"/httpd.conf"
   end
-  if options['host-os-name'].to_s.match(/Linux/)
+  if options['host-os-uname'].to_s.match(/Linux/)
     apache_config_file = options['apachedir']+"/conf/httpd.conf"
   end
   message = "Checking:\tApache confing file "+apache_config_file+" for "+service_base_name
@@ -4982,18 +4986,18 @@ def add_apache_alias(options, service_base_name)
   else
     apache_alias_dir = options['baserepodir']+"/"+service_base_name
   end
-  if options['host-os-name'].to_s.match(/SunOS/)
+  if options['host-os-uname'].to_s.match(/SunOS/)
     if options['host-os-version'].to_s.match(/11/) && options['host-os-update'].to_s.match(/4/)
       apache_config_file = options['apachedir']+"/2.4/httpd.conf"
     else
       apache_config_file = options['apachedir']+"/2.2/httpd.conf"
     end
   end
-  if options['host-os-name'].to_s.match(/Darwin/)
+  if options['host-os-uname'].to_s.match(/Darwin/)
     apache_config_file = options['apachedir']+"/httpd.conf"
   end
-  if options['host-os-name'].to_s.match(/Linux/)
-    if options['host-os-uname'].match(/CentOS|RedHat/)
+  if options['host-os-uname'].to_s.match(/Linux/)
+    if options['host-os-unamea'].match(/CentOS|RedHat/)
       apache_config_file = options['apachedir']+"/conf/httpd.conf"
       apache_doc_root = "/var/www/html"
       apache_doc_dir  = apache_doc_root+"/"+service_base_name
@@ -5001,7 +5005,7 @@ def add_apache_alias(options, service_base_name)
       apache_config_file = "/etc/apache2/apache2.conf"
     end
   end
-  if options['host-os-name'].to_s.match(/SunOS|Linux/)
+  if options['host-os-uname'].to_s.match(/SunOS|Linux/)
     tmp_file = "/tmp/httpd.conf"
     message  = "Checking:\tApache confing file "+apache_config_file+" for "+service_base_name
     command  = "cat #{apache_config_file} |grep '/#{service_base_name}'"
@@ -5034,15 +5038,15 @@ def add_apache_alias(options, service_base_name)
       command = "cp #{tmp_file} #{apache_config_file} ; rm #{tmp_file}"
       execute_command(options, message, command)
     end
-    if options['host-os-name'].to_s.match(/SunOS|Linux/)
-      if options['host-os-name'].to_s.match(/Linux/)
-        if options['host-os-uname'].to_s.match(/CentOS|RedHat/)
+    if options['host-os-uname'].to_s.match(/SunOS|Linux/)
+      if options['host-os-uname'].to_s.match(/Linux/)
+        if options['host-os-unamea'].to_s.match(/CentOS|RedHat/)
           service = "httpd"
         else
           service = "apache2"
         end
       else
-        if options['host-os-name'].match(/SunOS/) && options['host-os-version'].to_s.match(/11/)
+        if options['host-os-uname'].match(/SunOS/) && options['host-os-version'].to_s.match(/11/)
           if options['host-os-update'].to_s.match(/4/)
             service = "apache24"
           else
@@ -5055,8 +5059,8 @@ def add_apache_alias(options, service_base_name)
       enable_service(options, service)
       refresh_service(options, service)
     end
-    if options['host-os-name'].to_s.match(/Linux/)
-      if options['host-os-uname'].match(/RedHat/)
+    if options['host-os-uname'].to_s.match(/Linux/)
+      if options['host-os-unamea'].match(/RedHat/)
         if options['host-os-version'].match(/^7|^6\.7/)
           httpd_p = "httpd_sys_rw_content_t"
           message = "Information:\tFixing permissions on "+options['clientdir']
@@ -5099,10 +5103,10 @@ def mount_iso(options)
     output  = execute_command(options, message, command)
   end
   message = "Information:\tMounting ISO "+options['file']+" on "+options['mountdir']
-  if options['host-os-name'].to_s.match(/SunOS/)
+  if options['host-os-uname'].to_s.match(/SunOS/)
     command = "mount -F hsfs "+options['file']+" "+options['mountdir']
   end
-  if options['host-os-name'].to_s.match(/Darwin/)
+  if options['host-os-uname'].to_s.match(/Darwin/)
     command = "hdiutil attach -nomount \"#{options['file']}\" |head -1 |awk \"{print \\\$1}\""
     if options['verbose'] == true
       handle_output(options, "Executing:\t#{command}")
@@ -5117,7 +5121,7 @@ def mount_iso(options)
       command = "sudo mount -t udf -o ro "+disk_id+" "+options['mountdir']
     end
   end
-  if options['host-os-name'].to_s.match(/Linux/)
+  if options['host-os-uname'].to_s.match(/Linux/)
     file_du = %x[du "#{options['file'].to_s}" |awk '{print $1}']
     file_du = file_du.chomp.to_i
     if file_du < 700000
@@ -5133,7 +5137,7 @@ def mount_iso(options)
     text = IO.readlines(readme)
     if text.grep(/UDF/)
       umount_iso(options)
-      if options['host-os-name'].to_s.match(/Darwin/)
+      if options['host-os-uname'].to_s.match(/Darwin/)
         command = "hdiutil attach -nomount \"#{options['file']}\" |head -1 |awk \"{print \\\$1}\""
         if options['verbose'] == true
           handle_output(options, "Executing:\t#{command}")
@@ -5283,7 +5287,7 @@ def copy_iso(options)
       message = "Copying:\t"+iso_repo_dir+" contents to "+options['repodir']
       command = "rsync -a #{iso_repo_dir}/. #{options['repodir']}"
       output  = execute_command(options, message, command)
-      if options['host-os-name'].to_s.match(/SunOS/)
+      if options['host-os-uname'].to_s.match(/SunOS/)
         message = "Rebuilding:\tRepository in "+options['repodir']
         command = "pkgrepo -s #{options['repodir']} rebuild"
         output  = execute_command(options, message, command)
@@ -5396,7 +5400,7 @@ end
 # Unmount ISO
 
 def umount_iso(options)
-  if options['host-os-name'].to_s.match(/Darwin/)
+  if options['host-os-uname'].to_s.match(/Darwin/)
     command = "df |grep \"#{options['mountdir']}$\" |head -1 |awk \"{print \\\$1}\""
     if options['verbose'] == true
       handle_output(options, "Executing:\t#{command}")
@@ -5404,7 +5408,7 @@ def umount_iso(options)
     disk_id = %x[#{command}]
     disk_id = disk_id.chomp
   end
-  if options['host-os-name'].to_s.match(/Darwin/)
+  if options['host-os-uname'].to_s.match(/Darwin/)
     message = "Detaching:\tISO device "+disk_id
     command = "sudo hdiutil detach #{disk_id}"
     execute_command(options, message, command)

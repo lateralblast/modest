@@ -139,7 +139,7 @@ def create_packer_json(options)
         ks_ip = options['httpbindaddress']
       end
     else
-      if options['host-os-name'].to_s.match(/Darwin/) && options['host-os-version'].to_i > 10 
+      if options['host-os-uname'].to_s.match(/Darwin/) && options['host-os-version'].to_i > 10 
         if options['vm'].to_s.match(/fusion/)
           ks_ip = options['vmgateway']
         else
@@ -728,7 +728,7 @@ def create_packer_json(options)
     if options['httpbindaddress'] != options['empty']
       ks_ip = options['httpbindaddress']
     else
-      if !options['host-os-name'].to_s.match(/Darwin/) && options['host-os-version'].to_i > 10 
+      if !options['host-os-uname'].to_s.match(/Darwin/) && options['host-os-version'].to_i > 10 
         if options['vmnetwork'].to_s.match(/nat/)
           if options['dhcp'] == true
             ks_ip = options['hostonlyip'].to_s
@@ -739,7 +739,7 @@ def create_packer_json(options)
           ks_ip = options['hostonlyip'].to_s
         end
       else
-        if options['host-os-name'].to_s.match(/Darwin/) && options['host-os-version'].to_i > 10 
+        if options['host-os-uname'].to_s.match(/Darwin/) && options['host-os-version'].to_i > 10 
           if options['vmnetwork'].to_s.match(/hostonly/)
             ks_ip = options['vmgateway'].to_s
           else

@@ -122,7 +122,7 @@ def configure_ks_pxe_client(options)
       initrd_file  = "/"+options['service']+"/images/pxeboot/initrd.img"
     end
   end
-  if options['host-os-name'].to_s.match(/Darwin/)
+  if options['host-os-uname'].to_s.match(/Darwin/)
     vmlinuz_file = vmlinuz_file.gsub(/^\//,"")
     initrd_file  = initrd_file.gsub(/^\//,"")
   end

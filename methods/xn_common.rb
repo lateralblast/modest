@@ -9,7 +9,7 @@ end
 # List XEN VMs
 
 def list_xen_vms(options)
-  if !options['host-os-name'].to_s.match(/Linux/)
+  if !options['host-os-uname'].to_s.match(/Linux/)
     return
   end
   return

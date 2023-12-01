@@ -46,10 +46,10 @@ end
 
 def install_package(options, pkg_name)
   if !options['host-os-packages'].to_s.match(/\"#{pkg_name}\"/)
-    if options['host-os-name'].to_s.match(/Darwin/)
+    if options['host-os-uname'].to_s.match(/Darwin/)
       install_osx_package(options, pkg_name)
     end
-    if options['host-os-name'].to_s.match(/Linux/)
+    if options['host-os-uname'].to_s.match(/Linux/)
       install_linux_package(options, pkg_name)
     end
     options = update_package_list(options)
@@ -60,7 +60,7 @@ end
 # Updage package list
 
 def update_package_list(options)
-  if options['host-os-name'].match(/Darwin/)
+  if options['host-os-uname'].match(/Darwin/)
     if File.exist?("/usr/local/bin/brew")
       options['host-os-packages'] = %x[/usr/local/bin/brew list].split(/\s+|\n/)
     end

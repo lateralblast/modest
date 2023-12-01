@@ -7,7 +7,7 @@
 
 def get_ai_repo_version(options)
   options = get_ai_publisherurl(options)
-  if options['test'] == true || options['host-os-name'].to_s.match(/Darwin/)
+  if options['test'] == true || options['host-os-uname'].to_s.match(/Darwin/)
     version  = "0.175.1"
   else
     message = "Information:\tDetermining if available repository version from "+options['publisherurl']
@@ -91,7 +91,7 @@ end
 
 def configure_ai_pkg_repo(options, read_only)
   service_base_name = get_ai_service_base_name(options)
-  if options['host-os-name'].to_s.match(/SunOS/)
+  if options['host-os-uname'].to_s.match(/SunOS/)
     smf_name = "pkg/server:#{service_base_name}"
     message  = "Information:\tChecking if service "+smf_name+" exists"
     if options['service'].to_s.match(/alt/)
@@ -126,7 +126,7 @@ end
 
 def unconfigure_ai_pkg_repo(options, smf_install_service)
   service = smf_install_service.split(":")[1]
-  if options['host-os-name'].to_s.match(/SunOS/)
+  if options['host-os-uname'].to_s.match(/SunOS/)
     message  = "Information:\tChecking if repository service "+smf_install_service+" exists"
     if smf_install_service.match(/alt/)
       command  = "svcs -a |grep '#{smf_install_service}'"

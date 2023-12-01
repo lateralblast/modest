@@ -9,7 +9,7 @@ end
 # Check VM Fusion Promisc Mode
 
 def check_fusion_vm_promisc_mode(options)
-	if options['host-os-name'].to_s.match(/Darwin/)
+	if options['host-os-uname'].to_s.match(/Darwin/)
 	  promisc_file="/Library/Preferences/VMware Fusion/promiscAuthorized"
     if !File.exist?(promisc_file)
 	    %x[sudo sh -c 'touch "/Library/Preferences/VMware Fusion/promiscAuthorized"']
@@ -21,10 +21,10 @@ end
 # Set Fusion VM directory
 
 def set_fusion_vm_dir(options)
-  if options['host-os-name'].to_s.match(/Linux/)
+  if options['host-os-uname'].to_s.match(/Linux/)
     options['fusiondir'] = options['home']+"/vmware"
   end
-  if options['host-os-name'].to_s.match(/Linux|Win/)
+  if options['host-os-uname'].to_s.match(/Linux|Win/)
     options['vmapp'] = "VMware Workstation"
   else
     options['vmapp'] = "VMware Fusion"
@@ -405,7 +405,7 @@ def get_fusion_vm_vmx_file(options)
   if vm_list.to_s.match(/#{options['name']}\.vmx/)
     fusion_vmx_file = vm_list.grep(/#{options['name']}\.vmx/)[0].chomp
   else
-    if options['host-os-name'].to_s.match(/Linux/)
+    if options['host-os-uname'].to_s.match(/Linux/)
       fusion_vm_dir = options['fusiondir']+"/"+options['name']
     else
       fusion_vm_dir = options['fusiondir']+"/"+options['name']+".vmwarevm"
@@ -470,7 +470,7 @@ end
 # Get Fusion VM vmdk file location
 
 def get_fusion_vm_vmdk_file(options)
-  if options['host-os-name'].to_s.match(/Linux/)
+  if options['host-os-uname'].to_s.match(/Linux/)
     fusion_vm_dir = options['fusiondir']+"/"+options['name']
   else
     fusion_vm_dir = options['fusiondir']+"/"+options['name']+".vmwarevm"
@@ -504,7 +504,7 @@ end
 def get_fusion_version(options)
   hw_version = "12"
   message    = "Determining:\tVMware Version"
-  if options['host-os-name'].to_s.match(/Linux/)
+  if options['host-os-uname'].to_s.match(/Linux/)
     command = "vmware --version"
   else
     command = "defaults read \"/Applications/VMware Fusion.app/Contents/Info.plist\" CFBundleShortVersionString"
@@ -564,7 +564,7 @@ end
 # Get/set vmrun path
 
 def set_vmrun_bin(options)
-  if options['host-os-name'].to_s.match(/Darwin/)
+  if options['host-os-uname'].to_s.match(/Darwin/)
     if options['techpreview'] == true
       if File.directory?("/Applications/VMware Fusion Tech Preview.app")
         options['vmrun'] = "/Applications/VMware Fusion Tech Preview.app/Contents/Library/vmrun"
@@ -602,7 +602,7 @@ end
 # Get/set ovftool path
 
 def set_ovfbin(options)
-  if options['host-os-name'].to_s.match(/Darwin/)
+  if options['host-os-uname'].to_s.match(/Darwin/)
     options['ovfbin'] = "/Applications/VMware Fusion.app/Contents/Library/VMware OVF Tool/ovftool"
   else
     options['ovfbin'] = "/usr/bin/ovftool"
@@ -673,7 +673,7 @@ end
 def import_fusion_ova(options)
   options['ip'] = single_install_ip(options)
   set_ovfbin(options)
-  if options['host-os-name'].to_s.match(/Linux/)
+  if options['host-os-uname'].to_s.match(/Linux/)
     fusion_vm_dir = options['fusiondir']+"/"+options['name']
   else
     fusion_vm_dir = options['fusiondir']+"/"+options['name']+".vmwarevm"
@@ -836,7 +836,7 @@ end
 # Change VMware Fusion VM CDROM
 
 def attach_file_to_fusion_vm(options)
-  if options['host-os-name'].to_s.match(/Linux/)
+  if options['host-os-uname'].to_s.match(/Linux/)
     fusion_vm_dir = options['fusiondir']+"/"+options['name']
   else
     fusion_vm_dir = options['fusiondir']+"/"+options['name']+".vmwarevm"
@@ -874,7 +874,7 @@ def detach_file_from_fusion_vm(options)
   if options['verbose'] == true
     handle_output(options, "Information:\tDetaching CDROM from #{options['name']}")
   end
-  if options['host-os-name'].to_s.match(/Linux/)
+  if options['host-os-uname'].to_s.match(/Linux/)
     fusion_vm_dir = options['fusiondir']+"/"+options['name']
   else
     fusion_vm_dir = options['fusiondir']+"/"+options['name']+".vmwarevm"
@@ -902,7 +902,7 @@ end
 
 def get_fusion_hostonly_network(options)
   hostonly_ip = ""
-  case options['host-os-name']
+  case options['host-os-uname']
   when /Darwin/
     config_file = "/Library/Preferences/VMware Fusion/networking"
   when /Linux/
@@ -935,7 +935,7 @@ end
 # Check Fusion hostonly networking
 
 def check_fusion_hostonly_network(options, if_name)
-  case options['host-os-name']
+  case options['host-os-uname']
   when /Darwin/
     config_file = "/Library/Preferences/VMware Fusion/networking"
   when /Linux/
@@ -949,7 +949,7 @@ def check_fusion_hostonly_network(options, if_name)
   vmnet_test = 0
   copy = []
   file = IO.readlines(config_file)
-  if options['host-os-name'].to_s.match(/Darwin/)
+  if options['host-os-uname'].to_s.match(/Darwin/)
     file.each do |line|
       case line
       when /answer VNET_1_DHCP /
@@ -972,7 +972,7 @@ def check_fusion_hostonly_network(options, if_name)
     end
   end
   message = "Information:\tChecking vmnet interfaces are plumbed"
-  if options['host-os-name'].to_s.match(/NT/)
+  if options['host-os-uname'].to_s.match(/NT/)
     command = "ipconfig /all |grep -i "+options['vmnet'].to_s
   else
     command = "ifconfig -a |grep -i "+options['vmnet'].to_s
@@ -981,9 +981,9 @@ def check_fusion_hostonly_network(options, if_name)
   if not output.match(/#{options['vmnet'].to_s}/)
     vmnet_test = 1
   end
-  if dhcp_test == 1 || vmnet_test == 1 && options['host-os-name'].to_s.match(/Darwin/)
+  if dhcp_test == 1 || vmnet_test == 1 && options['host-os-uname'].to_s.match(/Darwin/)
     message = "Information:\tStarting "+options['vmapp']
-    if options['host-os-name'].to_s.match(/Darwin/)
+    if options['host-os-uname'].to_s.match(/Darwin/)
       vmnet_cli = "/Applications/"+options['vmapp'].to_s+".app/Contents/Library/vmnet-cli"
       command   = "cd /Applications ; open \"#{options['vmapp'].to_s}.app\""
     else
@@ -996,34 +996,34 @@ def check_fusion_hostonly_network(options, if_name)
     File.open(temp_file, "w") {|file_data| file_data.puts copy}
     message = "Information:\tConfiguring host only network on #{if_name} for network #{network_address}"
     command = "cp #{temp_file} \"#{config_file}\""
-    if options['host-os-name'].to_s.match(/Darwin/) && options['host-os-version'].to_s.match(/^11/)
+    if options['host-os-uname'].to_s.match(/Darwin/) && options['host-os-version'].to_s.match(/^11/)
       %x[sudo sh -c '#{command}']
     else
       execute_command(options, message, command)
     end
     message = "Information:\tConfiguring VMware network"
     command = "\"#{vmnet_cli}\" --configure"
-    if options['host-os-name'].to_s.match(/Darwin/) && options['host-os-version'].to_s.match(/^11/)
+    if options['host-os-uname'].to_s.match(/Darwin/) && options['host-os-version'].to_s.match(/^11/)
       %x[sudo sh -c '#{command}']
     else
       execute_command(options, message, command)
     end
     message = "Information:\tStopping VMware network"
     command = "\"#{vmnet_cli}\" --stop"
-    if options['host-os-name'].to_s.match(/Darwin/) && options['host-os-version'].to_s.match(/^11/)
+    if options['host-os-uname'].to_s.match(/Darwin/) && options['host-os-version'].to_s.match(/^11/)
       %x[sudo sh -c '#{command}']
     else
       execute_command(options, message, command)
     end
     message = "Information:\tStarting VMware network"
     command = "\"#{vmnet_cli}\" --start"
-    if options['host-os-name'].to_s.match(/Darwin/) && options['host-os-version'].to_s.match(/^11/)
+    if options['host-os-uname'].to_s.match(/Darwin/) && options['host-os-version'].to_s.match(/^11/)
       %x[sudo sh -c '#{command}']
     else
       execute_command(options, message, command)
     end
   end
-  if options['host-os-name'].to_s.match(/NT/)
+  if options['host-os-uname'].to_s.match(/NT/)
     if_name = "VMware Network Adapter VMnet1"
     output  = get_win_ip_from_if_name(if_name)
   else
@@ -1034,7 +1034,7 @@ def check_fusion_hostonly_network(options, if_name)
   hostonly_ip = output.chomp.split(" ")[1]
   if hostonly_ip != options['hostonlyip']
     message = "Information:\tSetting "+options['vmnet'].to_s+" address to "+options['hostonlyip']
-    if options['host-os-name'].to_s.match(/NT/)
+    if options['host-os-uname'].to_s.match(/NT/)
       command = "netsh interface ip set address {if_name} static #{options['hostonlyip']} #{options['netmask']}"
     else
       command = "ifconfig "+options['vmnet'].to_s+" inet #{options['hostonlyip']} up"
@@ -1048,7 +1048,7 @@ end
 # Change VMware Fusion VM network type
 
 def change_fusion_vm_network(options, client_network)
-  if options['host-os-name'].to_s.match(/Linux/)
+  if options['host-os-uname'].to_s.match(/Linux/)
     fusion_vm_dir = options['fusiondir']+"/"+options['name']
   else
     fusion_vm_dir = options['fusiondir']+"/"+options['name']+".vmwarevm"
@@ -1080,7 +1080,7 @@ end
 def boot_fusion_vm(options)
   exists = check_fusion_vm_exists(options)
   if exists == true
-    if options['host-os-name'].to_s.match(/Linux/)
+    if options['host-os-uname'].to_s.match(/Linux/)
       fusion_vm_dir = options['fusiondir']+"/"+options['name']
     else
       fusion_vm_dir = options['fusiondir']+"/"+options['name']+".vmwarevm"
@@ -1128,7 +1128,7 @@ end
 def add_shared_folder_to_fusion_vm(options)
   vm_list = get_running_fusion_vms(options)
   if vm_list.to_s.match(/#{options['name']}/)
-    if options['host-os-name'].to_s.match(/Linux/)
+    if options['host-os-uname'].to_s.match(/Linux/)
       fusion_vm_dir = options['fusiondir']+"/"+options['name']
     else
       fusion_vm_dir = options['fusiondir']+"/"+options['name']+".vmwarevm"
@@ -1154,7 +1154,7 @@ end
 def stop_fusion_vm(options)
   exists = check_fusion_vm_exists(options)
   if exists == true
-    if options['host-os-name'].to_s.match(/Linux/)
+    if options['host-os-uname'].to_s.match(/Linux/)
       fusion_vm_dir = options['fusiondir']+"/"+options['name']
     else
       fusion_vm_dir = options['fusiondir']+"/"+options['name']+".vmwarevm"
@@ -1191,7 +1191,7 @@ end
 def reset_fusion_vm(options)
   vm_list = get_running_fusion_vms(options)
   if vm_list.to_s.match(/#{options['name']}/)
-    if options['host-os-name'].to_s.match(/Linux/)
+    if options['host-os-uname'].to_s.match(/Linux/)
       fusion_vm_dir = options['fusiondir']+"/"+options['name']
     else
       fusion_vm_dir = options['fusiondir']+"/"+options['name']+".vmwarevm"
@@ -1213,7 +1213,7 @@ end
 def suspend_fusion_vm(options)
   vm_list = get_running_fusion_vms(options)
   if vm_list.to_s.match(/#{options['name']}/)
-    if options['host-os-name'].to_s.match(/Linux/)
+    if options['host-os-uname'].to_s.match(/Linux/)
       fusion_vm_dir = options['fusiondir']+"/"+options['name']
     else
       fusion_vm_dir = options['fusiondir']+"/"+options['name']+".vmwarevm"
@@ -1238,7 +1238,7 @@ def create_fusion_vm_disk(options, fusion_vm_dir, fusion_disk_file)
     quit(options)
   end
   check_dir_exists(options, fusion_vm_dir)
-  if options['host-os-name'].to_s.match(/Darwin/)
+  if options['host-os-uname'].to_s.match(/Darwin/)
     vdisk_bin = "/Applications/VMware Fusion.app/Contents/Library/vmware-vdiskmanager"
   else
     vdisk_bin = "/usr/bin/vmware-vdiskmanager"
@@ -1254,7 +1254,7 @@ end
 
 def check_fusion_vm_exists(options)
   set_vmrun_bin(options)
-  if options['host-os-name'].to_s.match(/Linux/)
+  if options['host-os-uname'].to_s.match(/Linux/)
     fusion_vm_dir = options['fusiondir']+"/"+options['name']
   else
     fusion_vm_dir = options['fusiondir']+"/"+options['name']+".vmwarevm"
@@ -1277,7 +1277,7 @@ end
 # Check VMware Fusion VM doesn't exist
 
 def check_fusion_vm_doesnt_exist(options)
-  if options['host-os-name'].to_s.match(/Linux/)
+  if options['host-os-uname'].to_s.match(/Linux/)
     fusion_vm_dir = options['fusiondir']+"/"+options['name']
   else
     fusion_vm_dir = options['fusiondir']+"/"+options['name']+".vmwarevm"
@@ -1417,7 +1417,7 @@ def get_ps_fusion_guest_os(options)
   if options['arch'].to_s.match(/64/)
     guest_os = guest_os+"-64"
   end
-  if options['arch'].to_s.match(/arm/) or options['host-os-arch'].to_s.match(/arm/)
+  if options['arch'].to_s.match(/arm/) or options['host-os-unamep'].to_s.match(/arm/)
     guest_os = "arm-"+guest_os
   end
   return guest_os
@@ -1501,7 +1501,7 @@ end
 # Check VMware Fusion is installed
 
 def check_fusion_is_installed(options)
-  if options['host-os-name'].to_s.match(/Darwin/)
+  if options['host-os-uname'].to_s.match(/Darwin/)
     options['vmapp'] = "VMware Fusion"
     app_dir = "/Applications/VMware Fusion.app"
     if !File.directory?(app_dir)
@@ -1538,7 +1538,7 @@ def unconfigure_fusion_vm(options)
   exists = check_fusion_vm_exists(options)
   if exists == true
     stop_fusion_vm(options)
-    if options['host-os-name'].to_s.match(/Linux/)
+    if options['host-os-uname'].to_s.match(/Linux/)
       fusion_vm_dir = options['fusiondir']+"/"+options['name']
     else
       fusion_vm_dir = options['fusiondir']+"/"+options['name']+".vmwarevm"
@@ -1771,7 +1771,7 @@ def populate_fusion_vm_vmx_info(options)
   if options['os-type'].to_s.match(/vmware|esx|vsphere/)
     vmx_info.push("ethernet0.virtualDev,vmxnet3")
   else
-    if options['host-os-arch'].to_s.match(/arm/)
+    if options['host-os-unamep'].to_s.match(/arm/)
       vmx_info.push("ethernet0.virtualDev,e1000e")
     else
       vmx_info.push("ethernet0.virtualDev,e1000")
@@ -1853,7 +1853,7 @@ def populate_fusion_vm_vmx_info(options)
   vmx_info.push("ethernet0.pciSlotNumber,33")
   vmx_info.push("sound.pciSlotNumber,34")
 #  vmx_info.push("vmci0.pciSlotNumber,36")
-  if options['host-os-arch'].to_s.match(/arm/)
+  if options['host-os-unamep'].to_s.match(/arm/)
     vmx_info.push("monitor.phys_bits_used,36")
     vmx_info.push("cpuid.coresPerSocket,1")
     vmx_info.push("usb.pciSlotNumber,32")
@@ -1935,7 +1935,7 @@ def populate_fusion_vm_vmx_info(options)
 #  vmx_info.push("hgfs.mapRootShare,TRUE")
 #  vmx_info.push("hgfs.linkRootShare,TRUE")
   if version >= 8
-    if not options['host-os-arch'].to_s.match(/arm/)
+    if not options['host-os-unamep'].to_s.match(/arm/)
       vmx_info.push("acpi.smbiosVersion2.7,FALSE")
     end
     vmx_info.push("numa.autosize.vcpu.maxPerVirtualNode,2")

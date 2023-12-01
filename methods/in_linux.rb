@@ -193,7 +193,7 @@ end
 # Install Linux Package
 
 def install_linux_package(options, pkg_name)
-  if options['host-os-uname'].to_s.match(/Endeavour|Arch/)
+  if options['host-lsb-description'].to_s.match(/Endeavour|Arch/)
     check_arch_package(options, pkg_name)
   else
     if File.exist?("/etc/redhat-release") or File.exist?("/etc/SuSE-release")

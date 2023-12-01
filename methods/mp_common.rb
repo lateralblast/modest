@@ -3,7 +3,7 @@
 # Check Multipass is installed
 
 def check_multipass_is_installed(options)
-  case options['host-os-name'].to_s
+  case options['host-os-uname'].to_s
   when /Darwin/
     if !File.exist?("/usr/local/bin/multipass")
       install_brew_pkg(options, "multipass")
@@ -179,7 +179,7 @@ end
 
 def get_multipass_service_from_release(options)
   release = options['release'].to_s
-  machine = options['host-os-machine'].to_s
+  machine = options['host-os-unamem'].to_s
   if options['service'] == options['empty']
     message = "Information:\tDetermining service name"
     command = "multipass find |grep '^#{release}'"

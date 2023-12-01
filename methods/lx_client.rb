@@ -226,7 +226,7 @@ end
 
 def create_standard_lxc(options)
   message = "Information:\tCreating standard container "+options['name']
-  if options['host-os-uname'].match(/Ubuntu/)
+  if options['host-os-unamea'].match(/Ubuntu/)
     command = "lxc-create -t ubuntu -n #{options['name']}"
   end
   execute_command(options, message, command)
@@ -352,10 +352,10 @@ def configure_lxc(options)
     options = populate_lxc_client_questions(options)
     process_questions(options)
     create_standard_lxc(options)
-    if options['host-os-uname'].match(/Ubuntu/)
+    if options['host-os-unamea'].match(/Ubuntu/)
       create_ubuntu_lxc_config(options)
     end
-    if options['host-os-uname'].match(/RedHat|Centos/)
+    if options['host-os-unamea'].match(/RedHat|Centos/)
       create_centos_lxc_config(options)
     end
   else

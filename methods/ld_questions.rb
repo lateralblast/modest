@@ -5,7 +5,7 @@
 def populate_cdom_questions(options)
   ld = Struct.new(:question, :ask, :value, :valid, :eval)
 
-  if options['host-os-uname'].match(/T5[0-9]|T3/)
+  if options['host-os-unamea'].match(/T5[0-9]|T3/)
 
     name = "cdom_mau"
     config = ld.new(
@@ -62,7 +62,7 @@ def populate_gdom_questions(options)
   gdom_dir    = $ldom_base_dir+"/"+options['name']
   client_disk = gdom_dir+"/vdisk0"
 
-  if options['host-os-uname'].match(/T5[0-9]|T3/)
+  if options['host-os-unamea'].match(/T5[0-9]|T3/)
 
     name = "gdom_mau"
     config = ld.new(

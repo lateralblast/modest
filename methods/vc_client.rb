@@ -43,10 +43,10 @@ def deploy_vcsa_vm(options)
   vcsa_json_file = create_vcsa_json(options)
   #create_vcsa_deploy_script(options)
   options['repodir'] = options['baserepodir']+"/"+options['service']
-  if options['host-os-name'].to_s.match(/Darwin/)
+  if options['host-os-uname'].to_s.match(/Darwin/)
     deployment_dir = options['repodir']+"/vcsa-cli-installer/mac"
   end
-  if options['host-os-name'].to_s.match(/Linux/)
+  if options['host-os-uname'].to_s.match(/Linux/)
     deployment_dir = options['repodir']+"/vcsa-cli-installer/lin64"
   end
   if File.directory?(deployment_dir)

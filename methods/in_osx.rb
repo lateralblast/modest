@@ -17,7 +17,7 @@ def check_osx_ip_forwarding(options, gw_if_name)
     execute_command(options, message, command)
   end
   message = "Information:\tChecking rule for IP forwarding has been created"
-  if options['host-os-release'].split(/\./)[0].to_i > 13
+  if options['host-os-unamer'].split(/\./)[0].to_i > 13
     command = "sudo sh -c \"pfctl -a '*' -sr 2>&1\""
   else
     command = "sudo sh -c \"ipfw list |grep 'any to any via #{gw_if_name}'\""
@@ -66,14 +66,14 @@ def check_osx_nat(options, gw_if_name, if_name)
   output = check_osx_ip_forwarding(gw_if_name)
   if not output.match(/#{gw_if_name}/)
     message = "Information:\tEnabling NATd to forward traffic on "+gw_if_name
-    if options['host-os-release'].split(".")[0].to_i < 14
+    if options['host-os-unamer'].split(".")[0].to_i < 14
       command = "sudo sh -c \"ipfw add 100 divert natd ip from any to any via #{gw_if_name}\""
       execute_command(options, message, command)
     else
       check_osx_pfctl(options, gw_if_name, if_name)
     end
   end
-  if options['host-os-release'].split(/\./)[0].to_i < 13
+  if options['host-os-unamer'].split(/\./)[0].to_i < 13
     message = "Information:\tChecking NATd is running"
     command = "ps -ef |grep '#{gw_if_name}' |grep natd |grep 'same_ports'"
     output  = execute_command(options, message, command)

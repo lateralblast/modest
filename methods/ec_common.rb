@@ -809,15 +809,15 @@ end
 def check_vagrant_is_installed(options, osinfo)
   $vagrant_bin = %x[which vagrant].chomp
   if not $vagrant_bin.match(/vagrant/)
-    if options['host-os-name'].to_s.match(/Darwin/)
-      vagrant_pkg = "vagrant_"+$vagrant_version+"_"+options['host-os-name'].downcase+".dmg"
+    if options['host-os-uname'].to_s.match(/Darwin/)
+      vagrant_pkg = "vagrant_"+$vagrant_version+"_"+options['host-os-uname'].downcase+".dmg"
       vagrant_url = "https://releases.hashicorp.com/vagrant/"+$vagrant_version+"/"+vagrant_pkg
     else
-      if options['host-os-machine'].to_s.match(/64/)
-        vagrant_pkg = "vagrant_"+$vagrant_version+"_"+options['host-os-name'].downcase+"_amd64.zip"
+      if options['host-os-unamem'].to_s.match(/64/)
+        vagrant_pkg = "vagrant_"+$vagrant_version+"_"+options['host-os-uname'].downcase+"_amd64.zip"
         vagrant_url = "https://releases.hashicorp.com/vagrant/"+$vagrant_version+"/"+vagrant_pkg
       else
-        vagrant_pkg = "vagrant_"+$vagrant_version+"_"+options['host-os-name'].downcase+"_386.zip"
+        vagrant_pkg = "vagrant_"+$vagrant_version+"_"+options['host-os-uname'].downcase+"_386.zip"
         vagrant_url = "https://releases.hashicorp.com/vagrant/"+$vagrant_version+"/"+vagrant_pkg
       end
     end
@@ -830,7 +830,7 @@ def check_vagrant_is_installed(options, osinfo)
       command = "mkdir /usr/local/bin"
       execute_command(options, message, command)
     end
-    if options['host-os-name'].to_s.match(/Darwin/)
+    if options['host-os-uname'].to_s.match(/Darwin/)
       message = "Information:\tMounting Vagrant Image"
       command = "hdiutil attach #{vagrant_pkg}"
       execute_command(options, message, command)
@@ -878,7 +878,7 @@ def check_if_aws_cli_is_installed()
   aws_cli = %x[which aws]
   if not aws_cli.match(/aws/)
     handle_output(options, "Warning:\tAWS CLI not installed")
-    if options['host-os-name'].to_s.match(/Darwin/)
+    if options['host-os-uname'].to_s.match(/Darwin/)
       handle_output(options, "Information:\tInstalling AWS CLI")
       brew_install("awscli")
     end

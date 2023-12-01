@@ -196,7 +196,7 @@ def check_parallels_hostonly_network(options)
     execute_command(options, message, command)
   end
   gw_if_name = get_gw_if_name(options)
-  if options['host-os-release'].split(".")[0].to_i < 14
+  if options['host-os-unamer'].split(".")[0].to_i < 14
     check_osx_nat(gw_if_name, if_name)
   else
     check_osx_pfctl(options, gw_if_name, if_name)

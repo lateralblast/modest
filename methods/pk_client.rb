@@ -64,7 +64,7 @@ def list_packer_clients(options)
       when /parallels/
         vm_title = "Parallels"
       else
-        if options['host-os-name'].to_s.match(/Darwin/)
+        if options['host-os-uname'].to_s.match(/Darwin/)
           vm_title = "VMware Fusion"
         else
           vm_title = "VMware Workstation"
@@ -256,7 +256,7 @@ def configure_packer_client(options)
   end
   if not options['hostip'].to_s.match(/[0-9,a-z,A-Z]/)
   end
-  if options['host-os-name'].to_s.match(/Linux/) and not options['ip'] == options['empty']
+  if options['host-os-uname'].to_s.match(/Linux/) and not options['ip'] == options['empty']
     enable_linux_ufw_internal_network(options)
   end
   if options['verbose'] == true
@@ -357,13 +357,13 @@ def build_packer_config(options)
   end
 	message = "Information:\tBuilding Packer Image "+json_file
   if options['verbose'] == true
-    if options['host-os-name'].to_s.match(/NT/)
+    if options['host-os-uname'].to_s.match(/NT/)
       command = "cd "+options['clientdir']+" ; export PACKER_LOG=1 ; packer build "+options['name']+".json"
     else
       command = "export PACKER_LOG=1 ; packer build --on-error=abort "+json_file
     end
   else
-    if options['host-os-name'].to_s.match(/NT/)
+    if options['host-os-uname'].to_s.match(/NT/)
   	  command = "cd "+options['clientdir']+" ; packer build "+options['name']+".json"
     else
       command = "packer build "+json_file

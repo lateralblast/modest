@@ -1575,3 +1575,5 @@
 # Added support for building ESXi 7 and 8 inside KVM with Packer
 # 7.8.7: Thu 30 Nov 2023 17:15:59 AEDT
 # Added initial support to import external preseed, kickstart, cloudinit, and unattended files
+# 7.8.8: Fri Dec  1 04:48:45 PM AEDT 2023
+# Cleaned up uname and lsb information
