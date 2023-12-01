@@ -24,6 +24,10 @@ def set_defaults(options, defaults)
     if defaults['host-os-uname'].to_s.match(/Linux/)
       if defaults['host-os-unamea'].to_s.match(/Ubuntu/)
         defaults['host-os-packages'] = %x[dpkg -l |awk '{print $2}'].split(/\s+|\n/)
+      else
+        if defaults['host-os-unamea'].to_s.match(/arch/)
+          defaults['host-os-packages'] = %x[pacman -Q |awk '{print $1}'].split(/\s+|\n/)
+        end
       end
       defaults['host-os-memory'] = %x[free -g |grep ^Mem |awk '{print $2}'].chomp
       defaults['host-os-cpu']    = %x[cat /proc/cpuinfo |grep processor |wc -l].chomp
@@ -141,7 +145,7 @@ def set_defaults(options, defaults)
       defaults['host-lsb-version']  = %x[#{defaults['lsb']} -v -s].chomp
       defaults['host-lsb-codename'] = %x[#{defaults['lsb']} -c -s].chomp
       defaults['host-lsb-distributor'] = %x[#{defaults['lsb']} -i -s].chomp
-      defaults['host-lsb-description'] = %x[#{defaults['lsb']} -d -s].chomp
+      defaults['host-lsb-description'] = %x[#{defaults['lsb']} -d -s].chomp.gsub(/"/,"")
     when /Darwin/
       defaults['nic']    = "en0"
       defaults['ovfbin'] = "/Applications/VMware OVF Tool/ovftool"
@@ -527,7 +531,22 @@ def set_defaults(options, defaults)
     defaults['destroy-on-exit'] = false
     defaults['check']           = false
   end
-  return defaults
+  # Set Host OS specific information
+  options['host-os-uname']   = defaults['host-os-uname']
+  options['host-os-unamep']  = defaults['host-os-unamep']
+  options['host-os-unamem']  = defaults['host-os-unamem']
+  options['host-os-unamea']  = defaults['host-os-unamea']
+  options['host-os-unamer']  = defaults['host-os-unamer']
+  if options['host-os-uname'].to_s.match(/Linux/)
+    options['host-lsb-id']  = defaults['host-lsb-id']
+    options['host-lsb-all'] = defaults['host-lsb-all']
+    options['host-lsb-release']  = defaults['host-lsb-release']
+    options['host-lsb-version']  = defaults['host-lsb-version']
+    options['host-lsb-codename'] = defaults['host-lsb-codename']
+    options['host-lsb-distributor'] = defaults['host-lsb-distributor']
+    options['host-lsb-description'] = defaults['host-lsb-description']
+  end
+  return options, defaults
 end
 
 # Set some parameter once we have more details
@@ -976,10 +995,14 @@ def get_my_ip(options)
     if options['host-os-uname'].to_s.match(/SunOS/)
       command = "/usr/sbin/ifconfig -a | awk \"BEGIN { count=0; } { if ( \\\$1 ~ /inet/ ) { count++; if( count==2 ) { print \\\$2; } } }\""
     else
-      if options['vm'].to_s == "kvm"
-        command = "hostname -I |awk \"{print \\\$2}\""
+      if File.exist?("/usr/bin/ip")
+        command = "ip addr |grep 'inet ' |grep -v 127 |head -1 |awk '{print \$2}' |cut -f1 -d/"
       else
-        command = "hostname -I |awk \"{print \\\$1}\""
+        if options['vm'].to_s == "kvm"
+          command = "hostname -I |awk \"{print \\\$2}\""
+        else
+          command = "hostname -I |awk \"{print \\\$1}\""
+        end
       end
     end
   end
@@ -2258,7 +2281,11 @@ def get_install_service_from_file(options)
         if options['host-os-uname'].to_s.match(/Darwin/)
           install_package(options, "wimlib")
         else
-          install_package(options, "wimtools")
+          if options['host-lsb-description'].to_s.match(/Endeavour|Arch/)
+            install_package(options, "wimlib")
+          else
+            install_package(options, "wimtools")
+          end
         end
         wiminfo_bin = %x[which wiminfo]
         if not wiminfo_bin.match(/wiminfo/)

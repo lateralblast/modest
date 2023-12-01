@@ -180,7 +180,7 @@ def check_arch_package(options, package)
   end
   if not output.match(/#{package}/)
     message = "installing:\t"+package
-    command = "pacman -Sy #{package}"
+    command = "echo Y |pacman -Sy #{package}"
     execute_command(options, message, command)
   end
   return

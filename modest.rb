@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      7.8.8
+# Version:      7.8.9
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -594,7 +594,7 @@ end
 # Get defaults
 
 defaults = {}
-defaults = set_defaults(options, defaults)
+(options, defaults) = set_defaults(options, defaults)
 defaults['stdout'] = []
 
 # Check valid values

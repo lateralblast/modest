@@ -1577,3 +1577,5 @@
 # Added initial support to import external preseed, kickstart, cloudinit, and unattended files
 # 7.8.8: Fri Dec  1 04:48:45 PM AEDT 2023
 # Cleaned up uname and lsb information
+# 7.8.9: Fri 01 Dec 2023 18:48:23 AEDT
+# Default environment clean up and additional Arch Linux support
