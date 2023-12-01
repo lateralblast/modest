@@ -422,9 +422,15 @@ def create_packer_pe_install_files(options)
   check_dir_exists(options, options['clientdir'])
   check_dir_exists(options, output_dir)
   delete_file(options, output_file)
+  input_file = options['unattendedfile'].to_s
   populate_pe_questions(options)
   process_questions(options)
-  output_pe_client_profile(options, output_file)
+  if input_file.match(/[a-z]/) and File.exist?(info_file) 
+    message = "Information:\tCopying file #{input_file} to #{output_file}"
+    command = "cp #{input_file} #{output_file}"
+  else
+    output_pe_client_profile(options, output_file)
+  end
   print_contents_of_file(options, "", output_file)
   output_file = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/post_install.ps1"
   if File.exist?(output_file)

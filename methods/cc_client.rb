@@ -274,6 +274,7 @@ end
 # Output Cloud Config/Init user data
 
 def output_cc_user_data(options, user_data, early_exec_data, late_exec_data, output_file)
+  cc_file = options['cloudinitfile']. to_s
   if !options['vm'].to_s.match(/mp|multipass/)
     in_target = "curtin in-target --target=/target -- "
   else
@@ -281,47 +282,52 @@ def output_cc_user_data(options, user_data, early_exec_data, late_exec_data, out
   end
   check_dir = File.dirname(output_file)
   check_dir_exists(options, check_dir)
-  tmp_file  = "/tmp/user_data_"+options['name']
-  file      = File.open(tmp_file, 'w')
-  end_char  = "\n"
-  user_data.each do |line|
-    output = line+end_char
-    file.write(output)
-  end
-  pkg_list = options['q_struct']['additional_packages'].value
-  if options['vm'].to_s.match(/mp|multipass/)
-    file.write("packages:\n")
-    pkg_list.split(" ").each do |line|
-      output = "  - "+line+"\n"
-      file.write(output)
-    end
-    file.write("runcmd:\n")
-    exec_data.each do |line|
-      output = "  - "+line+"\n"
-      file.write(output)
-    end
+  if cc_file.match(/[a-z]/) and File.exist?(cc_file)
+    message = "Information:\tCopying #{cc_file} to #{output_file}"
+    command = "cp #{cc_file} #{output_file}"
   else
-    end_char = "\n"
-    file.write("  early-commands:\n")
-#    file.write("    [")
-    early_exec_data.each do |line|
-      output = "    - \""+line+"\""+end_char
+    tmp_file  = "/tmp/user_data_"+options['name']
+    file      = File.open(tmp_file, 'w')
+    end_char  = "\n"
+    user_data.each do |line|
+      output = line+end_char
       file.write(output)
     end
-    file.write("  late-commands:\n")
-#    file.write("    [")
-    late_exec_data.each do |line|
-      output = "    - \""+line+"\""+end_char
-      file.write(output)
+    pkg_list = options['q_struct']['additional_packages'].value
+    if options['vm'].to_s.match(/mp|multipass/)
+      file.write("packages:\n")
+      pkg_list.split(" ").each do |line|
+        output = "  - "+line+"\n"
+        file.write(output)
+      end
+      file.write("runcmd:\n")
+      exec_data.each do |line|
+        output = "  - "+line+"\n"
+        file.write(output)
+      end
+    else
+      end_char = "\n"
+      file.write("  early-commands:\n")
+  #    file.write("    [")
+      early_exec_data.each do |line|
+        output = "    - \""+line+"\""+end_char
+        file.write(output)
+      end
+      file.write("  late-commands:\n")
+  #    file.write("    [")
+      late_exec_data.each do |line|
+        output = "    - \""+line+"\""+end_char
+        file.write(output)
+      end
+  #    file.write(" \"#{in_target}apt update\",")
+  #    output = " \"#{in_target}apt install -y "+pkg_list+"\","+end_char
+  #    file.write(output)
+  #    file.write(" \"date\" ]\n\n")
     end
-#    file.write(" \"#{in_target}apt update\",")
-#    output = " \"#{in_target}apt install -y "+pkg_list+"\","+end_char
-#    file.write(output)
-#    file.write(" \"date\" ]\n\n")
+    file.close
+    message = "Information:\tCreating cloud user-data file #{output_file}"
+    command = "cat #{tmp_file} >> #{output_file} ; rm #{tmp_file}"
   end
-  file.close
-  message = "Creating:\tCloud user-data file "+output_file
-  command = "cat #{tmp_file} >> #{output_file} ; rm #{tmp_file}"
   execute_command(options, message, command)
   print_contents_of_file(options, "", output_file)
   return

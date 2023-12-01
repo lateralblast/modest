@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      7.8.6
+# Version:      7.8.7
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -162,14 +162,15 @@ begin
     ['--adminuid', REQUIRED],         # Admin user UID for client VM to be created
     ['--adminuser', REQUIRED],        # Admin username for client VM to be created
     ['--adminpassword', REQUIRED],    # Client admin password
-    ['--auditsize', REQUIRED],        # Set audit fs size
-    ['--audio', REQUIRED],            # Audio
-    ['--auditfs', REQUIRED],          # Set audit fs
     ['--aidir', REQUIRED],            # Solaris AI Directory
     ['--aiport', REQUIRED],           # Solaris AI Port 
     ['--ami', REQUIRED],              # AWS AMI ID
     ['--arch', REQUIRED],             # Architecture of client or VM (e.g. x86_64)
+    ['--auditsize', REQUIRED],        # Set audit fs size
+    ['--audio', REQUIRED],            # Audio
+    ['--auditfs', REQUIRED],          # Set audit fs
     ['--autostart', BOOLEAN],         # Autostart (KVM)
+    ['--autoyastfile', REQUIRED],     # AutoYaST file
     ['--awsuser', REQUIRED],          # AWS User
     ['--bename', REQUIRED],           # ZFS BE (Boot Environment) name
     ['--baserepodir', REQUIRED],      # Base repository directory
@@ -196,6 +197,7 @@ begin
     ['--clock', REQUIRED],            # Clock (KVM)
     ['--clone', REQUIRED],            # Clone name
     ['--cloudfile', REQUIRED],        # Cloud init config image (KVM)
+    ['--cloudinitfile', REQUIRED],    # Cloud init config file (KVM)
     ['--command', REQUIRED],          # Run command
     ['--comment', REQUIRED],          # Comment
     ['--configfile', REQUIRED],       # Config file (KVM)
@@ -212,13 +214,13 @@ begin
     ['--creds', REQUIRED],            # Credentials file
     ['--crypt', REQUIRED],            # Password crypt
     ['--datastore', REQUIRED],        # Datastore to deploy to on remote server
+    ['--defaults', BOOLEAN],          # Answer yes to all questions (accept defaults)
+    ['--delete', BOOLEAN],            # Delete client / service
     ['--desc', REQUIRED],             # Description
+    ['--destory-on-exit', BOOLEAN],   # Destroy on exit (KVM)
     ['--dhcp', BOOLEAN],              # DHCP 
     ['--dhcpdfile', REQUIRED],        # DHCP Config file
     ['--dhcpdrange', REQUIRED],       # Set DHCP range
-    ['--defaults', BOOLEAN],          # Answer yes to all questions (accept defaults)
-    ['--delete', BOOLEAN],            # Delete client / service
-    ['--destory-on-exit', BOOLEAN],   # Destroy on exit (KVM)
     ['--dir', REQUIRED],              # Directory / Direction
     ['--disk', REQUIRED],             # Disk file
     ['--disksize', REQUIRED],         # Packer Disk size
@@ -228,20 +230,16 @@ begin
     ['--diskmode', REQUIRED],         # Disk mode (e.g. thin)
     ['--dnsmasq', BOOLEAN],           # Update / Check DNSmasq
     ['--domainname', REQUIRED],       # Set domain (Used with deploy for VCSA)
-    ['--installdrivers', BOOLEAN],    # Install Drivers
-    ['--installupgrades', BOOLEAN],   # Install Package Updates
-    ['--installupgrades', BOOLEAN],   # Install Package Upgrades
-    ['--installsecurity', BOOLEAN],   # Install Security Updates
     ['--preservesources', BOOLEAN],   # Preserve Sources List
     ['--dry-run', BOOLEAN],           # Dryrun flag
     ['--email', REQUIRED],            # AWS ACL email
-    ['--epel', REQUIRED],             # EPEL Mirror
     ['--empty', REQUIRED],            # Empty / Null value
     ['--enable', REQUIRED],           # Enable flag
     ['--enableethernet', BOOLEAN],    # Enable ethernet flag
     ['--enablevnc', BOOLEAN],         # Enable VNC flag
     ['--enablevhv', BOOLEAN],         # Enable VHV flag
     ['--environment', REQUIRED],      # Environment
+    ['--epel', REQUIRED],             # EPEL Mirror
     ['--ethernetdevice', REQUIRED],   # Ethernet device (e.g. e1000)
     ['--events', REQUIRED],           # Events (KVM))
     ['--exportdir', REQUIRED],        # Export directory
@@ -284,12 +282,16 @@ begin
     ['--imagedir', REQUIRED],         # Base Image Directory
     ['--id', REQUIRED],               # AWS Instance ID
     ['--idmap', REQUIRED],            # ID map (KVM) 
+    ['--ifname', REQUIRED],           # Interface number / name
     ['--import', BOOLEAN],            # Import (KVM)
     ['--info', REQUIRED],             # Used with info option
     ['--initrd-inject', REQUIRED],    # Inject initrd (KVM)
     ['--inputfile', REQUIRED],        # Input file (KVM)
     ['--install', REQUIRED],          # Install (KVM)
-    ['--ifname', REQUIRED],           # Interface number / name
+    ['--installdrivers', BOOLEAN],    # Install Drivers
+    ['--installupgrades', BOOLEAN],   # Install Package Updates
+    ['--installupgrades', BOOLEAN],   # Install Package Upgrades
+    ['--installsecurity', BOOLEAN],   # Install Security Updates
     ['--iothreads', REQUIRED],        # IO threads (KVM)
     ['--ip', REQUIRED],               # IP Address of client
     ['--ipfamily', REQUIRED],         # IP family (e.g. IPv4 or IPv6)
@@ -306,6 +308,7 @@ begin
     ['--keymap', REQUIRED],           # Key map
     ['--keyname', REQUIRED],          # AWS Key name (defaults to region)
     ['--kernel', REQUIRED],           # Kernel
+    ['--kickstartfile', REQUIRED],    # Kickstart file
     ['--kvmgroup', REQUIRED],         # Set KVM group
     ['--kvmgid', REQUIRED],           # Set KVM gid
     ['--launchSecurity', REQUIRED],   # Launch Security (KVM)
@@ -376,6 +379,7 @@ begin
     ['--pm', REQUIRED],               # PM (KVM)
     ['--ports', REQUIRED],            # Port (makes to and from the same in the case of and IP rule)
     ['--post', REQUIRED],             # Post install configuration
+    ['--preseedfile', REQUIRED],      # Preseed file
     ['--prefix', REQUIRED],           # AWS S3 prefix
     ['--print-xml', REQUIRED],        # Print XML (KVM)
     ['--proto', REQUIRED],            # Protocol

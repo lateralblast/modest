@@ -56,6 +56,7 @@ def populate_pe_post_list(admin_username, admin_password, options)
 end
 
 # Create Autounattend.xml
+
 def output_pe_client_profile(options,output_file)
   xml_output      = []
   command         = ""

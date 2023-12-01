@@ -410,20 +410,35 @@ def configure_ks_client(options)
   end
   delete_file(options,output_file)
   if options['service'].to_s.match(/fedora|rhel|centos|sl_|oel|rocky|alma/)
-    options = populate_ks_questions(options)
-    process_questions(options)
-    output_ks_header(options,output_file)
-    pkg_list = populate_ks_pkg_list(options['service'])
-    output_ks_pkg_list(options,pkg_list,output_file)
-    post_list = populate_ks_post_list(options)
-    output_ks_post_list(options,post_list,output_file)
-  else
-    if options['service'].to_s.match(/sles/)
+    input_file = options['kickstartfile'].to_s
+    if input_file.match(/[a-z]/) and File.exist(input_file)
+      message = "Information:\tCopying #{input_file} to #{output_file}"
+      command = "cp #{input_file} #{output_file}"
+      execute_command(options, message, command)
+    else
       options = populate_ks_questions(options)
       process_questions(options)
-      output_ay_client_profile(options,output_file)
+      output_ks_header(options,output_file)
+      pkg_list = populate_ks_pkg_list(options['service'])
+      output_ks_pkg_list(options,pkg_list,output_file)
+      post_list = populate_ks_post_list(options)
+      output_ks_post_list(options,post_list,output_file)
+    end
+  else
+    if options['service'].to_s.match(/sles/)
+      input_file = options['autoyastfile'].to_s
+      if input_file.match(/[a-z]/) and File.exist(input_file)
+        message = "Information:\tCopying #{input_file} to #{output_file}"
+        command = "cp #{input_file} #{output_file}"
+        execute_command(options, message, command)
+      else
+        options = populate_ks_questions(options)
+        process_questions(options)
+        output_ay_client_profile(options,output_file)
+      end
     else
       if options['service'].to_s.match(/live/) || options['vm'].to_s.match(/mp|multipass/)
+        input_file = options['cloudinitfile'].to_s
         options = populate_ps_questions(options)
         options = process_questions(options)
         (user_data, early_exec_data, late_exec_data) = populate_cc_user_data(options)

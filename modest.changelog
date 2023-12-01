@@ -1573,3 +1573,5 @@
 # Added initial Rocky and Alma Linux support
 # 7.8.6: Thu 30 Nov 2023 00:27:06 AEDT
 # Added support for building ESXi 7 and 8 inside KVM with Packer
+# 7.8.7: Thu 30 Nov 2023 17:15:59 AEDT
+# Added initial support to import external preseed, kickstart, cloudinit, and unattended files

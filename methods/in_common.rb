@@ -213,6 +213,8 @@ def set_defaults(options, defaults)
   defaults['audio']           = "none"
   defaults['auditfs']         = "ext4"
   defaults['auditsize']       = "8192"
+  defaults['unattendedfile']  = ""
+  defaults['autoyastfile']    = ""
   defaults['bootfs']          = "ext4"
   defaults['bootsize']        = "512"
   defaults['bridge']          = "virbr0"
@@ -273,6 +275,7 @@ def set_defaults(options, defaults)
   defaults['cidr']            = "24"
   defaults['clientrootdir']   = defaults['basedir'].to_s+'/export/clients'
   defaults['clientdir']       = defaults['basedir'].to_s+'/export/clients'
+  defaults['cloudinitfile']   = ""
   defaults['cluster']         = "SUNWCprog"
   defaults['containertype']   = "ova"
   defaults['controller']      = "sas"
@@ -410,6 +413,7 @@ def set_defaults(options, defaults)
   defaults['ovfdmgurl']       = "https://github.com/richardatlateralblast/ottar/blob/master/VMware-ovftool-4.1.0-2459827-mac.x64.dmg?raw=true"
   defaults['packerversion']   = "1.9.4"
   defaults['pkgdir']          = defaults['basedir'].to_s+'/export/pkgs'
+  defaults['preseedfile']     = ""
   defaults['proto']           = "tcp"
   defaults['publisherhost']   = defaults['hostip'].to_s
   defaults['publisherport']   = "10081"

@@ -27,17 +27,23 @@ def output_ps_header(options, output_file)
   dir_name = File.dirname(output_file)
   check_dir_exists(options, dir_name)
   check_dir_owner(options, dir_name, options['uid'])
-  tmp_file = "/tmp/preseed_"+options['name'].to_s
-  file = File.open(tmp_file, 'w')
-  options['q_order'].each do |key|
-    if options['q_struct'][key].parameter.match(/[a-z,A-Z]/)
-      output = "d-i "+options['q_struct'][key].parameter+" "+options['q_struct'][key].type+" "+options['q_struct'][key].value+"\n"
-      file.write(output)
+  ps_file = options['preseedfile'].to_s
+  if ps_file.match(/[a-z]/) and File.exist?(ps_file)
+    message = "Information:\tCopying preseed file #{cc_file} to #{output_file}"
+    command = "cp #{cc_file} #{output_file}"
+  else
+    tmp_file = "/tmp/preseed_"+options['name'].to_s
+    file = File.open(tmp_file, 'w')
+    options['q_order'].each do |key|
+      if options['q_struct'][key].parameter.match(/[a-z,A-Z]/)
+        output = "d-i "+options['q_struct'][key].parameter+" "+options['q_struct'][key].type+" "+options['q_struct'][key].value+"\n"
+        file.write(output)
+      end
     end
+    file.close
+    message = "Information:\tCreating preseed file #{output_file} for #{options['name']}"
+    command = "cp #{tmp_file} #{output_file} ; rm #{tmp_file}"
   end
-  file.close
-  message = "Creating:\tPreseed file "+output_file+" for "+options['name']
-  command = "cp #{tmp_file} #{output_file} ; rm #{tmp_file}"
   execute_command(options, message, command)
   print_contents_of_file(options, "", output_file)
   check_file_owner(options, output_file, options['uid'])

@@ -258,13 +258,20 @@ def configure_vs_client(options)
   if File.exist?(output_file)
     File.delete(output_file)
   end
-  output_vs_header(options, output_file)
-  # Output firstboot list
-  post_list = populate_vs_firstboot_list(options)
-  output_vs_post_list(post_list, output_file)
-  # Output post list
-  post_list = populate_vs_post_list(options)
-  output_vs_post_list(post_list, output_file)
+  ks_file = options['Kickstartfile'].to_s
+  if ks_file.match(/[a-z]/) and File.exist?(ks_file)
+    message = "Information:\tCopying #{ks_file} to #{output_file}"
+    command = "cp #{ks_file} #{output_file}"
+    execute_command(options, message, command)
+  else
+    output_vs_header(options, output_file)
+    # Output firstboot list
+    post_list = populate_vs_firstboot_list(options)
+    output_vs_post_list(post_list, output_file)
+    # Output post list
+    post_list = populate_vs_post_list(options)
+    output_vs_post_list(post_list, output_file)
+  end
   if output_file
     %x[chmod 755 #{output_file}]
   end
