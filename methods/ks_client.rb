@@ -117,9 +117,9 @@ def configure_ks_pxe_client(options)
     end
   else
     if options['service'].to_s.match(/sles/)
-      initrd_file  = "/"+options['service']+"/boot/#{options['arch']}/loader/initrd"
+      initrd_file = "/"+options['service']+"/boot/#{options['arch']}/loader/initrd"
     else
-      initrd_file  = "/"+options['service']+"/images/pxeboot/initrd.img"
+      initrd_file = "/"+options['service']+"/images/pxeboot/initrd.img"
     end
   end
   if options['host-os-uname'].to_s.match(/Darwin/)
@@ -157,13 +157,13 @@ def configure_ks_pxe_client(options)
     end
   end
   if options['service'].to_s.match(/ubuntu/)
-    options['ip']         = options['q_struct']['ip'].value
-    install_domain        = options['q_struct']['domain'].value
-    install_nic           = options['q_struct']['nic'].value
-    options['vmgateway']  = options['q_struct']['gateway'].value
-    options['netmask']    = options['q_struct']['netmask'].value
-    options['vmnetwork']  = options['q_struct']['network_address'].value
-    disable_dhcp          = options['q_struct']['disable_dhcp'].value
+    options['ip']        = options['q_struct']['ip'].value
+    install_domain       = options['q_struct']['domain'].value
+    install_nic          = options['q_struct']['nic'].value
+    options['vmgateway'] = options['q_struct']['gateway'].value
+    options['netmask']   = options['q_struct']['netmask'].value
+    options['vmnetwork'] = options['q_struct']['network_address'].value
+    disable_dhcp         = options['q_struct']['disable_dhcp'].value
     if disable_dhcp.match(/true/)
       if options['biostype'].to_s.match(/efi/)
         if options['service'].to_s.match(/live/)

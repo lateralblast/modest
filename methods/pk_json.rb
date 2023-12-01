@@ -79,9 +79,9 @@ def create_packer_json(options)
     end
   end
   if options['q_struct']['admin_password']
-    install_password  = options['q_struct']['admin_password'].value
+    install_password = options['q_struct']['admin_password'].value
   else
-    install_password  = options['q_struct']['root_password'].value
+    install_password = options['q_struct']['root_password'].value
   end
   if options['vm'].to_s.match(/parallels/)
     case options['service'].to_s
@@ -206,7 +206,7 @@ def create_packer_json(options)
         net_device     = "virtio-net"
         nic_device     = "virtio"
       end
-      net_bridge     = options['bridge'].to_s
+      net_bridge = options['bridge'].to_s
     end
   end
   tools_upload_flavor = ""
@@ -512,29 +512,29 @@ def create_packer_json(options)
   when /sol_10/
 #    tools_upload_flavor = "solaris"
 #    tools_upload_path   = "/export/home/"+options['q_struct']['admin_username'].value
-    shutdown_command    = "echo '/usr/sbin/poweroff' > shutdown.sh; pfexec bash -l shutdown.sh"
-    shutdown_timeout    = "20m"
-    sysidcfg    = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/sysidcfg"
-    rules       = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/rules"
-    rules_ok    = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/rules.ok"
-    profile     = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/profile"
-    finish      = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/finish"
+    sysidcfg = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/sysidcfg"
+    rules    = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/rules"
+    rules_ok = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/rules.ok"
+    profile  = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/profile"
+    finish   = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/finish"
     boot_command = "e<wait>"+
                    "e<wait>"+
                    "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><wait>"+
                    "- nowin install -B install_media=cdrom<enter><wait>"+
                    "b<wait>"
+    shutdown_command = "echo '/usr/sbin/poweroff' > shutdown.sh; pfexec bash -l shutdown.sh"
+    shutdown_timeout = "20m"
   when /sles/
-    ssh_port              = "22"
-    ssh_host_port_max     = "22"
-    ssh_host_port_min     = "22"
-    ks_file               = options['vm']+"/"+options['name']+"/"+options['name']+".xml"
-    ks_url                = "http://#{ks_ip}:#{options['httpport']}/"+ks_file
-    install_nic           = options['q_struct']['nic'].value
-    options['netmask']    = options['q_struct']['netmask'].value
+    ssh_port           = "22"
+    ssh_host_port_max  = "22"
+    ssh_host_port_min  = "22"
+    install_domain     = options['domainname']
+    ks_file            = options['vm']+"/"+options['name']+"/"+options['name']+".xml"
+    ks_url             = "http://#{ks_ip}:#{options['httpport']}/"+ks_file
+    install_nic        = options['q_struct']['nic'].value
+    options['netmask'] = options['q_struct']['netmask'].value
     options['vmgateway']  = options['q_struct']['gateway'].value
     options['nameserver'] = options['q_struct']['nameserver'].value
-    install_domain        = options['domainname']
     net_config            = install_nic+"="+options['ip']+"/24,"+options['vmgateway']+","+options['nameserver']+","+install_domain
     if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
       if options['vmnetwork'].to_s.match(/hostonly|bridged/)

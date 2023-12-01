@@ -217,15 +217,15 @@ def migrate_fusion_vm(options)
     handle_output(options, "Warning:\t#{options['vmapp']} VM #{options['name']} does not exist")
     quit(options)
   end
-  local_vmx_file   = get_fusion_vm_vmx_file(options)
-  local_vmdk_file  = get_fusion_vm_vmdk_file(options)
+  local_vmx_file  = get_fusion_vm_vmx_file(options)
+  local_vmdk_file = get_fusion_vm_vmdk_file(options)
   if not File.exist?(local_vmx_file) or not File.exist?(local_vmdk_file)
     handle_output(options, "Warning:\tVMware config or disk file for #{options['name']} does not exist")
     quit(options)
   end
-  options['vmxfile']  = File.basename(local_vmx_file)
-  options['vmxfile']  = "/vmfs/volumes/"+options['datastore']+"/"+options['name']+"/"+options['vmxfile']
-  fixed_vmx_file   = local_vmx_file+".esx"
+  options['vmxfile'] = File.basename(local_vmx_file)
+  options['vmxfile'] = "/vmfs/volumes/"+options['datastore']+"/"+options['name']+"/"+options['vmxfile']
+  fixed_vmx_file = local_vmx_file+".esx"
   create_fusion_vm_esx_file(options['name'], local_vmx_file, fixed_vmx_file)
   options['vmdkfile'] = File.basename(local_vmdk_file)
   remote_vmdk_dir  = "/vmfs/volumes/"+options['datastore']+"/"+options['name']
@@ -879,7 +879,7 @@ def detach_file_from_fusion_vm(options)
   else
     fusion_vm_dir = options['fusiondir']+"/"+options['name']+".vmwarevm"
   end
-  fusion_vmx_file  = fusion_vm_dir+"/"+options['name']+".vmx"
+  fusion_vmx_file = fusion_vm_dir+"/"+options['name']+".vmx"
   copy=[]
   file=IO.readlines(fusion_vmx_file)
   file.each do |line|
@@ -1096,7 +1096,7 @@ def boot_fusion_vm(options)
         check_nat(options, gw_if_name, if_name)
       end        
     end
-    message         = "Starting:\tVM "+options['name']
+    message = "Starting:\tVM "+options['name']
     if options['text'] == true or options['headless'] == true or options['serial'] == true
       command = "\"#{options['vmrun']}\" -T fusion start \"#{fusion_vmx_file}\" nogui &"
     else
@@ -1544,12 +1544,12 @@ def unconfigure_fusion_vm(options)
       fusion_vm_dir = options['fusiondir']+"/"+options['name']+".vmwarevm"
     end
     fusion_vmx_file = fusion_vm_dir+"/"+options['name']+".vmx"
-    message         = "Deleting:\t#{options['vmapp']} VM "+options['name']
-    command         = "'#{options['vmrun']}' -T fusion deleteVM '#{fusion_vmx_file}'"
+    message = "Deleting:\t#{options['vmapp']} VM "+options['name']
+    command = "'#{options['vmrun']}' -T fusion deleteVM '#{fusion_vmx_file}'"
     execute_command(options, message, command)
-    vm_dir   = options['name']+".vmwarevm"
-    message  = "Removing:\t#{options['vmapp']} VM "+options['name']+" directory"
-    command  = "cd \"#{options['fusiondir']}\" ; rm -rf \"#{vm_dir}\""
+    vm_dir  = options['name']+".vmwarevm"
+    message = "Removing:\t#{options['vmapp']} VM "+options['name']+" directory"
+    command = "cd \"#{options['fusiondir']}\" ; rm -rf \"#{vm_dir}\""
     execute_command(options, message, command)
   else
     if options['verbose'] == true

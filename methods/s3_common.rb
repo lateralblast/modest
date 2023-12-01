@@ -4,9 +4,9 @@
 
 def initiate_aws_s3_client(options)
   s3 = Aws::S3::Client.new(
-    :region             =>  options['region'], 
-    :access_key_id      =>  options['access'],
-    :secret_access_key  =>  options['secret']
+    :region            =>  options['region'], 
+    :access_key_id     =>  options['access'],
+    :secret_access_key =>  options['secret']
   )
   return s3
 end 
@@ -15,9 +15,9 @@ end
 
 def initiate_aws_s3_resource(options)
   s3 = Aws::S3::Resource.new(
-    :region             =>  options['region'], 
-    :access_key_id      =>  options['access'],
-    :secret_access_key  =>  options['secret']
+    :region            =>  options['region'], 
+    :access_key_id     =>  options['access'],
+    :secret_access_key =>  options['secret']
   )
   return s3
 end 
@@ -26,9 +26,9 @@ end
 
 def initiate_aws_s3_bucket(options)
   s3 = Aws::S3::Bucket.new(
-    :region             =>  options['region'], 
-    :access_key_id      =>  options['access'],
-    :secret_access_key  =>  options['secret']
+    :region            =>  options['region'], 
+    :access_key_id     =>  options['access'],
+    :secret_access_key =>  options['secret']
   )
   return s3
 end 
@@ -37,9 +37,9 @@ end
 
 def initiate_aws_s3_object(options)
   s3 = Aws::S3::Object.new(
-    :region             =>  options['region'], 
-    :access_key_id      =>  options['access'],
-    :secret_access_key  =>  options['secret']
+    :region            =>  options['region'], 
+    :access_key_id     =>  options['access'],
+    :secret_access_key =>  options['secret']
   )
   return s3
 end 
@@ -48,9 +48,9 @@ end
 
 def initiate_aws_s3_presigner(options)
   s3 = Aws::S3::Presigner.new(
-    :region             =>  options['region'], 
-    :access_key_id      =>  options['access'],
-    :secret_access_key  =>  options['secret']
+    :region            =>  options['region'], 
+    :access_key_id     =>  options['access'],
+    :secret_access_key =>  options['secret']
   )
   return s3
 end 

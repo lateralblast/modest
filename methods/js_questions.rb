@@ -217,13 +217,13 @@ end
 def get_js_filesys(options, fs_name)
   if not options['q_struct']['root_fs'].value.downcase.match(/zfs/)
     (f_struct, f_order) = populate_js_fs_list(options)
-    f_order            = ""
-    fs_mount           = f_struct[fs_name].mount
-    fs_slice           = f_struct[fs_name].slice
-    key_name           = fs_name+"_size"
-    fs_size            = options['q_struct'][key_name].value
-    fs_mirror          = f_struct[fs_name].mirror
-    filesys_entry      = get_js_ufs_filesys(fs_mount, fs_slice, fs_mirror, fs_size)
+    f_order   = ""
+    fs_mount  = f_struct[fs_name].mount
+    fs_slice  = f_struct[fs_name].slice
+    key_name  = fs_name+"_size"
+    fs_size   = options['q_struct'][key_name].value
+    fs_mirror = f_struct[fs_name].mirror
+    filesys_entry = get_js_ufs_filesys(fs_mount, fs_slice, fs_mirror, fs_size)
   end
   return filesys_entry
 end

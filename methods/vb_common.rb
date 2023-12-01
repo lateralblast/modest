@@ -620,8 +620,8 @@ end
 # Get VirtualBox VM directory
 
 def get_vbox_vm_dir(options)
-  message          = "Information:\tGetting VirtualBox VM directory"
-  command          = "#{options['vboxmanage']} list systemproperties |grep 'Default machine folder' |cut -f2 -d':' |sed 's/^[         ]*//g'"
+  message = "Information:\tGetting VirtualBox VM directory"
+  command = "#{options['vboxmanage']} list systemproperties |grep 'Default machine folder' |cut -f2 -d':' |sed 's/^[         ]*//g'"
   vbox_vm_base_dir = execute_command(options, message, command)
   vbox_vm_base_dir = vbox_vm_base_dir.chomp
   if not vbox_vm_base_dir.match(/[a-z,A-Z]/)
@@ -1231,9 +1231,9 @@ def configure_vbox_vm(options)
     if_name = get_bridged_vbox_nic(options)
     options['vmnet'] = check_vbox_hostonly_network(options)
   end
-  options['vmdir']      = get_box_vm_dir(options)
-  options['disk']       = options['vmdir']+"/"+options['name']+".vdi"
-  options['socket']     = "/tmp/#{options['name']}"
+  options['vmdir']  = get_box_vm_dir(options)
+  options['disk']   = options['vmdir']+"/"+options['name']+".vdi"
+  options['socket'] = "/tmp/#{options['name']}"
   options['controller'] = get_vbox_controller(options)
   check_vbox_vm_doesnt_exist(options)
   register_vbox_vm(options)

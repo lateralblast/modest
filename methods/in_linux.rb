@@ -231,7 +231,7 @@ def enable_linux_ufw_nat(options, gw_if_name, if_name)
 end
 
 def enable_linux_ufw_internal_network(options)
-  install_ip = single_install_ip(options)
+  install_ip  = single_install_ip(options)
   install_net = install_ip.split(".")[0..2].join(".")+".0/24"
   message = "Information:\tChecking if internal network '#{install_net}' is able to access ports on server"
   command = "ufw status |grep '#{install_net}'"

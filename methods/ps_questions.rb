@@ -23,8 +23,8 @@ def populate_ps_questions(options)
   end
 
   if options['ip'].to_s.match(/,/)
-    full_ip     = options['ip']
-    options['ip']  = full_ip.split(/,/)[0]
+    full_ip = options['ip']
+    options['ip'] = full_ip.split(/,/)[0]
     if full_ip[1]
       install_ip1 = full_ip.split(/,/)[1]
       if not install_ip1

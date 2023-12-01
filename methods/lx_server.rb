@@ -24,11 +24,11 @@ def list_lxc_services(options)
       image_list.each do |image_name|
         if image_name.match(/tar/)
           options['image']   = $lxc_image_dir+"/"+image_name
-          image_info   = File.basename(image_name, ".tar.gz")
-          image_info   = image_info.split(/-/)
-          image_os     = image_info[0]
-          image_ver    = image_info[1]
-          image_arch   = image_info[2]
+          image_info = File.basename(image_name, ".tar.gz")
+          image_info = image_info.split(/-/)
+          image_os   = image_info[0]
+          image_ver  = image_info[1]
+          image_arch = image_info[2]
           if options['output'].to_s.match(/html/)
             handle_output(options, "<tr>")
             handle_output(options, "<td>#{image_os.capitalize}</td>")

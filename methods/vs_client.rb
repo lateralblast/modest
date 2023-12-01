@@ -81,7 +81,7 @@ def configure_vs_pxe_client(options)
     end
     execute_command(options, message, command)
   end
-  pxe_cfg_dir   = options['tftpdir']+"/pxelinux.cfg"
+  pxe_cfg_dir = options['tftpdir']+"/pxelinux.cfg"
   if options['verbose'] == true
     handle_output(options, "Information:\tChecking vSphere PXE configuration directory")
   end
@@ -130,7 +130,7 @@ def configure_vs_pxe_client(options)
   else
     tftp_boot_file = options['tftpdir'].to_s+"/"+options['service'].to_s+"/"+tftp_boot_file
   end
-  esx_boot_file  = options['tftpdir'].to_s+"/"+options['service'].to_s+"/boot.cfg"
+  esx_boot_file = options['tftpdir'].to_s+"/"+options['service'].to_s+"/boot.cfg"
   if options['verbose'] == true
     handle_output(options, "Creating:\tBoot config file #{tftp_boot_file}")
   end

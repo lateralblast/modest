@@ -74,8 +74,8 @@ def handle_pkg(p_struct, pkg_name, build_type, pkg_repo_dir)
   if options['verbose'] == true
     handle_output(options, "Information:\tHandling Package #{pkg_name}")
   end
-  depend_list     = []
-  pkg_version     = p_struct[pkg_name].version
+  depend_list   = []
+  pkg_version   = p_struct[pkg_name].version
   temp_pkg_name = p_struct[pkg_name].depend
   if tempt_pkg_name.match(/[a-z,A-Z]/)
     if temp_pkg_name.match(/,/)
@@ -126,11 +126,11 @@ end
 
 def check_alt_install_service(options)
   if not options['service'].to_s.match(/[a-z,A-Z]/)
-    options['arch']       = %x[uname -p]
-    options['arch']       = options['arch'].chomp()
-    options['service']      = get_install_service(options['arch'])
-    service_base_name = get_service_base_name(options['service'])
-    alt_options['service']  = service_base_name+"_"+$alt_repo_name
+    options['arch'] = %x[uname -p]
+    options['arch'] = options['arch'].chomp()
+    options['service'] = get_install_service(options['arch'])
+    service_base_name  = get_service_base_name(options['service'])
+    alt_options['service'] = service_base_name+"_"+$alt_repo_name
   else
     alt_options['service'] = options['service']
   end

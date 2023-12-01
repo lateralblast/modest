@@ -421,6 +421,7 @@ def set_defaults(options, defaults)
   defaults['ovfdmgurl']       = "https://github.com/richardatlateralblast/ottar/blob/master/VMware-ovftool-4.1.0-2459827-mac.x64.dmg?raw=true"
   defaults['packerversion']   = "1.9.4"
   defaults['pkgdir']          = defaults['basedir'].to_s+'/export/pkgs'
+  defaults['postscript']      = ""
   defaults['preseedfile']     = ""
   defaults['proto']           = "tcp"
   defaults['publisherhost']   = defaults['hostip'].to_s
@@ -532,11 +533,11 @@ def set_defaults(options, defaults)
     defaults['check']           = false
   end
   # Set Host OS specific information
-  options['host-os-uname']   = defaults['host-os-uname']
-  options['host-os-unamep']  = defaults['host-os-unamep']
-  options['host-os-unamem']  = defaults['host-os-unamem']
-  options['host-os-unamea']  = defaults['host-os-unamea']
-  options['host-os-unamer']  = defaults['host-os-unamer']
+  options['host-os-uname']  = defaults['host-os-uname']
+  options['host-os-unamep'] = defaults['host-os-unamep']
+  options['host-os-unamem'] = defaults['host-os-unamem']
+  options['host-os-unamea'] = defaults['host-os-unamea']
+  options['host-os-unamer'] = defaults['host-os-unamer']
   if options['host-os-uname'].to_s.match(/Linux/)
     options['host-lsb-id']  = defaults['host-lsb-id']
     options['host-lsb-all'] = defaults['host-lsb-all']
@@ -583,13 +584,13 @@ def reset_defaults(options, defaults)
     defaults['adminname'] = "Administrator"
   end
   if options['vm'].to_s.match(/kvm/)
-    defaults['imagedir']  = "/var/lib/libvirt/images"
-    defaults['console']   = "pty,target_type=virtio"
-    defaults['mac']       = generate_mac_address(options)
+    defaults['imagedir'] = "/var/lib/libvirt/images"
+    defaults['console']  = "pty,target_type=virtio"
+    defaults['mac']      = generate_mac_address(options)
     if !options['bridge'].to_s.match(/br[0-9]/)
-      defaults['network']   = "bridge="+defaults['bridge'].to_s
+      defaults['network'] = "bridge="+defaults['bridge'].to_s
     else
-      defaults['network']   = "bridge="+options['bridge'].to_s
+      defaults['network'] = "bridge="+options['bridge'].to_s
     end
     defaults['features']  = "kvm_hidden=on"
     defaults['vmnetwork'] = "hostonly"
@@ -940,17 +941,17 @@ def set_hostonly_info(options)
   when /parallels/
     hostonly_base  = "10.211"
     if options['host-os-uname'].to_s.match(/Darwin/) && options['host-os-version'].to_i > 10
-      hostonly_subnet      = "55"
+      hostonly_subnet = "55"
     else
-      hostonly_subnet      = "54"
+      hostonly_subnet = "54"
     end
   when /vbox|virtualbox/
-    hostonly_subnet      = "56"
+    hostonly_subnet = "56"
   when /kvm/
-    hostonly_subnet      = "122"
+    hostonly_subnet = "122"
   else
     if not options['vm'] == options['empty']
-      hostonly_subnet      = "58"
+      hostonly_subnet = "58"
     end
   end
   if hostonly_subnet == host_subnet
@@ -968,7 +969,7 @@ def set_hostonly_info(options)
       handle_output(options, output)
       install_subnet = host_subnet.to_i+10
       install_subnet = install_subnet.to_s
-      options['ip'] = options['ip'].split(".")[0]+"."+options['ip'].split(".")[1]+"."+install_subnet+"."+options['ip'].split(".")[3]
+      options['ip']  = options['ip'].split(".")[0]+"."+options['ip'].split(".")[1]+"."+install_subnet+"."+options['ip'].split(".")[3]
       output = "Information:\tChanging Client IP to "+hostonly_base+"."+hostonly_subnet+".0"
       handle_output(options, output)
       options['force'] = true
@@ -1838,8 +1839,8 @@ def check_osx_ovftool()
     app_name = "VMware OVF Tool"
     tmp_dir  = attach_dmg(ovftool_dmg, app_name)
     pkg_file = tmp_dir+"/VMware OVF Tool.pkg"
-    message = "Information:\tInstalling package "+pkg_file
-    command = "/usr/sbin/installer -pkg #{pkg_bin} -target /"
+    message  = "Information:\tInstalling package "+pkg_file
+    command  = "/usr/sbin/installer -pkg #{pkg_bin} -target /"
     execute_command(options, message, command)
     detach_dmg(tmp_dir)
   end
@@ -2232,7 +2233,7 @@ def get_install_service_from_file(options)
     service_version = options['file'].split(/-/)[1..2].join("_").gsub(/[A-Z]/, "")
     service_arch    = options['file'].split(/-/)[4]
     if service_arch.match(/DVD/)
-      service_arch    = options['file'].split(/-/)[5]
+      service_arch = options['file'].split(/-/)[5]
     end
     service_version = service_version+"_"+service_arch
     options['method']  = "ay"
@@ -2244,8 +2245,8 @@ def get_install_service_from_file(options)
       if options['file'].to_s.match(/1111/)
         options['release'] = "11.0"
       end
-      options['method']  = "ai"
-      options['arch']    = "x86_64"
+      options['method'] = "ai"
+      options['arch']   = "x86_64"
     else
       options['release'] = options['file'].split(/-/)[1..2].join(".").gsub(/u/, "")
       options['method']  = "js"
@@ -3373,9 +3374,9 @@ def check_tftp_server(options)
   if options['host-os-uname'].to_s.match(/SunOS/)
     if options['host-os-unamer'].match(/11/)
       if !File.exist?("/lib/svc/manifest/network/tftp-udp.xml")
-        message  = "Checking:\tTFTP entry in /etc/inetd.conf"
-        command  = "cat /etc/inetd.conf |grep '^tftp' |grep -v '^#'"
-        output   = execute_command(options, message, command)
+        message = "Checking:\tTFTP entry in /etc/inetd.conf"
+        command = "cat /etc/inetd.conf |grep '^tftp' |grep -v '^#'"
+        output  = execute_command(options, message, command)
         if not output.match(/tftp/)
           message = "Information:\tCreating TFTP inetd entry"
           command = "echo \"tftp dgram udp wait root /usr/sbin/in.tftpd in.tftpd -s #{options['tftpdir']}\" >> /etc/inetd.conf"
@@ -3458,12 +3459,12 @@ def add_nfs_export(options, export_name, export_dir)
   network_address = options['publisherhost'].split(/\./)[0..2].join(".")+".0"
   if options['host-os-uname'].to_s.match(/SunOS/)
     if options['host-os-unamer'].match(/11/)
-      message  = "Enabling:\tNFS share on "+export_dir
-      command  = "zfs set sharenfs=on #{options['zpoolname']}#{export_dir}"
-      output   = execute_command(options, message, command)
-      message  = "Information:\tSetting NFS access rights on "+export_dir
-      command  = "zfs set share=name=#{export_name},path=#{export_dir},prot=nfs,anon=0,sec=sys,ro=@#{network_address}/24 #{options['zpoolname']}#{export_dir}"
-      output   = execute_command(options, message, command)
+      message = "Enabling:\tNFS share on "+export_dir
+      command = "zfs set sharenfs=on #{options['zpoolname']}#{export_dir}"
+      output  = execute_command(options, message, command)
+      message = "Information:\tSetting NFS access rights on "+export_dir
+      command = "zfs set share=name=#{export_name},path=#{export_dir},prot=nfs,anon=0,sec=sys,ro=@#{network_address}/24 #{options['zpoolname']}#{export_dir}"
+      output  = execute_command(options, message, command)
     else
       dfs_file = "/etc/dfs/dfstab"
       message  = "Checking:\tCurrent NFS exports for "+export_dir
@@ -4326,9 +4327,9 @@ def wget_file(options, file_url, file_name)
   if options['download'] == true
     wget_test = %[which wget].chomp
     if wget_test.match(/bin/)
-      command  = "wget #{file_url} -O #{file_name}"
+      command = "wget #{file_url} -O #{file_name}"
     else
-      command  = "curl -o #{file_name } #{file_url}"
+      command = "curl -o #{file_name } #{file_url}"
     end
     file_dir = File.dirname(file_name)
     check_dir_exists(options, file_dir)
@@ -4890,7 +4891,7 @@ def check_install_mac(options)
       options['mac'] = generate_mac_address(options['vm'])
       handle_output(options, "Information:\tGenerated new MAC address: #{options['mac']}")
     else
-      chars       = options['mac'].split(//)
+      charsi = options['mac'].split(//)
       options['mac'] = chars[0..1].join+":"+chars[2..3].join+":"+chars[4..5].join+":"+chars[6..7].join+":"+chars[8..9].join+":"+chars[10..11].join
     end
   end
@@ -5450,13 +5451,13 @@ end
 # Clear a service out of maintenance mode
 
 def clear_service(options, smf_service)
-  message    = "Checking:\tStatus of service "+smf_service
-  command    = "sleep 5 ; svcs -a |grep \"#{options['service']}\" |awk \"{print \\\$1}\""
-  output     = execute_command(options, message, command)
+  message = "Checking:\tStatus of service "+smf_service
+  command = "sleep 5 ; svcs -a |grep \"#{options['service']}\" |awk \"{print \\\$1}\""
+  output  = execute_command(options, message, command)
   if output.match(/maintenance/)
-    message    = "Clearing:\tService "+smf_service
-    command    = "svcadm clear #{smf_service}"
-    output     = execute_command(options, message, command)
+    message = "Clearing:\tService "+smf_service
+    command = "svcadm clear #{smf_service}"
+    output  = execute_command(options, message, command)
   end
   return
 end

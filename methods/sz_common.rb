@@ -258,13 +258,13 @@ def branded_zone_post_install(options)
   options['zonedir'] = options['zonedir']+"/"+options['name']
   if File.directory?(options['zonedir'])
     options['clientdir'] = options['zonedir']+"/root"
-    var_dir    = "/var/tmp"
-    tmp_dir    = options['clientdir']+"/"+var_dir
-    post_file  = tmp_dir+"/postinstall.sh"
-    tmp_file   = "/tmp/zone_"+options['name']
-    pkg_name   = "pkgutil.pkg"
-    pkg_url    = $local_opencsw_mirror+"/"+pkg_name
-    pkg_file   = tmp_dir+"/"+pkg_name
+    var_dir   = "/var/tmp"
+    tmp_dir   = options['clientdir']+"/"+var_dir
+    post_file = tmp_dir+"/postinstall.sh"
+    tmp_file  = "/tmp/zone_"+options['name']
+    pkg_name  = "pkgutil.pkg"
+    pkg_url   = $local_opencsw_mirror+"/"+pkg_name
+    pkg_file  = tmp_dir+"/"+pkg_name
     wget_file(options, pkg_url, pkg_file)
     file = File.open(tmp_file, "w")
     file.write("#!/usr/bin/bash\n")
@@ -375,10 +375,10 @@ end
 
 def create_zone(options)
   options['ip'] = single_install_ip(options)
-  virtual    = false
-  message    = "Information:\tChecking Platform"
-  command    = "prtdiag -v |grep 'VMware'"
-  output     = execute_command(options, message, command)
+  virtual = false
+  message = "Information:\tChecking Platform"
+  command = "prtdiag -v |grep 'VMware'"
+  output  = execute_command(options, message, command)
   if output.match(/VMware/)
     virtual = true
   end

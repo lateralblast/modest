@@ -92,6 +92,7 @@ $ssl_dir           = Dir.pwd+"/ssl"
 ssl_certificate    = $ssl_dir+"/cert.crt"
 ssl_key            = $ssl_dir+"/pkey.pem"
 $ssl_password      = "123456"
+$htpasswd_file     = Dir.pwd+"/views/.htpasswd"
 
 # Only allow uploads if we has authentication
 
@@ -155,10 +156,6 @@ if enable_ssl == true
 end
 
 # htpasswd authentication
-
-# Set up global files
-
-$htpasswd_file = Dir.pwd+"/views/.htpasswd"
 
 if enable_auth == true
   module Sinatra

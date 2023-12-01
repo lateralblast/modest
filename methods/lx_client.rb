@@ -106,9 +106,9 @@ def create_ubuntu_lxc_config(options)
   file.write("\n")
   file.close
   options['clientdir'] = options['clientdir']+"/rootfs"
-  net_file   = options['clientdir']+"/etc/network/interfaces"
-  message    = "Information:\tCreating network interface file "+net_file
-  command    = "cp #{tmp_file} #{net_file} ; rm #{tmp_file}"
+  net_file = options['clientdir']+"/etc/network/interfaces"
+  message  = "Information:\tCreating network interface file "+net_file
+  command  = "cp #{tmp_file} #{net_file} ; rm #{tmp_file}"
   execute_command(options, message, command)
   user_username = options['q_struct']['user_username'].value
   user_uid      = options['q_struct']['user_uid'].value
@@ -308,10 +308,10 @@ end
 # Create post install package on container
 
 def create_lxc_post(options, post_list)
-  tmp_file   = "/tmp/post"
+  tmp_file = "/tmp/post"
   options['clientdir'] = options['lxcdir']+"/"+options['name']
-  post_file  = options['clientdir']+"/rootfs/root/post_install.sh"
-  file       = File.open(tmp_file, "w")
+  post_file = options['clientdir']+"/rootfs/root/post_install.sh"
+  file      = File.open(tmp_file, "w")
   post_list.each do |line|
     output = line+"\n"
     file.write(output)
@@ -327,7 +327,7 @@ end
 
 def execute_lxc_post(options)
   options['clientdir'] = options['lxcdir']+"/"+options['name']
-  post_file  = options['clientdir']+"/root/post_install.sh"
+  post_file = options['clientdir']+"/root/post_install.sh"
   if not File.exist?(post_file)
     post_list = populate_lxc_post()
     create_lxc_post(options['name'], post_list)
