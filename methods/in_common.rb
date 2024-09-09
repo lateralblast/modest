@@ -70,7 +70,7 @@ def set_defaults(options, defaults)
     else
       defaults['host-os-version'] = %x[sw_vers |grep ProductVersion |awk '{print $2}'].chomp
     end
-  end  
+  end
   if defaults['host-os-unamer'].to_s.match(/\./)
     defaults['host-os-major'] = defaults['host-os-unamer'].to_s.split(/\./)[0]
     defaults['os-minor']      = defaults['host-os-unamer'].to_s.split(/\./)[1]
@@ -395,7 +395,7 @@ def set_defaults(options, defaults)
   defaults['mirror']          = defaults['country'].to_s.downcase+'.archive.ubuntu.com'
   defaults['mirrordir']       = "/ubuntu"
   defaults['mirrorurl']       = defaults['mirror'].to_s+defaults['mirrordir'].to_s
-  defaults['mirrordisk']      = false   
+  defaults['mirrordisk']      = false
   defaults['mode']            = 'client'
   defaults['mouse']           = "ps2"
   defaults['nameserver']      = "8.8.8.8"
@@ -563,7 +563,7 @@ def reset_defaults(options, defaults)
     defaults['vcpus']  = "4"
     defaults['memory'] = "4096"
   end
-  if defaults['host-os-unamep'].to_s.match(/^arm/) 
+  if defaults['host-os-unamep'].to_s.match(/^arm/)
     defaults['machine']  = "arm64"
     defaults['arch']     = "arm64"
     defaults['biostype'] = "efi"
@@ -594,7 +594,7 @@ def reset_defaults(options, defaults)
     end
     defaults['features']  = "kvm_hidden=on"
     defaults['vmnetwork'] = "hostonly"
-    if defaults['host-os-unamep'].to_s.match(/^x/) 
+    if defaults['host-os-unamep'].to_s.match(/^x/)
       defaults['machine'] = "q35"
       defaults['arch']    = "x86_64"
     end
@@ -734,7 +734,7 @@ def reset_defaults(options, defaults)
   when /packer/
     if options['vmnetwork'].to_s.match(/hostonly/)
       defaults['sshport'] = "22"
-    else  
+    else
       if options['method'].to_s.match(/vs/)
         defaults['sshport'] = "22"
       else
@@ -920,8 +920,8 @@ end
 
 def set_hostonly_info(options)
   host_ip        = get_my_ip(options)
-  host_subnet    = host_ip.split(".")[2] 
-  install_subnet = options['ip'].split(".")[2] 
+  host_subnet    = host_ip.split(".")[2]
+  install_subnet = options['ip'].split(".")[2]
   hostonly_base  = "192.168"
   case options['vm']
   when /vmware|vmx|fusion/
@@ -1995,7 +1995,7 @@ def unconfigure_server(options)
     when /vs/
       unconfigure_vs_server(options)
     when /xb/
-      unconfigure_xb_server(options) 
+      unconfigure_xb_server(options)
     end
   else
     handle_output(options, "Warning:\tCould not determine service type for #{options['service']}")
@@ -2086,7 +2086,7 @@ def get_install_service_from_file(options)
       else
         options['arch'] = "arm"
       end
-    else 
+    else
       options['arch'] = "i386"
     end
   end
@@ -2222,7 +2222,7 @@ def get_install_service_from_file(options)
         service_version = options['file'].split(/-/)[1..2].join(".").gsub(/\./, "_").gsub(/_iso/, "")
         options['release'] = options['file'].split(/-/)[1]
       end
-    end 
+    end
   when /Rocky|Alma/
     options['service'] = File.basename(options['file']).to_s.split(/-/)[0].downcase.gsub(/linux/,"")
     options['method']  = "ks"
@@ -2584,7 +2584,7 @@ def get_dir_item_list(options)
       end
     end
   end
-  results_list = full_list 
+  results_list = full_list
   [ os_search, method_search, release_search, arch_search, other_search ].each do |search_string|
     if search_string
       if search_string != options['empty']
@@ -2743,7 +2743,7 @@ def list_items(options)
       handle_output(options, "</tr>")
     else
       handle_output(options, "Available ISO(s)/Images(s):")
-      handle_output(options, "") 
+      handle_output(options, "")
     end
     iso_list.each do |file_name|
       file_name = file_name.chomp
@@ -2786,7 +2786,7 @@ def list_items(options)
       if options['output'].to_s.match(/html/)
         handle_output(options, "</tr>")
       else
-        handle_output(options, "") 
+        handle_output(options, "")
       end
     end
     if options['output'].to_s.match(/html/)
@@ -3161,7 +3161,11 @@ end
 
 def check_group_member(options, user_name, group_name)
   message = "Information:\tChecking user #{user_name} is a member group #{group_name}"
-  command = "getent group #{group_name} |cut -f1 -d:"
+  if options['host-os-uname'].to_s.match(/Darwin/)
+    command = "dscacheutil -q group -a name #{group_name} |grep users"
+  else
+    command = "getent group #{group_name}"
+  end
   output  = execute_command(options, message, command)
   if not output.match(/#{user_name}/)
     message = "Information:\tAdding user #{user_name} to group #{group_name}"
@@ -3227,7 +3231,7 @@ end
 
 # Get group gid
 
-def get_group_gid(options, group) 
+def get_group_gid(options, group)
   message = "Information:\tGetting GID of "+group
   command = "getent group #{group} |cut -f3 -d:"
   output  = execute_command(options, message, command)
@@ -3413,7 +3417,7 @@ def add_bootparams_entry(options)
     lines = []
     file.each do |line|
       if !line.match(/^#/)
-        if line.match(/^#{options['name']}/) 
+        if line.match(/^#{options['name']}/)
           if line.match(/#{boot_info}/)
             found1 = true
             lines.push(line)
@@ -3424,7 +3428,7 @@ def add_bootparams_entry(options)
         else
           lines.push(line)
         end
-        if line.match(/^#{options['ip']}/) 
+        if line.match(/^#{options['ip']}/)
           if line.match(/#{boot_info}/)
             found2 = true
             lines.push(line)
@@ -4169,7 +4173,7 @@ def add_hosts_entry(options)
     output  = execute_command(options, message, command)
   end
   if options['dnsmasq'] == true
-    add_dnsmasq_entry(options) 
+    add_dnsmasq_entry(options)
   end
   return
 end
@@ -4357,7 +4361,7 @@ def add_to_ethers_file(options)
     lines = []
     file.each do |line|
       if !line.match(/^#/)
-        if line.match(/#{options['name']}/) 
+        if line.match(/#{options['name']}/)
           if line.match(/#{options['mac']}/)
             found = true
             lines.push(line)
@@ -4551,7 +4555,13 @@ def execute_command(options, message, command)
     if options['uid'] != 0
       if !command.match(/brew |sw_vers|id |groups|hg|pip|VBoxManage|vboxmanage|netstat|df|vmrun|noVNC|docker|packer|ansible-playbook|^ls|multipass/) && !options['host-os-uname'].to_s.match(/NT/)
         if options['sudo'] == true
-          command = "sudo sh -c '"+command+"'"
+          if command.match(/virsh/)
+            if options['host-os-uname'].to_s.match(/Linux/)
+              command = "sudo sh -c '"+command+"'"
+            end
+          else
+            command = "sudo sh -c '"+command+"'"
+          end
         else
           if command.match(/ufw|chown|chmod/)
             command = "sudo sh -c '"+command+"'"
@@ -4886,7 +4896,7 @@ end
 
 def check_install_mac(options)
   if !options['mac'].to_s.match(/:/)
-    if options['mac'].to_s.split(":").length != 6 
+    if options['mac'].to_s.split(":").length != 6
       handle_output(options, "Warning:\tInvalid MAC address")
       options['mac'] = generate_mac_address(options['vm'])
       handle_output(options, "Information:\tGenerated new MAC address: #{options['mac']}")
@@ -4921,7 +4931,7 @@ def check_install_ip(options)
   end
   options['ips'].each do |test_ip|
     ips = test_ip.split(".")
-    if ips.length != 4 
+    if ips.length != 4
       handle_output(options, "Warning:\tInvalid IP Address")
     end
     ips.each do |ip|
@@ -5494,7 +5504,7 @@ def get_method_from_service(service)
   when /ubuntu|debian/
     if service.match(/live/)
       method = "ci"
-    else 
+    else
       method = "ps"
     end
   when /sles|suse/

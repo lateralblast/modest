@@ -151,7 +151,7 @@ def vnc_to_vm(options)
             remote_vnc_port = get_fusion_vm_vmx_file_value(options['name'], "remotedisplay.vnc.port")
           end
         else
-          remote_vnc_port = options['vncport'] 
+          remote_vnc_port = options['vncport']
         end
         if remote_vnc_port.match(/[0-9]/)
           message = "Information:\tChecking noVNC isn't already running"
@@ -506,8 +506,11 @@ def list_vms(options)
     list_docker_vms(options)
   when /multipass|mp/
     list_multipass_vms(options)
+  when /libvirt|qemu/
+    list_kvm_vms(options)
   else
-    list_all_vms(options)
+    handle_output(options,"Warning:\tInvalid VM type")
+    exit
   end
   return
 end

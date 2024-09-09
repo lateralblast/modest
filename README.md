@@ -4,7 +4,7 @@
 MODEST
 ======
 
-Version: 7.9.0
+Version: 7.9.1
 
 Introduction
 ------------
@@ -307,7 +307,7 @@ __ External network __ External Interface (e.g. en0)
             |                   |                   |
             |                   |                   |
   Deployment Server        Test Server 1
-  e.g. 192.168.52.100     e.g 192.168.52.101                                     
+  e.g. 192.168.52.100     e.g 192.168.52.101
 ```
 
 An example host-only network layout For VMware Fusion with bridge interfaces (MacOS BigSur) is as follows:
@@ -330,7 +330,7 @@ __ External network __ External Interface (e.g. en0)
             |                   |                   |
             |                   |                   |
   Deployment Server        Test Server 1
-  e.g. 192.168.104.100     e.g 192.168.104.101                                     
+  e.g. 192.168.104.100     e.g 192.168.104.101
 ```
 
 An example host-only network for VirtualBox is as follows:
@@ -353,7 +353,7 @@ __ External network __ External Interface (e.g. en0)
             |                   |                   |
             |                   |                   |
   Deployment Server        Test Server 1
-  e.g. 192.168.56.100      e.g 192.168.56.101                                     
+  e.g. 192.168.56.100      e.g 192.168.56.101
 ```
 
 An example of host-only network for KVM is as follows:
@@ -376,7 +376,7 @@ __ External network __ External Interface (e.g. en0)
             |                   |                   |
             |                   |                   |
   Deployment Server        Test Server 1
-  e.g. 192.168.122.100     e.g 192.168.122.101                                     
+  e.g. 192.168.122.100     e.g 192.168.122.101
 ```
 
 Requirements

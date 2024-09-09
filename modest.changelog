@@ -1042,7 +1042,7 @@
 # 5.2.0: Tue Nov 19 09:24:27 AEDT 2019
 # Added root device switch
 # 5.2.1: Tue 19 Nov 19:34:22 AEDT 2019
-# Improved preseed post install 
+# Improved preseed post install
 # 5.2.2: Thu 21 Nov 20:04:02 AEDT 2019
 # Fixed bug with Ubuntu sources.list creation
 # 5.2.3: Thu 28 Nov 2019 11:44:13 AEDT
@@ -1062,7 +1062,7 @@
 # 5.3.0: Sat 21 Dec 2019 16:09:15 AEDT
 # Added code to add/delete VMware Fusion network interfaces
 # 5.3.1: Wed  1 Jan 16:15:05 AEDT 2020
-# Added check for uifw allow rule for packer based installs on Ubuntu Linux and other fixes 
+# Added check for uifw allow rule for packer based installs on Ubuntu Linux and other fixes
 # 5.3.2: Wed  1 Jan 18:58:48 AEDT 2020
 # Fixes for KVM packer builds
 # 5.3.3: Fri 17 Jan 2020 11:22:24 AEDT
@@ -1274,7 +1274,7 @@
 # 6.3.6: Mon 17 May 2021 19:52:14 AEST
 # Initial packer NAT cleanup (Ubuntu) for VirtualBox
 # 6.3.7: Tue 18 May 2021 11:49:07 AEST
-# Fixed default hostonly IP calculation for VMware Fusion 12 on MacOS BigSur 
+# Fixed default hostonly IP calculation for VMware Fusion 12 on MacOS BigSur
 # 6.3.8: Tue 18 May 2021 14:27:01 AEST
 # Fixed some bugs with Packer Windows support
 # 6.3.9: Tue 18 May 2021 18:15:53 AEST
@@ -1300,8 +1300,8 @@
 # 6.4.9: Tue 08 Jun 2021 12:59:01 AEST
 # Removed unused modules causing gem build errors
 # 6.5.0: Wed 09 Jun 2021 11:29:45 AEST
-# Bug fixes 
-# 6.5.1: Thu 10 Jun 2021 12:05:54 AEST 
+# Bug fixes
+# 6.5.1: Thu 10 Jun 2021 12:05:54 AEST
 # KVM bug fixes
 # 6.5.2: Thu 10 Jun 2021 13:07:02 AEST
 # More KVM improvements
@@ -1312,7 +1312,7 @@
 # 6.5.5: Thu 10 Jun 2021 17:04:02 AEST
 # Packer KVM improvements
 # 6.5.6: Fri 11 Jun 2021 09:47:12 AEST
-# Improved error checking for questions 
+# Improved error checking for questions
 # 6.5.7: Fri 11 Jun 2021 13:55:48 AEST
 # Bug fixes
 # 6.5.8: Tue 15 Jun 2021 13:35:00 AEST
@@ -1454,7 +1454,7 @@
 # 7.2.6: Thu  2 Dec 2021 18:33:07 AEDT
 # Added multipass connect and cleaned up code
 # 7.2.7: Fri  3 Dec 2021 14:47:52 AEDT
-# Some more code cleanup 
+# Some more code cleanup
 # 7.2.8: Thu 07 Apr 2022 16:54:08 AEST
 # Fixed bug with installing package
 # 7.2.9: Thu 07 Apr 2022 17:33:47 AEST
@@ -1581,3 +1581,5 @@
 # Default environment clean up and additional Arch Linux support
 # 7.9.0: Sat 02 Dec 2023 08:44:31 AEDT
 # Some code cleanup
+# 7.9.1: Sun  8 Sep 2024 20:25:25 AEST
+# Inital KVM on MacOS support

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      7.9.0
+# Version:      7.9.1
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -28,6 +28,7 @@ require 'socket'
 require 'net/http'
 require 'pp'
 require 'open-uri'
+require 'etc'
 
 class String
   def strip_control_characters
@@ -163,7 +164,7 @@ begin
     ['--adminuser', REQUIRED],        # Admin username for client VM to be created
     ['--adminpassword', REQUIRED],    # Client admin password
     ['--aidir', REQUIRED],            # Solaris AI Directory
-    ['--aiport', REQUIRED],           # Solaris AI Port 
+    ['--aiport', REQUIRED],           # Solaris AI Port
     ['--ami', REQUIRED],              # AWS AMI ID
     ['--arch', REQUIRED],             # Architecture of client or VM (e.g. x86_64)
     ['--audio', REQUIRED],            # Audio
@@ -178,7 +179,7 @@ begin
     ['--biostype', REQUIRED],         # BIOS boot type (bios/uefi)
     ['--blkiotune', REQUIRED],        # Block IO tune (KVM)
     ['--boot', REQUIRED],             # Set boot device
-    ['--bootfs', REQUIRED],           # Set boot fs 
+    ['--bootfs', REQUIRED],           # Set boot fs
     ['--bootcommand', REQUIRED],      # Packer Boot command
     ['--bootproto', REQUIRED],        # Set boot protocol
     ['--bootsize', REQUIRED],         # Set boot fs size
@@ -218,7 +219,7 @@ begin
     ['--delete', BOOLEAN],            # Delete client / service
     ['--desc', REQUIRED],             # Description
     ['--destory-on-exit', BOOLEAN],   # Destroy on exit (KVM)
-    ['--dhcp', BOOLEAN],              # DHCP 
+    ['--dhcp', BOOLEAN],              # DHCP
     ['--dhcpdfile', REQUIRED],        # DHCP Config file
     ['--dhcpdrange', REQUIRED],       # Set DHCP range
     ['--dir', REQUIRED],              # Directory / Direction
@@ -279,7 +280,7 @@ begin
     ['--hwversion', REQUIRED],        # VMware Hardware Version
     ['--hwvirtex', REQUIRED],         # hwvirtex (on/off)
     ['--id', REQUIRED],               # AWS Instance ID
-    ['--idmap', REQUIRED],            # ID map (KVM) 
+    ['--idmap', REQUIRED],            # ID map (KVM)
     ['--ifname', REQUIRED],           # Interface number / name
     ['--imagedir', REQUIRED],         # Base Image Directory
     ['--import', BOOLEAN],            # Import (KVM)
@@ -315,7 +316,7 @@ begin
     ['--list', BOOLEAN],              # List items
     ['--livecd', BOOLEAN],            # Specify Live CD (Changes install method)
     ['--locale', REQUIRED],           # Select language/language (e.g. en_US)
-    ['--localfs', REQUIRED],          # Set local fs 
+    ['--localfs', REQUIRED],          # Set local fs
     ['--localsize', REQUIRED],        # Set local fs size
     ['--logfs', REQUIRED],            # Set log fs
     ['--logsize', REQUIRED],          # Set log fs size
@@ -339,7 +340,7 @@ begin
     ['--mouse', REQUIRED],            # Mouse
     ['--name', REQUIRED],             # Client / AWS Name
     ['--nameserver', REQUIRED],       # Delete client or VM
-    ['--net', REQUIRED],              # Default Solaris Network (Solaris 11) 
+    ['--net', REQUIRED],              # Default Solaris Network (Solaris 11)
     ['--netbootdir', REQUIRED],       # Netboot directory (Solaris 11 tftpboot directory)
     ['--netbridge', REQUIRED],        # Packer Net bridge
     ['--netdevice', REQUIRED],        # Packer Net device
@@ -348,10 +349,10 @@ begin
     ['--networkfile', REQUIRED],      # Network config file (KVM)
     ['--nic', REQUIRED],              # Default NIC
     ['--noautoconsole', BOOLEAN],     # No autoconsole (KVM)
-    ['--noboot', BOOLEAN],            # Create VM/configs but don't boot 
+    ['--noboot', BOOLEAN],            # Create VM/configs but don't boot
     ['--nobuild', BOOLEAN],           # Create VM/configs but don't build
     ['--nokeys', BOOLEAN],            # Don't copy SSH Keys
-    ['--noreboot', BOOLEAN],          # Don't reboot as part of post script (used for troubleshooting) 
+    ['--noreboot', BOOLEAN],          # Don't reboot as part of post script (used for troubleshooting)
     ['--nosudo', BOOLEAN],            # Use sudo
     ['--nosuffix', BOOLEAN],          # Don't add suffix to AWS AMI names
     ['--novncdir', REQUIRED],         # NoVNC directory
@@ -359,8 +360,8 @@ begin
     ['--object', REQUIRED],           # AWS S3 object
     ['--opencsw', REQUIRED],          # OpenCSW Mirror / Repo
     ['--os-info', REQUIRED],          # OS Info
-    ['--os-type', REQUIRED],          # OS Type 
-    ['--os-variant', REQUIRED],       # OS Variant 
+    ['--os-type', REQUIRED],          # OS Type
+    ['--os-variant', REQUIRED],       # OS Variant
     ['--output', REQUIRED],           # Output format (e.g. text/html)
     ['--outputdirectory', REQUIRED],  # Packer output directory
     ['--outputfile', REQUIRED],       # Output file (KVM)
@@ -522,7 +523,7 @@ end
 # Handle alternate options
 
 [ "list", "create", "delete", "start", "stop", "restart", "build" ].each do |switch|
-  if options[switch] == true 
+  if options[switch] == true
     options['action'] = switch
   end
 end
@@ -540,10 +541,10 @@ end
 if options['import'] == true
   if options['vm']
     if not options['vm'].to_s.match(/kvm/)
-      options['action'] = "import" 
+      options['action'] = "import"
     end
   else
-    options['action'] = "import" 
+    options['action'] = "import"
   end
 end
 
@@ -676,7 +677,7 @@ defaults.each do |param, value|
       handle_output(options, "Information:\tSetting option #{param} to #{options[param]}")
     end
   end
-  if options['action'] == "info" 
+  if options['action'] == "info"
     if options['info'].match(/os/)
       if param.match(/^os/)
         options['verbose'] = true
@@ -772,7 +773,7 @@ end
 
 # Check directory permissions perms by default
 
-if options['action'].to_s.match(/check/) && options['check'].to_s.match(/perm|dir/) 
+if options['action'].to_s.match(/check/) && options['check'].to_s.match(/perm|dir/)
   check_perms(options)
   quit(options)
 end
@@ -824,7 +825,7 @@ end
 if options['sshkeyfile'] != options['empty']
   if !File.exist?(options['sshkeyfile'])
     handle_output(options, "Warning:\tSSH Key file #{options['sshkeyfile']} does not exist")
-    if options['action'].to_s.match(/create/) 
+    if options['action'].to_s.match(/create/)
       check_ssh_keys(options)
     end
   end
@@ -1159,7 +1160,7 @@ end
 # Set default host only Information
 
 if !options['vm'] == options['empty']
-  if options['vmnetwork'] == "hostonly" || options['vmnetwork'] == options['empty'] 
+  if options['vmnetwork'] == "hostonly" || options['vmnetwork'] == options['empty']
     options['vmnetwork'] = "hostonly"
     options = set_hostonly_info(options)
   end
@@ -1630,7 +1631,7 @@ end
 
 if options['os-type'] == options['empty'] || options['method'] == options['empty'] || options['release'] == options['empty'] || options['arch'] == options['empty']
   if !options['file'] == options['empty']
-    options = get_install_service_from_file(options)  
+    options = get_install_service_from_file(options)
   end
 end
 
@@ -1788,7 +1789,7 @@ def handle_action(options)
         check_kvm_permissions(options)
       end
       if options['type'].to_s.match(/bridge/) && options['vm'].to_s.match(/kvm/)
-        check_kvm_network_bridge(options)      
+        check_kvm_network_bridge(options)
       end
       if options['mode'].to_s.match(/server/)
         options = check_local_config(options)

@@ -84,7 +84,7 @@ end
 # Check KVM permissions
 
 def check_kvm_permissions(options)
-  user_name = options['user'].to_s 
+  user_name = options['user'].to_s
   group_names = [ "kvm", "libvirt", "libvirt-qemu", "libvirt-dnsmasq" ]
   for group_name in group_names
     check_group_member(options, user_name, group_name)
@@ -142,9 +142,23 @@ end
 # Check KVM is installed
 
 def check_kvm_is_installed(options)
-  if not File.exist?("/usr/bin/virt-install")
+  pkg_list = []
+  virt_bin = ""
+  if options['host-os-unamea'].to_s.match(/Darwin/)
+    [ "/usr/local/bin/virt-install", "/usr/local/homebrew/bin/virt-install", "/opt/homebrew/" ].each do |test_bin|
+      if File.exist?(test_bin)
+        virt_bin = test_bin
+      end
+    end
+  else
+    virt_bin="/usr/bin/virt-install"
+  end
+  if not File.exist?(virt_bin)
     message = "Information:\tInstalling KVM"
     handle_output(options, message)
+    if options['host-os-unamea'].to_s.match(/Ubuntu/)
+      pkg_list= [ "qemu", "libvirt", "libvirt-glib", "libvirt-python", "virt-manager", "libosinfo" ]
+    end
     if options['host-os-unamea'].to_s.match(/Ubuntu/)
       pkg_list = [ "qemu-kvm", "qemu-utils", "libvirt-clients", "libvirt-daemon-system", "bridge-utils", "virt-manager", "virt-viewer", "cloud-image-utils", "libosinfo-bin" ]
     end
@@ -155,26 +169,28 @@ def check_kvm_is_installed(options)
       install_linux_package(options, pkg_name)
     end
   end
+  if not options['host-os-uname'].match(/Linux|Darwin/)
+    handle_output(options, "Warning:\tPlatform does not support KVM")
+    quit(options)
+  end
   if options['host-lsb-description'].to_s.match(/Endeavour|Arch/)
     enable_service(options, "libvirtd.service")
     start_service(options, "libvirtd.service")
   end
-  check_kvm_default_network(options)
-  check_kvm_permissions(options)
-  if_name = get_vm_if_name(options)
-  if options['vmnet'].to_s.match(/hostonly/) and options['bridge'].to_s.match(/virbr/) or options['action'].to_s.match(/check/)
-    check_kvm_hostonly_network(options, if_name)
-  end
-  if not options['host-os-uname'].match(/Linux/)
-    handle_output(options, "Warning:\tPlatform does not support KVM")
-    quit(options)
+  if options['host-os-uname'].match(/Linux/)
+    check_kvm_default_network(options)
+    check_kvm_permissions(options)
+    if_name = get_vm_if_name(options)
+    if options['vmnet'].to_s.match(/hostonly/) and options['bridge'].to_s.match(/virbr/) or options['action'].to_s.match(/check/)
+      check_kvm_hostonly_network(options, if_name)
+    end
   end
   gw_if_name = get_gw_if_name(options)
   message = "Information:\tChecking KVM is installed"
   command = "ifconfig -a |grep #{gw_if_name}"
   output  = execute_command(options, message, command)
   if_name = get_vm_if_name(options)
-  check_linux_nat(options, gw_if_name, if_name)
+  check_nat(options, gw_if_name, if_name)
   if not File.exist?("/usr/bin/cloud-localds")
     pkg_name = "cloud-image-utils"
     install_linux_package(options, pkg_name)
@@ -219,11 +235,13 @@ def check_kvm_is_installed(options)
       restart_linux_service(options, "libvirtd.service")
     end
   end
-  bridge_helper = "/usr/lib/qemu/qemu-bridge-helper"
-  if !FileTest.setuid?(bridge_helper)
-    message = "Information:\tSetting setuid bit on #{bridge_helper}"
-    command = "chmod u+s #{bridge_helper}"
-    output  = execute_command(options, message, command)
+  if !options['host-os-uname'].match(/Darwin/)
+    bridge_helper = "/usr/lib/qemu/qemu-bridge-helper"
+    if !FileTest.setuid?(bridge_helper)
+      message = "Information:\tSetting setuid bit on #{bridge_helper}"
+      command = "chmod u+s #{bridge_helper}"
+      output  = execute_command(options, message, command)
+    end
   end
   return
 end
@@ -258,7 +276,7 @@ def convert_kvm_image(options)
       handle_output(options, "Warning:\tNo client name specified")
       quit(options)
     else
-      file_name = options['imagedir'].to_s+"/"+options['name'].to_s+".qcow2" 
+      file_name = options['imagedir'].to_s+"/"+options['name'].to_s+".qcow2"
       options['outputfile'] = file_name
       output_file = options['outputfile']
       handle_output(options, "Information:\tSetting output file to #{output_file}")
@@ -315,7 +333,7 @@ end
 
 def check_kvm_network_bridge(options)
   exists = check_kvm_network_bridge_exists(options)
-  if exists == true 
+  if exists == true
     message = "Information:\tKVM VM #{options['bridge']} already exists"
     handle_output(options, message)
     exists = check_network_bridge_exists(options)
@@ -339,7 +357,7 @@ def check_kvm_network_bridge(options)
     file.close
     print_contents_of_file(options, "", bridge_file)
     if File.exist?(bridge_file)
-      message = "Information:\tImporting KVM bridge config for #{kvm_bridge}" 
+      message = "Information:\tImporting KVM bridge config for #{kvm_bridge}"
       command = "virsh net-define #{bridge_file}"
       execute_command(options, message, command)
       message = "Information:\tSetting KVM bridge #{kvm_bridge} config to autostart"
@@ -362,17 +380,19 @@ def configure_kvm_client(options)
     handle_output(options, message)
     quit(options)
   end
-  exists = check_kvm_network_bridge_exists(options)
-  if exists == false 
-    message = "Warning:\tKVM network bridge #{options['bridge']} does not exists"
-    handle_output(options, message)
-    quit(options)
-  end
-  exists = check_network_bridge_exists(options)
-  if exists == false
-    net_dev = options['bridge'].to_s
-    handle_output(options, "Warning:\tNetwork bridge #{net_dev} does not exist")
-    quit(options)
+  if !options['host-os-uname'].match(/Darwin/)
+    exists = check_kvm_network_bridge_exists(options)
+    if exists == false
+      message = "Warning:\tKVM network bridge #{options['bridge']} does not exists"
+      handle_output(options, message)
+      quit(options)
+    end
+    exists = check_network_bridge_exists(options)
+    if exists == false
+      net_dev = options['bridge'].to_s
+      handle_output(options, "Warning:\tNetwork bridge #{net_dev} does not exist")
+      quit(options)
+    end
   end
   if options['import'] == true
     optons = configure_kvm_import_client(options)
@@ -588,7 +608,7 @@ def configure_kvm_import_client(options)
     end
     message = "Information:\tConfiguring image file #{options['inputfile'].to_s}"
     output  = execute_command(options, message, command)
-    if !File.exist?(options['cloudfile'].to_s) 
+    if !File.exist?(options['cloudfile'].to_s)
       if options['q_struct']['static'].value == "true"
         handle_output(options, "Warning:\tFile #{options['cloudfile'].to_s} does not exist")
         quit(options)
@@ -645,14 +665,14 @@ def configure_kvm_import_client(options)
     handle_output(options, "Information:\tNot building VM #{options['name'].to_s}")
     handle_output(options, "Information:\tTo build VM execute comannd below")
     handle_output(options, "Command:\t#{command}")
-  end 
+  end
   return options
 end
 
 # List KVM VMs
 
 def list_kvm_vms(options)
-  if !options['host-os-uname'].match(/Linux/)
+  if !options['host-os-uname'].match(/Linux|Darwin/)
     return
   end
   command   = "virsh list --all"
