@@ -191,51 +191,51 @@ def check_kvm_is_installed(options)
   output  = execute_command(options, message, command)
   if_name = get_vm_if_name(options)
   check_nat(options, gw_if_name, if_name)
-  if not File.exist?("/usr/bin/cloud-localds")
-    pkg_name = "cloud-image-utils"
-    install_linux_package(options, pkg_name)
-  end
-  message = "Information:\tChecking user is a member of the kvm group"
-  command = "groups"
-  output  = execute_command(options, message, command)
-  if not output.match(/kvm/)
-    message = "Information:\tAdding user to kvm group"
-    command = "usermod -a -G #{options['kvmgroup']} #{options['user']}"
+  if !options['host-os-uname'].match(/Darwin/)
+    if not File.exist?("/usr/bin/cloud-localds")
+      pkg_name = "cloud-image-utils"
+      install_linux_package(options, pkg_name)
+    end
+    message = "Information:\tChecking user is a member of the kvm group"
+    command = "groups"
     output  = execute_command(options, message, command)
-  end
-  if options['verbose'] == true
-    handle_output(options, "Information:\tChecking QEMU configuration directory")
-  end
-  dir_name   = "/etc/qemu"
-  file_name  = "/etc/qemu/bridge.conf"
-  file_array = []
-  file_line  = "allow "+options['bridge'].to_s
-  file_array.append(file_line)
-  if !File.exist?(file_name)
-    file_mode = "w"
-    check_dir_exists(options, dir_name)
-    check_dir_owner(options, dir_name, options['uid'])
-    check_file_perms(options, file_name, file_mode)
-    write_array_to_file(options, file_array, file_name, file_mode)
-    check_dir_owner(options, dir_name, "0")
-    file_gid  = get_group_gid(options, options['kvmgroup'])
-    file_mode = "w"
-    check_file_group(options, file_name, file_gid)
-    check_file_owner(options, file_name, "0")
-    check_file_perms(options, file_name, file_mode)
-    restart_linux_service(options, "libvirtd.service")
-  else
-    if !File.readlines(file_name).grep(/#{file_line}/).any?
-      file_mode = "a"
+    if not output.match(/kvm/)
+      message = "Information:\tAdding user to kvm group"
+      command = "usermod -a -G #{options['kvmgroup']} #{options['user']}"
+      output  = execute_command(options, message, command)
+    end
+    if options['verbose'] == true
+      handle_output(options, "Information:\tChecking QEMU configuration directory")
+    end
+    dir_name   = "/etc/qemu"
+    file_name  = "/etc/qemu/bridge.conf"
+    file_array = []
+    file_line  = "allow "+options['bridge'].to_s
+    file_array.append(file_line)
+    if !File.exist?(file_name)
+      file_mode = "w"
+      check_dir_exists(options, dir_name)
       check_dir_owner(options, dir_name, options['uid'])
-      check_file_owner(options, file_name, options['uid'])
+      check_file_perms(options, file_name, file_mode)
       write_array_to_file(options, file_array, file_name, file_mode)
       check_dir_owner(options, dir_name, "0")
+      file_gid  = get_group_gid(options, options['kvmgroup'])
+      file_mode = "w"
+      check_file_group(options, file_name, file_gid)
       check_file_owner(options, file_name, "0")
+      check_file_perms(options, file_name, file_mode)
       restart_linux_service(options, "libvirtd.service")
+    else
+      if !File.readlines(file_name).grep(/#{file_line}/).any?
+        file_mode = "a"
+        check_dir_owner(options, dir_name, options['uid'])
+        check_file_owner(options, file_name, options['uid'])
+        write_array_to_file(options, file_array, file_name, file_mode)
+        check_dir_owner(options, dir_name, "0")
+        check_file_owner(options, file_name, "0")
+        restart_linux_service(options, "libvirtd.service")
+      end
     end
-  end
-  if !options['host-os-uname'].match(/Darwin/)
     bridge_helper = "/usr/lib/qemu/qemu-bridge-helper"
     if !FileTest.setuid?(bridge_helper)
       message = "Information:\tSetting setuid bit on #{bridge_helper}"
