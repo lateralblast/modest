@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      7.9.2
+# Version:      7.9.3
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -130,11 +130,11 @@ end
 # Load methods
 
 if File.directory?("./methods")
-  file_list = Dir.entries("./methods")
+  file_list = Dir.glob("./methods/**/*")
   for file in file_list
     if file =~ /rb$/
       handle_output(options, "Information:\tLoading module #{file}")
-      require "./methods/#{file}"
+      require "#{file}"
     end
   end
 end

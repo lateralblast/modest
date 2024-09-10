@@ -1584,4 +1584,6 @@
 # 7.9.1: Sun  8 Sep 2024 20:25:25 AEST
 # Inital KVM on MacOS support
 # 7.9.2: Tue 10 Sep 2024 18:06:13 AEST
-# Added code to enable verbose mode early if given verbose switch
+# Added code to enable verbose mode early if given verbose switcho
+# 7.9.3: Tue 10 Sep 2024 22:25:43 AEST
+# Updated methods
