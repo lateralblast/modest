@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      7.9.1
+# Version:      7.9.2
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -29,6 +29,35 @@ require 'net/http'
 require 'pp'
 require 'open-uri'
 require 'etc'
+
+# Declare array for text output (used for webserver)
+
+options = {}
+options['stdout']   = []
+options['q_struct'] = {}
+options['q_order']  = []
+
+# Handle output
+
+def handle_output(options, text)
+  if options['output'].to_s.match(/html/)
+    if text == ""
+      text = "<br>"
+    end
+  end
+  if options['output'].to_s.match(/text/)
+    puts text
+  end
+  #options['stdout'].push(text)
+  return options
+end
+
+# If given --verbose switch enable verbose mode early
+
+if ARGV.to_s.match(/--verbose/)
+  options['verbose'] = true
+  options['output'] = "text"
+end
 
 class String
   def strip_control_characters
@@ -98,19 +127,13 @@ end
   end
 end
 
-# Declare array for text output (used for webserver)
-
-options = {}
-options['stdout']   = []
-options['q_struct'] = {}
-options['q_order']  = []
-
 # Load methods
 
 if File.directory?("./methods")
   file_list = Dir.entries("./methods")
   for file in file_list
     if file =~ /rb$/
+      handle_output(options, "Information:\tLoading module #{file}")
       require "./methods/#{file}"
     end
   end

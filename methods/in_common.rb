@@ -446,7 +446,11 @@ def set_defaults(options, defaults)
   defaults['size']            = "100G"
   defaults['slice']           = "8192"
   defaults['sharedfolder']    = defaults['home'].to_s+"/Documents"
-  defaults['sharedmount']     = "/mnt"
+  if options['host-os-uname'].to_s.match(/Darwin/)
+    defaults['sharedmount']   =  defaults['home'].to_s+"/Documents/modest/mnt"
+  else
+    defaults['sharedmount']   = "/mnt"
+  end
   defaults['shutdowntimeout'] = "1h"
   defaults['splitvols']       = false
   defaults['sshconfig']       = defaults['home'].to_s+"/.ssh/config"
@@ -1116,21 +1120,6 @@ def verbose_output(options, text)
   if options['verbose'] == true
     options = handle_output(options, text)
   end
-  return options
-end
-
-# Handle output
-
-def handle_output(options, text)
-  if options['output'].to_s.match(/html/)
-    if text == ""
-      text = "<br>"
-    end
-  end
-  if options['output'].to_s.match(/text/)
-    puts text
-  end
-  #options['stdout'].push(text)
   return options
 end
 
