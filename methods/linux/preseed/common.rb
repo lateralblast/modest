@@ -2,10 +2,10 @@
 
 # List available Ubuntu ISOs
 
-def list_ps_isos(options)
-  if not options['search'].to_s.match(/[a-z]|[A-Z]|all/)
-    options['search'] = "ubuntu|debian|purity"
+def list_ps_isos(values)
+  if not values['search'].to_s.match(/[a-z]|[A-Z]|all/)
+    values['search'] = "ubuntu|debian|purity"
   end
-  list_linux_isos(options)
+  list_linux_isos(values)
   return
 end

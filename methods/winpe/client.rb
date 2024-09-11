@@ -3,22 +3,22 @@
 # List PE clients
 
 def list_pe_clients()
-  options['method'] = "pe"
-  list_clients(options)
+  values['method'] = "pe"
+  list_clients(values)
   return
 end
 
 # Populate post install commands
 
-def populate_pe_post_list(admin_username, admin_password, options)
+def populate_pe_post_list(admin_username, admin_password, values)
   post_list = []
   post_list.push("cmd.exe /c powershell -Command \"Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force\",Set Execution Policy 64 Bit,true")
   post_list.push("C:\\Windows\\SysWOW64\\cmd.exe /c powershell -Command \"Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Force\",Set Execution Policy 32 Bit,true")
-  if options['winshell'].to_s.match(/winrm/)
+  if values['winshell'].to_s.match(/winrm/)
     post_list.push("cmd.exe /c winrm quickconfig -q,winrm quickconfig -q,true")
     post_list.push("cmd.exe /c winrm quickconfig -transport:http,winrm quickconfig -transport:http,true")
     post_list.push("cmd.exe /c winrm set winrm/config @{MaxTimeoutms=\"1800000\"},Win RM MaxTimoutms,true")
-    if options['label'].to_s.match(/20[1,2][0-9]/)
+    if values['label'].to_s.match(/20[1,2][0-9]/)
       post_list.push("cmd.exe /c winrm set winrm/config/winrs '@{MaxMemoryPerShellMB=\"800\"}',Win RM MaxMemoryPerShellMB,true")
     else
       post_list.push("cmd.exe /c winrm set winrm/config/winrs '@{MaxMemoryPerShellMB=\"0\"}',Win RM MaxMemoryPerShellMB,true")
@@ -29,14 +29,14 @@ def populate_pe_post_list(admin_username, admin_password, options)
     post_list.push("cmd.exe /c winrm set winrm/config/listener?Address=*+Transport=HTTP @{Port=\"5985\"},Win RM listener Address/Port,true")
     post_list.push("cmd.exe /c netsh advfirewall firewall set rule group=\"remote administration\" new enable=yes,Win RM adv firewall enable,true")
     post_list.push("cmd.exe /c netsh advfirewall firewall add rule name=\"WinRM-HTTP\" dir=in localport=5985 protocol=TCP action=allow,Allow WinRM HTTP,true")
-    if options['label'].to_s.match(/2008/)
+    if values['label'].to_s.match(/2008/)
       post_list.push("cmd.exe /c winrm set winrm/config/winrs '@{MaxProcessesPerShell=\"0\"}',Win RM MaxProcessesPerShell,true")
     end
     post_list.push("cmd.exe /c net stop winrm,Stop Win RM Service,true")
     post_list.push("cmd.exe /c sc config winrm start= auto,Win RM Autostart,true")
     post_list.push("cmd.exe /c net start winrm,Start Win RM Service,true")
   end
-  if options['winshell'].to_s.match(/ssh/)
+  if values['winshell'].to_s.match(/ssh/)
     post_list.push("cmd.exe /c netsh advfirewall firewall add rule name=\"INSTALL-HTTP\" dir=out localport=8888 protocol=TCP action=allow,Allow WinRM HTTP,true")
     post_list.push("cmd.exe /c C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe -File  A:\\openssh.ps1,Install OpenSSH,true")
   end
@@ -46,7 +46,7 @@ def populate_pe_post_list(admin_username, admin_password, options)
   post_list.push("%SystemRoot%\\System32\\reg.exe ADD HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\\ /v StartMenuAdminTools /t REG_DWORD /d 1 /f,Show Administrative Tools in Start Menu,false")
   post_list.push("%SystemRoot%\\System32\\reg.exe ADD HKLM\\SYSTEM\\CurrentControlSet\\Control\\Power\\ /v HibernateFileSizePercent /t REG_DWORD /d 0 /f,Zero Hibernation File,false")
   post_list.push("%SystemRoot%\\System32\\reg.exe ADD HKLM\\SYSTEM\\CurrentControlSet\\Control\\Power\\ /v HibernateEnabled /t REG_DWORD /d 0 /f,Zero Hibernation File,false")
-  if options['label'].to_s.match(/20[1,2][0-9]/)
+  if values['label'].to_s.match(/20[1,2][0-9]/)
     post_list.push("cmd.exe /c reg add \"HKLM\\SYSTEM\\CurrentControlSet\\Control\\Network\\NewNetworkWindowOff\",Turn off Network Location Wizard,false")
     post_list.push("%SystemRoot%\\System32\\reg.exe ADD HKLM\\SYSTEM\\CurrentControlSet\\Control\\Network\\NetworkLocationWizard\\ /t REG_DWORD /d 1 /f,Hide Network Wizard,false")
   end
@@ -57,55 +57,55 @@ end
 
 # Create Autounattend.xml
 
-def output_pe_client_profile(options,output_file)
+def output_pe_client_profile(values,output_file)
   xml_output      = []
   command         = ""
   description     = ""
   userinput       = ""
   counter         = 1
   number          = ""
-  locale          = options['q_struct']['locale'].value
-  timezone        = options['q_struct']['timezone'].value
-  boot_disk_size  = options['q_struct']['boot_disk_size'].value
-  admin_fullname  = options['q_struct']['admin_fullname'].value
-  admin_username  = options['q_struct']['admin_username'].value
-  admin_password  = options['q_struct']['admin_password'].value
-  organisation    = options['q_struct']['organisation'].value
-  cpu_arch        = options['q_struct']['cpu_arch'].value
-  options['license']   = options['q_struct']['license_key'].value
-  options['vmnetwork'] = options['q_struct']['network_type'].value
-  if options['vmnetwork'].to_s.match(/hostonly|bridged/)
-    network_name  = options['q_struct']['network_name'].value
-    network_cidr  = options['q_struct']['network_cidr'].value
-    network_ip    = options['q_struct']['ip_address'].value
-    gateway_ip    = options['q_struct']['gateway_address'].value
-    nameserver_ip = options['q_struct']['nameserver_ip'].value
-    search_domain = options['q_struct']['search_domain'].value
+  locale          = values['q_struct']['locale'].value
+  timezone        = values['q_struct']['timezone'].value
+  boot_disk_size  = values['q_struct']['boot_disk_size'].value
+  admin_fullname  = values['q_struct']['admin_fullname'].value
+  admin_username  = values['q_struct']['admin_username'].value
+  admin_password  = values['q_struct']['admin_password'].value
+  organisation    = values['q_struct']['organisation'].value
+  cpu_arch        = values['q_struct']['cpu_arch'].value
+  values['license']   = values['q_struct']['license_key'].value
+  values['vmnetwork'] = values['q_struct']['network_type'].value
+  if values['vmnetwork'].to_s.match(/hostonly|bridged/)
+    network_name  = values['q_struct']['network_name'].value
+    network_cidr  = values['q_struct']['network_cidr'].value
+    network_ip    = values['q_struct']['ip_address'].value
+    gateway_ip    = values['q_struct']['gateway_address'].value
+    nameserver_ip = values['q_struct']['nameserver_ip'].value
+    search_domain = values['q_struct']['search_domain'].value
   end
   # Put in some Microsoft Eval Keys if no license specified
-  if not options['license'].to_s.match(/[0-9]/)
-    case options['label'].to_s
+  if not values['license'].to_s.match(/[0-9]/)
+    case values['label'].to_s
     when /2008/
-      if options['label'].to_s.match(/R2/)
-        options['license'] = "YC6KT-GKW9T-YTKYR-T4X34-R7VHC"
+      if values['label'].to_s.match(/R2/)
+        values['license'] = "YC6KT-GKW9T-YTKYR-T4X34-R7VHC"
       else
-        options['license'] = "TM24T-X9RMF-VWXK6-X8JC9-BFGM2"
+        values['license'] = "TM24T-X9RMF-VWXK6-X8JC9-BFGM2"
       end
     when /2012/
-      if options['label'].to_s.match(/R2/)
-        options['license'] = "D2N9P-3P6X9-2R39C-7RTCD-MDVJX"
+      if values['label'].to_s.match(/R2/)
+        values['license'] = "D2N9P-3P6X9-2R39C-7RTCD-MDVJX"
       else
-        options['license'] = "BN3D2-R7TKB-3YPBD-8DRP2-27GG4"
+        values['license'] = "BN3D2-R7TKB-3YPBD-8DRP2-27GG4"
       end
     when /2016|2019|2020/
-      options['license'] = ""
+      values['license'] = ""
     end
   end
-  post_list = populate_pe_post_list(admin_username, admin_password, options)
+  post_list = populate_pe_post_list(admin_username, admin_password, values)
   xml       = Builder::XmlMarkup.new(:target => xml_output, :indent => 2)
   xml.instruct! :xml, :version => "1.0", :encoding => "UTF-8"
   xml.unattend(:xmlns => "urn:schemas-microsoft-com:unattend") {
-    if options['label'].to_s.match(/20[1,2][0-9]/)
+    if values['label'].to_s.match(/20[1,2][0-9]/)
       xml.settings(:pass => "windowsPE") {
         xml.component(:"xmlns:wcm" => "http://schemas.microsoft.com/WMIConfig/2002/State", :"xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance", :name => "Microsoft-Windows-International-Core-WinPE", :processorArchitecture => "#{cpu_arch}", :publicKeyToken => "31bf3856ad364e35", :language => "neutral", :versionScope => "nonSxS") {
           xml.SetupUILanguage {
@@ -157,7 +157,7 @@ def output_pe_client_profile(options,output_file)
               xml.InstallFrom {
                 xml.MetaData(:"wcm:action" => "add") {
                   xml.Key("/IMAGE/NAME")
-                  xml.Value("#{options['label']}")
+                  xml.Value("#{values['label']}")
                 }
               }
               xml.InstallTo {
@@ -167,9 +167,9 @@ def output_pe_client_profile(options,output_file)
             }
           }
           xml.UserData {
-            if options['license'].to_s.match(/[A-Z]|[0-9]/)
+            if values['license'].to_s.match(/[A-Z]|[0-9]/)
               xml.ProductKey {
-                xml.Key("#{options['license']}")
+                xml.Key("#{values['license']}")
                 xml.WillShowUI("Never")
               }
             end
@@ -180,7 +180,7 @@ def output_pe_client_profile(options,output_file)
         }
       }
       xml.settings(:pass => "specialize") {
-        if options['vmnetwork'].to_s.match(/hostonly|bridged/)
+        if values['vmnetwork'].to_s.match(/hostonly|bridged/)
           if network_ip.match(/[0-9]/)
             xml.component(:"xmlns:wcm" => "http://schemas.microsoft.com/WMIConfig/2002/State", :"xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance", :name => "Microsoft-Windows-TCPIP", :processorArchitecture => "#{cpu_arch}", :publicKeyToken => "31bf3856ad364e35", :language => "neutral", :versionScope => "nonSxS") {
               xml.Interfaces {
@@ -190,7 +190,7 @@ def output_pe_client_profile(options,output_file)
                   }
                   xml.Identifier("#{network_name}")
                   xml.UnicastIpAddresses {
-                    xml.IpAddress("#{network_ip}/#{options['cidr']}", :"wcm:action" => "add", :"wcm:keyValue" => "1")
+                    xml.IpAddress("#{network_ip}/#{values['cidr']}", :"wcm:action" => "add", :"wcm:keyValue" => "1")
                   }
                   xml.Routes {
                     xml.Route(:"wcm:action" => "add") {
@@ -205,7 +205,7 @@ def output_pe_client_profile(options,output_file)
             }
           end
         end
-        if options['vmnetwork'].to_s.match(/hostonly|bridged/)
+        if values['vmnetwork'].to_s.match(/hostonly|bridged/)
           if nameserver_ip.match(/[0-9]/)
             xml.component(:"xmlns:wcm" => "http://schemas.microsoft.com/WMIConfig/2002/State", :"xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance", :name => "Microsoft-Windows-DNS-Client", :processorArchitecture => "#{cpu_arch}", :publicKeyToken => "31bf3856ad364e35", :language => "neutral", :versionScope => "nonSxS") {
               xml.Interfaces {
@@ -228,7 +228,7 @@ def output_pe_client_profile(options,output_file)
           xml.OEMInformation {
             xml.HelpCustomized("false")
           }
-          xml.ComputerName("#{options['name']}")
+          xml.ComputerName("#{values['name']}")
           xml.TimeZone("#{timezone}")
           xml.RegisteredOwner
         }
@@ -305,9 +305,9 @@ def output_pe_client_profile(options,output_file)
           xml.EnableLUA("false")
         }
       }
-      xml.tag!(:"cpi:offlineImage", :"xmlns:cpi" => "urn:schemas-microsoft-com:cpi", :"cpi:source" => "catalog:d:/sources/#{options['label']}.clg")
+      xml.tag!(:"cpi:offlineImage", :"xmlns:cpi" => "urn:schemas-microsoft-com:cpi", :"cpi:source" => "catalog:d:/sources/#{values['label']}.clg")
     end
-    if options['label'].to_s.match(/2008/)
+    if values['label'].to_s.match(/2008/)
       xml.servicing
       xml.settings(:pass => "windowsPE") {
         xml.component(:"xmlns:wcm" => "http://schemas.microsoft.com/WMIConfig/2002/State", :"xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance", :name => "Microsoft-Windows-Setup", :processorArchitecture => "#{cpu_arch}", :publicKeyToken => "31bf3856ad364e35", :language => "neutral", :versionScope => "nonSxS") {
@@ -340,7 +340,7 @@ def output_pe_client_profile(options,output_file)
             xml.FullName("#{admin_fullname}")
             xml.Organization("#{organisation}")
             xml.ProductKey {
-              xml.Key("#{options['license']}")
+              xml.Key("#{values['license']}")
               xml.WillShowUI("Never")
             }
           }
@@ -355,7 +355,7 @@ def output_pe_client_profile(options,output_file)
               xml.InstallFrom {
                 xml.MetaData(:"wcm:action" => "add") {
                   xml.Key("/IMAGE/NAME")
-                  xml.Value("#{options['label']}")
+                  xml.Value("#{values['label']}")
                 }
               }
             }
@@ -428,7 +428,7 @@ def output_pe_client_profile(options,output_file)
         }
       }
       xml.settings(:pass => "specialize") {
-        if options['vmnetwork'].to_s.match(/hostonly|bridged/)
+        if values['vmnetwork'].to_s.match(/hostonly|bridged/)
           if network_ip.match(/[0-9]/)
             xml.component(:"xmlns:wcm" => "http://schemas.microsoft.com/WMIConfig/2002/State", :"xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance", :name => "Microsoft-Windows-TCPIP", :processorArchitecture => "#{cpu_arch}", :publicKeyToken => "31bf3856ad364e35", :language => "neutral", :versionScope => "nonSxS") {
               xml.Interfaces {
@@ -438,7 +438,7 @@ def output_pe_client_profile(options,output_file)
                   }
                   xml.Identifier("#{network_name}")
                   xml.UnicastIpAddresses {
-                    xml.IpAddress("#{network_ip}/#{options['cidr']}", :"wcm:action" => "add", :"wcm:keyValue" => "1")
+                    xml.IpAddress("#{network_ip}/#{values['cidr']}", :"wcm:action" => "add", :"wcm:keyValue" => "1")
                   }
                   xml.Routes {
                     xml.Route(:"wcm:action" => "add") {
@@ -453,7 +453,7 @@ def output_pe_client_profile(options,output_file)
             }
           end
         end
-        if options['vmnetwork'].to_s.match(/hostonly|bridged/)
+        if values['vmnetwork'].to_s.match(/hostonly|bridged/)
           if nameserver_ip.match(/[0-9]/)
             xml.component(:"xmlns:wcm" => "http://schemas.microsoft.com/WMIConfig/2002/State", :"xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance", :name => "Microsoft-Windows-DNS-Client", :processorArchitecture => "#{cpu_arch}", :publicKeyToken => "31bf3856ad364e35", :language => "neutral", :versionScope => "nonSxS") {
               xml.Interfaces {
@@ -476,7 +476,7 @@ def output_pe_client_profile(options,output_file)
           xml.OEMInformation {
             xml.HelpCustomized("false")
           }
-          xml.ComputerName("#{options['name']}")
+          xml.ComputerName("#{values['name']}")
           xml.TimeZone("#{timezone}")
           xml.RegisteredOwner
         }
@@ -494,7 +494,7 @@ def output_pe_client_profile(options,output_file)
           xml.SkipAutoActivation("true")
         }
       }
-      xml.tag!(:"cpi:offlineImage", :"xmlns:cpi" => "urn:schemas-microsoft-com:cpi", :"cpi:source" => "catalog:d:/sources/#{options['label']}.clg")
+      xml.tag!(:"cpi:offlineImage", :"xmlns:cpi" => "urn:schemas-microsoft-com:cpi", :"cpi:source" => "catalog:d:/sources/#{values['label']}.clg")
     end
   }
   file = File.open(output_file,"w")
@@ -502,9 +502,9 @@ def output_pe_client_profile(options,output_file)
     file.write(item)
   end
   file.close
-  message = "Information:\tValidating Windows configuration for "+options['name']
+  message = "Information:\tValidating Windows configuration for "+values['name']
   command = "xmllint #{output_file}"
-  execute_command(options, message, command)
+  execute_command(values, message, command)
   return
 end
 
@@ -535,10 +535,10 @@ end
 
 # Populate Windows VM Tools powershell script
 
-def populate_vmtools_psh(options)
+def populate_vmtools_psh(values)
   vmtools_psh = []
   vmtools_psh.push("")
-  if options['vmtools'] == true
+  if values['vmtools'] == true
     vmtools_psh.push("$isopath = \"C:\\Windows\\Temp\\windows.iso\"")
     vmtools_psh.push("Mount-DiskImage -ImagePath $isopath")
     vmtools_psh.push("function vmware {")
@@ -574,13 +574,13 @@ end
 
 # Output Windows winrm powershell script
 
-def output_psh(options, output_psh, output_file)
+def output_psh(values, output_psh, output_file)
   file = File.open(output_file, "a")
   output_psh.each do |item|
     line = item+"\n"
     file.write(line)
   end
   file.close
-  print_contents_of_file(options, "", output_file)
+  print_contents_of_file(values, "", output_file)
   return
 end

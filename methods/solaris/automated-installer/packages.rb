@@ -51,7 +51,7 @@ end
 
 # Create IPS package
 
-def create_ai_ips_pkg(options, pkg_name, spool_dir, install_dir, mog_file)
+def create_ai_ips_pkg(values, pkg_name, spool_dir, install_dir, mog_file)
   manifest_file = spool_dir+"/"+pkg_name+".p5m"
   temp_file_1   = spool_dir+"/"+pkg_name+".p5m.1"
   temp_file_2   = spool_dir+"/"+pkg_name+".p5m.2"
@@ -62,28 +62,28 @@ def create_ai_ips_pkg(options, pkg_name, spool_dir, install_dir, mog_file)
   commands.push("cd #{install_dir} ; pkgdepend resolve -m #{manifest_file}")
   commands.each do |command|
     message = ""
-    execute_command(options, message, command)
+    execute_command(values, message, command)
   end
   return
 end
 
 # Publish IPS package
 
-def publish_ai_ips_pkg(options, pkg_name, spool_dir, install_dir, pkg_repo_dir)
+def publish_ai_ips_pkg(values, pkg_name, spool_dir, install_dir, pkg_repo_dir)
   message = "Information:\tPublishing package "+pkg_name+" to "+pkg_repo_dir
   command = "cd #{install_dir} ; pkgsend publish -s #{pkg_repo_dir} -d . #{spool_dir}/#{pkg_name}.p5m.res"
-  execute_command(options, message, command)
+  execute_command(values, message, command)
   return
 end
 
 # Build package
 
-def build_ai_pkg(options, p_struct, pkg_name, build_type, pkg_repo_dir)
+def build_ai_pkg(values, p_struct, pkg_name, build_type, pkg_repo_dir)
   pkg_version      = p_struct[pkg_name].version
   repo_pkg_version = check_pkg_repo(p_struct, pkg_name, pkg_repo_dir)
   if not repo_pkg_version.match(/#{pkg_version}/)
-    source_dir = options['baserepodir']+"/source"
-    check_fs_exists(options, source_dir)
+    source_dir = values['baserepodir']+"/source"
+    check_fs_exists(values, source_dir)
     pkg_version = p_struct[pkg_name].version
     source_name = pkg_name+"-"+pkg_version+".tar.gz"
     source_file = source_dir+"/"+source_name
@@ -92,8 +92,8 @@ def build_ai_pkg(options, p_struct, pkg_name, build_type, pkg_repo_dir)
     if not File.exist?(source_file)
       get_pkg_source(source_url, source_file)
     end
-    build_dir = options['workdir']+"/build"
-    check_dir_exists(options, build_dir)
+    build_dir = values['workdir']+"/build"
+    check_dir_exists(values, build_dir)
     install_dir = build_dir+"/install"
     extract_dir = build_dir+"/source"
     spool_dir   = build_dir+"/spool"
@@ -102,24 +102,24 @@ def build_ai_pkg(options, p_struct, pkg_name, build_type, pkg_repo_dir)
       if File.directory?(dir_name)
         message = "Cleaning:\tDirectory "+dir_name
         command = "cd #{dir_name} ; rm -rf *"
-        execute_command(options, message, command)
+        execute_command(values, message, command)
       end
-      check_dir_exists(options, dir_name)
+      check_dir_exists(values, dir_name)
     end
     message = "Information:\tExtracting source "+source_file+" to "+extract_dir
     command = "cd #{extract_dir} ; gcat #{source_file} |tar -xpf -"
-    execute_command(options, message, command)
+    execute_command(values, message, command)
     compile_dir = extract_dir+"/"+pkg_name+"-"+pkg_version
     if p_struct[pkg_name].type.match(/ruby/)
       message = "Compling:\t"+pkg_name
       command = "cd #{compile_dir} ; ./install.rb --destdir=#{install_dir} --full"
-      execute_command(options, message, command)
+      execute_command(values, message, command)
     end
     if build_type.match(/ips/)
       mog_file = create_mog_file(p_struct, pkg_name, spool_dir)
-      options['arch'] = %x[uname -p].chomp
-      create_ai_ips_pkg(options, pkg_name, spool_dir, install_dir, mog_file)
-      publish_ai_ips_pkg(options, pkg_name, spool_dir, install_dir, pkg_repo_dir)
+      values['arch'] = %x[uname -p].chomp
+      create_ai_ips_pkg(values, pkg_name, spool_dir, install_dir, mog_file)
+      publish_ai_ips_pkg(values, pkg_name, spool_dir, install_dir, pkg_repo_dir)
     end
   end
   return
@@ -127,11 +127,11 @@ end
 
 # Check a package is in the repository
 
-def check_ai_pkg_repo(options, p_struct, pkg_name, pkg_repo_dir)
+def check_ai_pkg_repo(values, p_struct, pkg_name, pkg_repo_dir)
   pkg_version=p_struct[pkg_name].version
   message = "Information:\tChecking if repository contains "+pkg_name+" "+pkg_version
   command = "pkg info -g #{pkg_repo_dir} -r #{pkg_name} |grep Version |awk \"{print \\\$2}\""
-  output  = execute_command(options, message, command)
+  output  = execute_command(values, message, command)
   repo_pkg_version = output.chomp
   return repo_pkg_version
 end

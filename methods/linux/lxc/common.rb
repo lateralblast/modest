@@ -2,26 +2,26 @@
 
 # Check LXC install
 
-def check_lxc_is_installed(options)
+def check_lxc_is_installed(values)
   message = "Information:\tChecking LXC Packages are installed"
-  if options['host-os-unamea'].match(/Ubuntu/)
+  if values['host-os-unamea'].match(/Ubuntu/)
     command = "dpkg -l lxc"
-    output  = execute_command(options, message, command)
+    output  = execute_command(values, message, command)
     if output.match(/no packages/)
       message = "Information:\tInstalling LXC Packages"
       command = "apt-get -y install lxc cloud-utils"
-      execute_command(options, message, command)
+      execute_command(values, message, command)
     end
   else
     command = "rpm -ql libvirt"
-    output  = execute_command(options, message, command)
+    output  = execute_command(values, message, command)
     if output.match(/not installed/)
       message = "Information:\tInstalling LXC Packages"
       command = "yum -y install libvirt libvirt-client python-virtinst"
-      execute_command(options, message, command)
+      execute_command(values, message, command)
     end
   end
-  check_dir_exists(options, options['lxcdir'])
+  check_dir_exists(values, values['lxcdir'])
   return
 end
 

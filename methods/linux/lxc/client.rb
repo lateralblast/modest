@@ -11,16 +11,16 @@ end
 
 # Start container
 
-def boot_lxc(options)
-  message = "Information:\tChecking status of "+options['name']
-  command = "lxc-list |grep '^#{options['name']}'"
-  output  = execute_command(options, message, command)
+def boot_lxc(values)
+  message = "Information:\tChecking status of "+values['name']
+  command = "lxc-list |grep '^#{values['name']}'"
+  output  = execute_command(values, message, command)
   if not output.match(/RUNNING/)
-    message = "Information:\tStarting client "+options['name']
-    command = "lxc-start -n #{options['name']} -d"
-    execute_command(options, message, command)
-    if options['serial'] == true
-      system("lxc-console -n #{options['name']}")
+    message = "Information:\tStarting client "+values['name']
+    command = "lxc-start -n #{values['name']} -d"
+    execute_command(values, message, command)
+    if values['serial'] == true
+      system("lxc-console -n #{values['name']}")
     end
   end
   return
@@ -28,22 +28,22 @@ end
 
 # Stop container
 
-def stop_lxc(options)
-  message = "Information:\tChecking status of "+options['name']
-  command = "lxc-list |grep '^#{options['name']}'"
-  output  = execute_command(options, message, command)
+def stop_lxc(values)
+  message = "Information:\tChecking status of "+values['name']
+  command = "lxc-list |grep '^#{values['name']}'"
+  output  = execute_command(values, message, command)
   if output.match(/RUNNING/)
-    message = "Information:\tStopping client "+options['name']
-    command = "lxc-stop -n #{options['name']}"
-    execute_command(options, message, command)
+    message = "Information:\tStopping client "+values['name']
+    command = "lxc-stop -n #{values['name']}"
+    execute_command(values, message, command)
   end
   return
 end
 
 # Create Centos container configuration
 
-def create_centos_lxc_config(options)
-  tmp_file = "/tmp/lxc_"+options['name']
+def create_centos_lxc_config(values)
+  tmp_file = "/tmp/lxc_"+values['name']
   file = File.open(tmp_file, "w")
   file.write("\n")
   file.close
@@ -52,26 +52,26 @@ end
 
 # Create Ubuntu container config
 
-def create_ubuntu_lxc_config(options)
-  tmp_file = "/tmp/lxc_"+options['name']
-  options['ip'] = single_install_ip(options)
-  options['clientdir']  = options['lxcdir']+"/"+options['name']
-  config_file = options['clientdir']+"/config"
-  message = "Information:\tCreating configuration for "+options['name']
+def create_ubuntu_lxc_config(values)
+  tmp_file = "/tmp/lxc_"+values['name']
+  values['ip'] = single_install_ip(values)
+  values['clientdir']  = values['lxcdir']+"/"+values['name']
+  config_file = values['clientdir']+"/config"
+  message = "Information:\tCreating configuration for "+values['name']
   command = "cp #{config_file} #{tmp_file}"
-  execute_command(options, message, command)
+  execute_command(values, message, command)
   copy = []
   info = IO.readlines(config_file)
   info.each do |line|
     if line.match(/hwaddr/)
-      if options['mac'].to_s.match(/[0-9]/)
-        output = "lxc.network.hwaddr = "+options['mac']+"\n"
+      if values['mac'].to_s.match(/[0-9]/)
+        output = "lxc.network.hwaddr = "+values['mac']+"\n"
         copy.push(output)
-        output = "lxc.network.ipv4 = "+options['ip']+"\n"
+        output = "lxc.network.ipv4 = "+values['ip']+"\n"
         copy.push(output)
       else
         copy.push(line)
-        output = "lxc.network.ipv4 = "+options['ip']+"\n"
+        output = "lxc.network.ipv4 = "+values['ip']+"\n"
         copy.push(output)
       end
     else
@@ -82,44 +82,44 @@ def create_ubuntu_lxc_config(options)
   File.open(tmp_file, "w") { |file| file.write(copy) }
   message = "Information:\tCreating network configuration file "+config_file
   command = "cp #{tmp_file} #{config_file} ; rm #{tmp_file}"
-  execute_command(options, message, command)
-  print_contents_of_file(options, "", config_file)
+  execute_command(values, message, command)
+  print_contents_of_file(values, "", config_file)
   file = File.open(tmp_file, "w")
-  gateway    = options['q_struct']['gateway'].value
-  broadcast  = options['q_struct']['broadcast'].value
-  netmask    = options['q_struct']['netmask'].value
-  network    = options['q_struct']['network_address'].value
-  nameserver = options['q_struct']['nameserver'].value
+  gateway    = values['q_struct']['gateway'].value
+  broadcast  = values['q_struct']['broadcast'].value
+  netmask    = values['q_struct']['netmask'].value
+  network    = values['q_struct']['network_address'].value
+  nameserver = values['q_struct']['nameserver'].value
   file.write("# The loopback network interface\n")
   file.write("auto lo\n")
   file.write("iface lo inet loopback\n")
   file.write("\n")
   file.write("auto eth0\n")
   file.write("iface eth0 inet static\n")
-  file.write("address #{options['ip']}\n")
+  file.write("address #{values['ip']}\n")
   file.write("netmask #{netmask}\n")
   file.write("gateway #{gateway}\n")
   file.write("network #{network}\n")
   file.write("broadcast #{broadcast}\n")
   file.write("dns-nameservers #{nameserver}\n")
-  file.write("post-up route add default gw 192.168.1.#{options['gatewaynode']}\n")
+  file.write("post-up route add default gw 192.168.1.#{values['gatewaynode']}\n")
   file.write("\n")
   file.close
-  options['clientdir'] = options['clientdir']+"/rootfs"
-  net_file = options['clientdir']+"/etc/network/interfaces"
+  values['clientdir'] = values['clientdir']+"/rootfs"
+  net_file = values['clientdir']+"/etc/network/interfaces"
   message  = "Information:\tCreating network interface file "+net_file
   command  = "cp #{tmp_file} #{net_file} ; rm #{tmp_file}"
-  execute_command(options, message, command)
-  user_username = options['q_struct']['user_username'].value
-  user_uid      = options['q_struct']['user_uid'].value
-  user_gid      = options['q_struct']['user_gid'].value
-  user_crypt    = options['q_struct']['user_crypt'].value
-  root_crypt    = options['q_struct']['root_crypt'].value
-  user_fullname = options['q_struct']['user_fullname'].value
-  user_home     = options['q_struct']['user_home'].value
-  user_shell    = options['q_struct']['user_shell'].value
-  passwd_file   = options['clientdir']+"/etc/passwd"
-  shadow_file   = options['clientdir']+"/etc/shadow"
+  execute_command(values, message, command)
+  user_username = values['q_struct']['user_username'].value
+  user_uid      = values['q_struct']['user_uid'].value
+  user_gid      = values['q_struct']['user_gid'].value
+  user_crypt    = values['q_struct']['user_crypt'].value
+  root_crypt    = values['q_struct']['root_crypt'].value
+  user_fullname = values['q_struct']['user_fullname'].value
+  user_home     = values['q_struct']['user_home'].value
+  user_shell    = values['q_struct']['user_shell'].value
+  passwd_file   = values['clientdir']+"/etc/passwd"
+  shadow_file   = values['clientdir']+"/etc/shadow"
   info          = IO.readlines(passwd_file)
   file          = File.open(tmp_file, "w")
   info.each do |line|
@@ -133,8 +133,8 @@ def create_ubuntu_lxc_config(options)
   file.close
   message = "Information:\tCreating password file"
   command = "cat #{tmp_file} > #{passwd_file} ; rm #{tmp_file}"
-  execute_command(options, message, command)
-  print_contents_of_file(options, "", passwd_file)
+  execute_command(values, message, command)
+  print_contents_of_file(values, "", passwd_file)
   info = IO.readlines(shadow_file)
   file = File.open(tmp_file, "w")
   info.each do |line|
@@ -153,12 +153,12 @@ def create_ubuntu_lxc_config(options)
   file.close
   message = "Information:\tCreating shadow file"
   command = "cat #{tmp_file} > #{shadow_file} ; rm #{tmp_file}"
-  execute_command(options, message, command)
-  print_contents_of_file(options, "", shadow_file)
-  client_home = options['clientdir']+user_home
+  execute_command(values, message, command)
+  print_contents_of_file(values, "", shadow_file)
+  client_home = values['clientdir']+user_home
   message = "Information:\tCreating SSH directory for "+user_username
-  command = "mkdir -p #{client_home}/.ssh ; cd #{options['clientdir']}/home ; chown -R #{user_uid}:#{user_gid} #{user_username}"
-  execute_command(options, message, command)
+  command = "mkdir -p #{client_home}/.ssh ; cd #{values['clientdir']}/home ; chown -R #{user_uid}:#{user_gid} #{user_username}"
+  execute_command(values, message, command)
   # Copy admin user keys
   rsa_file = user_home+"/.ssh/id_rsa.pub"
   dsa_file = user_home+"/.ssh/id_dsa.pub"
@@ -170,16 +170,16 @@ def create_ubuntu_lxc_config(options)
     if File.exist?(pub_file)
       message = "Information:\tCopying SSH public key "+pub_file+" to "+key_file
       command = "cat #{pub_file} >> #{key_file}"
-      execute_command(options, message, command)
+      execute_command(values, message, command)
     end
   end
   message = "Information:\tCreating SSH directory for root"
-  command = "mkdir -p #{options['clientdir']}/root/.ssh ; cd #{options['clientdir']} ; chown -R 0:0 root"
-  execute_command(options, message, command)
+  command = "mkdir -p #{values['clientdir']}/root/.ssh ; cd #{values['clientdir']} ; chown -R 0:0 root"
+  execute_command(values, message, command)
   # Copy root keys
   rsa_file = "/root/.ssh/id_rsa.pub"
   dsa_file = "/root/.ssh/id_dsa.pub"
-  key_file = options['clientdir']+"/root/.ssh/authorized_keys"
+  key_file = values['clientdir']+"/root/.ssh/authorized_keys"
   if File.exist?(key_file)
     system("rm #{key_file}")
   end
@@ -187,23 +187,23 @@ def create_ubuntu_lxc_config(options)
     if File.exist?(pub_file)
       message = "Information:\tCopying SSH public key "+pub_file+" to "+key_file
       command = "cat #{pub_file} >> #{key_file}"
-      execute_command(options, message, command)
+      execute_command(values, message, command)
     end
   end
   # Fix permissions
   message = "Information:\tFixing SSH permissions for "+user_username
-  command = "cd #{options['clientdir']}/home ; chown -R #{user_uid}:#{user_gid} #{user_username}"
-  execute_command(options, message, command)
+  command = "cd #{values['clientdir']}/home ; chown -R #{user_uid}:#{user_gid} #{user_username}"
+  execute_command(values, message, command)
   message = "Information:\tFixing SSH permissions for root "
-  command = "cd #{options['clientdir']} ; chown -R 0:0 root"
-  execute_command(options, message, command)
+  command = "cd #{values['clientdir']} ; chown -R 0:0 root"
+  execute_command(values, message, command)
   # Add sudoers entry
-  sudoers_file = options['clientdir']+"/etc/sudoers.d/"+user_username
+  sudoers_file = values['clientdir']+"/etc/sudoers.d/"+user_username
   message = "Information:\tCreating sudoers file "+sudoers_file
   command = "echo 'administrator ALL=(ALL) NOPASSWD:ALL' > #{sudoers_file}"
-  execute_command(options, message, command)
+  execute_command(values, message, command)
   # Add default route
-  rc_file = options['clientdir']+"/etc/rc.local"
+  rc_file = values['clientdir']+"/etc/rc.local"
   info = IO.readlines(rc_file)
   file = File.open(tmp_file, "w")
   info.each do |line|
@@ -218,62 +218,62 @@ def create_ubuntu_lxc_config(options)
   file.close
   message = "Information:\tAdding default route to "+rc_file
   command = "cp #{tmp_file} #{rc_file} ; rm #{tmp_file}"
-  execute_command(options, message, command)
+  execute_command(values, message, command)
   return
 end
 
 # Create standard LXC
 
-def create_standard_lxc(options)
-  message = "Information:\tCreating standard container "+options['name']
-  if options['host-os-unamea'].match(/Ubuntu/)
-    command = "lxc-create -t ubuntu -n #{options['name']}"
+def create_standard_lxc(values)
+  message = "Information:\tCreating standard container "+values['name']
+  if values['host-os-unamea'].match(/Ubuntu/)
+    command = "lxc-create -t ubuntu -n #{values['name']}"
   end
-  execute_command(options, message, command)
+  execute_command(values, message, command)
   return
 end
 
 # Unconfigure LXC client
 
-def unconfigure_lxc(options)
-  stop_lxc(options)
-  message = "Information:\tDeleting client "+options['name']
-  command = "lxc-destroy -n #{options['name']}"
-  execute_command(options, message, command)
-  options['ip'] = get_install_ip(options)
-  remove_hosts_entry(options['name'], options['ip'])
+def unconfigure_lxc(values)
+  stop_lxc(values)
+  message = "Information:\tDeleting client "+values['name']
+  command = "lxc-destroy -n #{values['name']}"
+  execute_command(values, message, command)
+  values['ip'] = get_install_ip(values)
+  remove_hosts_entry(values['name'], values['ip'])
   return
 end
 
 # Check LXC exists
 
-def check_lxc_exists(options)
-  message = "Information:\tChecking LXC "+options['name']+" exists"
-  command = "lxc-ls |grep '#{options['name']}'"
-  output  = execute_command(options, message, command)
-  if not output.match(/#{options['name']}/)
-    handle_output(options, "Warning:\tClient #{options['name']} doesn't exist")
-    quit(options)
+def check_lxc_exists(values)
+  message = "Information:\tChecking LXC "+values['name']+" exists"
+  command = "lxc-ls |grep '#{values['name']}'"
+  output  = execute_command(values, message, command)
+  if not output.match(/#{values['name']}/)
+    handle_output(values, "Warning:\tClient #{values['name']} doesn't exist")
+    quit(values)
   end
   return
 end
 
 # Check LXC doesn't exist
 
-def check_lxc_doesnt_exist(options)
-  message = "Information:\tChecking LXC "+options['name']+" doesn't exist"
-  command = "lxc-ls |grep '#{options['name']}'"
-  output  = execute_command(options, message, command)
-  if output.match(/#{options['name']}/)
-    handle_output(options, "Warning:\tClient #{options['name']} already exists")
-    quit(options)
+def check_lxc_doesnt_exist(values)
+  message = "Information:\tChecking LXC "+values['name']+" doesn't exist"
+  command = "lxc-ls |grep '#{values['name']}'"
+  output  = execute_command(values, message, command)
+  if output.match(/#{values['name']}/)
+    handle_output(values, "Warning:\tClient #{values['name']} already exists")
+    quit(values)
   end
   return
 end
 
 # Populate post install list
 
-def populate_lxc_post(options)
+def populate_lxc_post(values)
   post_list = []
   post_list.push("#!/bin/sh")
   post_list.push("# Install additional pacakges")
@@ -287,7 +287,7 @@ def populate_lxc_post(options)
   post_list.push("if [ \"`lsb_release -i |awk '{print $3}'`\" = \"Ubuntu\" ] ; then")
   post_list.push("  dpkg-reconfigure locales")
   post_list.push("  cp /etc/apt/sources.list /etc/apt/sources.list.orig")
-  post_list.push("  sed -i 's,#{options['mirror']},#{$local_ubuntu_mirror},g' /etc/apt/sources.list.orig")
+  post_list.push("  sed -i 's,#{values['mirror']},#{$local_ubuntu_mirror},g' /etc/apt/sources.list.orig")
   post_list.push("  apt-get install -y libterm-readkey-perl 2> /dev/null")
   post_list.push("  apt-get install -y nfs-common 2> /dev/null")
   post_list.push("  apt-get install -y openssh-server 2> /dev/null")
@@ -307,10 +307,10 @@ end
 
 # Create post install package on container
 
-def create_lxc_post(options, post_list)
+def create_lxc_post(values, post_list)
   tmp_file = "/tmp/post"
-  options['clientdir'] = options['lxcdir']+"/"+options['name']
-  post_file = options['clientdir']+"/rootfs/root/post_install.sh"
+  values['clientdir'] = values['lxcdir']+"/"+values['name']
+  post_file = values['clientdir']+"/rootfs/root/post_install.sh"
   file      = File.open(tmp_file, "w")
   post_list.each do |line|
     output = line+"\n"
@@ -319,59 +319,59 @@ def create_lxc_post(options, post_list)
   file.close
   message = "Information:\tCreating post install script"
   command = "cp #{tmp_file} #{post_file} ; chmod +x #{post_file} ; rm #{tmp_file}"
-  execute_command(options, message, command)
+  execute_command(values, message, command)
   return
 end
 
 # Execute post install script
 
-def execute_lxc_post(options)
-  options['clientdir'] = options['lxcdir']+"/"+options['name']
-  post_file = options['clientdir']+"/root/post_install.sh"
+def execute_lxc_post(values)
+  values['clientdir'] = values['lxcdir']+"/"+values['name']
+  post_file = values['clientdir']+"/root/post_install.sh"
   if not File.exist?(post_file)
     post_list = populate_lxc_post()
-    create_lxc_post(options['name'], post_list)
+    create_lxc_post(values['name'], post_list)
   end
-  boot_lxc(options)
+  boot_lxc(values)
   post_file = "/root/post_install.sh"
-  message   = "Information:\tExecuting post install script on "+options['name']
-  command   = "ssh -o 'StrictHostKeyChecking no' #{options['name']} '#{post_file}'"
-  execute_command(options, message, command)
+  message   = "Information:\tExecuting post install script on "+values['name']
+  command   = "ssh -o 'StrictHostKeyChecking no' #{values['name']} '#{post_file}'"
+  execute_command(values, message, command)
   return
 end
 
 # Configure a container
 
-def configure_lxc(options)
-  check_lxc_doesnt_exist(options)
-  if not options['service'].to_s.match(/[a-z,A-Z]/) and not options['image'].to_s.match(/[a-z,A-Z]/)
-    handle_output(options, "Warning:\tImage file or Service name not specified")
-    handle_output(options, "Warning:\tIf this is the first time you have run this command it may take a while")
-    handle_output(options, "Information:\tCreating standard container")
-    options['ip'] = single_install_ip(options)
-    options = populate_lxc_client_questions(options)
-    process_questions(options)
-    create_standard_lxc(options)
-    if options['host-os-unamea'].match(/Ubuntu/)
-      create_ubuntu_lxc_config(options)
+def configure_lxc(values)
+  check_lxc_doesnt_exist(values)
+  if not values['service'].to_s.match(/[a-z,A-Z]/) and not values['image'].to_s.match(/[a-z,A-Z]/)
+    handle_output(values, "Warning:\tImage file or Service name not specified")
+    handle_output(values, "Warning:\tIf this is the first time you have run this command it may take a while")
+    handle_output(values, "Information:\tCreating standard container")
+    values['ip'] = single_install_ip(values)
+    values = populate_lxc_client_questions(values)
+    process_questions(values)
+    create_standard_lxc(values)
+    if values['host-os-unamea'].match(/Ubuntu/)
+      create_ubuntu_lxc_config(values)
     end
-    if options['host-os-unamea'].match(/RedHat|Centos/)
-      create_centos_lxc_config(options)
+    if values['host-os-unamea'].match(/RedHat|Centos/)
+      create_centos_lxc_config(values)
     end
   else
-    if options['service'].to_s.match(/[a-z,A-Z]/)
-      options['image'] = $lxc_image_dir+"/"+options['service'].gsub(/([0-9])_([0-9])/,'\1.\2').gsub(/_/,"-").gsub(/x86.64/,"x86_64")+".tar.gz"
+    if values['service'].to_s.match(/[a-z,A-Z]/)
+      values['image'] = $lxc_image_dir+"/"+values['service'].gsub(/([0-9])_([0-9])/,'\1.\2').gsub(/_/,"-").gsub(/x86.64/,"x86_64")+".tar.gz"
     end
-    if options['image'].to_s.match(/[a-z,A-Z]/)
-      if not File.exist?(options['image'])
-        handle_output(options, "Warning:\tImage file #{options['image']} does not exist")
-        quit(options)
+    if values['image'].to_s.match(/[a-z,A-Z]/)
+      if not File.exist?(values['image'])
+        handle_output(values, "Warning:\tImage file #{values['image']} does not exist")
+        quit(values)
       end
     end
   end
-  add_hosts_entry(options)
-  boot_lxc(options)
+  add_hosts_entry(values)
+  boot_lxc(values)
   post_list = populate_lxc_post()
-  create_lxc_post(options, post_list)
+  create_lxc_post(values, post_list)
   return
 end

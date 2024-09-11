@@ -2,12 +2,12 @@
 
 # Populate CoreOS questions
 
-def populate_coreos_questions(options)
+def populate_coreos_questions(values)
 
-  # options['q_struct'] = {}
-  # options['q_order']  = []
+  # values['q_struct'] = {}
+  # values['q_order']  = []
 
-  options['ip'] = single_install_ip(options)
+  values['ip'] = single_install_ip(values)
 
   name = "hostname"
   config = Ks.new(
@@ -15,12 +15,12 @@ def populate_coreos_questions(options)
     question  = "Hostname",
     ask       = "yes",
     parameter = "",
-    value     = options['name'],
+    value     = values['name'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "nic"
   config = Ks.new(
@@ -28,12 +28,12 @@ def populate_coreos_questions(options)
     question  = "Primary Network Interface",
     ask       = "yes",
     parameter = "",
-    value     = options['vmnet'],
+    value     = values['vmnet'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "ip"
   config = Ks.new(
@@ -41,12 +41,12 @@ def populate_coreos_questions(options)
     question  = "IP",
     ask       = "yes",
     parameter = "",
-    value     = options['ip'],
+    value     = values['ip'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "netmask"
   config = Ks.new(
@@ -54,12 +54,12 @@ def populate_coreos_questions(options)
     question  = "Netmask",
     ask       = "yes",
     parameter = "",
-    value     = options['netmask'],
+    value     = values['netmask'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "nameserver"
   config = Ks.new(
@@ -67,14 +67,14 @@ def populate_coreos_questions(options)
     question  = "Nameserver(s)",
     ask       = "yes",
     parameter = "",
-    value     = options['nameserver'],
+    value     = values['nameserver'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
-  gateway = options['ip'].split(/\./)[0..2].join(".")+"."+options['gatewaynode']
+  gateway = values['ip'].split(/\./)[0..2].join(".")+"."+values['gatewaynode']
 
   name = "gateway"
   config = Ks.new(
@@ -86,10 +86,10 @@ def populate_coreos_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
-  broadcast = options['ip'].split(/\./)[0..2].join(".")+".255"
+  broadcast = values['ip'].split(/\./)[0..2].join(".")+".255"
 
   name = "broadcast"
   config = Ks.new(
@@ -101,10 +101,10 @@ def populate_coreos_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
-  network_address = options['ip'].split(/\./)[0..2].join(".")+".0"
+  network_address = values['ip'].split(/\./)[0..2].join(".")+".0"
 
   name = "network_address"
   config = Ks.new(
@@ -116,8 +116,8 @@ def populate_coreos_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "root_password"
   config = Ks.new(
@@ -125,12 +125,12 @@ def populate_coreos_questions(options)
     question  = "Root Password",
     ask       = "yes",
     parameter = "",
-    value     = options['rootpassword'],
+    value     = values['rootpassword'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "root_crypt"
   config = Ks.new(
@@ -142,8 +142,8 @@ def populate_coreos_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "rootpw"
   config = Ks.new(
@@ -155,8 +155,8 @@ def populate_coreos_questions(options)
     valid     = "",
     eval      = "get_ks_root_password()"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "admin_user"
   config = Ks.new(
@@ -164,12 +164,12 @@ def populate_coreos_questions(options)
     question  = "Admin Username",
     ask       = "yes",
     parameter = "",
-    value     = options['adminuser'],
+    value     = values['adminuser'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "admin_uid"
   config = Ks.new(
@@ -177,24 +177,24 @@ def populate_coreos_questions(options)
     question  = "Admin User ID",
     ask       = "yes",
     parameter = "",
-    value     = options['adminuid'],
+    value     = values['adminuid'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "admin_shell"
   config = Ks.new(
     type      = "",
     question  = "Admin User Shell",
     parameter = "",
-    value     = options['adminshell'],
+    value     = values['adminshell'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "admin_home"
   config = Ks.new(
@@ -202,12 +202,12 @@ def populate_coreos_questions(options)
     question  = "Admin User Home Directory",
     ask       = "yes",
     parameter = "",
-    value     = "/home/"+options['adminuser'],
+    value     = "/home/"+values['adminuser'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "admin_group"
   config = Ks.new(
@@ -215,12 +215,12 @@ def populate_coreos_questions(options)
     question  = "Admin User Group",
     ask       = "yes",
     parameter = "",
-    value     = options['admingroup'],
+    value     = values['admingroup'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "admin_gid"
   config = Ks.new(
@@ -228,12 +228,12 @@ def populate_coreos_questions(options)
     question  = "Admin Group ID",
     ask       = "yes",
     parameter = "",
-    value     = options['admingid'],
+    value     = values['admingid'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "admin_password"
   config = Ks.new(
@@ -241,12 +241,12 @@ def populate_coreos_questions(options)
     question  = "Admin User Password",
     ask       = "yes",
     parameter = "",
-    value     = options['adminpassword'],
+    value     = values['adminpassword'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "admin_crypt"
   config = Ks.new(
@@ -258,8 +258,8 @@ def populate_coreos_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
 end
 

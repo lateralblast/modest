@@ -3,41 +3,41 @@
 
 # Populate Cloud Config/Init User data file
 
-def populate_cc_user_data(options)
-  install_locale = options['q_struct']['locale'].value
+def populate_cc_user_data(values)
+  install_locale = values['q_struct']['locale'].value
   if install_locale.match(/\./)
     install_locale = install_locale.split(".")[0]
   end
-  if options['livecd'] == true
+  if values['livecd'] == true
     install_target = "/target"
   else
     install_target = ""
   end
-  install_nameserver = options['q_struct']['nameserver'].value
-  install_base_url   = "http://"+options['hostip']+"/"+options['name']
-  if options['service'].to_s.match(/ubuntu_2[2-4]/)
-    install_layout = options['q_struct']['locale'].value.split(".")[0]
+  install_nameserver = values['q_struct']['nameserver'].value
+  install_base_url   = "http://"+values['hostip']+"/"+values['name']
+  if values['service'].to_s.match(/ubuntu_2[2-4]/)
+    install_layout = values['q_struct']['locale'].value.split(".")[0]
   else
     install_layout = install_locale.split("_")[0]
   end
   install_variant = install_locale.split("_")[1].downcase
   install_country = install_variant
-  install_gateway = options['q_struct']['gateway'].value
-  admin_shell   = options['q_struct']['admin_shell'].value
-  admin_sudo    = options['q_struct']['admin_sudo'].value
-  disable_dhcp  = options['q_struct']['disable_dhcp'].value
-  install_name  = options['q_struct']['hostname'].value
+  install_gateway = values['q_struct']['gateway'].value
+  admin_shell   = values['q_struct']['admin_shell'].value
+  admin_sudo    = values['q_struct']['admin_sudo'].value
+  disable_dhcp  = values['q_struct']['disable_dhcp'].value
+  install_name  = values['q_struct']['hostname'].value
   resolved_conf = "/etc/systemd/resolved.conf"
-  admin_user    = options['q_struct']['admin_username'].value
-  admin_group   = options['q_struct']['admin_username'].value
-  admin_home    = "/home/"+options['q_struct']['admin_username'].value
-  admin_crypt   = options['q_struct']['admin_crypt'].value
-  install_nic   = options['q_struct']['interface'].value
+  admin_user    = values['q_struct']['admin_username'].value
+  admin_group   = values['q_struct']['admin_username'].value
+  admin_home    = "/home/"+values['q_struct']['admin_username'].value
+  admin_crypt   = values['q_struct']['admin_crypt'].value
+  install_nic   = values['q_struct']['interface'].value
   if disable_dhcp.match(/true/)
-    install_ip  = options['q_struct']['ip'].value
+    install_ip  = values['q_struct']['ip'].value
   end
-  install_cidr  = options['q_struct']['cidr'].value
-  install_disk  = options['q_struct']['partition_disk'].value
+  install_cidr  = values['q_struct']['cidr'].value
+  install_disk  = values['q_struct']['partition_disk'].value
   if install_disk.match(/\//)
     install_disk = install_disk.split(/\//)[-1]
   end
@@ -46,27 +46,27 @@ def populate_cc_user_data(options)
   ssh_dir   = "#{install_target}/home/#{admin_user}/.ssh"
   auth_file = "#{ssh_dir}/authorized_keys"
   sudo_file = "#{install_target}/etc/sudoers.d/#{admin_user}"
-  linux_kernel = options['kernel'].to_s
+  linux_kernel = values['kernel'].to_s
   netplan_file = "#{install_target}/etc/netplan/50-cloud-init.yaml"
   locale_file  = "#{install_target}/etc/default/locales"
-  package_update   = options['installupdates'].to_s
-  package_upgrade  = options['installupgrades'].to_s
-  install_drivers  = options['installdrivers'].to_s
-  install_security = options['installsecurity'].to_s
-  install_timezone = options['timezone'].to_s
-  preserve_sources = options['preservesources'].to_s
-  install_codename = options['codename'].to_s
-  install_ssh_port = options['packersshport'].to_s
+  package_update   = values['installupdates'].to_s
+  package_upgrade  = values['installupgrades'].to_s
+  install_drivers  = values['installdrivers'].to_s
+  install_security = values['installsecurity'].to_s
+  install_timezone = values['timezone'].to_s
+  preserve_sources = values['preservesources'].to_s
+  install_codename = values['codename'].to_s
+  install_ssh_port = values['packersshport'].to_s
   if !install_codename.to_s.match(/[a-z]/)
-    install_codename = get_code_name_from_release_version(options['release'])
+    install_codename = get_code_name_from_release_version(values['release'])
   end
-  if options['vmnetwork'].to_s.match(/hostonly/)
-    ks_ip = options['hostonlyip']
+  if values['vmnetwork'].to_s.match(/hostonly/)
+    ks_ip = values['hostonlyip']
   else
     if disable_dhcp.match(/false/)
-      ks_ip = options['hostonlyip']
+      ks_ip = values['hostonlyip']
     else
-      ks_ip = options['hostip']
+      ks_ip = values['hostip']
     end
   end
   if disable_dhcp.match(/false/)
@@ -74,19 +74,19 @@ def populate_cc_user_data(options)
   else
     install_dhcp = "no"
   end
-  if options['copykeys'] == true
-    ssh_keyfile = options['sshkeyfile']
+  if values['copykeys'] == true
+    ssh_keyfile = values['sshkeyfile']
     if File.exist?(ssh_keyfile)
       ssh_key = %x[cat #{ssh_keyfile}].chomp
       ssh_dir = "#{install_target}/home/"+admin_user+"/.ssh"
     end
   end
-  ks_port   = options['httpport']
+  ks_port   = values['httpport']
   user_data = []
   early_exec_data = []
   late_exec_data  = []
   user_data.push("#cloud-config")
-  if !options['vm'].to_s.match(/mp|multipass/)
+  if !values['vm'].to_s.match(/mp|multipass/)
     in_target = "curtin in-target --target=/target -- "
     user_data.push("autoinstall:")
     user_data.push("  version: 1")
@@ -113,7 +113,7 @@ def populate_cc_user_data(options)
     user_data.push("      Acquire::https::::Verify-Peer \"false\";")
     user_data.push("      Acquire::https::::Verify-Host \"false\";")
     user_data.push("    primary:")
-    if options['arch'].to_s.match(/arm/)
+    if values['arch'].to_s.match(/arm/)
       user_data.push("    - arches: [arm64, arm]")
     else
       user_data.push("    - arches: [amd64, i386]")
@@ -136,7 +136,7 @@ def populate_cc_user_data(options)
     user_data.push("  kernel:")
     user_data.push("    package: #{linux_kernel}")
     user_data.push("  keyboard:")
-    if options['service'].to_s.match(/ubuntu_22/)
+    if values['service'].to_s.match(/ubuntu_22/)
       user_data.push("    layout: #{install_variant}")
     else
       user_data.push("    layout: #{install_layout}")
@@ -177,7 +177,7 @@ def populate_cc_user_data(options)
     early_exec_data.push("systemctl restart systemd-resolved")
   else
     in_target = ""
-    if options['method'].to_s.match(/ci/)
+    if values['method'].to_s.match(/ci/)
       user_data.push("hostname: #{install_name}")
       user_data.push("groups:")
       user_data.push("  - #{admin_user}: #{admin_group}")
@@ -192,17 +192,17 @@ def populate_cc_user_data(options)
       user_data.push("    lock_passwd: false")
     end
   end
-  if options['dnsmasq'] == true && options['vm'].to_s.match(/mp|multipass/)
+  if values['dnsmasq'] == true && values['vm'].to_s.match(/mp|multipass/)
     early_exec_data.push("/usr/bin/systemctl disable systemd-resolved")
     early_exec_data.push("/usr/bin/systemctl stop systemd-resolved")
     early_exec_data.push("rm /etc/resolv.conf")
-    if options['q_struct']['nameserver'].value.to_s.match(/\,/)
-      nameservers = options['q_struct']['nameserver'].value.to_s.split("\,")
+    if values['q_struct']['nameserver'].value.to_s.match(/\,/)
+      nameservers = values['q_struct']['nameserver'].value.to_s.split("\,")
       nameservers.each do |nameserver|
         early_exec_data.push("echo 'nameserver #{nameserver}' >> /etc/resolv.conf")
       end
     else
-      nameserver = options['q_struct']['nameserver'].value.to_s
+      nameserver = values['q_struct']['nameserver'].value.to_s
       early_exec_data.push("  - echo 'nameserver #{nameserver}' >> /etc/resolv.conf")
     end
   else  
@@ -212,7 +212,7 @@ def populate_cc_user_data(options)
   late_exec_data.push("echo 'LC_ALL=en_US.UTF-8' > #{locale_file}")
   late_exec_data.push("echo 'LANG=en_US.UTF-8' >> #{locale_file}")
   late_exec_data.push("echo '#{admin_user} ALL=(ALL) NOPASSWD:ALL' > #{sudo_file}")
-  if options['copykeys'] == true and File.exist?(ssh_keyfile) and !options['vm'].to_s.match(/mp|multipass/)
+  if values['copykeys'] == true and File.exist?(ssh_keyfile) and !values['vm'].to_s.match(/mp|multipass/)
     late_exec_data.push("#{in_target}groupadd #{admin_user}")
     late_exec_data.push("#{in_target}useradd -p '#{admin_crypt}' -g #{admin_user} -G #{admin_group} -d #{admin_home} -s /usr/bin/bash -m #{admin_user}")
     late_exec_data.push("mkdir -p #{ssh_dir}")
@@ -221,13 +221,13 @@ def populate_cc_user_data(options)
     late_exec_data.push("chmod 700 #{ssh_dir}")
     late_exec_data.push("#{in_target}chown -R #{admin_user}:#{admin_user} #{admin_home}")
   end
-  if !options['vm'].to_s.match(/mp|multipass/)
-    if options['vm'].to_s.match(/kvm/)
+  if !values['vm'].to_s.match(/mp|multipass/)
+    if values['vm'].to_s.match(/kvm/)
       early_exec_data.push("systemctl enable serial-getty@ttyS0.service")
       early_exec_data.push("systemctl start serial-getty@ttyS0.service")
     else
-      if options['serial'] == true
-        if options['biosdevnames'] == true
+      if values['serial'] == true
+        if values['biosdevnames'] == true
           late_exec_data.push("echo 'GRUB_CMDLINE_LINUX=\\\"net.ifnames=0 biosdevname=0 console=tty0 console=ttyS0\\\"' >> #{grub_file}")
         else
           late_exec_data.push("echo 'GRUB_CMDLINE_LINUX=\\\"console=tty0 console=ttyS0\\\"' >> #{grub_file}")
@@ -235,12 +235,12 @@ def populate_cc_user_data(options)
         late_exec_data.push("echo 'GRUB_TERMINAL_INPUT=\\\"console serial\\\"' >> #{grub_file}")
         late_exec_data.push("echo 'GRUB_TERMINAL_OUTPUT=\\\"console serial\\\"' >> #{grub_file}")
       else
-        if options['biosdevnames'] == true
+        if values['biosdevnames'] == true
           late_exec_data.push("echo 'GRUB_CMDLINE_LINUX=\\\"net.ifnames=0 biosdevname=0\\\"' >> #{grub_file}")
         end
       end
     end
-    if !options['vm'].to_s.match(/mp|multipass/)
+    if !values['vm'].to_s.match(/mp|multipass/)
       late_exec_data.push("rm #{install_target}/etc/netplan/*")
       late_exec_data.push("echo '# This file describes the network interfaces available on your system' > #{netplan_file}")
       late_exec_data.push("echo '# For more information, see netplan(5).' >> #{netplan_file}")
@@ -249,21 +249,21 @@ def populate_cc_user_data(options)
 #      late_exec_data.push("echo '  renderer: networkd' >> #{netplan_file}")
       late_exec_data.push("echo '  ethernets:' >> #{netplan_file}")
       late_exec_data.push("echo '    #{install_nic}:' >> #{netplan_file}")
-      if options['dhcp'] == false || options['dnsmasq'] == true
+      if values['dhcp'] == false || values['dnsmasq'] == true
         late_exec_data.push("echo '      addresses: [#{install_ip}/#{install_cidr}]' >> #{netplan_file}")
         late_exec_data.push("echo '      gateway4: #{install_gateway}' >> #{netplan_file}")
       else
         late_exec_data.push("echo '      dhcp4: true' >> #{netplan_file}")
       end
-      if options['type'].to_s.match(/packer/)
+      if values['type'].to_s.match(/packer/)
         if install_ssh_port.to_i != 22
           late_exec_data.push("echo 'Port #{install_ssh_port}' >> #{install_target}/etc/ssh/sshd_config")
         end
       end
-      if options['serial'] == true || options['biosdevnames'] == true
+      if values['serial'] == true || values['biosdevnames'] == true
         late_exec_data.push("#{in_target}update-grub")
       end
-      if options['reboot'] == true
+      if values['reboot'] == true
         late_exec_data.push("#{in_target}reboot")
       end
     end
@@ -273,28 +273,28 @@ end
 
 # Output Cloud Config/Init user data
 
-def output_cc_user_data(options, user_data, early_exec_data, late_exec_data, output_file)
-  cc_file = options['cloudinitfile']. to_s
-  if !options['vm'].to_s.match(/mp|multipass/)
+def output_cc_user_data(values, user_data, early_exec_data, late_exec_data, output_file)
+  cc_file = values['cloudinitfile']. to_s
+  if !values['vm'].to_s.match(/mp|multipass/)
     in_target = "curtin in-target --target=/target -- "
   else
     in_target = ""
   end
   check_dir = File.dirname(output_file)
-  check_dir_exists(options, check_dir)
+  check_dir_exists(values, check_dir)
   if cc_file.match(/[a-z]/) and File.exist?(cc_file)
     message = "Information:\tCopying #{cc_file} to #{output_file}"
     command = "cp #{cc_file} #{output_file}"
   else
-    tmp_file  = "/tmp/user_data_"+options['name']
+    tmp_file  = "/tmp/user_data_"+values['name']
     file      = File.open(tmp_file, 'w')
     end_char  = "\n"
     user_data.each do |line|
       output = line+end_char
       file.write(output)
     end
-    pkg_list = options['q_struct']['additional_packages'].value
-    if options['vm'].to_s.match(/mp|multipass/)
+    pkg_list = values['q_struct']['additional_packages'].value
+    if values['vm'].to_s.match(/mp|multipass/)
       file.write("packages:\n")
       pkg_list.split(" ").each do |line|
         output = "  - "+line+"\n"
@@ -328,7 +328,7 @@ def output_cc_user_data(options, user_data, early_exec_data, late_exec_data, out
     message = "Information:\tCreating cloud user-data file #{output_file}"
     command = "cat #{tmp_file} >> #{output_file} ; rm #{tmp_file}"
   end
-  execute_command(options, message, command)
-  print_contents_of_file(options, "", output_file)
+  execute_command(values, message, command)
+  print_contents_of_file(values, "", output_file)
   return
 end

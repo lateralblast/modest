@@ -2,31 +2,31 @@
 
 # Create Ansible YAML file
 
-def create_ansible_aws_yaml(options)
-  options['access']    = options['q_struct']['access_key'].value
-  options['secret']    = options['q_struct']['secret_key'].value
-  options['ami']       = options['q_struct']['source_ami'].value
-  options['region']    = options['q_struct']['region'].value
-  options['size']      = options['q_struct']['instance_type'].value
-  options['adminuser'] = options['q_struct']['ssh_username'].value
-  options['key']       = options['q_struct']['key_name'].value
-  options['ports']     = options['q_struct']['open_ports'].value
-  options['group']     = options['q_struct']['security_group'].value
-  options['keyfile']   = File.basename(options['q_struct']['keyfile'].value,".pem")+".key.pub"
-  options['name']      = options['q_struct']['ami_name'].value
-  options['cidr']      = options['q_struct']['default_cidr'].value
-  tmp_keyfile = "/tmp/"+options['keyfile']
-  ansible_dir = options['clientdir']+"/ansible"
-  options['clientdir']  = ansible_dir+"/aws/"+options['name']
-  hosts_file  = options['clientdir']+"/hosts"
-  prov_file   = options['clientdir']+"/"+options['name']+".yaml"
-  hosts_file  = options['clientdir']+"/hosts"
-  if options['verbose'] == true
-    handle_output(options,"Information:\tChecking Client directory")
+def create_ansible_aws_yaml(values)
+  values['access']    = values['q_struct']['access_key'].value
+  values['secret']    = values['q_struct']['secret_key'].value
+  values['ami']       = values['q_struct']['source_ami'].value
+  values['region']    = values['q_struct']['region'].value
+  values['size']      = values['q_struct']['instance_type'].value
+  values['adminuser'] = values['q_struct']['ssh_username'].value
+  values['key']       = values['q_struct']['key_name'].value
+  values['ports']     = values['q_struct']['open_ports'].value
+  values['group']     = values['q_struct']['security_group'].value
+  values['keyfile']   = File.basename(values['q_struct']['keyfile'].value,".pem")+".key.pub"
+  values['name']      = values['q_struct']['ami_name'].value
+  values['cidr']      = values['q_struct']['default_cidr'].value
+  tmp_keyfile = "/tmp/"+values['keyfile']
+  ansible_dir = values['clientdir']+"/ansible"
+  values['clientdir']  = ansible_dir+"/aws/"+values['name']
+  hosts_file  = values['clientdir']+"/hosts"
+  prov_file   = values['clientdir']+"/"+values['name']+".yaml"
+  hosts_file  = values['clientdir']+"/hosts"
+  if values['verbose'] == true
+    handle_output(values,"Information:\tChecking Client directory")
   end
-  check_dir_exists(options,options['clientdir'])
-  uid = options['uid']
-  check_dir_owner(options,options['clientdir'],uid)
+  check_dir_exists(values,values['clientdir'])
+  uid = values['uid']
+  check_dir_owner(values,values['clientdir'],uid)
   prov_data =[]
   prov_data.push("---\n")
   prov_data.push("- name: Provision EC2 instances\n")
@@ -35,12 +35,12 @@ def create_ansible_aws_yaml(options)
   prov_data.push("  gather_facts: false\n")
   prov_data.push("\n")
   prov_data.push("  vars:\n")
-  prov_data.push("    ec2_access_key: #{options['access']}\n")
-  prov_data.push("    ec2_secret_key: #{options['secret']}\n")
-  prov_data.push("    ec2_region: #{options['region']}\n")
-  prov_data.push("    ec2_type: #{options['size']}\n")
-  prov_data.push("    ec2_name: #{options['name']}\n")
-  prov_data.push("    ec2_image: #{options['ami']}\n")
+  prov_data.push("    ec2_access_key: #{values['access']}\n")
+  prov_data.push("    ec2_secret_key: #{values['secret']}\n")
+  prov_data.push("    ec2_region: #{values['region']}\n")
+  prov_data.push("    ec2_type: #{values['size']}\n")
+  prov_data.push("    ec2_name: #{values['name']}\n")
+  prov_data.push("    ec2_image: #{values['ami']}\n")
   prov_data.push("\n")
   prov_data.push("  tasks:\n")
   prov_data.push("\n")
@@ -52,16 +52,16 @@ def create_ansible_aws_yaml(options)
   prov_data.push("      ec2_access_key: \"{{ ec2_access_key }}\"\n")
   prov_data.push("      ec2_secret_key: \"{{ ec2_secret_key }}\"\n")
   prov_data.push("      rules:\n")
-  if options['ports'].to_s.match(/,/)
-    options['ports'] = options['ports'].split(",")
+  if values['ports'].to_s.match(/,/)
+    values['ports'] = values['ports'].split(",")
   else
-    options['ports'] = [ options['ports'] ]
+    values['ports'] = [ values['ports'] ]
   end
-  options['ports'].each do |install_port|
+  values['ports'].each do |install_port|
     prov_data.push("      - proto: tcp\n")
     prov_data.push("        from_port: #{install_port}\n")
     prov_data.push("        to_port: #{install_port}\n")
-    prov_data.push("        cidr_ip: #{options['cidr']}\n")
+    prov_data.push("        cidr_ip: #{values['cidr']}\n")
   end
   prov_data.push("\n")
   prov_data.push("  - name: Create instance for {{ ec2_name }}\n")
@@ -87,10 +87,10 @@ def create_ansible_aws_yaml(options)
   hosts_data.push("---\n")
   hosts_data.push("[local]\n")
   hosts_data.push("localhost\n")
-  write_array_to_file(options, prov_data, prov_file, "w")
-  write_array_to_file(options, hosts_data, hosts_file, "w")
+  write_array_to_file(values, prov_data, prov_file, "w")
+  write_array_to_file(values, hosts_data, hosts_file, "w")
   [ prov_file, hosts_file ].each do |file_name|
-    check_file_owner(options,file_name, uid)
+    check_file_owner(values,file_name, uid)
   end
   set_file_perms(prov_file, "600")
 	return

@@ -2,11 +2,11 @@
 
 # Populate AWS questions
 
-def populate_aws_questions(options, user_data_file)
-  # options['q_struct'] = {}
-  # options['q_order']  = []
+def populate_aws_questions(values, user_data_file)
+  # values['q_struct'] = {}
+  # values['q_order']  = []
 
-  if options['type'].to_s.match(/packer|ansible/)
+  if values['type'].to_s.match(/packer|ansible/)
 
     name   = "name"
     config = Ks.new(
@@ -18,8 +18,8 @@ def populate_aws_questions(options, user_data_file)
       valid     = "",
       eval      = "no"
       )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
   
     name   = "access_key"
     config = Ks.new(
@@ -27,14 +27,14 @@ def populate_aws_questions(options, user_data_file)
       question  = "Access Key",
       ask       = "yes",
       parameter = "",
-      value     = options['access'],
+      value     = values['access'],
       valid     = "",
       eval      = "no"
       )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
 
-    if options['unmasked'] == true
+    if values['unmasked'] == true
 
       name   = "secret_key"
       config = Ks.new(
@@ -42,12 +42,12 @@ def populate_aws_questions(options, user_data_file)
         question  = "Secret Key",
         ask       = "yes",
         parameter = "",
-        value     = options['secret'],
+        value     = values['secret'],
         valid     = "",
         eval      = "no"
         )
-      options['q_struct'][name] = config
-      options['q_order'].push(name)
+      values['q_struct'][name] = config
+      values['q_order'].push(name)
 
       name   = "keyfile"
       config = Ks.new(
@@ -55,12 +55,12 @@ def populate_aws_questions(options, user_data_file)
         question  = "AWS Key file",
         ask       = "yes",
         parameter = "",
-        value     = options['keyfile'],
+        value     = values['keyfile'],
         valid     = "",
         eval      = "no"
         )
-      options['q_struct'][name] = config
-      options['q_order'].push(name)
+      values['q_struct'][name] = config
+      values['q_order'].push(name)
 
     else
 
@@ -70,12 +70,12 @@ def populate_aws_questions(options, user_data_file)
         question  = "Secret Key",
         ask       = "no",
         parameter = "",
-        value     = options['secret'],
+        value     = values['secret'],
         valid     = "",
         eval      = "no"
         )
-      options['q_struct'][name] = config
-      options['q_order'].push(name)
+      values['q_struct'][name] = config
+      values['q_order'].push(name)
 
       name   = "keyfile"
       config = Ks.new(
@@ -83,12 +83,12 @@ def populate_aws_questions(options, user_data_file)
         question  = "AWS Key file",
         ask       = "no",
         parameter = "",
-        value     = options['keyfile'],
+        value     = values['keyfile'],
         valid     = "",
         eval      = "no"
         )
-      options['q_struct'][name] = config
-      options['q_order'].push(name)
+      values['q_struct'][name] = config
+      values['q_order'].push(name)
 
     end
 
@@ -98,12 +98,12 @@ def populate_aws_questions(options, user_data_file)
       question  = "AWS Type",
       ask       = "yes",
       parameter = "",
-      value     = options['type'],
+      value     = values['type'],
       valid     = "",
       eval      = "no"
       )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
 
     name   = "region"
     config = Ks.new(
@@ -111,12 +111,12 @@ def populate_aws_questions(options, user_data_file)
       question  = "Region",
       ask       = "yes",
       parameter = "",
-      value     = options['region'],
+      value     = values['region'],
       valid     = "",
       eval      = "no"
     )
-    options['q_struct'][name] = config
-    options['q_order'].push(name) 
+    values['q_struct'][name] = config
+    values['q_order'].push(name) 
 
     name   = "ssh_username"
     config = Ks.new(
@@ -124,12 +124,12 @@ def populate_aws_questions(options, user_data_file)
       question  = "SSH Username",
       ask       = "yes",
       parameter = "",
-      value     = options['adminuser'],
+      value     = values['adminuser'],
       valid     = "",
       eval      = "no"
     )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
 
     name   = "ami_name"
     config = Ks.new(
@@ -137,16 +137,16 @@ def populate_aws_questions(options, user_data_file)
       question  = "AMI Name",
       ask       = "yes",
       parameter = "",
-      value     = options['name'],
+      value     = values['name'],
       valid     = "",
       eval      = "no"
     )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
 
   end
 
-  if options['type'].to_s.match(/packer/)
+  if values['type'].to_s.match(/packer/)
 
     name   = "user_data_file"
     config = Ks.new(
@@ -158,8 +158,8 @@ def populate_aws_questions(options, user_data_file)
       valid     = "",
       eval      = "no"
     )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
     
   else
 
@@ -169,12 +169,12 @@ def populate_aws_questions(options, user_data_file)
       question  = "Minimum Instances",
       ask       = "yes",
       parameter = "",
-      value     = options['number'].split(/,/)[0],
+      value     = values['number'].split(/,/)[0],
       valid     = "",
       eval      = "no"
     )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)  
+    values['q_struct'][name] = config
+    values['q_order'].push(name)  
 
     name   = "max_count"
     config = Ks.new(
@@ -182,12 +182,12 @@ def populate_aws_questions(options, user_data_file)
       question  = "Maximum Instances",
       ask       = "yes",
       parameter = "",
-      value     = options['number'].split(/,/)[1],
+      value     = values['number'].split(/,/)[1],
       valid     = "",
       eval      = "no"
     )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)  
+    values['q_struct'][name] = config
+    values['q_order'].push(name)  
 
     name   = "key_name"
     config = Ks.new(
@@ -195,12 +195,12 @@ def populate_aws_questions(options, user_data_file)
       question  = "Key Name",
       ask       = "yes",
       parameter = "",
-      value     = options['key'],
+      value     = values['key'],
       valid     = "",
       eval      = "no"
     )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)  
+    values['q_struct'][name] = config
+    values['q_order'].push(name)  
 
     name   = "security_group"
     config = Ks.new(
@@ -208,12 +208,12 @@ def populate_aws_questions(options, user_data_file)
       question  = "Security Groups",
       ask       = "yes",
       parameter = "",
-      value     = options['group'],
+      value     = values['group'],
       valid     = "",
       eval      = "no"
     )
-    options['q_struct'][name] = config
-    options['q_order'].push(name) 
+    values['q_struct'][name] = config
+    values['q_order'].push(name) 
 
     name   = "dry_run"
     config = Ks.new(
@@ -221,12 +221,12 @@ def populate_aws_questions(options, user_data_file)
       question  = "Dry run",
       ask       = "yes",
       parameter = "",
-      value     = options['dry-run'],
+      value     = values['dry-run'],
       valid     = "",
       eval      = "no"
     )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)  
+    values['q_struct'][name] = config
+    values['q_order'].push(name)  
 
   end
 
@@ -236,12 +236,12 @@ def populate_aws_questions(options, user_data_file)
     question  = "Source AMI",
     ask       = "yes",
     parameter = "",
-    value     = options['ami'],
+    value     = values['ami'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name   = "instance_type"
   config = Ks.new(
@@ -249,12 +249,12 @@ def populate_aws_questions(options, user_data_file)
     question  = "Instance Type",
     ask       = "yes",
     parameter = "",
-    value     = options['size'],
+    value     = values['size'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name   = "open_ports"
   config = Ks.new(
@@ -262,12 +262,12 @@ def populate_aws_questions(options, user_data_file)
     question  = "Open ports",
     ask       = "yes",
     parameter = "",
-    value     = options['ports'],
+    value     = values['ports'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name   = "default_cidr"
   config = Ks.new(
@@ -275,12 +275,12 @@ def populate_aws_questions(options, user_data_file)
     question  = "Default CIDR",
     ask       = "yes",
     parameter = "",
-    value     = options['cidr'],
+    value     = values['cidr'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   return
 end

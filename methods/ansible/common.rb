@@ -13,7 +13,7 @@ def check_ansible_is_installed()
   check_python_module_is_installed("boto")
   ansible_bin = %x[which ansible].chomp
   if not ansible_bin.match(/ansible/) or ansible_bin.match(/no /)
-    options = install_package("ansible")
+    values = install_package("ansible")
   end
   return
 end

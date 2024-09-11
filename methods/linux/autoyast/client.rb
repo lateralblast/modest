@@ -4,20 +4,20 @@
 
 def list_ay_clients()
   service_type = "AutoYast"
-  list_clients(options)
+  list_clients(values)
   return
 end
 
 # Configure AutoYast client
 
-def configure_ay_client(options)
-  configure_ks_client(options)
+def configure_ay_client(values)
+  configure_ks_client(values)
   return
 end
 
 # Unconfigure AutoYast client
 
-def unconfigure_ay_client(options)
-  unconfigure_ks_client(options)
+def unconfigure_ay_client(values)
+  unconfigure_ks_client(values)
   return
 end

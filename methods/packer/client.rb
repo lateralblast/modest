@@ -2,33 +2,33 @@
 
 # Get packer vm type
 
-def get_client_vm_type_from_packer(options)
-  packer_dir = options['clientdir']+"/packer"
-  options['vm'] = ""
+def get_client_vm_type_from_packer(values)
+  packer_dir = values['clientdir']+"/packer"
+  values['vm'] = ""
   [ "vbox", "fusion" ].each do |test_vm|
-    test_dir = packer_dir+"/"+test_vm+"/"+options['name']
+    test_dir = packer_dir+"/"+test_vm+"/"+values['name']
     if File.directory?(test_dir)
       return test_vm
     end
   end
-  return options['vm']
+  return values['vm']
 end
 
 # Get packer client directory
 
-def get_packer_client_dir(options)
-  if not options['vm'].to_s.match(/[a-z]/)
-    options['vm'] = get_client_vm_type_from_packer(options)
+def get_packer_client_dir(values)
+  if not values['vm'].to_s.match(/[a-z]/)
+    values['vm'] = get_client_vm_type_from_packer(values)
   end
-  packer_dir = options['clientdir']+"/packer"
-  options['clientdir'] = packer_dir+"/"+options['vm']+"/"+options['name']
-  return options['clientdir']
+  packer_dir = values['clientdir']+"/packer"
+  values['clientdir'] = packer_dir+"/"+values['vm']+"/"+values['name']
+  return values['clientdir']
 end
 
 # check if packer VM image exists
 
-def check_packer_vm_image_exists(options)
-  images_dir = options['clientdir']+"/images"
+def check_packer_vm_image_exists(values)
+  images_dir = values['clientdir']+"/images"
   if File.directory?(images_dir)
     exists = true
   else
@@ -44,18 +44,18 @@ def list_packer_aws_clients()
   return
 end
 
-def list_packer_clients(options)
-  packer_dir = options['clientdir']+"/packer"
-  if not options['vm'].to_s.match(/[a-z,A-Z]/) or options['vm'] == options['empty']
+def list_packer_clients(values)
+  packer_dir = values['clientdir']+"/packer"
+  if not values['vm'].to_s.match(/[a-z,A-Z]/) or values['vm'] == values['empty']
     vm_types = [ 'fusion', 'vbox', 'aws', 'parallels' ]
   else
     vm_types = []
-    vm_types.push(options['vm'])
+    vm_types.push(values['vm'])
   end
   vm_types.each do |vm_type|
     vm_dir = packer_dir+"/"+vm_type
     if File.directory?(vm_dir)
-      handle_output(options, "")
+      handle_output(values, "")
       case vm_type
       when /vbox/
         vm_title = "VirtualBox"
@@ -64,7 +64,7 @@ def list_packer_clients(options)
       when /parallels/
         vm_title = "Parallels"
       else
-        if options['host-os-uname'].to_s.match(/Darwin/)
+        if values['host-os-uname'].to_s.match(/Darwin/)
           vm_title = "VMware Fusion"
         else
           vm_title = "VMware Workstation"
@@ -72,16 +72,16 @@ def list_packer_clients(options)
       end
       vm_list = Dir.entries(vm_dir)
       if vm_list.length > 0
-        if options['output'].to_s.match(/html/)
-          handle_output(options, "<h1>Available Packer #{vm_title} clients</h1>")
-          handle_output(options, "<table border=\"1\">")
-          handle_output(options, "<tr>")
-          handle_output(options, "<th>VM</th>")
-          handle_output(options, "<th>OS</th>")
-          handle_output(options, "</tr>")
+        if values['output'].to_s.match(/html/)
+          handle_output(values, "<h1>Available Packer #{vm_title} clients</h1>")
+          handle_output(values, "<table border=\"1\">")
+          handle_output(values, "<tr>")
+          handle_output(values, "<th>VM</th>")
+          handle_output(values, "<th>OS</th>")
+          handle_output(values, "</tr>")
         else
-          handle_output(options, "Packer #{vm_title} clients:")
-          handle_output(options, "")
+          handle_output(values, "Packer #{vm_title} clients:")
+          handle_output(values, "")
         end
         vm_list.each do |vm_name|
           if vm_name.match(/[a-z,A-Z]/)
@@ -93,21 +93,21 @@ def list_packer_clients(options)
               else
                 vm_os = json.grep(/guest_os_type/)[0].split(/:/)[1].split(/"/)[1]
               end
-              if options['output'].to_s.match(/html/)
-                handle_output(options, "<tr>")
-                handle_output(options, "<td>#{vm_name}</td>")
-                handle_output(options, "<td>#{vm_os}</td>")
-                handle_output(options, "</tr>")
+              if values['output'].to_s.match(/html/)
+                handle_output(values, "<tr>")
+                handle_output(values, "<td>#{vm_name}</td>")
+                handle_output(values, "<td>#{vm_os}</td>")
+                handle_output(values, "</tr>")
               else
-                handle_output(options, "#{vm_name} os=#{vm_os}")
+                handle_output(values, "#{vm_name} os=#{vm_os}")
               end
             end
           end
         end
-        if options['output'].to_s.match(/html/)
-          handle_output(options, "</table>")
+        if values['output'].to_s.match(/html/)
+          handle_output(values, "</table>")
         else
-          handle_output(options, "")
+          handle_output(values, "")
         end
       end
     end
@@ -117,10 +117,10 @@ end
 
 # Check if a packer image exists
 
-def check_packer_image_exists(options)
-	packer_dir = options['clientdir']+"/packer/"+options['vm']
-  image_dir  = options['clientdir']+"/images"
-  image_file = image_dir+"/"+options['name']+".ovf"
+def check_packer_image_exists(values)
+	packer_dir = values['clientdir']+"/packer/"+values['vm']
+  image_dir  = values['clientdir']+"/images"
+  image_file = image_dir+"/"+values['name']+".ovf"
   if File.exist?(image_file)
   	exists = true
   else
@@ -131,50 +131,50 @@ end
 
 # Delete a packer image
 
-def unconfigure_packer_client(options)
-	if options['verbose'] == true
-		handle_output(options, "Information:\tDeleting Packer Image for #{options['name']}")
+def unconfigure_packer_client(values)
+	if values['verbose'] == true
+		handle_output(values, "Information:\tDeleting Packer Image for #{values['name']}")
 	end
-	packer_dir = options['clientdir']+"/packer/"+options['vm']
-  options['clientdir'] = packer_dir+"/"+options['name']
-  image_dir  = options['clientdir']+"/images"
-  ovf_file   = image_dir+"/"+options['name']+".ovf"
-  cfg_file   = options['clientdir']+"/"+options['name']+".cfg"
-  json_file  = options['clientdir']+"/"+options['name']+".json"
-  disk_file  = image_dir+"/"+options['name']+"-disk1.vmdk"
+	packer_dir = values['clientdir']+"/packer/"+values['vm']
+  values['clientdir'] = packer_dir+"/"+values['name']
+  image_dir  = values['clientdir']+"/images"
+  ovf_file   = image_dir+"/"+values['name']+".ovf"
+  cfg_file   = values['clientdir']+"/"+values['name']+".cfg"
+  json_file  = values['clientdir']+"/"+values['name']+".json"
+  disk_file  = image_dir+"/"+values['name']+"-disk1.vmdk"
   [ ovf_file, cfg_file, json_file, disk_file ].each do |file_name|
     if File.exist?(file_name)
-    	if options['verbose'] == true
-    		handle_output(options, "Information:\tDeleting file #{file_name}")
+    	if values['verbose'] == true
+    		handle_output(values, "Information:\tDeleting file #{file_name}")
     	end
     	File.delete(file_name)
     end
   end
   if Dir.exist?(image_dir)
-  	if options['verbose'] == true
-  		handle_output(options, "Information:\tDeleting directory #{image_dir}")
+  	if values['verbose'] == true
+  		handle_output(values, "Information:\tDeleting directory #{image_dir}")
   	end
     if image_dir.match(/[a-z]/)
     	FileUtils.rm_rf(image_dir)
     end
   end
   exists = false
-  case options['vm']
+  case values['vm']
   when /fusion/
-    exists = check_packer_fusion_disk_exists(options)
+    exists = check_packer_fusion_disk_exists(values)
   when /vbox/
-    exists = check_packer_vbox_disk_exists(options)
+    exists = check_packer_vbox_disk_exists(values)
   when /kvm/
-    exists = check_packer_kvm_disk_exists(options)
+    exists = check_packer_kvm_disk_exists(values)
   end
   if exists == true
-    case options['vm']
+    case values['vm']
     when /fusion/
-      delete_packer_fusion_disk(options)
+      delete_packer_fusion_disk(values)
     when /vbox/
-      delete_packer_vbox_disk(options)
+      delete_packer_vbox_disk(values)
     when /kvm/
-      delete_packer_kvm_disk(options)
+      delete_packer_kvm_disk(values)
     end
   end
 	return
@@ -183,46 +183,46 @@ end
 # Kill off any existing packer processes for a client
 # some times dead packer processes are left running which stop the build process starting
 
-def kill_packer_processes(options)
-  handle_output(options, "Information:\tMaking sure no existing Packer processes are running for #{options['name']}")
-  %x[ps -ef |grep packer |grep "#{options['name']}.json" |awk '{print $2}' |xargs kill]
+def kill_packer_processes(values)
+  handle_output(values, "Information:\tMaking sure no existing Packer processes are running for #{values['name']}")
+  %x[ps -ef |grep packer |grep "#{values['name']}.json" |awk '{print $2}' |xargs kill]
   return
 end
 
 # Check if a packer VMware Fusion disk image exists
 
-def check_packer_fusion_disk_exists(options)
+def check_packer_fusion_disk_exists(values)
   exists = false
   return exists
 end
 
 # Check if a packer KVM disk image exists
 
-def check_packer_kvm_disk_exists(options)
+def check_packer_kvm_disk_exists(values)
   exists = false
   return exists
 end
 
 # Delete packer KVM disk image
 
-def delete_packer_kvm_disk(options)
+def delete_packer_kvm_disk(values)
   return
 end
 
 # Delete packer VMware Fusion disk image
 
-def delete_packer_fusion_disk(options)
+def delete_packer_fusion_disk(values)
   return
 end
 
 # Check if a packer VirtualBox disk image exists
 
-def check_packer_vbox_disk_exists(options)
+def check_packer_vbox_disk_exists(values)
   exists   = false
-  vdi_file = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/images/"+options['name']+".vdi"
-  message  = "Information:\tChecking if VDI file exists for #{options['name']}"
-  command  = "#{options['vboxmanage']} list hdds |grep ^Location"
-  output   = execute_command(options, message,command)
+  vdi_file = values['clientdir']+"/packer/"+values['vm']+"/"+values['name']+"/images/"+values['name']+".vdi"
+  message  = "Information:\tChecking if VDI file exists for #{values['name']}"
+  command  = "#{values['vboxmanage']} list hdds |grep ^Location"
+  output   = execute_command(values, message,command)
   if output.match(/#{vdi_file}/)
     puts "got here"
   end
@@ -231,147 +231,147 @@ end
 
 # Delete packer VirtualBox disk image
 
-def delete_packer_vbox_disk(options)
-  vdi_file = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/images/"+options['name']+".vdi"
-  message  = "Information:\tDetermining UUID for VDI file for #{options['name']}"
-  command  = "#{options['vboxmanage']} list hdds |egrep '^Location|^UUID' |grep -2 '#{vdi_file}'"
-  output   = execute_command(options, message,command)
+def delete_packer_vbox_disk(values)
+  vdi_file = values['clientdir']+"/packer/"+values['vm']+"/"+values['name']+"/images/"+values['name']+".vdi"
+  message  = "Information:\tDetermining UUID for VDI file for #{values['name']}"
+  command  = "#{values['vboxmanage']} list hdds |egrep '^Location|^UUID' |grep -2 '#{vdi_file}'"
+  output   = execute_command(values, message,command)
   if output.match(/#{vdi_file}/)
     disk_uuid = output.split("\n")[0].split(":")[1].gsub(/\s+/, "")
-    message   = "Information:\tDeleting VDI file for #{options['name']}"
-    command   = "#{options['vboxmanage']} closemedium disk #{disk_uuid} --delete"
-    execute_command(options, message,command)
+    message   = "Information:\tDeleting VDI file for #{values['name']}"
+    command   = "#{values['vboxmanage']} closemedium disk #{disk_uuid} --delete"
+    execute_command(values, message,command)
   end
   return
 end
 
 # Create a packer config
 
-def configure_packer_client(options)
-  if not options['service'].to_s.match(/purity/)
-    options['ip'] = single_install_ip(options)
+def configure_packer_client(values)
+  if not values['service'].to_s.match(/purity/)
+    values['ip'] = single_install_ip(values)
   end
-  if not options['hostip']
-    options['hostip'] = get_default_host()
+  if not values['hostip']
+    values['hostip'] = get_default_host()
   end
-  if not options['hostip'].to_s.match(/[0-9,a-z,A-Z]/)
+  if not values['hostip'].to_s.match(/[0-9,a-z,A-Z]/)
   end
-  if options['host-os-uname'].to_s.match(/Linux/) and not options['ip'] == options['empty']
-    enable_linux_ufw_internal_network(options)
+  if values['host-os-uname'].to_s.match(/Linux/) and not values['ip'] == values['empty']
+    enable_linux_ufw_internal_network(values)
   end
-  if options['verbose'] == true
-    handle_output(options, "Information:\tChecking Packer client directory")
+  if values['verbose'] == true
+    handle_output(values, "Information:\tChecking Packer client directory")
   end
-  if options['verbose'] == true
-    handle_output(options, "Information:\tChecking Packer client configuration directory")
+  if values['verbose'] == true
+    handle_output(values, "Information:\tChecking Packer client configuration directory")
   end
-  check_dir_exists(options, options['clientdir'])
-  check_dir_owner(options, options['clientdir'], options['uid'])
-  exists = check_vm_exists(options)
+  check_dir_exists(values, values['clientdir'])
+  check_dir_owner(values, values['clientdir'], values['uid'])
+  exists = check_vm_exists(values)
 	if exists == true
-  	handle_output(options, "Warning:\t#{options['vmapp']} VM #{options['name']} already exists")
-		quit(options)
+  	handle_output(values, "Warning:\t#{values['vmapp']} VM #{values['name']} already exists")
+		quit(values)
 	end
-	exists = check_packer_image_exists(options)
+	exists = check_packer_image_exists(values)
 	if exists == true
-    handle_output(options, "Warning:\tPacker image for #{options['vmapp']} VM #{options['name']} already exists")
-		quit(options)
+    handle_output(values, "Warning:\tPacker image for #{values['vmapp']} VM #{values['name']} already exists")
+		quit(values)
   end
-  if options['vm'] == options['empty'] && options['service'] == options['empty'] && options['method'] == options['empty'] && options['type'] == options['empty'] && options['mode'] == options['empty']
-    options = get_install_service_from_file(options)
+  if values['vm'] == values['empty'] && values['service'] == values['empty'] && values['method'] == values['empty'] && values['type'] == values['empty'] && values['mode'] == values['empty']
+    values = get_install_service_from_file(values)
   end
-  options['guest'] = get_vm_guest_os(options)
-  case options['method']
+  values['guest'] = get_vm_guest_os(values)
+  case values['method']
   when /aws/
-    options = configure_packer_aws_client(options)
+    values = configure_packer_aws_client(values)
   when /pe/
-    options = configure_packer_pe_client(options)
+    values = configure_packer_pe_client(values)
   when /vs/
-    options = configure_packer_vs_client(options)
+    values = configure_packer_vs_client(values)
   when /ks/
-    options = configure_packer_ks_client(options)
+    values = configure_packer_ks_client(values)
   when /ay/
-    options = configure_packer_ay_client(options)
+    values = configure_packer_ay_client(values)
   when /ps/
-    options = configure_packer_ps_client(options)
+    values = configure_packer_ps_client(values)
   when /ai/
-    options = configure_packer_ai_client(options)
+    values = configure_packer_ai_client(values)
   when /js/
-    options = configure_packer_js_client(options)
+    values = configure_packer_js_client(values)
   when /ci/
-    case options['service']
+    case values['service']
     when /ubuntu/
-      options = configure_packer_ps_client(options)
+      values = configure_packer_ps_client(values)
     end
   end
-  if options['vm'].to_s.match(/fusion/)
-    options['share'] = ""
-    options['mount'] = ""
-    image_dir = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/images/"
-    if options['verbose'] == true
-      handle_output(options, "Information:\tChecking Packer image directory")
+  if values['vm'].to_s.match(/fusion/)
+    values['share'] = ""
+    values['mount'] = ""
+    image_dir = values['clientdir']+"/packer/"+values['vm']+"/"+values['name']+"/images/"
+    if values['verbose'] == true
+      handle_output(values, "Information:\tChecking Packer image directory")
     end
-    check_dir_exists(options, image_dir)
-    check_dir_owner(options, image_dir, options['uid'])
-    fusion_vmx_file = image_dir+"/"+options['name']+".vmx"
-    options = create_fusion_vm_vmx_file(options, fusion_vmx_file)
+    check_dir_exists(values, image_dir)
+    check_dir_owner(values, image_dir, values['uid'])
+    fusion_vmx_file = image_dir+"/"+values['name']+".vmx"
+    values = create_fusion_vm_vmx_file(values, fusion_vmx_file)
   end
-  if options['guest'].kind_of?(Array)
-    options['guest'] = options['guest'].join("")
+  if values['guest'].kind_of?(Array)
+    values['guest'] = values['guest'].join("")
   end
-  if options['label'] == nil
-    options['label'] = "none"
+  if values['label'] == nil
+    values['label'] = "none"
   else
-    if not options['label'].to_s.match(/[a-z]|[0-9]/)
-      options['label'] = "none"
+    if not values['label'].to_s.match(/[a-z]|[0-9]/)
+      values['label'] = "none"
     end
   end
-  options = create_packer_json(options)
-	return options
+  values = create_packer_json(values)
+	return values
 end
 
 # Build a packer config
 
-def build_packer_config(options)
-  kill_packer_processes(options)
-  exists = check_vm_exists(options)
+def build_packer_config(values)
+  kill_packer_processes(values)
+  exists = check_vm_exists(values)
   if exists == true
-    if options['vm'].to_s.match(/vbox/)
-      handle_output(options, "Warning:\tVirtualBox VM #{options['name']} already exists")
+    if values['vm'].to_s.match(/vbox/)
+      handle_output(values, "Warning:\tVirtualBox VM #{values['name']} already exists")
     else
-      handle_output(options, "Warning:\tVMware Fusion VM #{options['name']} already exists")
+      handle_output(values, "Warning:\tVMware Fusion VM #{values['name']} already exists")
     end
-    quit(options)
+    quit(values)
   end
-  exists = check_packer_image_exists(options)
-  options['clientdir'] = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']
-  json_file = options['clientdir']+"/"+options['name']+".json"
+  exists = check_packer_image_exists(values)
+  values['clientdir'] = values['clientdir']+"/packer/"+values['vm']+"/"+values['name']
+  json_file = values['clientdir']+"/"+values['name']+".json"
   if not File.exist?(json_file)
-    handle_output(options, "Warning:\tJSON configuration file \"#{json_file}\" for #{options['name']} does not exist")
-    quit(options)
+    handle_output(values, "Warning:\tJSON configuration file \"#{json_file}\" for #{values['name']} does not exist")
+    quit(values)
   end
-  if options['vm'].to_s.match(/fusion/) and options['vmnetwork'].to_s.match(/hostonly/)
-    if_name = options['vmnet'].to_s
-    gw_if_name = get_gw_if_name(options)
-    check_nat(options, gw_if_name, if_name)
+  if values['vm'].to_s.match(/fusion/) and values['vmnetwork'].to_s.match(/hostonly/)
+    if_name = values['vmnet'].to_s
+    gw_if_name = get_gw_if_name(values)
+    check_nat(values, gw_if_name, if_name)
   end
 	message = "Information:\tBuilding Packer Image "+json_file
-  if options['verbose'] == true
-    if options['host-os-uname'].to_s.match(/NT/)
-      command = "cd "+options['clientdir']+" ; export PACKER_LOG=1 ; packer build "+options['name']+".json"
+  if values['verbose'] == true
+    if values['host-os-uname'].to_s.match(/NT/)
+      command = "cd "+values['clientdir']+" ; export PACKER_LOG=1 ; packer build "+values['name']+".json"
     else
       command = "export PACKER_LOG=1 ; packer build --on-error=abort "+json_file
     end
   else
-    if options['host-os-uname'].to_s.match(/NT/)
-  	  command = "cd "+options['clientdir']+" ; packer build "+options['name']+".json"
+    if values['host-os-uname'].to_s.match(/NT/)
+  	  command = "cd "+values['clientdir']+" ; packer build "+values['name']+".json"
     else
       command = "packer build "+json_file
     end
   end
-  if options['verbose'] == true
-    handle_output(options, message)
-    handle_output(options, "Executing:\t"+command)
+  if values['verbose'] == true
+    handle_output(values, message)
+    handle_output(values, "Executing:\t"+command)
   end
   exec(command)
 	return
@@ -379,186 +379,186 @@ end
 
 # Create vSphere Packer client
 
-def create_packer_vs_install_files(options)
-  output_file = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/"+options['name']+".cfg"
-  check_dir_exists(options, options['clientdir'])
-  delete_file(options, output_file)
-  options = populate_vs_questions(options)
-  process_questions(options)
-  output_vs_header(options, output_file)
+def create_packer_vs_install_files(values)
+  output_file = values['clientdir']+"/packer/"+values['vm']+"/"+values['name']+"/"+values['name']+".cfg"
+  check_dir_exists(values, values['clientdir'])
+  delete_file(values, output_file)
+  values = populate_vs_questions(values)
+  process_questions(values)
+  output_vs_header(values, output_file)
   # Output firstboot list
-  post_list = populate_vs_firstboot_list(options)
+  post_list = populate_vs_firstboot_list(values)
   output_vs_post_list(post_list, output_file)
   # Output post list
-  post_list = populate_vs_post_list(options)
+  post_list = populate_vs_post_list(values)
   output_vs_post_list(post_list, output_file)
-  print_contents_of_file(options, "", output_file)
-  return options
+  print_contents_of_file(values, "", output_file)
+  return values
 end
 
 # Create Kickstart Packer client (RHEL, CentOS, SL, and OEL)
 
-def create_packer_ks_install_files(options)
-  output_file = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/"+options['name']+".cfg"
-  check_dir_exists(options, options['clientdir'])
-  delete_file(options, output_file) 
-  options = populate_ks_questions(options)
-  process_questions(options)
-  output_ks_header(options, output_file)
-  pkg_list = populate_ks_pkg_list(options)
-  output_ks_pkg_list(options, pkg_list,output_file)
-  print_contents_of_file(options, "", output_file)
-  post_list = populate_ks_post_list(options)
-  output_ks_post_list(options, post_list, output_file)
-  print_contents_of_file(options, "", output_file)
-  return options
+def create_packer_ks_install_files(values)
+  output_file = values['clientdir']+"/packer/"+values['vm']+"/"+values['name']+"/"+values['name']+".cfg"
+  check_dir_exists(values, values['clientdir'])
+  delete_file(values, output_file) 
+  values = populate_ks_questions(values)
+  process_questions(values)
+  output_ks_header(values, output_file)
+  pkg_list = populate_ks_pkg_list(values)
+  output_ks_pkg_list(values, pkg_list,output_file)
+  print_contents_of_file(values, "", output_file)
+  post_list = populate_ks_post_list(values)
+  output_ks_post_list(values, post_list, output_file)
+  print_contents_of_file(values, "", output_file)
+  return values
 end
 
 # Create Windows client
 
-def create_packer_pe_install_files(options)
-  output_file = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/"+"Autounattend.xml"
-  output_dir  = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']
-  check_dir_exists(options, options['clientdir'])
-  check_dir_exists(options, output_dir)
-  delete_file(options, output_file)
-  input_file = options['unattendedfile'].to_s
-  populate_pe_questions(options)
-  process_questions(options)
+def create_packer_pe_install_files(values)
+  output_file = values['clientdir']+"/packer/"+values['vm']+"/"+values['name']+"/"+"Autounattend.xml"
+  output_dir  = values['clientdir']+"/packer/"+values['vm']+"/"+values['name']
+  check_dir_exists(values, values['clientdir'])
+  check_dir_exists(values, output_dir)
+  delete_file(values, output_file)
+  input_file = values['unattendedfile'].to_s
+  populate_pe_questions(values)
+  process_questions(values)
   if input_file.match(/[a-z]/) and File.exist?(info_file) 
     message = "Information:\tCopying file #{input_file} to #{output_file}"
     command = "cp #{input_file} #{output_file}"
   else
-    output_pe_client_profile(options, output_file)
+    output_pe_client_profile(values, output_file)
   end
-  print_contents_of_file(options, "", output_file)
-  output_file = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/post_install.ps1"
+  print_contents_of_file(values, "", output_file)
+  output_file = values['clientdir']+"/packer/"+values['vm']+"/"+values['name']+"/post_install.ps1"
   if File.exist?(output_file)
     %x[rm #{output_file}]
     %x[touch #{output_file}]
   end
-  if options['winshell'].to_s.match(/ssh/)
-    download_pkg(options, options['opensshwinurl'])
-    openssh_pkg = File.basename(options['opensshwinurl'])
-    copy_pkg_to_packer_client(openssh_package, options)
+  if values['winshell'].to_s.match(/ssh/)
+    download_pkg(values, values['opensshwinurl'])
+    openssh_pkg = File.basename(values['opensshwinurl'])
+    copy_pkg_to_packer_client(openssh_package, values)
     openssh_psh = populate_openssh_psh()
-    output_psh(options['name'], openssh_psh, output_file)
+    output_psh(values['name'], openssh_psh, output_file)
   else
     winrm_psh = populate_winrm_psh()
-    output_psh(options['name'], winrm_psh, output_file)
-    vmtools_psh = populate_vmtools_psh(options)
-    output_psh(options['name'], vmtools_psh, output_file)
+    output_psh(values['name'], winrm_psh, output_file)
+    vmtools_psh = populate_vmtools_psh(values)
+    output_psh(values['name'], vmtools_psh, output_file)
   end
-  print_contents_of_file(options, "", output_file)
-  return options
+  print_contents_of_file(values, "", output_file)
+  return values
 end
 
 # Create AutoYast (SLES and OpenSUSE) client
 
-def create_packer_ay_install_files(options)
-  output_file = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/"+options['name']+".xml"
-  if options['verbose'] == true
-    handle_output(options, "Information:\tChecking Packer AutoYast configuration directory")
+def create_packer_ay_install_files(values)
+  output_file = values['clientdir']+"/packer/"+values['vm']+"/"+values['name']+"/"+values['name']+".xml"
+  if values['verbose'] == true
+    handle_output(values, "Information:\tChecking Packer AutoYast configuration directory")
   end
-  check_dir_exists(options, options['clientdir'])
-  check_dir_owner(options, options['clientdir'], owner['uid'])
-  delete_file(options, output_file)
-  options = populate_ks_questions(options)
-  process_questions(options)
-  output_ay_client_profile(options, output_file)
-  print_contents_of_file(options, "", output_file)
-  return options
+  check_dir_exists(values, values['clientdir'])
+  check_dir_owner(values, values['clientdir'], owner['uid'])
+  delete_file(values, output_file)
+  values = populate_ks_questions(values)
+  process_questions(values)
+  output_ay_client_profile(values, output_file)
+  print_contents_of_file(values, "", output_file)
+  return values
 end
 
 # Create Preseed (Ubuntu and Debian) client
 
-def create_packer_ps_install_files(options)
-  output_file = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/"+options['name']+".cfg"
-  check_dir_exists(options, options['clientdir'])
-  delete_file(options, output_file)
-  if options['vm'].to_s.match(/fusion/)
-    options = get_fusion_vm_rootdisk(options)
+def create_packer_ps_install_files(values)
+  output_file = values['clientdir']+"/packer/"+values['vm']+"/"+values['name']+"/"+values['name']+".cfg"
+  check_dir_exists(values, values['clientdir'])
+  delete_file(values, output_file)
+  if values['vm'].to_s.match(/fusion/)
+    values = get_fusion_vm_rootdisk(values)
   end
-  options = populate_ps_questions(options)
-  process_questions(options)
-  if !options['service'].to_s.match(/purity/)
-    output_ps_header(options, output_file)
-    output_file = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/"+options['name']+"_post.sh"
-    post_list   = populate_ps_post_list(options)
-    output_ks_post_list(options, post_list, output_file)
-    output_file = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/"+options['name']+"_first_boot.sh"
-    post_list   = populate_ps_first_boot_list(options)
-    output_ks_post_list(options, post_list, output_file)
-    print_contents_of_file(options, "", output_file)
-    if options['livecd'] == true
-      output_file = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/subiquity/http/user-data"
-      (user_data, early_exec_data, late_exec_data) = populate_packer_cc_user_data(options)
-      delete_file(options, output_file)
-      output_packer_cc_user_data(options, user_data, early_exec_data, late_exec_data, output_file)
-      output_file = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/subiquity/http/meta-data"
+  values = populate_ps_questions(values)
+  process_questions(values)
+  if !values['service'].to_s.match(/purity/)
+    output_ps_header(values, output_file)
+    output_file = values['clientdir']+"/packer/"+values['vm']+"/"+values['name']+"/"+values['name']+"_post.sh"
+    post_list   = populate_ps_post_list(values)
+    output_ks_post_list(values, post_list, output_file)
+    output_file = values['clientdir']+"/packer/"+values['vm']+"/"+values['name']+"/"+values['name']+"_first_boot.sh"
+    post_list   = populate_ps_first_boot_list(values)
+    output_ks_post_list(values, post_list, output_file)
+    print_contents_of_file(values, "", output_file)
+    if values['livecd'] == true
+      output_file = values['clientdir']+"/packer/"+values['vm']+"/"+values['name']+"/subiquity/http/user-data"
+      (user_data, early_exec_data, late_exec_data) = populate_packer_cc_user_data(values)
+      delete_file(values, output_file)
+      output_packer_cc_user_data(values, user_data, early_exec_data, late_exec_data, output_file)
+      output_file = values['clientdir']+"/packer/"+values['vm']+"/"+values['name']+"/subiquity/http/meta-data"
       FileUtils.touch(output_file)
     end
   end
-  return options
+  return values
 end
 
 # Create JS client
 
-def create_packer_js_install_files(options)
-  options['packerdir'] = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']
-  if options['verbose'] == true
-    handle_output(options, "Information:\tChecking Packer Jumpstart configuration directory")
+def create_packer_js_install_files(values)
+  values['packerdir'] = values['clientdir']+"/packer/"+values['vm']+"/"+values['name']
+  if values['verbose'] == true
+    handle_output(values, "Information:\tChecking Packer Jumpstart configuration directory")
   end
-  check_dir_exists(options, options['packerdir'])
-  check_dir_owner(options, options['packerdir'], options['uid'])
-  output_file = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/"+options['name']+".cfg"
-  delete_file(options, output_file)
-  options['version'] = options['service'].split(/_/)[1]
-  options['update']  = options['service'].split(/_/)[2]
-  options['model']   = "vm"
-  options = populate_js_sysid_questions(options)
-  print_contents_of_file(options, "", output_file)
-  process_questions(options)
-  options['sysid'] = options['packerdir']+"/sysidcfg"
-#  options['sysid'] = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/sysidcfg"
-  create_js_sysid_file(options)
-  options['publisherhost'] = ""
-  options['karch'] = "packer"
-  options = populate_js_machine_questions(options)
-  process_questions(options)
-#  options['machine'] = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/profile"
-  options['machine'] = options['packerdir']+"/profile"
-  create_js_machine_file(options)
-#  options['rules'] = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/rules"
-  options['rules'] = options['packerdir']+"/rules"
-  create_js_rules_file(options)
-#  create_rules_ok_file(options)
-#  output_file = options['clientdir']+"/begin"
-#  options['finish'] = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/finish"
-  options['finish'] = options['packerdir']+"/finish"
-  create_js_finish_file(options)
-  process_questions(options)
-  return options
+  check_dir_exists(values, values['packerdir'])
+  check_dir_owner(values, values['packerdir'], values['uid'])
+  output_file = values['clientdir']+"/packer/"+values['vm']+"/"+values['name']+"/"+values['name']+".cfg"
+  delete_file(values, output_file)
+  values['version'] = values['service'].split(/_/)[1]
+  values['update']  = values['service'].split(/_/)[2]
+  values['model']   = "vm"
+  values = populate_js_sysid_questions(values)
+  print_contents_of_file(values, "", output_file)
+  process_questions(values)
+  values['sysid'] = values['packerdir']+"/sysidcfg"
+#  values['sysid'] = values['clientdir']+"/packer/"+values['vm']+"/"+values['name']+"/sysidcfg"
+  create_js_sysid_file(values)
+  values['publisherhost'] = ""
+  values['karch'] = "packer"
+  values = populate_js_machine_questions(values)
+  process_questions(values)
+#  values['machine'] = values['clientdir']+"/packer/"+values['vm']+"/"+values['name']+"/profile"
+  values['machine'] = values['packerdir']+"/profile"
+  create_js_machine_file(values)
+#  values['rules'] = values['clientdir']+"/packer/"+values['vm']+"/"+values['name']+"/rules"
+  values['rules'] = values['packerdir']+"/rules"
+  create_js_rules_file(values)
+#  create_rules_ok_file(values)
+#  output_file = values['clientdir']+"/begin"
+#  values['finish'] = values['clientdir']+"/packer/"+values['vm']+"/"+values['name']+"/finish"
+  values['finish'] = values['packerdir']+"/finish"
+  create_js_finish_file(values)
+  process_questions(values)
+  return values
 end
 
 # Create AI client
 
-def create_packer_ai_install_files(options)
-  output_file = options['clientdir']+"/packer/"+options['vm']+"/"+options['name']+"/"+options['name']+".cfg"
-  check_dir_exists(options, options['clientdir'])
-  delete_file(options, output_file)
-  options['publisherhost'] = ""
-  options['publisherport'] = ""
-  populate_ai_manifest_questions(options)
-  populate_ai_client_profile_questions(options)
-  process_questions(options)
-  return options
+def create_packer_ai_install_files(values)
+  output_file = values['clientdir']+"/packer/"+values['vm']+"/"+values['name']+"/"+values['name']+".cfg"
+  check_dir_exists(values, values['clientdir'])
+  delete_file(values, output_file)
+  values['publisherhost'] = ""
+  values['publisherport'] = ""
+  populate_ai_manifest_questions(values)
+  populate_ai_client_profile_questions(values)
+  process_questions(values)
+  return values
 end
 
 # Populate vagrant.sh array
 
-def populate_packer_vagrant_sh(options)
-  tmp_keyfile = "/tmp/"+options['name']+".key.pub"
+def populate_packer_vagrant_sh(values)
+  tmp_keyfile = "/tmp/"+values['name']+".key.pub"
   file_array  = []
   file_array.push("#!/usr/bin/env bash\n")
   file_array.push("\n")
@@ -578,175 +578,175 @@ end
 
 # Create vagrant.sh array
 
-def create_packer_vagrant_sh(options, file_name)
-  file_array = populate_packer_vagrant_sh(options)
-  write_array_to_file(options, file_array, file_name, "w")
-  print_contents_of_file(options, "", file_name)
+def create_packer_vagrant_sh(values, file_name)
+  file_array = populate_packer_vagrant_sh(values)
+  write_array_to_file(values, file_array, file_name, "w")
+  print_contents_of_file(values, "", file_name)
   return
 end
 
 # Create AWS client
 
-def create_packer_aws_install_files(options)
-  if not options['number'].to_s.match(/[0,9]/)
-    handle_output(options, "Warning:\tIncorrect number of instances specified: '#{options['number']}'")
-    quit(options)
+def create_packer_aws_install_files(values)
+  if not values['number'].to_s.match(/[0,9]/)
+    handle_output(values, "Warning:\tIncorrect number of instances specified: '#{values['number']}'")
+    quit(values)
   end
-  options = handle_aws_values(options)
-  exists  = check_aws_image_exists(options)
+  values = handle_aws_values(values)
+  exists  = check_aws_image_exists(values)
   if exists == "yes"
-    handle_output(options, "Warning:\tAWS AMI already exists with name #{options['name']}")
-    quit(options)
+    handle_output(values, "Warning:\tAWS AMI already exists with name #{values['name']}")
+    quit(values)
   end
-  if not options['ami'].to_s.match(/^ami/)
-    old_ami = options['ami']
-    ec2, options['ami'] = get_aws_image(options)
-    if options['ami'].to_s.match(/^none$/)
-      handle_output(options, "Warning:\tNo AWS AMI ID found for #{old_ami}")
-      handle_output(options, "Information:\tSetting AWS AMI ID to #{options['ami']}")
+  if not values['ami'].to_s.match(/^ami/)
+    old_ami = values['ami']
+    ec2, values['ami'] = get_aws_image(values)
+    if values['ami'].to_s.match(/^none$/)
+      handle_output(values, "Warning:\tNo AWS AMI ID found for #{old_ami}")
+      handle_output(values, "Information:\tSetting AWS AMI ID to #{values['ami']}")
     else
-      handle_output(options, "Information:\tFound AWS AMI ID #{options['ami']} for #{old_ami}")
+      handle_output(values, "Information:\tFound AWS AMI ID #{values['ami']} for #{old_ami}")
     end
   end
-  script_dir     = options['clientdir']+"/scripts"
-  build_dir      = options['clientdir']+"/builds"
+  script_dir     = values['clientdir']+"/scripts"
+  build_dir      = values['clientdir']+"/builds"
   user_data_file = "userdata.yml"
-  check_dir_exists(options, options['clientdir'])
-  check_dir_exists(options, script_dir)
-  check_dir_exists(options, build_dir)
-  options = set_aws_key_file(options)
-  populate_aws_questions(options, user_data_file)
-  options['service'] = "aws"
-  process_questions(options)
-  user_data_file = options['clientdir']+"/userdata.yml"
-  create_aws_user_data_file(options, user_data_file)
-  options = create_packer_aws_json(options)
+  check_dir_exists(values, values['clientdir'])
+  check_dir_exists(values, script_dir)
+  check_dir_exists(values, build_dir)
+  values = set_aws_key_file(values)
+  populate_aws_questions(values, user_data_file)
+  values['service'] = "aws"
+  process_questions(values)
+  user_data_file = values['clientdir']+"/userdata.yml"
+  create_aws_user_data_file(values, user_data_file)
+  values = create_packer_aws_json(values)
   file_name = script_dir+"/vagrant.sh"
-  create_packer_vagrant_sh(options['name'], file_name)
-  key_file = options['clientdir']+"/"+options['name']+".key.pub"
+  create_packer_vagrant_sh(values['name'], file_name)
+  key_file = values['clientdir']+"/"+values['name']+".key.pub"
   if not File.exist?(key_file)
-    message  = "Copying Key file '#{options['keyfile']}' to '#{key_file}' ; chmod 600 #{key_file}"
-    command  = "cp #{options['keyfile']} #{key_file}"
-    execute_command(options, message, command)
+    message  = "Copying Key file '#{values['keyfile']}' to '#{key_file}' ; chmod 600 #{key_file}"
+    command  = "cp #{values['keyfile']} #{key_file}"
+    execute_command(values, message, command)
   end
-  return options
+  return values
 end
 
 # Copy package from package directory to packer client directory
 
-def copy_pkg_to_packer_client(pkg_name, options)
+def copy_pkg_to_packer_client(pkg_name, values)
   if not pkg_name.match(/$pkg_base_dir/)
     source_pkg = $pkg_base_dir+"/"+pkg_name
   else
     source_pkg = pkg_name
   end
   if not File.exist?(source_pkg)
-    handle_output(options, "Warning:\tPackage #{source_pkg} does not exist")
-    quit(options)
+    handle_output(values, "Warning:\tPackage #{source_pkg} does not exist")
+    quit(values)
   end
   if not File.exist?(dest_pkg)
-    dest_pkg = options['clientdir']+"/"+pkg_name
+    dest_pkg = values['clientdir']+"/"+pkg_name
     message  = "Information:\tCopying '"+source_pkg+"' to '"+dest_pkg+"'"
     command  = "cp #{source_pkg} #{dest_pkg}"
-    execute_command(options, message, command)
+    execute_command(values, message, command)
   end
   return
 end
 
 # Populate Cloud Config/Init user_data
 
-def populate_packer_cc_user_data(options)
-  (user_data, early_exec_data, late_exec_data) = populate_cc_user_data(options)
+def populate_packer_cc_user_data(values)
+  (user_data, early_exec_data, late_exec_data) = populate_cc_user_data(values)
   return user_data, early_exec_data, late_exec_data
 end
 
 # Output Cloud Config/Init user data
 
-def output_packer_cc_user_data(options, user_data, early_exec_data, later_exec_data, output_file)
-  output_cc_user_data(options, user_data, early_exec_data, later_exec_data, output_file)
+def output_packer_cc_user_data(values, user_data, early_exec_data, later_exec_data, output_file)
+  output_cc_user_data(values, user_data, early_exec_data, later_exec_data, output_file)
   return
 end
 
 # Build AWS client
 
-def build_packer_aws_config(options)
-  exists = check_aws_image_exists(options)
+def build_packer_aws_config(values)
+  exists = check_aws_image_exists(values)
   if exists == "yes"
-    handle_output(options, "Warning:\tAWS image already exists for '#{options['name']}'")
-    quit(options)
+    handle_output(values, "Warning:\tAWS image already exists for '#{values['name']}'")
+    quit(values)
   end
-  options['clientdir'] = options['clientdir']+"/packer/aws/"+options['name']
-  json_file  = options['clientdir']+"/"+options['name']+".json"
-  key_file   = options['clientdir']+"/"+options['name']+".key.pub"
+  values['clientdir'] = values['clientdir']+"/packer/aws/"+values['name']
+  json_file  = values['clientdir']+"/"+values['name']+".json"
+  key_file   = values['clientdir']+"/"+values['name']+".key.pub"
   if not File.exist?(json_file)
-    handle_output(options, "Warning:\tPacker AWS config file '#{json_file}' does not exist")
-    quit(options)
+    handle_output(values, "Warning:\tPacker AWS config file '#{json_file}' does not exist")
+    quit(values)
   end
   if not File.exist?(key_file) and not File.symlink?(key_file)
-    handle_output(options, "Warning:\tPacker AWS key file '#{key_file}' does not exist")
-    quit(options)
+    handle_output(values, "Warning:\tPacker AWS key file '#{key_file}' does not exist")
+    quit(values)
   end
   message = "Information:\tCodesigning /usr/local/bin/packer"
   command = "/usr/bin/codesign --verify /usr/local/bin/packer"
-  execute_command(options, message, command)
-  message = "Information:\tBuilding Packer AWS instance using AMI name '#{options['name']}' using '#{json_file}'"
-  command = "cd #{options['clientdir']} ; /usr/local/bin/packer build #{json_file}"
-  execute_command(options, message, command)
+  execute_command(values, message, command)
+  message = "Information:\tBuilding Packer AWS instance using AMI name '#{values['name']}' using '#{json_file}'"
+  command = "cd #{values['clientdir']} ; /usr/local/bin/packer build #{json_file}"
+  execute_command(values, message, command)
   return
 end
 
 # Configure Packer AWS client
 
-def configure_packer_aws_client(options)
-  create_packer_aws_install_files(options)
-  return options
+def configure_packer_aws_client(values)
+  create_packer_aws_install_files(values)
+  return values
 end
 
 # Configure Packer Windows client
 
-def configure_packer_pe_client(options)
-  create_packer_pe_install_files(options)
-  return options
+def configure_packer_pe_client(values)
+  create_packer_pe_install_files(values)
+  return values
 end
 
 # Configure Packer vSphere client
 
-def configure_packer_vs_client(options)
-  create_packer_vs_install_files(options)
-  return options
+def configure_packer_vs_client(values)
+  create_packer_vs_install_files(values)
+  return values
 end
 
 # Configure Packer Kickstart client
 
-def configure_packer_ks_client(options)
-  options = create_packer_ks_install_files(options)
-  return options
+def configure_packer_ks_client(values)
+  values = create_packer_ks_install_files(values)
+  return values
 end
 
 # Configure Packer AutoYast client
 
-def configure_packer_ay_client(options)
-  options = create_packer_ay_install_files(options)
-  return options
+def configure_packer_ay_client(values)
+  values = create_packer_ay_install_files(values)
+  return values
 end
 
 # Configure Packer Preseed client
 
-def configure_packer_ps_client(options)
-  options = create_packer_ps_install_files(options)
-  return options
+def configure_packer_ps_client(values)
+  values = create_packer_ps_install_files(values)
+  return values
 end
 
 # Configure Packer AI client
 
-def configure_packer_ai_client(options)
-  options = create_packer_ai_install_files(options)
-  return options
+def configure_packer_ai_client(values)
+  values = create_packer_ai_install_files(values)
+  return values
 end
 
 # Configure Packer JS client
 
-def configure_packer_js_client(options)
-  options = create_packer_js_install_files(options)
-  return options
+def configure_packer_js_client(values)
+  values = create_packer_js_install_files(values)
+  return values
 end

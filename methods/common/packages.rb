@@ -11,11 +11,11 @@ def get_pkg_source(source_url, source_file)
   if not File.exist?("/usr/bin/wget")
     message = "Information:\tInstalling package wget"
     command = "pkg install pkg:/web/wget"
-    execute_command(options, message, command)
+    execute_command(values, message, command)
   end
   message = "Information:\tFetching source "+source_url+" to "+source_file
   command = "wget #{source_url} -O #{source_file}"
-  execute_command(options, message, command)
+  execute_command(values, message, command)
   return
 end
 
@@ -24,7 +24,7 @@ end
 def check_installed_pkg(p_struct, pkg_name)
   message = "Information:\tChecking if package "+pkg_name+" is installed"
   command = "pkg info #{pkg_name} |grep Version |awk \"{print \\\$2}\""
-  ins_ver = execute_command(options, message, command)
+  ins_ver = execute_command(values, message, command)
   ins_ver = ins_ver.chomp
   return ins_ver
 end
@@ -37,42 +37,42 @@ def install_pkg(p_struct, pkg_name, pkg_repo_dir)
   if not ins_ver.match(/#{pkg_ver}/)
     message = "Information:\tInstalling Package "+pkg_name
     command = "pkg install -g #{pkg_repo_dir} #{pkg_name}"
-    execute_command(options, message, command)
+    execute_command(values, message, command)
   end
   return
 end
 
 # Install local package
 
-def install_package(options, pkg_name)
-  if !options['host-os-packages'].to_s.match(/\"#{pkg_name}\"/)
-    if options['host-os-uname'].to_s.match(/Darwin/)
-      install_osx_package(options, pkg_name)
+def install_package(values, pkg_name)
+  if !values['host-os-packages'].to_s.match(/\"#{pkg_name}\"/)
+    if values['host-os-uname'].to_s.match(/Darwin/)
+      install_osx_package(values, pkg_name)
     end
-    if options['host-os-uname'].to_s.match(/Linux/)
-      install_linux_package(options, pkg_name)
+    if values['host-os-uname'].to_s.match(/Linux/)
+      install_linux_package(values, pkg_name)
     end
-    options = update_package_list(options)
+    values = update_package_list(values)
   end
-  return options
+  return values
 end
 
 # Updage package list
 
-def update_package_list(options)
-  if options['host-os-uname'].match(/Darwin/)
+def update_package_list(values)
+  if values['host-os-uname'].match(/Darwin/)
     if File.exist?("/usr/local/bin/brew")
-      options['host-os-packages'] = %x[/usr/local/bin/brew list].split(/\s+|\n/)
+      values['host-os-packages'] = %x[/usr/local/bin/brew list].split(/\s+|\n/)
     end
   end
-  return options
+  return values
 end
 
 # Handle a package
 
 def handle_pkg(p_struct, pkg_name, build_type, pkg_repo_dir)
-  if options['verbose'] == true
-    handle_output(options, "Information:\tHandling Package #{pkg_name}")
+  if values['verbose'] == true
+    handle_output(values, "Information:\tHandling Package #{pkg_name}")
   end
   depend_list   = []
   pkg_version   = p_struct[pkg_name].version
@@ -91,8 +91,8 @@ def handle_pkg(p_struct, pkg_name, build_type, pkg_repo_dir)
         end
       end
       if not depend_pkg_name.match(/#{pkg_name}/)
-        if options['verbose'] == true
-          handle_output(options, "Information:\tHandling dependency #{depend_pkg_name}")
+        if values['verbose'] == true
+          handle_output(values, "Information:\tHandling dependency #{depend_pkg_name}")
         end
         build_pkg(p_struct, depend_pkg_name, build_type, pkg_repo_dir)
         install_pkg(p_struct, depend_pkg_name, pkg_repo_dir)
@@ -124,17 +124,17 @@ end
 
 # Get the alternate repository name
 
-def check_alt_install_service(options)
-  if not options['service'].to_s.match(/[a-z,A-Z]/)
-    options['arch'] = %x[uname -p]
-    options['arch'] = options['arch'].chomp()
-    options['service'] = get_install_service(options['arch'])
-    service_base_name  = get_service_base_name(options['service'])
-    alt_options['service'] = service_base_name+"_"+$alt_repo_name
+def check_alt_install_service(values)
+  if not values['service'].to_s.match(/[a-z,A-Z]/)
+    values['arch'] = %x[uname -p]
+    values['arch'] = values['arch'].chomp()
+    values['service'] = get_install_service(values['arch'])
+    service_base_name  = get_service_base_name(values['service'])
+    alt_values['service'] = service_base_name+"_"+$alt_repo_name
   else
-    alt_options['service'] = options['service']
+    alt_values['service'] = values['service']
   end
-  return alt_options['service']
+  return alt_values['service']
 end
 
 # Uninstall package
@@ -142,38 +142,38 @@ end
 def uninstall_pkg(pkg_name)
   message = "Information:\tChecking if package "+pkg_name+" is installed"
   command = "pkg info #{pkg_name} |grep Version |awk \"{print \\\$2}\""
-  output  = execute_command(options, message, command)
+  output  = execute_command(values, message, command)
   if output.match(/[0-9]/)
     message = "Information:\tUninstalling Package "+pkg_name
     command = "pkg uninstall #{pkg_name}"
-    output  = execute_command(options, message, command)
+    output  = execute_command(values, message, command)
   end
   return
 end
 
 # Check RHEL package is installed
 
-def check_rhel_package(options, package)
+def check_rhel_package(values, package)
   message = "Information\tChecking "+package+" is installed"
   command = "rpm -q #{package}"
-  output  = execute_command(options, message, command)
+  output  = execute_command(values, message, command)
   if not output
     output = ""
   end
   if not output.match(/#{package}/)
     message = "installing:\t"+package
     command = "yum -y install #{package}"
-    execute_command(options, message, command)
+    execute_command(values, message, command)
   end
   return
 end
 
 # Check Arch package is installed
 
-def check_arch_package(options, package)
+def check_arch_package(values, package)
   message = "Information\tChecking "+package+" is installed"
   command = "pacman -Q #{package}"
-  output  = execute_command(options, message, command)
+  output  = execute_command(values, message, command)
   output  = output.chomp.split(" ")[0]
   if not output
     output = ""
@@ -181,24 +181,24 @@ def check_arch_package(options, package)
   if not output.match(/#{package}/)
     message = "installing:\t"+package
     command = "echo Y |pacman -Sy #{package}"
-    execute_command(options, message, command)
+    execute_command(values, message, command)
   end
   return
 end
 
 # Check Ubuntu / Debian package is installed
 
-def check_apt_package(options, package)
+def check_apt_package(values, package)
   message = "Information:\tChecking "+package+" is installed"
   command = "dpkg -l | grep '#{package}' |grep 'ii'"
-  output  = execute_command(options, message, command)
+  output  = execute_command(values, message, command)
   if not output
     output = ""
   end
   if not output.match(/#{package}/)
     message = "Information:\tInstalling "+package
-    command = "apt-get -y -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confnew install #{package}"
-    execute_command(options, message, command)
+    command = "apt-get -y -o Dpkg::values::=--force-confdef -o Dpkg::values::=--force-confnew install #{package}"
+    execute_command(values, message, command)
   end
   return
 end

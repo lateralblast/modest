@@ -9,8 +9,8 @@ end
 
 # List ISOs
 
-def list_linux_isos(options)
-  list_isos(options)
+def list_linux_isos(values)
+  list_isos(values)
   return
 end
 
@@ -192,14 +192,14 @@ end
 
 # Install Linux Package
 
-def install_linux_package(options, pkg_name)
-  if options['host-lsb-description'].to_s.match(/Endeavour|Arch/)
-    check_arch_package(options, pkg_name)
+def install_linux_package(values, pkg_name)
+  if values['host-lsb-description'].to_s.match(/Endeavour|Arch/)
+    check_arch_package(values, pkg_name)
   else
     if File.exist?("/etc/redhat-release") or File.exist?("/etc/SuSE-release")
-      check_rhel_package(options, pkg_name)
+      check_rhel_package(values, pkg_name)
     else
-      check_apt_package(options, pkg_name)
+      check_apt_package(values, pkg_name)
     end
   end
   return
@@ -207,166 +207,166 @@ end
 
 # Check DNSmasq
 
-def check_linux_dnsmasq(options)
+def check_linux_dnsmasq(values)
   pkg_name = "dnsmasq"
-  install_linux_package(options, pkg_name)
+  install_linux_package(values, pkg_name)
   return
 end
 
 # Enable ufw NAT
 
-def enable_linux_ufw_nat(options, gw_if_name, if_name)
+def enable_linux_ufw_nat(values, gw_if_name, if_name)
   message = "Information:\tChecking ufw firewall is set to allow traffic to internal VM network #{if_name}"
   command = "ufw status |grep out |grep '#{if_name}'"
-  output  = execute_command(options, message, command)
+  output  = execute_command(values, message, command)
   if not output.match(/#{if_name}/)
     message = "Information:\tSetting ufw firewall to allow traffic to internal VM network #{if_name}"
     command = "ufw allow out on #{if_name} ; ufw allow in on #{if_name}"
-    output  = execute_command(options, message, command)
+    output  = execute_command(values, message, command)
     message = "Information:\tRestarting UFW"
     command = "ufw disable ; echo y |ufw enable"
-    output  = execute_command(options, message, command)
+    output  = execute_command(values, message, command)
   end
   return
 end
 
-def enable_linux_ufw_internal_network(options)
-  install_ip  = single_install_ip(options)
+def enable_linux_ufw_internal_network(values)
+  install_ip  = single_install_ip(values)
   install_net = install_ip.split(".")[0..2].join(".")+".0/24"
   message = "Information:\tChecking if internal network '#{install_net}' is able to access ports on server"
   command = "ufw status |grep '#{install_net}'"
-  output  = execute_command(options, message, command)
+  output  = execute_command(values, message, command)
   if not output.match(/#{install_net}/)
     message = "Information:\tSetting ufw firewal to allow internal network '#{install_net}' to access ports on server"
     command = "ufw allow from '#{install_net}' to any"
-    output  = execute_command(options, message, command)
+    output  = execute_command(values, message, command)
     message = "Information:\tRestarting UFW"
     command = "ufw disable ; echo y |ufw enable"
-    output  = execute_command(options, message, command)
+    output  = execute_command(values, message, command)
   end
   return
 end
 
 # Enable iptables NAT 
 
-def enable_linux_iptables_nat(options, gw_if_name, if_name)
-  install_package(options, "iptables-persistent")
+def enable_linux_iptables_nat(values, gw_if_name, if_name)
+  install_package(values, "iptables-persistent")
   message = "Information:\tSetting iptables firewall to allow traffic to internal VM network #{if_name}"
   command = "iptables --table nat --append POSTROUTING --out-interface #{gw_if_name} -j MASQUERADE ; iptables --append FORWARD --in-interface #{if_name} -j ACCEPT ; iptables-save"
-  output  = execute_command(options, message, command)
+  output  = execute_command(values, message, command)
   return
 end
 
 # Check Linux NAT
 
-def check_linux_nat(options, gw_if_name, if_name)
+def check_linux_nat(values, gw_if_name, if_name)
   if File.exist?("/etc/iptables/rules.v4")
     message = "Information:\tChecking iptables firewall allows traffic to internal VM network #{if_name}"
     command = "cat /etc/iptables/rules.v4 |grep #{if_name}"
-    output  = execute_command(options, message, command)
+    output  = execute_command(values, message, command)
     if !output.match(/#{if_name}/)
-      enable_linux_iptables_nat(options, gw_if_name, if_name)
+      enable_linux_iptables_nat(values, gw_if_name, if_name)
     end
   end
   if File.exist?("/usr/sbin/ufw")
-    if options['vm'].to_s.match(/kvm/)
-      if options['bridge'].to_s.match(/virbr/)
-        enable_linux_ufw_nat(options, gw_if_name, if_name)
+    if values['vm'].to_s.match(/kvm/)
+      if values['bridge'].to_s.match(/virbr/)
+        enable_linux_ufw_nat(values, gw_if_name, if_name)
       end
     else
-      enable_linux_ufw_nat(options, gw_if_name, if_name)
+      enable_linux_ufw_nat(values, gw_if_name, if_name)
     end
   end
   message = "Information:\tChecking IP forwarding is enabled"
   command = "sysctl net.ipv4.ip_forward"
-  output  = execute_command(options, message, command)
+  output  = execute_command(values, message, command)
   if output.match(/0/)
     message = "Information:\tEnabling IP forwarding"
     command = "sysctl -w net.ipv4.ip_forward=1"
-    output  = execute_command(options, message, command)
+    output  = execute_command(values, message, command)
   end
   return
 end
 
 # Stop Linux service
 
-def stop_linux_service(options, service)
+def stop_linux_service(values, service)
   message = "Information:\tStopping Service "+service
   if File.exist?("/bin/systemctl")
     command = "systemctl stop #{service}"
   else
     command = "service #{service} stop"
   end
-  output  = execute_command(options, message, command)
+  output  = execute_command(values, message, command)
   return output
 end
 
 # Start Linux service
 
-def start_linux_service(options, service)
+def start_linux_service(values, service)
   message = "Information\tStarting Service "+service
   if File.exist?("/bin/systemctl")
     command = "systemctl start #{service}"
   else
     command = "service #{service} start"
   end
-  output  = execute_command(options, message, command)
+  output  = execute_command(values, message, command)
   return output
 end
 
 # Enable Linux service
 
-def enable_linux_service(options, service)
+def enable_linux_service(values, service)
   message = "Information\tEnabling Service "+service
   if File.exist?("/bin/systemctl")
     command = "systemctl enable #{service}"
   else
     command = "chkconfig #{service} on"
   end
-  output  = execute_command(options, message, command)
-  start_linux_service(options, service)
+  output  = execute_command(values, message, command)
+  start_linux_service(values, service)
   return output
 end
 
 # Disable Linux service
 
-def disable_linux_service(options, service)
+def disable_linux_service(values, service)
   message = "Information\tDisabling Service "+service
   if File.exist?("/bin/systemctl")
     command = "systemctl disable #{service}"
   else
     command = "chkconfig #{service} off"
   end
-  output  = execute_command(options, message, command)
-  stop_linux_service(options, service)
+  output  = execute_command(values, message, command)
+  stop_linux_service(values, service)
   return output
 end
 
 # Refresh OS X service
 
-def refresh_linux_service(options, service)
-  restart_service(options, service)
+def refresh_linux_service(values, service)
+  restart_service(values, service)
   return
 end
 
 # Restart Linux related services
 
-def restart_linux_service(options, service)
+def restart_linux_service(values, service)
   message = "Information:\tRestarting Service "+service
   if File.exist?("/bin/systemctl")
     command = "systemctl restart #{service}"
   else
     command = "service #{service} restart"
   end
-  output = execute_command(options, message, command)
+  output = execute_command(values, message, command)
   return output
 end
 
 # Install Snap package
 
-def install_snap_pkg(options, pkg_name)
+def install_snap_pkg(values, pkg_name)
   message = "Information:\tUsing Snap to install package #{pkg_name}"
   command = "snap install #{pkg_name}"
-  output  = execute_command(options, message, command)
+  output  = execute_command(values, message, command)
   return output
 end

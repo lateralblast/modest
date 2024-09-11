@@ -2,14 +2,14 @@
 
 # List AWS CF stacks
 
-def list_aws_cf_stacks(options)
-  if not options['name'].to_s.match(/[A-Z]|[a-z]|[0-9]/)
-    options['name'] = "all"
+def list_aws_cf_stacks(values)
+  if not values['name'].to_s.match(/[A-Z]|[a-z]|[0-9]/)
+    values['name'] = "all"
   end
-  stacks = get_aws_cf_stacks(options)
+  stacks = get_aws_cf_stacks(values)
   stacks.each do |stack|
     stack_name  = stack.stack_name
-    if options['name'].to_s.match(/all/) or stack_name.match(/#{options['name']}/)
+    if values['name'].to_s.match(/all/) or stack_name.match(/#{values['name']}/)
       stack_id     = stack.stack_id
       stack_status = stack.stack_status
       name_length  = stack_name.length
@@ -17,7 +17,7 @@ def list_aws_cf_stacks(options)
       name_length.times do
         name_spacer = name_spacer+" "
       end
-      handle_output(options, "#{stack_name} id=#{stack_id} stack_status=#{stack_status}") 
+      handle_output(values, "#{stack_name} id=#{stack_id} stack_status=#{stack_status}") 
       instance_id = ""
       public_ip   = ""
       region_id   = ""
@@ -33,7 +33,7 @@ def list_aws_cf_stacks(options)
         end
         if output.output_key.match(/DNS/)
           public_dns = output.output_value
-          handle_output(options, "#{name_spacer} id=#{instance_id} ip=#{public_ip} dns=#{public_dns} az=#{region_id}") 
+          handle_output(values, "#{name_spacer} id=#{instance_id} ip=#{public_ip} dns=#{public_dns} az=#{region_id}") 
         end
       end
     end
@@ -43,22 +43,22 @@ end
 
 # Delete AWS CF Stack
 
-def delete_aws_cf_stack(options)
-  if not options['stack'].to_s.match(/[A-Z]|[a-z]|[0-9]/)
-    handle_output(options, "Warning:\tNo AWS CloudFormation Stack Name given")
-    quit(options)
+def delete_aws_cf_stack(values)
+  if not values['stack'].to_s.match(/[A-Z]|[a-z]|[0-9]/)
+    handle_output(values, "Warning:\tNo AWS CloudFormation Stack Name given")
+    quit(values)
   end
-  stacks = get_aws_cf_stacks(options)
+  stacks = get_aws_cf_stacks(values)
   stacks.each do |stack|
     stack_name  = stack.stack_name
-    if options['stack'].to_s.match(/all/) or stack_name.match(/#{options['stack']}/)
-      cf = initiate_aws_cf_client(options['access'], options['secret'], options['region'])
-      handle_output(options, "Information:\tDeleting AWS CloudFormation Stack '#{stack_name}'")
+    if values['stack'].to_s.match(/all/) or stack_name.match(/#{values['stack']}/)
+      cf = initiate_aws_cf_client(values['access'], values['secret'], values['region'])
+      handle_output(values, "Information:\tDeleting AWS CloudFormation Stack '#{stack_name}'")
       begin
         cf.delete_stack({ stack_name: stack_name, })
       rescue Aws::CloudFormation::Errors::AccessDenied
-        handle_output(options, "Warning:\tUser needs to be given appropriate rights in AWS IAM")
-        quit(options)
+        handle_output(values, "Warning:\tUser needs to be given appropriate rights in AWS IAM")
+        quit(values)
       end
     end
   end
@@ -67,15 +67,15 @@ end
 
 # Create AWS CF Stack
 
-def create_aws_cf_stack(options)
-  stack_name      = options['q_struct']['stack_name'].value
-  instance_type   = options['q_struct']['instance_type'].value
-  key_name        = options['q_struct']['key_name'].value
-  ssh_location    = options['q_struct']['ssh_location'].value
-  template_url    = options['q_struct']['template_url'].value
-  security_groups = options['q_struct']['security_groups'].value
-  cf = initiate_aws_cf_client(options)
-  handle_output(options, "Information:\tCreating AWS CloudFormation Stack '#{stack_name}'")
+def create_aws_cf_stack(values)
+  stack_name      = values['q_struct']['stack_name'].value
+  instance_type   = values['q_struct']['instance_type'].value
+  key_name        = values['q_struct']['key_name'].value
+  ssh_location    = values['q_struct']['ssh_location'].value
+  template_url    = values['q_struct']['template_url'].value
+  security_groups = values['q_struct']['security_groups'].value
+  cf = initiate_aws_cf_client(values)
+  handle_output(values, "Information:\tCreating AWS CloudFormation Stack '#{stack_name}'")
   begin
     stack_id = cf.create_stack({
       stack_name:   stack_name,
@@ -100,83 +100,83 @@ def create_aws_cf_stack(options)
       ],
     })
   rescue Aws::CloudFormation::Errors::AccessDenied
-    handle_output(options, "Warning:\tUser needs to be given appropriate rights in AWS IAM")
-    quit(options)
+    handle_output(values, "Warning:\tUser needs to be given appropriate rights in AWS IAM")
+    quit(values)
   end
   stack_id = stack_id.stack_id
-  handle_output(options, "Information:\tStack created with ID: #{stack_id}")
+  handle_output(values, "Information:\tStack created with ID: #{stack_id}")
   return
 end
 
 # Create AWS CF Stack Config
 
-def create_aws_cf_stack_config(options)
-  populate_aws_cf_questions(options)
-  options['service'] = "aws"
-  process_questions(options)
-  exists = check_if_aws_cf_stack_exists(options)
+def create_aws_cf_stack_config(values)
+  populate_aws_cf_questions(values)
+  values['service'] = "aws"
+  process_questions(values)
+  exists = check_if_aws_cf_stack_exists(values)
   if exists == true
-    handle_output(options, "Warning:\tAWS CloudFormation Stack '#{options['name']}' already exists")
-    quit(options)
+    handle_output(values, "Warning:\tAWS CloudFormation Stack '#{values['name']}' already exists")
+    quit(values)
   end
-  exists = check_aws_key_pair_exists(options)
+  exists = check_aws_key_pair_exists(values)
   if exists == false
-    create_aws_key_pair(options)
+    create_aws_key_pair(values)
   else
-    exists = check_aws_ssh_key_file_exists(options)
+    exists = check_aws_ssh_key_file_exists(values)
     if exists == false
-      handle_output(options, "Warning:\tSSH Key file '#{aws_ssh_key_file}' for AWS Key Pair '#{options['key']}' does not exist")
-      quit(options)
+      handle_output(values, "Warning:\tSSH Key file '#{aws_ssh_key_file}' for AWS Key Pair '#{values['key']}' does not exist")
+      quit(values)
     end
   end
 end
 
 # Create AWS CF Stack from template
 
-def configure_aws_cf_stack(options)
-  if not options['name'].to_s.match(/[A-Z]|[a-z]|[0-9]/) or options['name'].to_s.match(/^none$/)
-    handle_output(options, "Warning:\tNo name specified for AWS CloudFormation Stack")
-    quit(options)
+def configure_aws_cf_stack(values)
+  if not values['name'].to_s.match(/[A-Z]|[a-z]|[0-9]/) or values['name'].to_s.match(/^none$/)
+    handle_output(values, "Warning:\tNo name specified for AWS CloudFormation Stack")
+    quit(values)
   end
-  if not options['file'].to_s.match(/[A-Z]|[a-z]|[0-9]/)
-    if not options['bucket'].to_s.match(/[A-Z]|[a-z]|[0-9]/)
-      if not options['object'].to_s.match(/[A-Z]|[a-z]|[0-9]/)
-        handle_output(options, "Warning:\tNo file, bucket, or object specified for AWS CloudFormation Stack")
-        quit(options)
+  if not values['file'].to_s.match(/[A-Z]|[a-z]|[0-9]/)
+    if not values['bucket'].to_s.match(/[A-Z]|[a-z]|[0-9]/)
+      if not values['object'].to_s.match(/[A-Z]|[a-z]|[0-9]/)
+        handle_output(values, "Warning:\tNo file, bucket, or object specified for AWS CloudFormation Stack")
+        quit(values)
       end
     else
-      if not options['object'].to_s.match(/[A-Z]|[a-z]|[0-9]/)
-        handle_output(options, "Warning:\tNo object specified for AWS CloudFormation Stack")
-        quit(options)
+      if not values['object'].to_s.match(/[A-Z]|[a-z]|[0-9]/)
+        handle_output(values, "Warning:\tNo object specified for AWS CloudFormation Stack")
+        quit(values)
       else
-        options['file'] = get_s3_bucket_private_url(options)
+        values['file'] = get_s3_bucket_private_url(values)
       end
     end
   end
-  if not options['key'].to_s.match(/[A-Z]|[a-z]|[0-9]/)
-    handle_output(options, "Warning:\tNo Key Name given")
-    if not options['keyfile'].to_s.match(/[A-Z]|[a-z]|[0-9]/)
-      options['key'] = options['name']
+  if not values['key'].to_s.match(/[A-Z]|[a-z]|[0-9]/)
+    handle_output(values, "Warning:\tNo Key Name given")
+    if not values['keyfile'].to_s.match(/[A-Z]|[a-z]|[0-9]/)
+      values['key'] = values['name']
     else
-      options['key'] = File.basename(options['keyfile'])
-      options['key'] = options['key'].split(/\./)[0..-2].join
+      values['key'] = File.basename(values['keyfile'])
+      values['key'] = values['key'].split(/\./)[0..-2].join
     end
-    handle_output(options, "Information:\tSetting Key Name to #{options['key']}")
+    handle_output(values, "Information:\tSetting Key Name to #{values['key']}")
   end
-  if not options['key'].to_s.match(/[A-Z]|[a-z]|[0-9]/)
-    options['group'] = options['name']
+  if not values['key'].to_s.match(/[A-Z]|[a-z]|[0-9]/)
+    values['group'] = values['name']
   end
-  if options['nosuffix'] == false
-    options['name']  = get_aws_uniq_name(options['name'], options['region'])
-    options['key']   = get_aws_uniq_name(options['key'], options['region'])
-    options['group'] = get_aws_uniq_name(options['group'], options['region'])
+  if values['nosuffix'] == false
+    values['name']  = get_aws_uniq_name(values['name'], values['region'])
+    values['key']   = get_aws_uniq_name(values['key'], values['region'])
+    values['group'] = get_aws_uniq_name(values['group'], values['region'])
   end
-  if not options['keyfile'].to_s.match(/[A-Z]|[a-z]|[0-9]/)
-    options['keyfile'] = options['keydir']+"/"+options['key']+".pem"
-    handle_output(options, "Information:\tSetting Key file to #{options['keyfile']}")
+  if not values['keyfile'].to_s.match(/[A-Z]|[a-z]|[0-9]/)
+    values['keyfile'] = values['keydir']+"/"+values['key']+".pem"
+    handle_output(values, "Information:\tSetting Key file to #{values['keyfile']}")
   end
-  create_aws_cf_stack_config(options)
-  create_aws_cf_stack(options)
+  create_aws_cf_stack_config(values)
+  create_aws_cf_stack(values)
   return
 end
 

@@ -2,26 +2,26 @@
 
 # Execute command on docker client
 
-def execute_docker_command(options)
-  command = options['command'].to_s 
-	exists  = check_docker_vm_exists(options)
+def execute_docker_command(values)
+  command = values['command'].to_s 
+	exists  = check_docker_vm_exists(values)
 	if exists == true
-		output = %x[docker-machine ssh #{options['name']} "#{command}']
-		handle_output(options,output)
+		output = %x[docker-machine ssh #{values['name']} "#{command}']
+		handle_output(values,output)
 	else
-		handle_output(options, "Information:\tDocker instance #{options['name']} does not exist")
+		handle_output(values, "Information:\tDocker instance #{values['name']} does not exist")
 	end
 	return
 end
 
 # Connect to docker client
 
-def connect_to_docker_client(options)
-	exists = check_docker_vm_exists(options)
+def connect_to_docker_client(values)
+	exists = check_docker_vm_exists(values)
 	if exists == true
-		handle_output(options, "Command:\tdocker ssh #{options['name']}")
+		handle_output(values, "Command:\tdocker ssh #{values['name']}")
 	else
-		handle_output(options, "Information:\tDocker instance #{options['name']} does not exist")
+		handle_output(values, "Information:\tDocker instance #{values['name']} does not exist")
 	end
 	return
 end
@@ -30,51 +30,51 @@ end
 
 # Add docker client
 
-def configure_docker_client(options)
+def configure_docker_client(values)
 	install_docker()
-	docker_dir = options['clientdir']+"/docker"
-	if options['vm'].to_s.match(/box/)
-		if options['vmnetwork'].to_s.match(/hostonly/)
-			if options['ip'].empty?
-				options['ip'] = options['ip']
+	docker_dir = values['clientdir']+"/docker"
+	if values['vm'].to_s.match(/box/)
+		if values['vmnetwork'].to_s.match(/hostonly/)
+			if values['ip'].empty?
+				values['ip'] = values['ip']
 			end
 		end
 		docker_vm = "virtualbox"
 	else
-		if options['vmnetwork'].to_s.match(/hostonly/)
-			if options['ip'].empty?
-				options['ip'] = options['ip']
+		if values['vmnetwork'].to_s.match(/hostonly/)
+			if values['ip'].empty?
+				values['ip'] = values['ip']
 			end
 		end
 		docker_vm = "vmwarefusion"
 	end
-	exists = check_docker_vm_exists(options)
+	exists = check_docker_vm_exists(values)
 	if exists == false
-		message = "Information:\tCreating docker VM #{options['name']}"
-		if options['vm'].to_s.match(/box/)
-			if not options['ip'].empty?
-				command = "docker-machine create --driver #{docker_vm} --#{docker_vm}-hostonly-cidr #{options['ip']}/#{options['cidr']} #{options['name']}"
+		message = "Information:\tCreating docker VM #{values['name']}"
+		if values['vm'].to_s.match(/box/)
+			if not values['ip'].empty?
+				command = "docker-machine create --driver #{docker_vm} --#{docker_vm}-hostonly-cidr #{values['ip']}/#{values['cidr']} #{values['name']}"
 			else
-				command = "docker-machine create --driver #{docker_vm} #{options['name']}"
+				command = "docker-machine create --driver #{docker_vm} #{values['name']}"
 			end
 		else
-			command = "docker-machine create --driver #{docker_vm} #{options['name']}"
+			command = "docker-machine create --driver #{docker_vm} #{values['name']}"
 		end
-		execute_command(options, message, command)
+		execute_command(values, message, command)
 	else
-		handle_output(options, "Information:\tDocker instance '#{options['name']}' already exists")
+		handle_output(values, "Information:\tDocker instance '#{values['name']}' already exists")
 	end
 	return
 end
 
-def unconfigure_docker_client(options)
-	exists = check_docker_vm_exists(options)
+def unconfigure_docker_client(values)
+	exists = check_docker_vm_exists(values)
 	if exists == true
-		message = "Information:\tDeleting docker instance #{options['name']}"
-		command = "docker-machine rm --force #{options['name']}"
-		execute_command(options, message, command)
+		message = "Information:\tDeleting docker instance #{values['name']}"
+		command = "docker-machine rm --force #{values['name']}"
+		execute_command(values, message, command)
 	else
-		handle_output(options, "Information:\tDocker instance #{options['name']} does not exist")
+		handle_output(values, "Information:\tDocker instance #{values['name']} does not exist")
 	end
 	return
 end

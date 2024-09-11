@@ -3,12 +3,12 @@
 
 # Configuration questions for VCSA
 
-def populate_vcsa_questions(options)
+def populate_vcsa_questions(values)
 
-  # options['q_struct'] = {}
-  # options['q_order']  = []
+  # values['q_struct'] = {}
+  # values['q_order']  = []
 
-  options['ip'] = single_install_ip(options)
+  values['ip'] = single_install_ip(values)
 
   name = "headless_mode"
   config = Js.new(
@@ -16,12 +16,12 @@ def populate_vcsa_questions(options)
     question  = "Headless mode",
     ask       = "yes",
     parameter = "",
-    value     = options['headless'].to_s.downcase,
+    value     = values['headless'].to_s.downcase,
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "esx.hostname"
   config = Ks.new(
@@ -29,12 +29,12 @@ def populate_vcsa_questions(options)
     question  = "ESX Server Hostname",
     ask       = "yes",
     parameter = "esx.hostname",
-    value     = options['server'],
+    value     = values['server'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "esx.datastore"
   config = Ks.new(
@@ -42,12 +42,12 @@ def populate_vcsa_questions(options)
     question  = "Datastore",
     ask       = "yes",
     parameter = "esx.datastore",
-    value     = options['datastore'],
+    value     = values['datastore'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "esx.username"
   config = Ks.new(
@@ -55,12 +55,12 @@ def populate_vcsa_questions(options)
     question  = "ESX Username",
     ask       = "yes",
     parameter = "esx.username",
-    value     = options['serveradmin'],
+    value     = values['serveradmin'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "esx.password"
   config = Ks.new(
@@ -68,12 +68,12 @@ def populate_vcsa_questions(options)
     question  = "ESX Password",
     ask       = "no",
     parameter = "esx.password",
-    value     = options['serverpassword'],
+    value     = values['serverpassword'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "deployment.option"
   config = Ks.new(
@@ -81,12 +81,12 @@ def populate_vcsa_questions(options)
     question  = "Deployment Option",
     ask       = "no",
     parameter = "deployment.option",
-    value     = options['size'],
+    value     = values['size'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "deployment.network"
   config = Ks.new(
@@ -94,12 +94,12 @@ def populate_vcsa_questions(options)
     question  = "Deployment Network",
     ask       = "yes",
     parameter = "deployment.network",
-    value     = options['servernetmask'],
+    value     = values['servernetmask'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "appliance.name"
   config = Ks.new(
@@ -107,12 +107,12 @@ def populate_vcsa_questions(options)
     question  = "Appliance Name",
     ask       = "yes",
     parameter = "appliance.name",
-    value     = options['name'],
+    value     = values['name'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "appliance.thin.disk.mode"
   config = Ks.new(
@@ -124,8 +124,8 @@ def populate_vcsa_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "root.password"
   config = Ks.new(
@@ -133,12 +133,12 @@ def populate_vcsa_questions(options)
     question  = "Root Password",
     ask       = "yes",
     parameter = "root.password",
-    value     = options['rootpassword'],
+    value     = values['rootpassword'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "ssh.enable"
   config = Ks.new(
@@ -146,12 +146,12 @@ def populate_vcsa_questions(options)
     question  = "SSH Enable",
     ask       = "yes",
     parameter = "ssh.enable",
-    value     = options['sshenadble'],
+    value     = values['sshenadble'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "ntp.servers"
   config = Ks.new(
@@ -159,12 +159,12 @@ def populate_vcsa_questions(options)
     question  = "NTP Servers",
     ask       = "yes",
     parameter = "ntp.servers",
-    value     = options['timeserver'],
+    value     = values['timeserver'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "password"
   config = Ks.new(
@@ -172,12 +172,12 @@ def populate_vcsa_questions(options)
     question  = "SSO password",
     ask       = "yes",
     parameter = "password",
-    value     = options['adminpassword'],
+    value     = values['adminpassword'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "domain-name"
   config = Ks.new(
@@ -185,12 +185,12 @@ def populate_vcsa_questions(options)
     question  = "NTP Servers",
     ask       = "yes",
     parameter = "ntp.servers",
-    value     = options['domainname'],
+    value     = values['domainname'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "site-name"
   config = Ks.new(
@@ -198,12 +198,12 @@ def populate_vcsa_questions(options)
     question  = "Site Name",
     ask       = "yes",
     parameter = "ntp.servers",
-    value     = options['domainname'].split(/\./)[0],
+    value     = values['domainname'].split(/\./)[0],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "ip.family"
   config = Ks.new(
@@ -211,12 +211,12 @@ def populate_vcsa_questions(options)
     question  = "IP Family",
     ask       = "yes",
     parameter = "ip.family",
-    value     = options['ipfamily'],
+    value     = values['ipfamily'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "mode"
   config = Ks.new(
@@ -228,8 +228,8 @@ def populate_vcsa_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "ip"
   config = Ks.new(
@@ -237,12 +237,12 @@ def populate_vcsa_questions(options)
     question  = "IP Address",
     ask       = "yes",
     parameter = "ip",
-    value     = options['ip'],
+    value     = values['ip'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "prefix"
   config = Ks.new(
@@ -250,14 +250,14 @@ def populate_vcsa_questions(options)
     question  = "Subnet Mask",
     ask       = "yes",
     parameter = "prefix",
-    value     = options['netmask'],
+    value     = values['netmask'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
-  gateway = options['ip'].split(/\./)[0..2].join(".")+"."+options['gatewaynode']
+  gateway = values['ip'].split(/\./)[0..2].join(".")+"."+values['gatewaynode']
 
   name = "gateway"
   config = Ks.new(
@@ -269,8 +269,8 @@ def populate_vcsa_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "dns.servers"
   config = Ks.new(
@@ -278,12 +278,12 @@ def populate_vcsa_questions(options)
     question  = "Nameserver(s)",
     ask       = "yes",
     parameter = "dns.servers",
-    value     = options['nameserver'],
+    value     = values['nameserver'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "system.name"
   config = Ks.new(
@@ -291,12 +291,12 @@ def populate_vcsa_questions(options)
     question  = "Hostname",
     ask       = "yes",
     parameter = "system.name",
-    value     = options['ip'],
+    value     = values['ip'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   return
 end

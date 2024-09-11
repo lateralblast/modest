@@ -7,18 +7,18 @@ def list_ansible_aws_clients()
   return
 end
 
-def list_ansible_clients(options)
-  ansible_dir = options['clientdir']+"/ansible"
-  if not options['vm'].to_s.match(/[a-z,A-Z]/) or options['vm'] == options['empty']
+def list_ansible_clients(values)
+  ansible_dir = values['clientdir']+"/ansible"
+  if not values['vm'].to_s.match(/[a-z,A-Z]/) or values['vm'] == values['empty']
     vm_types = [ 'fusion', 'vbox', 'aws' ]
   else
     vm_types = []
-    vm_types.push(options['vm'])
+    vm_types.push(values['vm'])
   end
   vm_types.each do |vm_type|
     vm_dir = ansible_dir+"/"+vm_type
     if File.directory?(vm_dir)
-      handle_output(options, "")
+      handle_output(values, "")
       case vm_type
       when /vbox/
         vm_title = "VirtualBox"
@@ -29,16 +29,16 @@ def list_ansible_clients(options)
       end
       vm_list = Dir.entries(vm_dir)
       if vm_list.length > 0
-        if options['output'].to_s.match(/html/)
-          handle_output(options, "<h1>Available Packer #{vm_title} clients</h1>")
-          handle_output(options, "<table border=\"1\">")
-          handle_output(options, "<tr>")
-          handle_output(options, "<th>VM</th>")
-          handle_output(options, "<th>OS</th>")
-          handle_output(options, "</tr>")
+        if values['output'].to_s.match(/html/)
+          handle_output(values, "<h1>Available Packer #{vm_title} clients</h1>")
+          handle_output(values, "<table border=\"1\">")
+          handle_output(values, "<tr>")
+          handle_output(values, "<th>VM</th>")
+          handle_output(values, "<th>OS</th>")
+          handle_output(values, "</tr>")
         else
-          handle_output(options, "Ansible #{vm_title} clients:")
-          handle_output(options, "")
+          handle_output(values, "Ansible #{vm_title} clients:")
+          handle_output(values, "")
         end
         vm_list.each do |vm_name|
           if vm_name.match(/[a-z,A-Z]/)
@@ -50,21 +50,21 @@ def list_ansible_clients(options)
               else
                 vm_os = yaml.grep(/guest_os_type/)[0].split(/:/)[1].split(/"/)[1]
               end
-              if options['output'].to_s.match(/html/)
-                handle_output(options, "<tr>")
-                handle_output(options, "<td>#{vm_name}</td>")
-                handle_output(options, "<td>#{vm_os}</td>")
-                handle_output(options, "</tr>")
+              if values['output'].to_s.match(/html/)
+                handle_output(values, "<tr>")
+                handle_output(values, "<td>#{vm_name}</td>")
+                handle_output(values, "<td>#{vm_os}</td>")
+                handle_output(values, "</tr>")
               else
-                handle_output(options, "#{vm_name} os=#{vm_os}")
+                handle_output(values, "#{vm_name} os=#{vm_os}")
               end
             end
           end
         end
-        if options['output'].to_s.match(/html/)
-          handle_output(options, "</table>")
+        if values['output'].to_s.match(/html/)
+          handle_output(values, "</table>")
         else
-          handle_output(options, "")
+          handle_output(values, "")
         end
       end
     end
@@ -74,18 +74,18 @@ end
 
 # Delete a packer image
 
-def unconfigure_ansible_client(options)
-  if options['verbose'] == true
-    handle_output(options, "Information:\tDeleting Ansible Image for #{options['name']}")
+def unconfigure_ansible_client(values)
+  if values['verbose'] == true
+    handle_output(values, "Information:\tDeleting Ansible Image for #{values['name']}")
   end
-  packer_dir = options['clientdir']+"/ansible/"+options['vm']
-  options['clientdir'] = packer_dir+"/"+options['name']
-  host_file  = options['clientdir']+"/hosts"
-  yaml_file  = options['clientdir']+"/"+options['name']+".yaml"
+  packer_dir = values['clientdir']+"/ansible/"+values['vm']
+  values['clientdir'] = packer_dir+"/"+values['name']
+  host_file  = values['clientdir']+"/hosts"
+  yaml_file  = values['clientdir']+"/"+values['name']+".yaml"
   [ host_file, yaml_file ].each do |file_name|
     if File.exist?(file_name)
-      if options['verbose'] == true
-        handle_output(options, "Information:\tDeleting file #{file_name}")
+      if values['verbose'] == true
+        handle_output(values, "Information:\tDeleting file #{file_name}")
       end
       File.delete(file_name)
     end
@@ -95,8 +95,8 @@ end
 
 # Get Ansible AWS instance information
 
-def get_ansible_instance_info(options)
-  info_file = "/tmp/"+options['name']+".output"
+def get_ansible_instance_info(values)
+  info_file = "/tmp/"+values['name']+".output"
   if File.exist?(info_file)
     file_data    = File.readlines(info_file)
     reservations = JSON.parse(file_data.join("\n"))
@@ -116,75 +116,75 @@ def get_ansible_instance_info(options)
       else
         string = "id="+instance_id+" image="+image_id+" status="+status
       end
-      handle_output(options, string)
+      handle_output(values, string)
     end
     File.delete(info_file)
   else
-    handle_output(options, "Warning:\tNo instance information found")
+    handle_output(values, "Warning:\tNo instance information found")
   end 
   return
 end
 
 # Configure Ansible AWS client
 
-def configure_ansible_aws_client(options)
-  create_ansible_aws_install_files(options)
+def configure_ansible_aws_client(values)
+  create_ansible_aws_install_files(values)
   return
 end
 
 # Create Ansible AWS client
 
-def create_ansible_aws_install_files(options)
-  if not options['number'].to_s.match(/[0,9]/)
-    handle_output(options, "Warning:\tIncorrect number of instances specified: '#{options['number']}'")
-    quit(options)
+def create_ansible_aws_install_files(values)
+  if not values['number'].to_s.match(/[0,9]/)
+    handle_output(values, "Warning:\tIncorrect number of instances specified: '#{values['number']}'")
+    quit(values)
   end
-  options = handle_aws_values(options)
-  exists  = check_aws_image_exists(options)
+  values = handle_aws_values(values)
+  exists  = check_aws_image_exists(values)
   if exists == true
-    handle_output(options, "Warning:\tAWS AMI already exists with name #{options['name']}")
-    quit(options)
+    handle_output(values, "Warning:\tAWS AMI already exists with name #{values['name']}")
+    quit(values)
   end
-  if not options['ami'].to_s.match(/^ami/)
-    old_options['ami'] = options['ami']
-    ec2, options['ami'] = get_aws_image(old_options['ami'], options['access'], options['secret'], options['region'])
-    if options['ami'].to_s.match(/^none$/)
-      handle_output(options, "Warning:\tNo AWS AMI ID found for #{old_options['ami']}")
-      options['ami'] = options['ami']
-      handle_output(options, "Information:\tSetting AWS AMI ID to #{options['ami']}")
+  if not values['ami'].to_s.match(/^ami/)
+    old_values['ami'] = values['ami']
+    ec2, values['ami'] = get_aws_image(old_values['ami'], values['access'], values['secret'], values['region'])
+    if values['ami'].to_s.match(/^none$/)
+      handle_output(values, "Warning:\tNo AWS AMI ID found for #{old_values['ami']}")
+      values['ami'] = values['ami']
+      handle_output(values, "Information:\tSetting AWS AMI ID to #{values['ami']}")
     else
-      handle_output(options, "Information:\tFound AWS AMI ID #{options['ami']} for #{old_options['ami']}")
+      handle_output(values, "Information:\tFound AWS AMI ID #{values['ami']} for #{old_values['ami']}")
     end
   end
   user_data_file = ""
-  options['clientdir'] = options['clientdir']+"/ansible/aws/"+options['name']
-  check_dir_exists(options, options['clientdir'])
-  options = set_aws_key_file(options)
-  populate_aws_questions(options, user_data_file)
-  options['service'] = "aws"
-  process_questions(options)
+  values['clientdir'] = values['clientdir']+"/ansible/aws/"+values['name']
+  check_dir_exists(values, values['clientdir'])
+  values = set_aws_key_file(values)
+  populate_aws_questions(values, user_data_file)
+  values['service'] = "aws"
+  process_questions(values)
   create_ansible_aws_yaml()
   return
 end
 
 # Build Ansible AWS client
 
-def build_ansible_aws_config(options)
-  exists = check_aws_image_exists(options)
+def build_ansible_aws_config(values)
+  exists = check_aws_image_exists(values)
   if exists == true
-    handle_output(options, "Warning:\tAWS image already exists for '#{options['name']}'")
-    quit(options)
+    handle_output(values, "Warning:\tAWS image already exists for '#{values['name']}'")
+    quit(values)
   end
-  options['clientdir'] = options['clientdir']+"/ansible/aws/"+options['name']
-  yaml_file  = options['clientdir']+"/"+options['name']+".yaml"
+  values['clientdir'] = values['clientdir']+"/ansible/aws/"+values['name']
+  yaml_file  = values['clientdir']+"/"+values['name']+".yaml"
   if not File.exist?(yaml_file)
-    handle_output(options, "Warning:\tAnsible AWS config file '#{yaml_file}' does not exist")
-    quit(options)
+    handle_output(values, "Warning:\tAnsible AWS config file '#{yaml_file}' does not exist")
+    quit(values)
   end
-  message = "Information:\tBuilding Ansible AWS instance using AMI name '#{options['name']}' using '#{yaml_file}'"
-  command = "cd #{options['clientdir']} ; ansible-playbook -i hosts #{yaml_file}"
-  execute_command(options, message, command)
-  get_ansible_instance_info(options['name'])
+  message = "Information:\tBuilding Ansible AWS instance using AMI name '#{values['name']}' using '#{yaml_file}'"
+  command = "cd #{values['clientdir']} ; ansible-playbook -i hosts #{yaml_file}"
+  execute_command(values, message, command)
+  get_ansible_instance_info(values['name'])
   return
 end
 

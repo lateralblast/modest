@@ -4,8 +4,8 @@
 
 # Get system architecture for sparc (sun4u/sun4v)
 
-def get_js_system_karch(options)
-  system_model = options['q_struct']['system_model'].value
+def get_js_system_karch(values)
+  system_model = values['q_struct']['system_model'].value
   if not system_model.match(/vm|i386/)
     if system_model.downcase.match(/^t/)
       system_karch = "sun4v"
@@ -20,12 +20,12 @@ end
 
 # Get disk id based on model
 
-def get_js_nic_model(options)
-  if options['nic'] != options['empty']
-    nic_model = options['nic']
+def get_js_nic_model(values)
+  if values['nic'] != values['empty']
+    nic_model = values['nic']
   else
     nic_model = "e1000g0"
-    case options['q_struct']['system_model'].value.downcase
+    case values['q_struct']['system_model'].value.downcase
     when /445|t1000/
       nic_model = "bge0"
     when /280|440|480|490|4x0/
@@ -43,12 +43,12 @@ end
 
 # Get disk id based on model
 
-def get_js_root_disk_id(options)
-  if options['rootdisk'].to_s.match(/c[0-9]/)
-    root_disk_id = options['rootdisk']
+def get_js_root_disk_id(values)
+  if values['rootdisk'].to_s.match(/c[0-9]/)
+    root_disk_id = values['rootdisk']
   else
     root_disk_id = "c0t0d0"
-    case options['q_struct']['system_model'].value.downcase
+    case values['q_struct']['system_model'].value.downcase
     when /vm/
       root_disk_id = "any"
     when /445|440|480|490|4x0|880|890|8x0|t5220|t5120|t5xx0|t5140|t5240|t5440/
@@ -62,16 +62,16 @@ end
 
 # Get mirror disk id
 
-def get_js_mirror_disk_id(options)
-  if options['mirrordisk'].to_s.match(/c[0-9]/)
-    mirror_disk_id = options['mirrordisk']
+def get_js_mirror_disk_id(values)
+  if values['mirrordisk'].to_s.match(/c[0-9]/)
+    mirror_disk_id = values['mirrordisk']
   else
-    root_disk_id = options['q_struct']['root_disk_id'].value
+    root_disk_id = values['q_struct']['root_disk_id'].value
     if not root_disk_id.match(/any/)
       mirror_controller_id = root_disk_id.split(/t/)[0].gsub(/^c/, "")
       mirror_target_id     = root_disk_id.split(/t/)[1].split(/d/)[0]
       mirror_disk_id       = root_disk_id.split(/d/)[1]
-      system_model         = options['q_struct']['system_model'].value.downcase
+      system_model         = values['q_struct']['system_model'].value.downcase
       if !mirror_target_id.match(/[A-Z]/)
         case system_model
         when /^v8/
@@ -94,8 +94,8 @@ end
 
 # Get disk size based on model
 
-def get_js_disk_size(options)
-  case options['q_struct']['system_model'].value.downcase
+def get_js_disk_size(values)
+  case values['q_struct']['system_model'].value.downcase
   when /vm/
     disk_size = "auto"
   when /t5220|t5120|t5xx0|t5140|t5240|t5440|t6300|t6xx0|t6320|t6340/
@@ -110,8 +110,8 @@ end
 
 # Get disk size based on model
 
-def get_js_memory_size(options)
-  case options['q_struct']['system_model'].value.downcase
+def get_js_memory_size(values)
+  case values['q_struct']['system_model'].value.downcase
   when /280|250|450|220/
     memory_size = "2g"
   when /100|120|x1|vm/
@@ -124,104 +124,104 @@ end
 
 # Set Jumpstart filesystem
 
-def set_js_fs(options)
+def set_js_fs(values)
   fs_name = ""
-  if options['q_struct']['root_fs'].value.downcase.match(/zfs/)
+  if values['q_struct']['root_fs'].value.downcase.match(/zfs/)
     ['memory_size", "disk_size", "swap_size", "root_metadb", "mirror_metadb", "metadb_size", "metadb_count'].each do |key|
-      if options['q_struct'][key]
-        options['q_struct'][key].ask  = "no"
-        options['q_struct'][key].type = ""
+      if values['q_struct'][key]
+        values['q_struct'][key].ask  = "no"
+        values['q_struct'][key].type = ""
       end
     end
   else
-    options['q_struct']['zfs_layout'].ask  = "no"
-    options['q_struct']['zfs_bootenv'].ask = "no"
-    (f_struct, f_order) = populate_js_fs_list(options)
+    values['q_struct']['zfs_layout'].ask  = "no"
+    values['q_struct']['zfs_bootenv'].ask = "no"
+    (f_struct, f_order) = populate_js_fs_list(values)
     f_struct = ""
     f_order.each do |fs_name|
       key                 = fs_name+"_filesys"
-      options['q_struct'][key].ask  = "no"
-      options['q_struct'][key].type = ""
+      values['q_struct'][key].ask  = "no"
+      values['q_struct'][key].type = ""
       key                 = fs_name+"_size"
-      options['q_struct'][key].ask  = "no"
-      options['q_struct'][key].type = ""
+      values['q_struct'][key].ask  = "no"
+      values['q_struct'][key].type = ""
     end
   end
-  return options
+  return values
 end
 
 # Get Jumpstart network information
 
-def get_js_network(options)
-  options['version'] = options['q_struct']['os_version'].value
-  if Integer(options['version']) > 7
-    network = options['q_struct']['nic_model'].value+" { hostname="+options['q_struct']['hostname'].value+" default_route="+options['q_struct']['default_route'].value+" ip_address="+options['q_struct']['ip_address'].value+" netmask="+options['q_struct']['netmask'].value+" protocol_ipv6="+options['q_struct']['protocol_ipv6'].value+" }"
+def get_js_network(values)
+  values['version'] = values['q_struct']['os_version'].value
+  if Integer(values['version']) > 7
+    network = values['q_struct']['nic_model'].value+" { hostname="+values['q_struct']['hostname'].value+" default_route="+values['q_struct']['default_route'].value+" ip_address="+values['q_struct']['ip_address'].value+" netmask="+values['q_struct']['netmask'].value+" protocol_ipv6="+values['q_struct']['protocol_ipv6'].value+" }"
   else
-    network = options['q_struct']['nic_model'].value+" { hostname="+options['q_struct']['hostname'].value+" default_route="+options['q_struct']['default_route'].value+" ip_address="+options['q_struct']['ip_address'].value+" netmask="+options['q_struct']['netmask'].value+" }"
+    network = values['q_struct']['nic_model'].value+" { hostname="+values['q_struct']['hostname'].value+" default_route="+values['q_struct']['default_route'].value+" ip_address="+values['q_struct']['ip_address'].value+" netmask="+values['q_struct']['netmask'].value+" }"
   end
   return network
 end
 
 # Set mirror disk
 
-def set_js_mirror_disk(options)
-  if options['q_struct']['mirror_disk'].value.match(/no/)
-    options['q_struct']['mirror_disk_id'].ask  = "no"
-    options['q_struct']['mirror_disk_id'].type = ""
+def set_js_mirror_disk(values)
+  if values['q_struct']['mirror_disk'].value.match(/no/)
+    values['q_struct']['mirror_disk_id'].ask  = "no"
+    values['q_struct']['mirror_disk_id'].type = ""
   end
-  return options
+  return values
 end
 
 # Get Jumpstart flash location
 
-def get_js_flash_location(options)
-  flash_location = options['q_struct']['flash_method'].value+"://"+options['q_struct']['flash_host'].value+"/"+options['q_struct']['flash_file'].value
+def get_js_flash_location(values)
+  flash_location = values['q_struct']['flash_method'].value+"://"+values['q_struct']['flash_host'].value+"/"+values['q_struct']['flash_file'].value
   return flash_location
 end
 
 # Get fs layout
-def get_js_zfs_layout(options)
-  if options['q_struct']['system_model'].value.match(/vm/)
-    options['q_struct']['swap_size'].value = "auto"
+def get_js_zfs_layout(values)
+  if values['q_struct']['system_model'].value.match(/vm/)
+    values['q_struct']['swap_size'].value = "auto"
   end
-  if options['q_struct']['mirror_disk'].value.match(/yes/)
-    zfs_layout = options['q_struct']['rpool_name'].value+" "+options['q_struct']['disk_size'].value+" "+options['q_struct']['swap_size'].value+" "+options['q_struct']['dump_size'].value+" mirror "+options['q_struct']['root_disk_id'].value+"s0 "+options['q_struct']['mirror_disk_id'].value+"s0"
+  if values['q_struct']['mirror_disk'].value.match(/yes/)
+    zfs_layout = values['q_struct']['rpool_name'].value+" "+values['q_struct']['disk_size'].value+" "+values['q_struct']['swap_size'].value+" "+values['q_struct']['dump_size'].value+" mirror "+values['q_struct']['root_disk_id'].value+"s0 "+values['q_struct']['mirror_disk_id'].value+"s0"
   else
-    zfs_layout = options['q_struct']['rpool_name'].value+" "+options['q_struct']['disk_size'].value+" "+options['q_struct']['swap_size'].value+" "+options['q_struct']['dump_size'].value+" "+options['q_struct']['root_disk_id'].value+"s0"
+    zfs_layout = values['q_struct']['rpool_name'].value+" "+values['q_struct']['disk_size'].value+" "+values['q_struct']['swap_size'].value+" "+values['q_struct']['dump_size'].value+" "+values['q_struct']['root_disk_id'].value+"s0"
   end
   return zfs_layout
 end
 
 # Get ZFS bootenv
 
-def get_js_zfs_bootenv(options)
-  zfs_bootenv = "installbe bename "+options['service']
+def get_js_zfs_bootenv(values)
+  zfs_bootenv = "installbe bename "+values['service']
   return zfs_bootenv
 end
 
 # Get UFS filesys entries
 
-def get_js_ufs_filesys(options, fs_mount, fs_slice, fs_mirror, fs_size)
-  if options['q_struct']['mirror_disk'].value.match(/no/)
-    if options['q_struct']['root_disk_id'].value.match(/any/)
-      filesys_entry = options['q_struct']['root_disk_id'].value+" "+fs_size+" "+fs_mount
+def get_js_ufs_filesys(values, fs_mount, fs_slice, fs_mirror, fs_size)
+  if values['q_struct']['mirror_disk'].value.match(/no/)
+    if values['q_struct']['root_disk_id'].value.match(/any/)
+      filesys_entry = values['q_struct']['root_disk_id'].value+" "+fs_size+" "+fs_mount
     else
-      filesys_entry = options['q_struct']['root_disk_id'].value+fs_slice+" "+fs_size+" "+fs_mount
+      filesys_entry = values['q_struct']['root_disk_id'].value+fs_slice+" "+fs_size+" "+fs_mount
     end
   else
-    filesys_entry = "mirror:"+fs_mirror+" "+options['q_struct']['root_disk_id'].value+fs_slice+" "+options['q_struct']['mirror_disk_id'].value+fs_slice+" "+fs_size+" "+fs_mount
+    filesys_entry = "mirror:"+fs_mirror+" "+values['q_struct']['root_disk_id'].value+fs_slice+" "+values['q_struct']['mirror_disk_id'].value+fs_slice+" "+fs_size+" "+fs_mount
   end
   return filesys_entry
 end
 
-def get_js_filesys(options, fs_name)
-  if not options['q_struct']['root_fs'].value.downcase.match(/zfs/)
-    (f_struct, f_order) = populate_js_fs_list(options)
+def get_js_filesys(values, fs_name)
+  if not values['q_struct']['root_fs'].value.downcase.match(/zfs/)
+    (f_struct, f_order) = populate_js_fs_list(values)
     f_order   = ""
     fs_mount  = f_struct[fs_name].mount
     fs_slice  = f_struct[fs_name].slice
     key_name  = fs_name+"_size"
-    fs_size   = options['q_struct'][key_name].value
+    fs_size   = values['q_struct'][key_name].value
     fs_mirror = f_struct[fs_name].mirror
     filesys_entry = get_js_ufs_filesys(fs_mount, fs_slice, fs_mirror, fs_size)
   end
@@ -230,60 +230,60 @@ end
 
 # Get metadb entry
 
-def get_js_metadb(options)
-  if not options['q_struct']['root_fs'].value.downcase.match(/zfs/) and not options['q_struct']['mirror_disk'].value.match(/no/)
-    metadb_entry = options['q_struct']['root_disk_id'].value+"s7 size "+options['q_struct']['metadb_size'].value+" count "+options['q_struct']['metadb_count'].value
+def get_js_metadb(values)
+  if not values['q_struct']['root_fs'].value.downcase.match(/zfs/) and not values['q_struct']['mirror_disk'].value.match(/no/)
+    metadb_entry = values['q_struct']['root_disk_id'].value+"s7 size "+values['q_struct']['metadb_size'].value+" count "+values['q_struct']['metadb_count'].value
   end
   return metadb_entry
 end
 
 # Get root metadb entry
 
-def get_js_root_metadb(options)
-  if not options['q_struct']['root_fs'].value.downcase.match(/zfs/) and not options['q_struct']['mirror_disk'].value.match(/no/)
-    metadb_entry = options['q_struct']['root_disk_id'].value+"s7 size "+options['q_struct']['metadb_size'].value+" count "+options['q_struct']['metadb_count'].value
+def get_js_root_metadb(values)
+  if not values['q_struct']['root_fs'].value.downcase.match(/zfs/) and not values['q_struct']['mirror_disk'].value.match(/no/)
+    metadb_entry = values['q_struct']['root_disk_id'].value+"s7 size "+values['q_struct']['metadb_size'].value+" count "+values['q_struct']['metadb_count'].value
   end
   return metadb_entry
 end
 
 # Get mirror metadb entry
 
-def get_js_mirror_metadb(options)
-  if not options['q_struct']['root_fs'].value.downcase.match(/zfs/) and not options['q_struct']['mirror_disk'].value.match(/no/)
-    metadb_entry = options['q_struct']['mirror_disk_id'].value+"s7"
+def get_js_mirror_metadb(values)
+  if not values['q_struct']['root_fs'].value.downcase.match(/zfs/) and not values['q_struct']['mirror_disk'].value.match(/no/)
+    metadb_entry = values['q_struct']['mirror_disk_id'].value+"s7"
   end
   return metadb_entry
 end
 
 # Get dump size
 
-def get_js_dump_size(options)
-  if options['q_struct']['system_model'].value.downcase.match(/vm/)
+def get_js_dump_size(values)
+  if values['q_struct']['system_model'].value.downcase.match(/vm/)
     dump_size = "auto"
   else
-    dump_size = options['q_struct']['memory_size'].value
+    dump_size = values['q_struct']['memory_size'].value
   end
   return dump_size
 end
 
 # Set password crypt
 
-def set_js_password_crypt(options, answer)
+def set_js_password_crypt(values, answer)
   password_crypt = get_password_crypt(answer)
-  options['q_struct']['root_crypt'].value = password_crypt
-  return options
+  values['q_struct']['root_crypt'].value = password_crypt
+  return values
 end
 
 # Get password crypt
 
-def get_js_password_crypt(options)
-  password_crypt = options['q_struct']['root_crypt'].value
+def get_js_password_crypt(values)
+  password_crypt = values['q_struct']['root_crypt'].value
   return password_crypt
 end
 
 # Populate Jumpstart machine file
 
-def populate_js_machine_questions(options)
+def populate_js_machine_questions(values)
   js = Struct.new(:type, :question, :ask, :parameter, :value, :valid, :eval)
 
   # Store system model information from previous set of questions
@@ -294,12 +294,12 @@ def populate_js_machine_questions(options)
     question  = "Headless mode",
     ask       = "yes",
     parameter = "",
-    value     = options['headless'].to_s.downcase,
+    value     = values['headless'].to_s.downcase,
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "system_model"
   config = js.new(
@@ -307,15 +307,15 @@ def populate_js_machine_questions(options)
     question  = "System Model",
     ask       = "yes",
     parameter = "",
-    value     = options['model'],
+    value     = values['model'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
-  options['model'] = options['q_struct']['system_model'].value
-  # options = get_arch_from_model(options)
+  values['model'] = values['q_struct']['system_model'].value
+  # values = get_arch_from_model(values)
 
   name = "root_disk_id"
   config = js.new(
@@ -323,17 +323,17 @@ def populate_js_machine_questions(options)
     question  = "System Disk",
     ask       = "yes",
     parameter = "",
-    value     = "get_js_root_disk_id(options)",
+    value     = "get_js_root_disk_id(values)",
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
-  if options['model'].downcase.match(/vm/)
+  if values['model'].downcase.match(/vm/)
     mirror_disk = "no"
   else
-    if options['mirrordisk'] == true
+    if values['mirrordisk'] == true
       mirror_disk = "yes"
     else
       mirror_disk = "no"
@@ -348,19 +348,19 @@ def populate_js_machine_questions(options)
     parameter = "",
     value     = mirror_disk,
     valid     = "yes,no",
-    eval      = "set_js_mirror_disk(options)"
+    eval      = "set_js_mirror_disk(values)"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "mirror_disk_id"
-  if options['model'].to_s.match(/[a-z]/)
+  if values['model'].to_s.match(/[a-z]/)
     config = js.new(
       type      = "",
       question  = "System Disk",
       ask       = "yes",
       parameter = "",
-      value     = "get_js_mirror_disk_id(options)",
+      value     = "get_js_mirror_disk_id(values)",
       valid     = "",
       eval      = "no"
       )
@@ -370,13 +370,13 @@ def populate_js_machine_questions(options)
       question  = "System Disk",
       ask       = "no",
       parameter = "",
-      value     = "get_js_mirror_disk_id(options)",
+      value     = "get_js_mirror_disk_id(values)",
       valid     = "",
       eval      = "no"
       )
   end
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "memory_size"
   config = js.new(
@@ -384,12 +384,12 @@ def populate_js_machine_questions(options)
     question  = "System Memory Size",
     ask       = "yes",
     parameter = "",
-    value     = "get_js_memory_size(options)",
+    value     = "get_js_memory_size(values)",
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "disk_size"
   config = js.new(
@@ -397,12 +397,12 @@ def populate_js_machine_questions(options)
     question  = "System Memory Size",
     ask       = "yes",
     parameter = "",
-    value     = "get_js_disk_size(options)",
+    value     = "get_js_disk_size(values)",
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "dump_size"
   config = js.new(
@@ -410,15 +410,15 @@ def populate_js_machine_questions(options)
     question  = "System Dump Size",
     ask       = "yes",
     parameter = "",
-    value     = "get_js_dump_size(options)",
+    value     = "get_js_dump_size(values)",
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
-  if options['image'].to_s.match(/flar/)
-    options['install'] = "flash_install"
+  if values['image'].to_s.match(/flar/)
+    values['install'] = "flash_install"
   end
 
   name = "install_type"
@@ -427,16 +427,16 @@ def populate_js_machine_questions(options)
     question  = "Install Type",
     ask       = "yes",
     parameter = "install_type",
-    value     = options['install'],
+    value     = values['install'],
     valid     = "",
     eval      = ""
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
-  if options['image'].to_s.match(/flar/)
+  if values['image'].to_s.match(/flar/)
 
-    archive_url = "http://"+options['publisherhost']+options['image']
+    archive_url = "http://"+values['publisherhost']+values['image']
 
     name = "archive_location"
     config = js.new(
@@ -448,12 +448,12 @@ def populate_js_machine_questions(options)
       valid     = "",
       eval      = "no"
       )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
 
   end
 
-  if not options['image'].to_s.match(/flar/)
+  if not values['image'].to_s.match(/flar/)
 
     name = "system_type"
     config = js.new(
@@ -465,8 +465,8 @@ def populate_js_machine_questions(options)
       valid     = "",
       eval      = ""
       )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
 
     name = "cluster"
     config = js.new(
@@ -478,8 +478,8 @@ def populate_js_machine_questions(options)
       valid     = "",
       eval      = "no"
       )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
 
   end
 
@@ -493,11 +493,11 @@ def populate_js_machine_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
-  if options['version'].to_i == 10
-    if Integer(options['update']) >= 6
+  if values['version'].to_i == 10
+    if Integer(values['update']) >= 6
 
       name = "root_fs"
       config = js.new(
@@ -507,10 +507,10 @@ def populate_js_machine_questions(options)
         parameter = "",
         value     = "zfs",
         valid     = "",
-        eval      = "options = set_js_fs(options)"
+        eval      = "values = set_js_fs(values)"
         )
-      options['q_struct'][name] = config
-      options['q_order'].push(name)
+      values['q_struct'][name] = config
+      values['q_order'].push(name)
 
       name = "rpool_name"
       config = js.new(
@@ -518,21 +518,21 @@ def populate_js_machine_questions(options)
         question  = "Root Pool Name",
         ask       = "yes",
         parameter = "",
-        value     = options['zpoolname'],
+        value     = values['zpoolname'],
         valid     = "",
         eval      = "no"
         )
-      options['q_struct'][name] = config
-      options['q_order'].push(name)
+      values['q_struct'][name] = config
+      values['q_order'].push(name)
 
     end
   end
 
-  (f_struct,f_order) = populate_js_fs_list(options)
+  (f_struct,f_order) = populate_js_fs_list(values)
 
   f_order.each do |fs_name|
 
-    if options['service'].to_s.match(/sol_10_0[6-9]|sol_10_[10,11]/) and options['q_struct']['root_fs'].value.match(/zfs/)
+    if values['service'].to_s.match(/sol_10_0[6-9]|sol_10_[10,11]/) and values['q_struct']['root_fs'].value.match(/zfs/)
       fs_size = "auto"
     else
       fs_size = f_struct[fs_name].size
@@ -548,12 +548,12 @@ def populate_js_machine_questions(options)
       valid     = "",
       eval      = "no"
       )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
 
     funct_string="get_js_filesys(\""+fs_name+"\")"
 
-    if not options['service'].to_s.match(/sol_10/)
+    if not values['service'].to_s.match(/sol_10/)
 
       name = f_struct[fs_name].name+"_fs"
       config = js.new(
@@ -565,14 +565,14 @@ def populate_js_machine_questions(options)
         valid     = "",
         eval      = "no"
         )
-      options['q_struct'][name] = config
-      options['q_order'].push(name)
+      values['q_struct'][name] = config
+      values['q_order'].push(name)
 
     end
 
   end
 
-  if options['service'].to_s.match(/sol_10_0[6-9]|sol_10_[10,11]/) and options['q_struct']['root_fs'].value.match(/zfs/)
+  if values['service'].to_s.match(/sol_10_0[6-9]|sol_10_[10,11]/) and values['q_struct']['root_fs'].value.match(/zfs/)
 
     name = "zfs_layout"
     config = js.new(
@@ -580,14 +580,14 @@ def populate_js_machine_questions(options)
       question  = "ZFS File System Layout",
       ask       = "yes",
       parameter = "pool",
-      value     = "get_js_zfs_layout(options)",
+      value     = "get_js_zfs_layout(values)",
       valid     = "",
       eval      = "no"
       )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
 
-    zfs_bootenv=get_js_zfs_bootenv(options)
+    zfs_bootenv=get_js_zfs_bootenv(values)
 
     name = "zfs_bootenv"
     config = js.new(
@@ -599,12 +599,12 @@ def populate_js_machine_questions(options)
       valid     = "",
       eval      = "no"
       )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
 
   end
 
-  if not options['q_struct']['mirror_disk'].value.match(/no/)
+  if not values['q_struct']['mirror_disk'].value.match(/no/)
 
     name = "metadb_size"
     config = js.new(
@@ -616,8 +616,8 @@ def populate_js_machine_questions(options)
       valid     = "",
       eval      = "no"
       )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
   
     name = "metadb_count"
     config = js.new(
@@ -629,8 +629,8 @@ def populate_js_machine_questions(options)
       valid     = "",
       eval      = "no"
       )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
 
     name = "root_metadb"
     config = js.new(
@@ -638,12 +638,12 @@ def populate_js_machine_questions(options)
       question  = "Root Disk Metadb",
       ask       = "yes",
       parameter = "metadb",
-      value     = "get_js_root_metadb(options)",
+      value     = "get_js_root_metadb(values)",
       valid     = "",
       eval      = "no"
       )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
 
     name = "mirror_metadb"
     config = js.new(
@@ -651,24 +651,24 @@ def populate_js_machine_questions(options)
       question  = "Mirror Disk Metadb",
       ask       = "yes",
       parameter = "metadb",
-      value     = "get_js_mirror_metadb(options)",
+      value     = "get_js_mirror_metadb(values)",
       valid     = "",
       eval      = "no"
       )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
 
   end
-  return options
+  return values
 end
 
 # Populate Jumpstart sysidcfg questions
 
-def populate_js_sysid_questions(options)
-  options['ip'] = single_install_ip(options)
+def populate_js_sysid_questions(values)
+  values['ip'] = single_install_ip(values)
 
-  # options['q_struct'] = {}
-  # options['q_order']  = []
+  # values['q_struct'] = {}
+  # values['q_order']  = []
 
   name = "hostname"
   config = js.new(
@@ -676,11 +676,11 @@ def populate_js_sysid_questions(options)
     question  = "System Hostname",
     ask       = "yes",
     parameter = "",
-    value     = options['name'],
+    value     = values['name'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
+  values['q_struct'][name] = config
 
   name = "os_version"
   config = js.new(
@@ -688,11 +688,11 @@ def populate_js_sysid_questions(options)
     question  = "OS Version",
     ask       = "yes",
     parameter = "",
-    value     = options['version'],
+    value     = values['version'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
+  values['q_struct'][name] = config
 
   name = "os_update"
   config = js.new(
@@ -700,11 +700,11 @@ def populate_js_sysid_questions(options)
     question  = "OS Update",
     ask       = "yes",
     parameter = "",
-    value     = options['version'],
+    value     = values['version'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
+  values['q_struct'][name] = config
 
   name = "ip_address"
   config = js.new(
@@ -712,12 +712,12 @@ def populate_js_sysid_questions(options)
     question  = "System IP",
     ask       = "yes",
     parameter = "",
-    value     = options['ip'],
+    value     = values['ip'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "netmask"
   config = js.new(
@@ -725,14 +725,14 @@ def populate_js_sysid_questions(options)
     question  = "System Netmask",
     ask       = "yes",
     parameter = "",
-    value     = options['netmask'],
+    value     = values['netmask'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
-  ipv4_default_route=get_ipv4_default_route(options)
+  ipv4_default_route=get_ipv4_default_route(values)
 
   name = "system_model"
   config = js.new(
@@ -740,14 +740,14 @@ def populate_js_sysid_questions(options)
     question  = "System Model",
     ask       = "yes",
     parameter = "",
-    value     = options['model'],
+    value     = values['model'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
-  if not options['arch'].to_s.match(/i386|sun4/)
+  if not values['arch'].to_s.match(/i386|sun4/)
 
     name = "system_karch"
     config = js.new(
@@ -755,12 +755,12 @@ def populate_js_sysid_questions(options)
       question  = "System Kernel Architecture",
       ask       = "yes",
       parameter = "",
-      value     = "get_js_system_karch(options)",
+      value     = "get_js_system_karch(values)",
       valid     = "",
       eval      = "no"
       )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
 
   else
 
@@ -770,12 +770,12 @@ def populate_js_sysid_questions(options)
       question  = "System Kernel Architecture",
       ask       = "yes",
       parameter = "",
-      value     = options['arch'],
+      value     = values['arch'],
       valid     = "",
       eval      = "no"
       )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
 
   end
 
@@ -785,12 +785,12 @@ def populate_js_sysid_questions(options)
     question  = "Network Interface",
     ask       = "yes",
     parameter = "",
-    value     = "get_js_nic_model(options)",
+    value     = "get_js_nic_model(values)",
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "default_route"
   config = js.new(
@@ -802,10 +802,10 @@ def populate_js_sysid_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
-  if Integer(options['version']) > 7
+  if Integer(values['version']) > 7
 
     name = "protocol_ipv6"
     config = js.new(
@@ -817,8 +817,8 @@ def populate_js_sysid_questions(options)
       valid     = "",
       eval      = "no"
       )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
 
   end
 
@@ -828,12 +828,12 @@ def populate_js_sysid_questions(options)
     question  = "Network Interface",
     ask       = "yes",
     parameter = "network_interface",
-    value     = "get_js_network(options)",
+    value     = "get_js_network(values)",
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "timezone"
   config = js.new(
@@ -841,12 +841,12 @@ def populate_js_sysid_questions(options)
     question  = "Timezone",
     ask       = "yes",
     parameter = "timezone",
-    value     = options['timezone'],
+    value     = values['timezone'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "system_locale"
   config = js.new(
@@ -854,12 +854,12 @@ def populate_js_sysid_questions(options)
     question  = "System Locale",
     ask       = "yes",
     parameter = "system_locale",
-    value     = options['systemlocale'],
+    value     = values['systemlocale'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "keyboard"
   config = js.new(
@@ -871,8 +871,8 @@ def populate_js_sysid_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "terminal"
   config = js.new(
@@ -884,8 +884,8 @@ def populate_js_sysid_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "root_password"
   config = js.new(
@@ -893,12 +893,12 @@ def populate_js_sysid_questions(options)
     question  = "Root password",
     ask       = "yes",
     parameter = "",
-    value     = options['rootpassword'],
+    value     = values['rootpassword'],
     valid     = "",
-    eval      = "options = set_js_password_crypt(options,answer)"
+    eval      = "values = set_js_password_crypt(values,answer)"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "root_crypt"
   config = js.new(
@@ -906,12 +906,12 @@ def populate_js_sysid_questions(options)
     question  = "Root password (encrypted)",
     ask       = "no",
     parameter = "root_password",
-    value     = "get_password_crypt(options['rootpassword'])",
+    value     = "get_password_crypt(values['rootpassword'])",
     valid     = "",
     eval      = ""
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "timeserver"
   config = js.new(
@@ -923,8 +923,8 @@ def populate_js_sysid_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "name_service"
   config = js.new(
@@ -932,15 +932,15 @@ def populate_js_sysid_questions(options)
     question  = "Name Service",
     ask       = "yes",
     parameter = "name_service",
-    value     = options['nameservice'],
+    value     = values['nameservice'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
-  if options['version'].to_i == 10
-    if options['update'].to_i >= 5
+  if values['version'].to_i == 10
+    if values['update'].to_i >= 5
 
       name = "nfs4_domain"
       config = js.new(
@@ -948,12 +948,12 @@ def populate_js_sysid_questions(options)
         question  = "NFSv4 Domain",
         ask       = "yes",
         parameter = "nfs4_domain",
-        value     = options['nfs4domain'],
+        value     = values['nfs4domain'],
         valid     = "",
         eval      = "no"
         )
-      options['q_struct'][name] = config
-      options['q_order'].push(name)
+      values['q_struct'][name] = config
+      values['q_order'].push(name)
 
     end
   end
@@ -964,15 +964,15 @@ def populate_js_sysid_questions(options)
     question  = "Security",
     ask       = "yes",
     parameter = "security_policy",
-    value     = options['security'],
+    value     = values['security'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
-  if options['version'].to_i == 10
-    if options['update'].to_i >= 10
+  if values['version'].to_i == 10
+    if values['update'].to_i >= 10
 
       name = "auto_reg"
       config = js.new(
@@ -980,14 +980,14 @@ def populate_js_sysid_questions(options)
         question  = "Auto Registration",
         ask       = "yes",
         parameter = "auto_reg",
-        value     = options['autoreg'],
+        value     = values['autoreg'],
         valid     = "",
         eval      = "no"
         )
-      options['q_struct'][name] = config
-      options['q_order'].push(name)
+      values['q_struct'][name] = config
+      values['q_order'].push(name)
 
     end
   end
-  return options
+  return values
 end

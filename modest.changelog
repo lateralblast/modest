@@ -134,7 +134,7 @@
 # 0.6.7: Wed  1 Jan 2014 10:52:42 EST
 # Added code to enable NFS and TFTP server for Jumpstart
 # 0.6.8: Wed  1 Jan 2014 12:10:26 EST
-# Added code to fix rm_options['name'] and check scripts
+# Added code to fix rm_values['name'] and check scripts
 # 0.6.9: Thu  2 Jan 2014 06:33:57 EST
 # Initial code for Jumpstart questions
 # 0.7.0: Thu  2 Jan 2014 11:50:42 EST
@@ -312,7 +312,7 @@
 # 1.5.6: Sat  7 Jun 2014 20:46:20 EST
 # Fixed bugs with VirtualBox VM creation
 # 1.5.7: Sat  7 Jun 2014 20:59:13 EST
-# Improved handling of options with VMware Fusion and VirtualBox functions
+# Improved handling of values with VMware Fusion and VirtualBox functions
 # 1.5.8: Sun  8 Jun 2014 03:19:52 EST
 # Fixed bugs with AI client creation
 # 1.5.9: Sun  8 Jun 2014 05:09:06 EST
@@ -1130,7 +1130,7 @@
 # 5.6.4: Fri Mar 27 16:05:30 AEDT 2020
 # More bug fixes
 # 5.6.5: Sat Mar 28 07:42:40 AEDT 2020
-# Started migrating global question struct to options
+# Started migrating global question struct to values
 # 5.6.6: Sat 28 Mar 2020 10:22:52 AEDT
 # Fixed SSH copy keys
 # 5.6.7: Sat 28 Mar 2020 11:37:43 AEDT
@@ -1268,7 +1268,7 @@
 # 6.3.3: Wed  5 May 2021 21:10:20 AEST
 # Fixes to deal with boot command length
 # 6.3.4: Thu  6 May 2021 15:53:00 AEST
-# Added command line check for incorrect options
+# Added command line check for incorrect values
 # 6.3.5: Mon 17 May 2021 17:15:15 AEST
 # Initial packer NAT cleanup (Ubuntu) for VMware Fusion
 # 6.3.6: Mon 17 May 2021 19:52:14 AEST
@@ -1587,3 +1587,5 @@
 # Added code to enable verbose mode early if given verbose switcho
 # 7.9.3: Tue 10 Sep 2024 22:25:43 AEST
 # Updated methods
+# 7.9.4: Wed 11 Sep 2024 19:12:10 AEST
+# Added options switch and updated dry-run switch

@@ -137,7 +137,7 @@ if enable_ssl == true
         certificate_content = File.open(ssl_certificate).read
         key_content = File.open(ssl_key).read
   
-        server_options = {
+        server_values = {
           :Host => bind,
           :Port => port,
           :SSLEnable => true,
@@ -145,7 +145,7 @@ if enable_ssl == true
           :SSLPrivateKey => OpenSSL::PKey::RSA.new(key_content,$ssl_password)
         }
   
-        Rack::Handler::WEBrick.run self, server_options do |server|
+        Rack::Handler::WEBrick.run self, server_values do |server|
           [:INT, :TERM].each { |sig| trap(sig) { server.stop } }
           server.threaded = settings.threaded if server.respond_to? :threaded=
           set :running, true
@@ -194,9 +194,9 @@ set_global_vars()
 before do
   set_global_vars()
   check_local_config("client")
-  options['verbose']  = 0
-  options['output'] = "html"
-  options['stdout']   = []
+  values['verbose']  = 0
+  values['output'] = "html"
+  values['stdout']   = []
 end
 
 # handle error - redirect to help
@@ -256,24 +256,24 @@ get '/list/*/*' do
   head = []
   body = []
   foot = []
-  ( options['type'], options['search'] ) = params[:splat]
+  ( values['type'], values['search'] ) = params[:splat]
   head = File.readlines("./views/layout.html")
   head = html_header(head,"Mode")
-  case options['type']
+  case values['type']
   when /packer/
-    list_packer_clients(options['search'])
+    list_packer_clients(values['search'])
   when /service/
-    eval"[list_#{options['search']}_services()]"
+    eval"[list_#{values['search']}_services()]"
   when /iso/
-    if options['search'].to_s.match(/[a-z]/)
-      eval"[list_#{options['search']}_isos()]"
+    if values['search'].to_s.match(/[a-z]/)
+      eval"[list_#{values['search']}_isos()]"
     else
-      list_os_isos(options['search'])
+      list_os_isos(values['search'])
     end
   else
-    list_vms(options['type'],options['search'])
+    list_vms(values['type'],values['search'])
   end
-  body  = options['stdout']
+  body  = values['stdout']
   foot  = html_footer(foot)
   array = head + body + foot
   array = array.join("\n")
@@ -284,19 +284,19 @@ get '/list/*' do
   head = []
   body = []
   foot = []
-  options['type']   = params[:splat][0]
-  options['search'] = ""
+  values['type']   = params[:splat][0]
+  values['search'] = ""
   head = File.readlines("./views/layout.html")
   head = html_header(head,"Mode")
-  case options['type']
+  case values['type']
   when /packer/
-    list_packer_clients(options['search']) 
+    list_packer_clients(values['search']) 
   when /service/
     list_all_services()
   else
-    list_vms(options['type'],options['search'])
+    list_vms(values['type'],values['search'])
   end
-  body  = options['stdout']
+  body  = values['stdout']
   foot  = html_footer(foot)
   array = head + body + foot
   array = array.join("\n")
@@ -309,12 +309,12 @@ get '/show/*/*' do
   foot = []
   head = File.readlines("./views/layout.html")
   head = html_header(head,"Mode")
-  ( options['vm'], options['name'] ) = params[:splat]
-  options['method']  = ""
-  options['type']    = ""
-  options['service'] = ""
-  get_client_config(options['name'],options['service'],options['method'],options['type'],options['vm'])
-  body  = options['stdout']
+  ( values['vm'], values['name'] ) = params[:splat]
+  values['method']  = ""
+  values['type']    = ""
+  values['service'] = ""
+  get_client_config(values['name'],values['service'],values['method'],values['type'],values['vm'])
+  body  = values['stdout']
   foot  = html_footer(foot)
   array = head + body + foot
   array = array.join("\n")
@@ -327,37 +327,37 @@ get '/add/client' do
   foot = []
   head = File.readlines("./views/layout.html")
   head = html_header(head,"Mode")
-  # options['q_order']  = []
-  # options['q_struct'] = {}
+  # values['q_order']  = []
+  # values['q_struct'] = {}
   if params['client']
-    options['name'] = params['client'] 
+    values['name'] = params['client'] 
   else
-    options['name'] = ""
+    values['name'] = ""
   end
   if params['ip']
-    options['ip'] = params['ip']
+    values['ip'] = params['ip']
   else
-    options['ip'] = ""
+    values['ip'] = ""
   end
   if params['method']
-    options['method'] = params['method']
+    values['method'] = params['method']
   else
     redirect "/help"
   end
   if params['service']
-    options['service'] = params['service']
+    values['service'] = params['service']
   else
     redirect "/list/services"
   end
-  eval"[populate_#{options['method']}_questions(options['service'],options['name'],options['ip'])]"
-  options['stdout'].push("<form action=\"/add/client\" method=\"post\">")
-  options['q_order'].each do |key|
-    options['stdout'].push(options['q_struct'][key].question)
-    options['stdout'].push("<input type=\"text\" name = \"#{key}\">")
+  eval"[populate_#{values['method']}_questions(values['service'],values['name'],values['ip'])]"
+  values['stdout'].push("<form action=\"/add/client\" method=\"post\">")
+  values['q_order'].each do |key|
+    values['stdout'].push(values['q_struct'][key].question)
+    values['stdout'].push("<input type=\"text\" name = \"#{key}\">")
   end
-  options['stdout'].push("<input type=\"submit\" value=\"Submit\">")
-  options['stdout'].push("</form>")
-  body  = options['stdout']
+  values['stdout'].push("<input type=\"submit\" value=\"Submit\">")
+  values['stdout'].push("</form>")
+  body  = values['stdout']
   foot  = html_footer(foot)
   array = head + body + foot
   array = array.join("\n")
@@ -370,25 +370,25 @@ get '/add/fusion' do
   foot = []
   head = File.readlines("./views/layout.html")
   head = html_header(head,"Mode")
-  # options['q_order']  = []
-  # options['q_struct'] = {}
+  # values['q_order']  = []
+  # values['q_struct'] = {}
   if params['client']
-    options['name'] = params['client'] 
+    values['name'] = params['client'] 
   else
-    options['name'] = ""
+    values['name'] = ""
   end
   if params['ip']
-    options['ip'] = params['ip']
+    values['ip'] = params['ip']
   else
-    options['ip'] = ""
+    values['ip'] = ""
   end
-  options['stdout'] = []
-  options['stdout'].push("<form action=\"/add/client\" method=\"post\">")
-  options['stdout'].push("Client Name:")
-  options['stdout'].push("<input type=\"text\" name = \"options['name']\" value=\"#{options['name']}\">")
-  options['stdout'].push("<input type=\"submit\" value=\"Submit\">")
-  options['stdout'].push("</form>")
-  body  = options['stdout']
+  values['stdout'] = []
+  values['stdout'].push("<form action=\"/add/client\" method=\"post\">")
+  values['stdout'].push("Client Name:")
+  values['stdout'].push("<input type=\"text\" name = \"values['name']\" value=\"#{values['name']}\">")
+  values['stdout'].push("<input type=\"submit\" value=\"Submit\">")
+  values['stdout'].push("</form>")
+  body  = values['stdout']
   foot  = html_footer(foot)
   array = head + body + foot
   array = array.join("\n")
@@ -396,7 +396,7 @@ get '/add/fusion' do
 end
 
 post '/add/fusion' do
-  create_vm(options['method'],options['vm'],options['name'],options['mac'],options['os-type'],options['arch'],options['release'],options['size'],options['file'],options['memory'],options['vcpus'],options['vmnetwork'],options['share'],options['mount'],options['ip'])
+  create_vm(values['method'],values['vm'],values['name'],values['mac'],values['os-type'],values['arch'],values['release'],values['size'],values['file'],values['memory'],values['vcpus'],values['vmnetwork'],values['share'],values['mount'],values['ip'])
 end  
 
 # handle /
@@ -414,67 +414,67 @@ get '/' do
     redirect "/version"
   end
   if params['client']
-    options['name'] = params['client']
+    values['name'] = params['client']
   else
-    options['name'] = ""
+    values['name'] = ""
   end
   if params['action']
-    options['action'] = params['action']
+    values['action'] = params['action']
   else
     redirect "/help"
   end
   if params['vm']
-    options['vm'] = params['vm']
+    values['vm'] = params['vm']
   else
-    options['vm'] = ""
+    values['vm'] = ""
   end
   if params['method']
-    options['method'] = params['method']
+    values['method'] = params['method']
   else
-    options['method'] = ""
+    values['method'] = ""
   end
   if params['os']
-    options['os-type'] = params['os']
+    values['os-type'] = params['os']
   else
-    options['os-type'] = ""
+    values['os-type'] = ""
   end
   if params['type']
-    options['type'] = params['type']
+    values['type'] = params['type']
   else
-    options['type'] = ""
+    values['type'] = ""
   end
-  case options['action']
+  case values['action']
   when /help/
     redirect "/help"
   when /display|view|show|prop/
-    if options['name'].to_s.match(/[a-z,A-Z]/)
-      if options['vm'].to_s.match(/[a-z]/) and not options['vm'] == options['empty']
-        eval"[show_#{options['vm']}_vm_config(options)]"
+    if values['name'].to_s.match(/[a-z,A-Z]/)
+      if values['vm'].to_s.match(/[a-z]/) and not values['vm'] == values['empty']
+        eval"[show_#{values['vm']}_vm_config(values)]"
       else
-        get_client_config(options['name'],options['service'],options['method'],options['type'])
+        get_client_config(values['name'],values['service'],values['method'],values['type'])
       end
     else
-      handle_output(options,"Warning:\tClient name not specified")
+      handle_output(values,"Warning:\tClient name not specified")
     end
   when /list/
-    if options['type'].to_s.match(/[a-z]/)
-      if options['type'].to_s.match(/iso/)
-        if options['method'].to_s.match(/[a-z]/)
-          eval"[list_#{options['method']}_isos]"
+    if values['type'].to_s.match(/[a-z]/)
+      if values['type'].to_s.match(/iso/)
+        if values['method'].to_s.match(/[a-z]/)
+          eval"[list_#{values['method']}_isos]"
         else
-          list_os_isos(options['os-type'])
+          list_os_isos(values['os-type'])
         end
       end
-      if options['type'].to_s.match(/packer/)
-        list_packer_clients(options['vm'])
+      if values['type'].to_s.match(/packer/)
+        list_packer_clients(values['vm'])
       end
     else
-      if options['vm'].to_s.match(/[a-z]/)
-        list_vms(options['vm'],options['os-type'])
+      if values['vm'].to_s.match(/[a-z]/)
+        list_vms(values['vm'],values['os-type'])
       end
     end
   end
-  body  = options['stdout']
+  body  = values['stdout']
   foot  = html_footer(foot)
   array = head + body + foot
   array = array.join("\n")

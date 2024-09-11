@@ -1,11 +1,11 @@
 # Common Windows (PE) related code
 
 def list_pe_isos()
-  options['os-type'] = "win"
-  options['method']  = ""
-  options['release'] = ""
-  options['arch']    = ""
-  options['file']    = ""
-  list_isos(options)
+  values['os-type'] = "win"
+  values['method']  = ""
+  values['release'] = ""
+  values['arch']    = ""
+  values['file']    = ""
+  list_isos(values)
   return
 end

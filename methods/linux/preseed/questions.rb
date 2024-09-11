@@ -1,7 +1,7 @@
 
 # Preseed configuration questions for Ubuntu
 
-def populate_ps_questions(options)
+def populate_ps_questions(values)
 
   qs = Struct.new(:type, :question, :ask, :parameter, :value, :valid, :eval)
 
@@ -11,20 +11,20 @@ def populate_ps_questions(options)
   install_ip4 = "none"
   install_ip5 = "none"
 
-  if options['packages'] == options['empty']
+  if values['packages'] == values['empty']
     pkg_list = [
       "nfs-common", "openssh-server", "setserial", "net-tools", "ansible", "jq", "ipmitool", "screen", "ruby-build", "git", "cryptsetup", "curl"
     ]
-    if options['service'].match(/18_04/)
+    if values['service'].match(/18_04/)
       pkg_list.append("linux-generic-hwe-18.04")
     end
   else
-    pkg_list = options['packages'].to_s.split(/\,| /)
+    pkg_list = values['packages'].to_s.split(/\,| /)
   end
 
-  if options['ip'].to_s.match(/,/)
-    full_ip = options['ip']
-    options['ip'] = full_ip.split(/,/)[0]
+  if values['ip'].to_s.match(/,/)
+    full_ip = values['ip']
+    values['ip'] = full_ip.split(/,/)[0]
     if full_ip[1]
       install_ip1 = full_ip.split(/,/)[1]
       if not install_ip1
@@ -57,7 +57,7 @@ def populate_ps_questions(options)
     end
   end
 
-  if options['service'].to_s != "purity"
+  if values['service'].to_s != "purity"
 
     name = "headless_mode"
     config = qs.new( 
@@ -65,21 +65,21 @@ def populate_ps_questions(options)
       question  = "Headless mode",
       ask       = "yes",
       parameter = "",
-      value     = options['headless'].to_s.downcase,
+      value     = values['headless'].to_s.downcase,
       valid     = "",
       eval      = "no"
       )
 
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
 
-    if options['service'].match(/ubuntu_20/)
-      language = options['language']
+    if values['service'].match(/ubuntu_20/)
+      language = values['language']
       if language.match(/en_/)
         language = "en"
       end
     else
-      language = options['language']
+      language = values['language']
     end
 
     name = "language"
@@ -92,8 +92,8 @@ def populate_ps_questions(options)
       valid     = "",
       eval      = "no"
       )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
 
     name = "country"
     config = qs.new(
@@ -101,12 +101,12 @@ def populate_ps_questions(options)
       question  = "Country",
       ask       = "yes",
       parameter = "debian-installer/country",
-      value     = options['country'],
+      value     = values['country'],
       valid     = "",
       eval      = "no"
       )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
 
     name = "locale"
     config = qs.new(
@@ -114,12 +114,12 @@ def populate_ps_questions(options)
       question  = "Locale",
       ask       = "yes",
       parameter = "debian-installer/locale",
-      value     = options['locale'],
+      value     = values['locale'],
       valid     = "",
       eval      = "no"
       )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
 
     name = "console"
     config = qs.new(
@@ -131,8 +131,8 @@ def populate_ps_questions(options)
       valid     = "",
       eval      = "no"
       )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
   
     name = "layout"
     config = qs.new(
@@ -140,12 +140,12 @@ def populate_ps_questions(options)
       question  = "Keyboard layout",
       ask       = "no",
       parameter = "keyboard-configuration/layoutcode",
-      value     = options['keyboard'].downcase,
+      value     = values['keyboard'].downcase,
       valid     = "",
       eval      = "no"
       )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
 
     name = "disable_autoconfig"
     config = qs.new(
@@ -153,18 +153,18 @@ def populate_ps_questions(options)
       question  = "Disable network autoconfig",
       ask       = "yes",
       parameter = "netcfg/disable_autoconfig",
-      value     = options['disableautoconf'],
+      value     = values['disableautoconf'],
       valid     = "",
       eval      = "no"
       )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
   
-    if options['vm'].to_s.match(/vbox/) && options['type'].to_s.match(/packer/)
+    if values['vm'].to_s.match(/vbox/) && values['type'].to_s.match(/packer/)
       disable_dhcp = "false"
     else
-      if options['service'].to_s.match(/live/) || options['vm'].to_s.match(/mp|multipass/)
-        if options['ip'] == options['empty']
+      if values['service'].to_s.match(/live/) || values['vm'].to_s.match(/mp|multipass/)
+        if values['ip'] == values['empty']
           disable_dhcp = "false"
         else
           disable_dhcp = "true"
@@ -184,8 +184,8 @@ def populate_ps_questions(options)
       valid     = "",
       eval      = "no"
       )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
 
   end
 
@@ -195,12 +195,12 @@ def populate_ps_questions(options)
     question  = "User full name",
     ask       = "yes",
     parameter = "passwd/user-fullname",
-    value     = options['adminname'],
+    value     = values['adminname'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "admin_username"
   config = qs.new(
@@ -208,12 +208,12 @@ def populate_ps_questions(options)
     question  = "Username",
     ask       = "yes",
     parameter = "passwd/username",
-    value     = options['adminuser'],
+    value     = values['adminuser'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "admin_shell"
   config = qs.new(
@@ -221,12 +221,12 @@ def populate_ps_questions(options)
     question  = "Shell",
     ask       = "yes",
     parameter = "passwd/shell",
-    value     = options['adminshell'],
+    value     = values['adminshell'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "admin_sudo"
   config = qs.new(
@@ -234,12 +234,12 @@ def populate_ps_questions(options)
     question  = "Sudo",
     ask       = "yes",
     parameter = "passwd/sudo",
-    value     = options['adminsudo'],
+    value     = values['adminsudo'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "admin_password"
   config = qs.new(
@@ -247,12 +247,12 @@ def populate_ps_questions(options)
     question  = "User password",
     ask       = "yes",
     parameter = "",
-    value     = options['adminpassword'],
+    value     = values['adminpassword'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "admin_crypt"
   config = qs.new(
@@ -260,12 +260,12 @@ def populate_ps_questions(options)
     question  = "User Password Crypt",
     ask       = "yes",
     parameter = "passwd/user-password-crypted",
-    value     = get_password_crypt(options['adminpassword']),
+    value     = get_password_crypt(values['adminpassword']),
     valid     = "",
     eval      = "get_password_crypt(answer)"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "admin_groups"
   config = qs.new(
@@ -277,10 +277,10 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = ""
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
-  if !options['method'] == "ci"
+  if !values['method'] == "ci"
 
     name = "admin_home_encrypt"
     config = qs.new(
@@ -292,8 +292,8 @@ def populate_ps_questions(options)
       valid     = "",
       eval      = ""
       )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
   
   end
 
@@ -303,27 +303,27 @@ def populate_ps_questions(options)
     question  = "Locale",
     ask       = "yes",
     parameter = "debian-installer/locale",
-    value     = options['locale'],
+    value     = values['locale'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
-  if options['vmnic'] == options['empty']
-    if options['nic'] != options['empty']
-      nic_name = options['nic']
+  if values['vmnic'] == values['empty']
+    if values['nic'] != values['empty']
+      nic_name = values['nic']
     else
-      nic_name = get_nic_name_from_install_service(options)
+      nic_name = get_nic_name_from_install_service(values)
     end
   else
-    if options['vmnic'] != options['empty']
-      nic_name = options['vmnic'].to_s
+    if values['vmnic'] != values['empty']
+      nic_name = values['vmnic'].to_s
     else
-      if options['nic'] != options['empty']
-        nic_name = options['nic']
+      if values['nic'] != values['empty']
+        nic_name = values['nic']
       else
-        nic_name = options['vmnic'].to_s
+        nic_name = values['vmnic'].to_s
       end
     end
   end
@@ -338,17 +338,17 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
-  options['q_struct']['nic'] = options['q_struct']['interface']
-  options['q_order'].push(name)
+  values['q_struct']['nic'] = values['q_struct']['interface']
+  values['q_order'].push(name)
 
 
-  if options['dnsmasq'] == true
-    nameserver = options['vmgateway'].to_s+","+options['nameserver'].to_s
+  if values['dnsmasq'] == true
+    nameserver = values['vmgateway'].to_s+","+values['nameserver'].to_s
   else
-    nameserver = options['nameserver'].to_s
+    nameserver = values['nameserver'].to_s
   end
 
   name = "nameserver"
@@ -361,10 +361,10 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
-  if options['q_struct']['disable_dhcp'].value.match(/true/)
+  if values['q_struct']['disable_dhcp'].value.match(/true/)
 
     name = "ip"
     config = qs.new(
@@ -372,12 +372,12 @@ def populate_ps_questions(options)
       question  = "IP address",
       ask       = "yes",
       parameter = "netcfg/get_ipaddress",
-      value     = options['ip'],
+      value     = values['ip'],
       valid     = "",
       eval      = "no"
       )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
 
     name = "netmask"
     config = qs.new(
@@ -385,16 +385,16 @@ def populate_ps_questions(options)
       question  = "Netmask",
       ask       = "yes",
       parameter = "netcfg/get_netmask",
-      value     = options['netmask'],
+      value     = values['netmask'],
       valid     = "",
       eval      = "no"
       )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
 
   end
 
-  if options['service'].to_s.match(/live/) || options['vm'].to_s.match(/mp|multipass/)
+  if values['service'].to_s.match(/live/) || values['vm'].to_s.match(/mp|multipass/)
 
     name = "cidr"
     config = qs.new(
@@ -402,34 +402,34 @@ def populate_ps_questions(options)
       question  = "CIDR",
       ask       = "yes",
       parameter = "netcfg/get_cidr",
-      value     = options['cidr'],
+      value     = values['cidr'],
       valid     = "",
       eval      = "no"
       )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
 
   end 
 
-  if options['gateway'].to_s.match(/[0-9]/) and options['vm'].to_s == options['empty'].to_s
-    gateway = options['gateway']
+  if values['gateway'].to_s.match(/[0-9]/) and values['vm'].to_s == values['empty'].to_s
+    gateway = values['gateway']
   else
-    if options['vmgateway'].to_s.split(/\./)[2] == options['ip'].to_s.split(/\./)[2]
-      gateway = options['vmgateway']
+    if values['vmgateway'].to_s.split(/\./)[2] == values['ip'].to_s.split(/\./)[2]
+      gateway = values['vmgateway']
     else
-      if options['gateway'].to_s.split(/\./)[2] == options['ip'].to_s.split(/\./)[2]
-        gateway = options['gateway']
+      if values['gateway'].to_s.split(/\./)[2] == values['ip'].to_s.split(/\./)[2]
+        gateway = values['gateway']
       else
-        if options['vmgateway'].to_s.match(/[0-9]/)
-          gateway = options['vmgateway']
+        if values['vmgateway'].to_s.match(/[0-9]/)
+          gateway = values['vmgateway']
         else
-          if options['type'].to_s.match(/packer/)
-            gateway = options['ip'].split(/\./)[0..2].join(".")+"."+options['gatewaynode']
+          if values['type'].to_s.match(/packer/)
+            gateway = values['ip'].split(/\./)[0..2].join(".")+"."+values['gatewaynode']
           else
-            if options['server'] == options['empty']
-              gateway = options['hostip']
+            if values['server'] == values['empty']
+              gateway = values['hostip']
             else
-              gateway = options['server']
+              gateway = values['server']
             end
           end
         end
@@ -437,7 +437,7 @@ def populate_ps_questions(options)
     end
   end
 
-  if gateway.to_s.split(/\./)[2] != options['ip'].to_s.split(/\./)[2]
+  if gateway.to_s.split(/\./)[2] != values['ip'].to_s.split(/\./)[2]
     gateway = %x[netstat -rn |grep "^0" |awk '{print $2}'].chomp
   end
 
@@ -451,12 +451,12 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
-  if options['q_struct']['disable_dhcp'].value.match(/true/)
+  if values['q_struct']['disable_dhcp'].value.match(/true/)
 
-    broadcast = options['ip'].split(/\./)[0..2].join(".")+".255"
+    broadcast = values['ip'].split(/\./)[0..2].join(".")+".255"
 
     name = "broadcast"
     config = qs.new(
@@ -468,10 +468,10 @@ def populate_ps_questions(options)
       valid     = "",
       eval      = "no"
       )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
   
-    network_address = options['ip'].split(/\./)[0..2].join(".")+".0"
+    network_address = values['ip'].split(/\./)[0..2].join(".")+".0"
 
     name = "network_address"
     config = qs.new(
@@ -483,12 +483,12 @@ def populate_ps_questions(options)
       valid     = "",
       eval      = "no"
       )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
 
   end
 
-  if options['dhcp'] == true
+  if values['dhcp'] == true
     static = "false"
   else
     static = "true"
@@ -504,8 +504,8 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "hostname"
   config = qs.new(
@@ -513,25 +513,25 @@ def populate_ps_questions(options)
     question  = "Hostname",
     ask       = "yes",
     parameter = "netcfg/get_hostname",
-    value     = options['name'],
+    value     = values['name'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
-  #if options['service'].to_s.match(/ubuntu/)
-  #  if options['service'].to_s.match(/18_04/) and options['vm'].to_s.match(/vbox/)
-  #    options['vmnic'] = "eth0"
+  #if values['service'].to_s.match(/ubuntu/)
+  #  if values['service'].to_s.match(/18_04/) and values['vm'].to_s.match(/vbox/)
+  #    values['vmnic'] = "eth0"
   #  else
-  #    if options['vm'].to_s.match(/kvm/)
-  #      options['vmnic'] = "ens3"
+  #    if values['vm'].to_s.match(/kvm/)
+  #      values['vmnic'] = "ens3"
   #    else
-  #      if options['service'].to_s.match(/16_10/)
-  #        if options['vm'].to_s.match(/fusion/)
-  #          options['vmnic'] = "ens33"
+  #      if values['service'].to_s.match(/16_10/)
+  #        if values['vm'].to_s.match(/fusion/)
+  #          values['vmnic'] = "ens33"
   #        else
-  #          options['vmnic'] = "enp0s3"
+  #          values['vmnic'] = "enp0s3"
   #        end
   #      end
   #    end
@@ -548,10 +548,10 @@ def populate_ps_questions(options)
 #    valid     = "",
 #    eval      = "no"
 #    )
-#  options['q_struct'][name] = config
-#  options['q_order'].push(name)
+#  values['q_struct'][name] = config
+#  values['q_order'].push(name)
 
-  client_domain = options['domainname'].to_s
+  client_domain = values['domainname'].to_s
 
   name = "domain"
   config = qs.new(
@@ -563,8 +563,8 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "timezone"
   config = qs.new(
@@ -572,12 +572,12 @@ def populate_ps_questions(options)
     question  = "Timezone",
     ask       = "yes",
     parameter = "time/zone",
-    value     = options['timezone'].to_s,
+    value     = values['timezone'].to_s,
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "timeserver"
   config = qs.new(
@@ -585,14 +585,14 @@ def populate_ps_questions(options)
     question  = "Timeserer",
     ask       = "yes",
     parameter = "clock-setup/ntp-server",
-    value     = options['timeserver'].to_s,
+    value     = values['timeserver'].to_s,
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
-  if options['service'].to_s.match(/purity/)
+  if values['service'].to_s.match(/purity/)
 
     if install_ip1.match(/[0-9]/)
 
@@ -606,8 +606,8 @@ def populate_ps_questions(options)
         valid     = "",
         eval      = "no"
       )
-      options['q_struct'][name] = config
-      options['q_order'].push(name)
+      values['q_struct'][name] = config
+      values['q_order'].push(name)
 
       name = "eth1_service"
       config = qs.new(
@@ -619,8 +619,8 @@ def populate_ps_questions(options)
         valid     = "",
         eval      = "no"
       )
-      options['q_struct'][name] = config
-      options['q_order'].push(name)
+      values['q_struct'][name] = config
+      values['q_order'].push(name)
 
     end
     
@@ -636,8 +636,8 @@ def populate_ps_questions(options)
         valid     = "",
         eval      = "no"
       )
-      options['q_struct'][name] = config
-      options['q_order'].push(name)
+      values['q_struct'][name] = config
+      values['q_order'].push(name)
 
       name = "eth2_service"
       config = qs.new(
@@ -649,8 +649,8 @@ def populate_ps_questions(options)
         valid     = "",
         eval      = "no"
       )
-      options['q_struct'][name] = config
-      options['q_order'].push(name)
+      values['q_struct'][name] = config
+      values['q_order'].push(name)
 
     end
 
@@ -666,8 +666,8 @@ def populate_ps_questions(options)
         valid     = "",
         eval      = "no"
       )
-      options['q_struct'][name] = config
-      options['q_order'].push(name)
+      values['q_struct'][name] = config
+      values['q_order'].push(name)
 
       name = "eth3_service"
       config = qs.new(
@@ -679,8 +679,8 @@ def populate_ps_questions(options)
         valid     = "",
         eval      = "no"
       )
-      options['q_struct'][name] = config
-      options['q_order'].push(name)
+      values['q_struct'][name] = config
+      values['q_order'].push(name)
 
     end
 
@@ -696,8 +696,8 @@ def populate_ps_questions(options)
         valid     = "",
         eval      = "no"
       )
-      options['q_struct'][name] = config
-      options['q_order'].push(name) 
+      values['q_struct'][name] = config
+      values['q_order'].push(name) 
 
       name = "eth4_service"
       config = qs.new(
@@ -709,8 +709,8 @@ def populate_ps_questions(options)
         valid     = "",
         eval      = "no"
       )
-      options['q_struct'][name] = config
-      options['q_order'].push(name)
+      values['q_struct'][name] = config
+      values['q_order'].push(name)
 
     end
     
@@ -726,8 +726,8 @@ def populate_ps_questions(options)
         valid     = "",
         eval      = "no"
       )
-      options['q_struct'][name] = config
-      options['q_order'].push(name) 
+      values['q_struct'][name] = config
+      values['q_order'].push(name) 
 
       name = "eth5_service"
       config = qs.new(
@@ -739,15 +739,15 @@ def populate_ps_questions(options)
         valid     = "",
         eval      = "no"
       )
-      options['q_struct'][name] = config
-      options['q_order'].push(name)
+      values['q_struct'][name] = config
+      values['q_order'].push(name)
 
     end
 
-    return options
+    return values
   end
 
-  if !options['method'].to_s.match(/ci/)
+  if !values['method'].to_s.match(/ci/)
 
     name = "firmware"
     config = qs.new(
@@ -759,8 +759,8 @@ def populate_ps_questions(options)
       valid     = "",
       eval      = "no"
       )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
 
     name = "clock"
     config = qs.new(
@@ -772,8 +772,8 @@ def populate_ps_questions(options)
       valid     = "false,true",
       eval      = "no"
       )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
   
   end
 
@@ -783,12 +783,12 @@ def populate_ps_questions(options)
 #    question  = "Use Mirror",
 #    ask       = "no",
 #    parameter = "apt-setup/use_mirror",
-#    value     = options['usemirror'].to_s,
+#    value     = values['usemirror'].to_s,
 #    valid     = "",
 #    eval      = "no"
 #    )
-#  options['q_struct'][name] = config
-#  options['q_order'].push(name)
+#  values['q_struct'][name] = config
+#  values['q_order'].push(name)
 
   name = "mirror_country"
   config = qs.new(
@@ -800,8 +800,8 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "mirror_hostname"
   config = qs.new(
@@ -810,12 +810,12 @@ def populate_ps_questions(options)
     ask       = "no",
     parameter = "mirror/http/hostname",
     #value     = mirror_hostname,
-    value     = options['mirror'].to_s,
+    value     = values['mirror'].to_s,
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "mirror_directory"
   config = qs.new(
@@ -823,13 +823,13 @@ def populate_ps_questions(options)
     question  = "Mirror directory",
     ask       = "no",
     parameter = "mirror/http/directory",
-    #value     = "/"+options['service'],
-    value     = options['mirrordir'],
+    #value     = "/"+values['service'],
+    value     = values['mirrordir'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   #name = "mirror_url"
   #config = qs.new(
@@ -837,15 +837,15 @@ def populate_ps_questions(options)
   #  question  = "Mirror URL",
   #  ask       = "no",
   #  parameter = "mirror/http/directory",
-  #  #value     = "/"+options['service'],
-  #  value     = options['mirrorurl'],
+  #  #value     = "/"+values['service'],
+  #  value     = values['mirrorurl'],
   #  valid     = "",
   #  eval      = "no"
   #  )
-  #options['q_struct'][name] = config
-  #options['q_order'].push(name)
+  #values['q_struct'][name] = config
+  #values['q_order'].push(name)
 
-  if !options['method'].to_s.match(/ci/)
+  if !values['method'].to_s.match(/ci/)
 
     name = "mirror_proxy"
     config = qs.new(
@@ -857,8 +857,8 @@ def populate_ps_questions(options)
       valid     = "",
       eval      = "no"
       )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
 
     name = "updates"
     config = qs.new(
@@ -870,13 +870,13 @@ def populate_ps_questions(options)
       valid     = "",
       eval      = "no"
       )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
 
   end
 
-  if options['software'].to_s.match(/[a-z]/)
-    software = options['software']
+  if values['software'].to_s.match(/[a-z]/)
+    software = values['software']
   else
     software = "openssh-server"
   end
@@ -891,10 +891,10 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
-  if !options['method'].to_s.match(/ci/)
+  if !values['method'].to_s.match(/ci/)
 
     name = "additional_packages"
     config = qs.new(
@@ -906,8 +906,8 @@ def populate_ps_questions(options)
       valid     = "",
       eval      = "no"
       )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
 
   end
 
@@ -921,8 +921,8 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "basicfilesystem_choose_label"
   config = qs.new(
@@ -934,8 +934,8 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "basicfilesystem_default_label"
   config = qs.new(
@@ -947,8 +947,8 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "partition_choose_label"
   config = qs.new(
@@ -960,8 +960,8 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "partition_default_label"
   config = qs.new(
@@ -973,8 +973,8 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "choose_label"
   config = qs.new(
@@ -986,8 +986,8 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "default_label"
   config = qs.new(
@@ -999,8 +999,8 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "partition_disk"
   config = qs.new(
@@ -1008,12 +1008,12 @@ def populate_ps_questions(options)
     question  = "Parition disk",
     ask       = "yes",
     parameter = "partman-auto/disk",
-    value     = options['rootdisk'],
+    value     = values['rootdisk'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "partition_method"
   config = qs.new(
@@ -1025,8 +1025,8 @@ def populate_ps_questions(options)
     valid     = "regular,lvm,crypto",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "remove_existing_lvm"
   config = qs.new(
@@ -1038,8 +1038,8 @@ def populate_ps_questions(options)
     valid     = "true,false",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "remove_existing_md"
   config = qs.new(
@@ -1051,8 +1051,8 @@ def populate_ps_questions(options)
     valid     = "true,false",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "partition_write"
   config = qs.new(
@@ -1064,8 +1064,8 @@ def populate_ps_questions(options)
     valid     = "true,false",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "partition_overwrite"
   config = qs.new(
@@ -1077,8 +1077,8 @@ def populate_ps_questions(options)
     valid     = "true,false",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name) 
+  values['q_struct'][name] = config
+  values['q_order'].push(name) 
 
   name = "partition_size"
   config = qs.new(
@@ -1090,8 +1090,8 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name) 
+  values['q_struct'][name] = config
+  values['q_order'].push(name) 
 
   name = "filesystem_type"
   config = qs.new(
@@ -1103,8 +1103,8 @@ def populate_ps_questions(options)
     valid     = "ext3,ext4,xfs",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "volume_name"
   config = qs.new(
@@ -1112,14 +1112,14 @@ def populate_ps_questions(options)
     question  = "Volume name",
     ask       = "yes",
     parameter = "partman-auto-lvm/new_vg_name",
-    value     = options['vgname'],
+    value     = values['vgname'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
-  if options['splitvols'] == true
+  if values['splitvols'] == true
 
     name = "filesystem_layout"
     config = qs.new(
@@ -1131,8 +1131,8 @@ def populate_ps_questions(options)
       valid     = "",
       eval      = "no"
       )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
 
     name = "filesystem_recipe"
     config = qs.new(
@@ -1142,117 +1142,117 @@ def populate_ps_questions(options)
       parameter = "partman-auto/expert_recipe",
       value     = "\\\n"+
                   "boot-root :: \\\n"+
-                  "#{options['bootsize']} 10 #{options['bootsize']} #{options['bootfs']} \\\n"+
+                  "#{values['bootsize']} 10 #{values['bootsize']} #{values['bootfs']} \\\n"+
                   "$primary{ } \\\n"+
                   "$bootable{ } \\\n"+
                   "$defaultignore{ } \\\n"+
                   "method{ format } \\\n"+
                   "format{ } \\\n"+
                   "use_filesystem{ } \\\n"+
-                  "filesystem{ #{options['bootfs']} } \\\n"+
+                  "filesystem{ #{values['bootfs']} } \\\n"+
                   "mountpoint{ /boot } \\\n"+
                   ".\\\n"+
-                  "#{options['swapsize']} 20 #{options['swapsize']} #{options['swapfs']} \\\n"+
+                  "#{values['swapsize']} 20 #{values['swapsize']} #{values['swapfs']} \\\n"+
                   "$defaultignore{ } \\\n"+
                   "$lvmok{ } \\\n"+
-                  "in_vg { #{options['vgname']} } \\\n"+
+                  "in_vg { #{values['vgname']} } \\\n"+
                   "format{ } \\\n"+
                   "lv_name{ swap } \\\n"+
                   "method{ swap } \\\n"+
                   ".\\\n"+
-                  "#{options['rootsize']} 30 #{options['rootsize']} #{options['rootfs']} \\\n"+
+                  "#{values['rootsize']} 30 #{values['rootsize']} #{values['rootfs']} \\\n"+
                   "$defaultignore{ } \\\n"+
                   "$lvmok{ } \\\n"+
-                  "in_vg { #{options['vgname']} } \\\n"+
+                  "in_vg { #{values['vgname']} } \\\n"+
                   "lv_name{ root } \\\n"+
                   "method{ format } \\\n"+
                   "format{ } \\\n"+
                   "use_filesystem{ } \\\n"+
-                  "filesystem{ #{options['rootfs']} } \\\n"+
+                  "filesystem{ #{values['rootfs']} } \\\n"+
                   "mountpoint{ / } \\\n"+
                   ".\\\n"+
-                  "#{options['tmpsize']} 40 #{options['tmpsize']} #{options['tmpfs']} \\\n"+
+                  "#{values['tmpsize']} 40 #{values['tmpsize']} #{values['tmpfs']} \\\n"+
                   "$defaultignore{ } \\\n"+
                   "$lvmok{ } \\\n"+
-                  "in_vg { #{options['vgname']} } \\\n"+
+                  "in_vg { #{values['vgname']} } \\\n"+
                   "lv_name{ tmp } \\\n"+
                   "method{ format } \\\n"+
                   "format{ } \\\n"+
                   "use_filesystem{ } \\\n"+
-                  "filesystem{ #{options['tmpfs']} } \\\n"+
+                  "filesystem{ #{values['tmpfs']} } \\\n"+
                   "mountpoint{ /tmp } \\\n"+
                   ".\\\n"+
-                  "#{options['varsize']} 50 #{options['varsize']} #{options['varfs']} \\\n"+
+                  "#{values['varsize']} 50 #{values['varsize']} #{values['varfs']} \\\n"+
                   "$defaultignore{ } \\\n"+
                   "$lvmok{ } \\\n"+
-                  "in_vg { #{options['vgname']} } \\\n"+
+                  "in_vg { #{values['vgname']} } \\\n"+
                   "lv_name{ var } \\\n"+
                   "method{ format } \\\n"+
                   "format{ } \\\n"+
                   "use_filesystem{ } \\\n"+
-                  "filesystem{ #{options['varfs']} } \\\n"+
+                  "filesystem{ #{values['varfs']} } \\\n"+
                   "mountpoint{ /var } \\\n"+
                   ".\\\n"+
-                  "#{options['logsize']} 60 #{options['logsize']} #{options['logfs']} \\\n"+
+                  "#{values['logsize']} 60 #{values['logsize']} #{values['logfs']} \\\n"+
                   "$defaultignore{ } \\\n"+
                   "$lvmok{ } \\\n"+
-                  "in_vg { #{options['vgname']} } \\\n"+
+                  "in_vg { #{values['vgname']} } \\\n"+
                   "lv_name{ log } \\\n"+
                   "method{ format } \\\n"+
                   "format{ } \\\n"+
                   "use_filesystem{ } \\\n"+
-                  "filesystem{ #{options['logfs']} } \\\n"+
+                  "filesystem{ #{values['logfs']} } \\\n"+
                   "mountpoint{ /var/log } \\\n"+
                   ".\\\n"+
-                  "#{options['usrsize']} 70 #{options['usrsize']} #{options['usrfs']} \\\n"+
+                  "#{values['usrsize']} 70 #{values['usrsize']} #{values['usrfs']} \\\n"+
                   "$defaultignore{ } \\\n"+
                   "$lvmok{ } \\\n"+
-                  "in_vg { #{options['vgname']} } \\\n"+
+                  "in_vg { #{values['vgname']} } \\\n"+
                   "lv_name{ usr } \\\n"+
                   "method{ format } \\\n"+
                   "format{ } \\\n"+
                   "use_filesystem{ } \\\n"+
-                  "filesystem{ #{options['usrfs']} } \\\n"+
+                  "filesystem{ #{values['usrfs']} } \\\n"+
                   "mountpoint{ /usr } \\\n"+
                   ".\\\n"+
-                  "#{options['localsize']} 80 #{options['localsize']} #{options['localfs']} \\\n"+
+                  "#{values['localsize']} 80 #{values['localsize']} #{values['localfs']} \\\n"+
                   "$defaultignore{ } \\\n"+
                   "$lvmok{ } \\\n"+
-                  "in_vg { #{options['vgname']} } \\\n"+
+                  "in_vg { #{values['vgname']} } \\\n"+
                   "lv_name{ local } \\\n"+
                   "method{ format } \\\n"+
                   "format{ } \\\n"+
                   "use_filesystem{ } \\\n"+
-                  "filesystem{ #{options['localfs']} } \\\n"+
+                  "filesystem{ #{values['localfs']} } \\\n"+
                   "mountpoint{ /usr/local } \\\n"+
                   ".\\\n"+
-                  "#{options['homesize']} 90 #{options['homesize']} #{options['homefs']} \\\n"+
+                  "#{values['homesize']} 90 #{values['homesize']} #{values['homefs']} \\\n"+
                   "$defaultignore{ } \\\n"+
                   "$lvmok{ } \\\n"+
-                  "in_vg { #{options['vgname']} } \\\n"+
+                  "in_vg { #{values['vgname']} } \\\n"+
                   "lv_name{ home } \\\n"+
                   "method{ format } \\\n"+
                   "format{ } \\\n"+
                   "use_filesystem{ } \\\n"+
-                  "filesystem{ #{options['homefs']} } \\\n"+
+                  "filesystem{ #{values['homefs']} } \\\n"+
                   "mountpoint{ /home } \\\n"+
                   ".\\\n"+
-                  "#{options['scratchsize']} 95 -1 #{options['scratchfs']} \\\n"+
+                  "#{values['scratchsize']} 95 -1 #{values['scratchfs']} \\\n"+
                   "$defaultignore{ } \\\n"+
                   "$lvmok{ } \\\n"+
-                  "in_vg { #{options['vgname']} } \\\n"+
+                  "in_vg { #{values['vgname']} } \\\n"+
                   "lv_name{ scratch } \\\n"+
                   "method{ format }  \\\n"+
                   "format{ } \\\n"+
                   "use_filesystem{ } \\\n"+
-                  "filesystem{ #{options['scratchfs']} } \\\n"+
+                  "filesystem{ #{values['scratchfs']} } \\\n"+
                   "mountpoint{ /scratch } \\\n"+
                   ".",
       valid     = "",
       eval      = "no"
       )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
   
   else
 
@@ -1266,8 +1266,8 @@ def populate_ps_questions(options)
       valid     = "string,atomic,home,multi",
       eval      = "no"
       )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
 
   end
 
@@ -1281,8 +1281,8 @@ def populate_ps_questions(options)
     valid     = "true,false",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "partition_finish"
   config = qs.new(
@@ -1294,8 +1294,8 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "partition_confirm"
   config = qs.new(
@@ -1307,8 +1307,8 @@ def populate_ps_questions(options)
     valid     = "true,faule",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "partition_nooverwrite"
   config = qs.new(
@@ -1320,8 +1320,8 @@ def populate_ps_questions(options)
     valid     = "true,false",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "kernel_image"
   config = qs.new(
@@ -1333,8 +1333,8 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "additional_packages"
   config = qs.new(
@@ -1346,8 +1346,8 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "root_login"
   config = qs.new(
@@ -1359,8 +1359,8 @@ def populate_ps_questions(options)
     valid     = "true,false",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "make_user"
   config = qs.new(
@@ -1372,8 +1372,8 @@ def populate_ps_questions(options)
     valid     = "true,false",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "root_password"
   config = qs.new(
@@ -1381,12 +1381,12 @@ def populate_ps_questions(options)
     question  = "Root password",
     ask       = "yes",
     parameter = "",
-    value     = options['rootpassword'],
+    value     = values['rootpassword'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "root_crypt"
   config = qs.new(
@@ -1394,12 +1394,12 @@ def populate_ps_questions(options)
     question  = "Root Password Crypt",
     ask       = "yes",
     parameter = "passwd/root-password-crypted",
-    value     = get_password_crypt(options['rootpassword']),
+    value     = get_password_crypt(values['rootpassword']),
     valid     = "",
     eval      = "get_password_crypt(answer)"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "install_grub_mbr"
   config = qs.new(
@@ -1411,8 +1411,8 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = ""
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "install_grub_bootdev"
   config = qs.new(
@@ -1420,12 +1420,12 @@ def populate_ps_questions(options)
     question  = "Install grub to device",
     ask       = "yes",
     parameter = "grub-installer/bootdev",
-    value     = options['rootdisk'],
+    value     = values['rootdisk'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "reboot_note"
   config = qs.new(
@@ -1437,32 +1437,32 @@ def populate_ps_questions(options)
     valid     = "",
     eval      = ""
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
-  if options['type'].to_s.match(/packer/)
-    if options['vmnetwork'].to_s.match(/hostonly|bridged/)
-      if options['host-os-uname'].to_s.match(/Darwin/) && options['host-os-version'].to_i > 10 
-        script_url = "http://"+options['hostip'].to_s+":"+options['httpport'].to_s+"/"+options['vm'].to_s+"/"+options['name'].to_s+"/"+options['name'].to_s+"_post.sh"
+  if values['type'].to_s.match(/packer/)
+    if values['vmnetwork'].to_s.match(/hostonly|bridged/)
+      if values['host-os-uname'].to_s.match(/Darwin/) && values['host-os-version'].to_i > 10 
+        script_url = "http://"+values['hostip'].to_s+":"+values['httpport'].to_s+"/"+values['vm'].to_s+"/"+values['name'].to_s+"/"+values['name'].to_s+"_post.sh"
       else
-        script_url = "http://"+gateway+":"+options['httpport'].to_s+"/"+options['vm'].to_s+"/"+options['name'].to_s+"/"+options['name'].to_s+"_post.sh"
+        script_url = "http://"+gateway+":"+values['httpport'].to_s+"/"+values['vm'].to_s+"/"+values['name'].to_s+"/"+values['name'].to_s+"_post.sh"
       end
     else
-      if options['host-os-uname'].to_s.match(/Darwin/) && options['host-os-version'].to_i > 10 
-        script_url = "http://"+options['hostip'].to_s+":"+options['httpport'].to_s+"/"+options['vm'].to_s+"/"+options['name'].to_s+"/"+options['name'].to_s+"_post.sh"
+      if values['host-os-uname'].to_s.match(/Darwin/) && values['host-os-version'].to_i > 10 
+        script_url = "http://"+values['hostip'].to_s+":"+values['httpport'].to_s+"/"+values['vm'].to_s+"/"+values['name'].to_s+"/"+values['name'].to_s+"_post.sh"
       else
-        script_url = "http://"+options['hostonlyip'].to_s+":"+options['httpport'].to_s+"/"+options['vm'].to_s+"/"+options['name'].to_s+"/"+options['name'].to_s+"_post.sh"
+        script_url = "http://"+values['hostonlyip'].to_s+":"+values['httpport'].to_s+"/"+values['vm'].to_s+"/"+values['name'].to_s+"/"+values['name'].to_s+"_post.sh"
       end
     end
   else
-    if options['server'] == options['empty']
-      script_url = "http://"+options['hostip'].to_s+"/"+options['name'].to_s+"/"+options['name'].to_s+"_post.sh"
+    if values['server'] == values['empty']
+      script_url = "http://"+values['hostip'].to_s+"/"+values['name'].to_s+"/"+values['name'].to_s+"_post.sh"
     else
-      script_url = "http://"+options['server'].to_s+"/"+options['name'].to_s+"/"+options['name'].to_s+"_post.sh"
+      script_url = "http://"+values['server'].to_s+"/"+values['name'].to_s+"/"+values['name'].to_s+"_post.sh"
     end
   end
 
-#  if not options['type'].to_s.match(/packer/)
+#  if not values['type'].to_s.match(/packer/)
 
     name = "late_command"
     config = qs.new(
@@ -1474,10 +1474,10 @@ def populate_ps_questions(options)
       valid     = "",
       eval      = ""
       )
-    options['q_struct'][name] = config
-    options['q_order'].push(name)
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
 
 #  end
   
-  return options
+  return values
 end

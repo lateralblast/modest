@@ -1,7 +1,7 @@
 
 # Populate array of structs containing AI manifest questions
 
-def populate_ai_manifest_questions(options)
+def populate_ai_manifest_questions(values)
 
   qs = Struct.new(:question, :ask, :value, :valid, :eval)
 
@@ -13,45 +13,45 @@ def populate_ai_manifest_questions(options)
     valid     = "true,false",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "headless_mode"
   config = qs.new(
     question  = "Headless mode",
     ask       = "yes",
-    value     = options['headless'].to_s.downcase,
+    value     = values['headless'].to_s.downcase,
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name    = "ai_publisherurl"
-  options = get_ai_publisherurl(options)
+  values = get_ai_publisherurl(values)
   config = qs.new(
     question  = "Publisher URL",
     ask       = "yes",
-    value     = options['publisherurl'],
+    value     = values['publisherurl'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "server_install"
   config = qs.new(
     question  = "Server install",
     ask       = "yes",
-    value     = "pkg:/group/system/solaris-"+options['size']+"-server",
+    value     = "pkg:/group/system/solaris-"+values['size']+"-server",
     valid     = "pkg:/group/system/solaris-large-server,pkg:/group/system/solaris-small-server",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "repo_url"
-  repo_url = get_ai_repo_url(options)
+  repo_url = get_ai_repo_url(values)
   config = qs.new(
     question  = "Solaris repository version",
     ask       = "yes",
@@ -59,17 +59,17 @@ def populate_ai_manifest_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
-  return options
+  return values
 end
 
 # Populate array of structs with profile questions
 
-def populate_ai_client_profile_questions(options)
-  options['q_struct']={}
-  options['q_order']=[]
+def populate_ai_client_profile_questions(values)
+  values['q_struct']={}
+  values['q_order']=[]
 
   name = "headless_mode"
   config = Js.new(
@@ -77,34 +77,34 @@ def populate_ai_client_profile_questions(options)
     question  = "Headless mode",
     ask       = "yes",
     parameter = "",
-    value     = options['headless'].to_s.downcase,
+    value     = values['headless'].to_s.downcase,
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "root_password"
   config = qs.new(
     question  = "Root Password",
     ask       = "yes",
-    value     = options['rootpassword'],
+    value     = values['rootpassword'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "root_crypt"
   config = qs.new(
     question  = "Root Password Crypt",
     ask       = "yes",
-    value     = "get_root_password_crypt(options)",
+    value     = "get_root_password_crypt(values)",
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "root_type"
   config = qs.new(
@@ -114,8 +114,8 @@ def populate_ai_client_profile_questions(options)
     valid     = "role,normal",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "root_expire"
   config = qs.new(
@@ -125,41 +125,41 @@ def populate_ai_client_profile_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "admin_username"
   config = qs.new(
     question  = "Account login name",
     ask       = "yes",
-    value     = options['adminuser'],
+    value     = values['adminuser'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "admin_password"
   config = qs.new(
     question  = "Admin Account Password",
     ask       = "yes",
-    value     = options['adminpassword'],
+    value     = values['adminpassword'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "admin_crypt"
   config = qs.new(
     question  = "Admin Account Password Crypt",
     ask       = "yes",
-    value     = "get_admin_password_crypt(options)",
+    value     = "get_admin_password_crypt(values)",
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "admin_description"
   config = qs.new(
@@ -169,19 +169,19 @@ def populate_ai_client_profile_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "admin_home"
   config = qs.new(
     question  = "Account Home",
     ask       = "yes",
-    value     = "/export/home/"+options['adminuser'],
+    value     = "/export/home/"+values['adminuser'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "admin_shell"
   vaild_shells=get_valid_shells()
@@ -192,8 +192,8 @@ def populate_ai_client_profile_questions(options)
     valid     = vaild_shells,
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "admin_uid"
   config = qs.new(
@@ -201,10 +201,10 @@ def populate_ai_client_profile_questions(options)
     ask       = "yes",
     value     = "101",
     valid     = "",
-    eval      = "check_valid_uid(options, answer)"
+    eval      = "check_valid_uid(values, answer)"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "admin_gid"
   config = qs.new(
@@ -212,10 +212,10 @@ def populate_ai_client_profile_questions(options)
     ask       = "yes",
     value     = "10",
     valid     = "",
-    eval      = "check_valid_gid(options, answer)"
+    eval      = "check_valid_gid(values, answer)"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "admin_type"
   config = qs.new(
@@ -225,8 +225,8 @@ def populate_ai_client_profile_questions(options)
     valid     = "normal,role",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "admin_roles"
   config = qs.new(
@@ -236,8 +236,8 @@ def populate_ai_client_profile_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "admin_profiles"
   config = qs.new(
@@ -247,8 +247,8 @@ def populate_ai_client_profile_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "admin_sudoers"
   config = qs.new(
@@ -258,8 +258,8 @@ def populate_ai_client_profile_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "admin_expire"
   config = qs.new(
@@ -269,76 +269,76 @@ def populate_ai_client_profile_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "system_identity"
   config = qs.new(
     question  = "Hostname",
     ask       = "yes",
-    value     = options['name'],
+    value     = values['name'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "system_console"
   config = qs.new(
     question  = "Terminal Type",
     ask       = "yes",
-    value     = options['terminal'],
+    value     = values['terminal'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "system_keymap"
   config = qs.new(
     question  = "System Keymap",
     ask       = "yes",
-    value     = options['keymap'],
+    value     = values['keymap'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "system_timezone"
   config = qs.new(
     question  = "System Timezone",
     ask       = "yes",
-    value     = options['timezone'],
+    value     = values['timezone'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "system_environment"
   config = qs.new(
     question  = "System Environment",
     ask       = "yes",
-    value     = options['environment'],
+    value     = values['environment'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "ipv4_interface_name"
   config = qs.new(
     question  = "IPv4 interface name",
     ask       = "yes",
-    value     = "#{options['nic']}/v4",
+    value     = "#{values['nic']}/v4",
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
-  ipv4_address = options['ip']+"/"+options['cidr']
+  ipv4_address = values['ip']+"/"+values['cidr']
 
   name = "ipv4_static_address"
   config = qs.new(
@@ -348,11 +348,11 @@ def populate_ai_client_profile_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "ipv4_default_route"
-  ipv4_default_route = get_ipv4_default_route(options)
+  ipv4_default_route = get_ipv4_default_route(values)
   config = qs.new(
     question  = "IPv4 Default Route",
     ask       = "yes",
@@ -360,98 +360,98 @@ def populate_ai_client_profile_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "ipv6_interface_name"
   config = qs.new(
     question  = "IPv6 Interface Name",
     ask       = "yes",
-    value     = "#{options['nic']}/v6",
+    value     = "#{values['nic']}/v6",
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "dns_nameserver"
   config = qs.new(
     question  = "Nameserver",
     ask       = "yes",
-    value     = options['nameserver'],
+    value     = values['nameserver'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "dns_search"
   config = qs.new(
     question  = "DNS Search Domain",
     ask       = "yes",
-    value     = options['local'],
+    value     = values['local'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "dns_files"
   config = qs.new(
     question  = "DNS Default Lookup",
     ask       = "yes",
-    value     = options['files'],
+    value     = values['files'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "dns_hosts"
     config = qs.new(
     question  = "DNS Hosts Lookup",
     ask       = "yes",
-    value     = options['hosts'],
+    value     = values['hosts'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "bename"
     config = qs.new(
     question  = "Boot Environment name",
     ask       = "yes",
-    value     = options['bename'],
+    value     = values['bename'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "rpool"
     config = qs.new(
     question  = "Root disk ZFS pool name",
     ask       = "yes",
-    value     = options['rpoolname'],
+    value     = values['rpoolname'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "rootdisk"
     config = qs.new(
     question  = "Root disk",
     ask       = "yes",
-    value     = options['rootdisk'],
+    value     = values['rootdisk'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
-  mirror_disk_id = get_js_mirror_disk_id(options)
+  mirror_disk_id = get_js_mirror_disk_id(values)
 
   name = "mirrordisk"
     config = qs.new(
@@ -461,8 +461,8 @@ def populate_ai_client_profile_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
-  return options
+  return values
 end

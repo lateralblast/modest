@@ -1,18 +1,18 @@
 # LXC quextions
 
-def populate_lxc_client_questions(options)
+def populate_lxc_client_questions(values)
   lx = Struct.new(:question, :ask, :value, :valid, :eval)
 
   name = "root_password"
   config = lx.new(
     question  = "Root password",
     ask       = "yes",
-    value     = options['rootpassword'],
+    value     = values['rootpassword'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "root_crypt"
   config = lx.new(
@@ -22,96 +22,96 @@ def populate_lxc_client_questions(options)
     valid     = "",
     eval      = "get_root_password_crypt()"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "admin_fullname"
   config = lx.new(
     question  = "User full name",
     ask       = "yes",
-    value     = options['adminname'],
+    value     = values['adminname'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "admin_username"
   config = lx.new(
     question  = "Username",
     ask       = "yes",
-    value     = options['adminuser'],
+    value     = values['adminuser'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "admin_uid"
   config = lx.new(
     question  = "User UID",
     ask       = "yes",
-    value     = options['adminuid'],
+    value     = values['adminuid'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "admin_group"
   config = lx.new(
     question  = "User Group",
     ask       = "yes",
-    value     = options['admingroup'],
+    value     = values['admingroup'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "admin_gid"
   config = lx.new(
     question  = "User GID",
     ask       = "yes",
-    value     = options['admingid'],
+    value     = values['admingid'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "admin_home"
   config = lx.new(
     question  = "User Home Directory",
     ask       = "yes",
-    value     = options['adminhome'],
+    value     = values['adminhome'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "admin_shell"
   config = lx.new(
     question  = "User Shell",
     ask       = "yes",
-    value     = options['adminshell'],
+    value     = values['adminshell'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "admin_password"
   config = lx.new(
     question  = "User password",
     ask       = "yes",
-    value     = options['adminpassword'],
+    value     = values['adminpassword'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "admin_crypt"
   config = lx.new(
@@ -121,43 +121,43 @@ def populate_lxc_client_questions(options)
     valid     = "",
     eval      = "get_admin_password_crypt()"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
 name = "nameserver"
   config = lx.new(
     question  = "Nameservers",
     ask       = "yes",
-    value     = options['nameserver'],
+    value     = values['nameserver'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "ip"
   config = lx.new(
     question  = "IP address",
     ask       = "yes",
-    value     = options['ip'],
+    value     = values['ip'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "netmask"
   config = lx.new(
     question  = "Netmask",
     ask       = "yes",
-    value     = options['netmask'],
+    value     = values['netmask'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
-  gateway = options['ip'].split(/\./)[0..2].join(".")+"."+options['gatewaynode']
+  gateway = values['ip'].split(/\./)[0..2].join(".")+"."+values['gatewaynode']
 
   name = "gateway"
   config = lx.new(
@@ -167,10 +167,10 @@ name = "nameserver"
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
-  broadcast = options['ip'].split(/\./)[0..2].join(".")+".255"
+  broadcast = values['ip'].split(/\./)[0..2].join(".")+".255"
 
   name = "broadcast"
   config = lx.new(
@@ -180,10 +180,10 @@ name = "nameserver"
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
-  network_address = options['ip'].split(/\./)[0..2].join(".")+".0"
+  network_address = values['ip'].split(/\./)[0..2].join(".")+".0"
 
   name = "network_address"
   config = lx.new(
@@ -193,51 +193,51 @@ name = "nameserver"
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
-  return options
+  return values
 end
 
 # LXC server populate_lxc_client_questions
 
-def populate_lxc_server_questions(options)
+def populate_lxc_server_questions(values)
   lx = Struct.new(:question, :ask, :value, :valid, :eval)
 
   name = "nameserver"
   config = lx.new(
     question  = "Nameservers",
     ask       = "yes",
-    value     = options['nameserver'],
+    value     = values['nameserver'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "ip"
   config = lx.new(
     question  = "IP address",
     ask       = "yes",
-    value     = options['hostip'],
+    value     = values['hostip'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "netmask"
   config = lx.new(
     question  = "Netmask",
     ask       = "yes",
-    value     = options['netmask'],
+    value     = values['netmask'],
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
-  gateway = options['hostip'].split(/\./)[0..2].join(".")+"."+options['gatewaynode']
+  gateway = values['hostip'].split(/\./)[0..2].join(".")+"."+values['gatewaynode']
 
   name = "gateway"
   config = lx.new(
@@ -247,10 +247,10 @@ def populate_lxc_server_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
-  broadcast = options['hostip'].split(/\./)[0..2].join(".")+".255"
+  broadcast = values['hostip'].split(/\./)[0..2].join(".")+".255"
 
   name = "broadcast"
   config = lx.new(
@@ -260,10 +260,10 @@ def populate_lxc_server_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
-  network_address = options['hostip'].split(/\./)[0..2].join(".")+".0"
+  network_address = values['hostip'].split(/\./)[0..2].join(".")+".0"
 
   name = "network_address"
   config = lx.new(
@@ -273,8 +273,8 @@ def populate_lxc_server_questions(options)
     valid     = "",
     eval      = "no"
     )
-  options['q_struct'][name] = config
-  options['q_order'].push(name)
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
-  return options
+  return values
 end

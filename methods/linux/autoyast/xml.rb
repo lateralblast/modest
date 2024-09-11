@@ -3,10 +3,10 @@
 
 # Populate hosts
 
-def populate_ay_hosts(options)
+def populate_ay_hosts(values)
   hosts = []
   hosts.push("127.0.0.1,localhost")
-  hosts.push("#{options['ip']},#{options['name']},#{options['name']}.#{options['domainname']}")
+  hosts.push("#{values['ip']},#{values['name']},#{values['name']}.#{values['domainname']}")
   hosts.push("::1,localhost ipv6-localhost ipv6-loopback")
   hosts.push("fe00::0,ipv6-localnet")
   hosts.push("ff00::0,ipv6-mcastprefix")
@@ -18,7 +18,7 @@ end
 
 # Populate inetd information
 
-def populate_ay_inetd(options)
+def populate_ay_inetd(values)
   inetd = Struct.new(:enabled, :iid, :protocol, :script, :server, :service)
 
   service = "chargen"
@@ -30,8 +30,8 @@ def populate_ay_inetd(options)
     server   = "",
     service  = service
     )
-  options['i_order'].push(service)
-  options['i_struct'][service] = config
+  values['i_order'].push(service)
+  values['i_struct'][service] = config
 
   service = "chargen-udp"
   config  = inetd.new(
@@ -42,8 +42,8 @@ def populate_ay_inetd(options)
     server   = "",
     service  = "chargen"
     )
-  options['i_order'].push(service)
-  options['i_struct'][service] = config
+  values['i_order'].push(service)
+  values['i_struct'][service] = config
 
   service = "cups-lpd"
   config  = inetd.new(
@@ -54,8 +54,8 @@ def populate_ay_inetd(options)
     server   = "/usr/lib64/cups/daemon/cups-lpd",
     service  = "printer"
     )
-  options['i_order'].push(service)
-  options['i_struct'][service] = config
+  values['i_order'].push(service)
+  values['i_struct'][service] = config
 
   service = "cvs"
   config  = inetd.new(
@@ -66,8 +66,8 @@ def populate_ay_inetd(options)
     server   = "/usr/bin/cvs",
     service  = "cvspserver"
     )
-  options['i_order'].push(service)
-  options['i_struct'][service] = config
+  values['i_order'].push(service)
+  values['i_struct'][service] = config
 
   service = "daytime"
   config  = inetd.new(
@@ -78,8 +78,8 @@ def populate_ay_inetd(options)
     server   = "",
     service  = service
     )
-  options['i_order'].push(service)
-  options['i_struct'][service] = config
+  values['i_order'].push(service)
+  values['i_struct'][service] = config
 
   service = "daytime-udp"
   config  = inetd.new(
@@ -90,8 +90,8 @@ def populate_ay_inetd(options)
     server   = "",
     service  = "daytime"
     )
-  options['i_order'].push(service)
-  options['i_struct'][service] = config
+  values['i_order'].push(service)
+  values['i_struct'][service] = config
 
   service = "discard"
   config  = inetd.new(
@@ -102,8 +102,8 @@ def populate_ay_inetd(options)
     server   = "",
     service  = service
     )
-  options['i_order'].push(service)
-  options['i_struct'][service] = config
+  values['i_order'].push(service)
+  values['i_struct'][service] = config
 
   service = "discard-udp"
   config  = inetd.new(
@@ -114,8 +114,8 @@ def populate_ay_inetd(options)
     server   = "",
     service  = "discard"
     )
-  options['i_order'].push(service)
-  options['i_struct'][service] = config
+  values['i_order'].push(service)
+  values['i_struct'][service] = config
 
   service = "echo"
   config  = inetd.new(
@@ -126,8 +126,8 @@ def populate_ay_inetd(options)
     server   = "",
     service  = service
     )
-  options['i_order'].push(service)
-  options['i_struct'][service] = config
+  values['i_order'].push(service)
+  values['i_struct'][service] = config
 
   service = "echo-udp"
   config  = inetd.new(
@@ -138,8 +138,8 @@ def populate_ay_inetd(options)
     server   = "",
     service  = "echo-udp"
     )
-  options['i_order'].push(service)
-  options['i_struct'][service] = config
+  values['i_order'].push(service)
+  values['i_struct'][service] = config
 
   service = "netstat"
   config  = inetd.new(
@@ -150,8 +150,8 @@ def populate_ay_inetd(options)
     server   = "/bin/"+service,
     service  = service
     )
-  options['i_order'].push(service)
-  options['i_struct'][service] = config
+  values['i_order'].push(service)
+  values['i_struct'][service] = config
 
   service = "rsync"
   config  = inetd.new(
@@ -162,8 +162,8 @@ def populate_ay_inetd(options)
     server   = "/usr/sbin/"+service+"d",
     service  = service
     )
-  options['i_order'].push(service)
-  options['i_struct'][service] = config
+  values['i_order'].push(service)
+  values['i_struct'][service] = config
 
   service = "servers"
   config  = inetd.new(
@@ -174,8 +174,8 @@ def populate_ay_inetd(options)
     server   = "",
     service  = service
     )
-  options['i_order'].push(service)
-  options['i_struct'][service] = config
+  values['i_order'].push(service)
+  values['i_struct'][service] = config
 
   service = "services"
   config  = inetd.new(
@@ -186,8 +186,8 @@ def populate_ay_inetd(options)
     server   = "",
     service  = service
     )
-  options['i_order'].push(service)
-  options['i_struct'][service] = config
+  values['i_order'].push(service)
+  values['i_struct'][service] = config
 
   service = "swat"
   config  = inetd.new(
@@ -198,8 +198,8 @@ def populate_ay_inetd(options)
     server   = "/usr/sbin/"+service,
     service  = service
     )
-  options['i_order'].push(service)
-  options['i_struct'][service] = config
+  values['i_order'].push(service)
+  values['i_struct'][service] = config
 
   service = "systat"
   config  = inetd.new(
@@ -210,8 +210,8 @@ def populate_ay_inetd(options)
     server   = "/bin/ps",
     service  = service
     )
-  options['i_order'].push(service)
-  options['i_struct'][service] = config
+  values['i_order'].push(service)
+  values['i_struct'][service] = config
 
   service = "time"
   config  = inetd.new(
@@ -222,8 +222,8 @@ def populate_ay_inetd(options)
     server   = "",
     service  = service
     )
-  options['i_order'].push(service)
-  options['i_struct'][service] = config
+  values['i_order'].push(service)
+  values['i_struct'][service] = config
 
   service = "time-udp"
   config  = inetd.new(
@@ -234,8 +234,8 @@ def populate_ay_inetd(options)
     server   = "",
     service  = "time"
     )
-  options['i_order'].push(service)
-  options['i_struct'][service] = config
+  values['i_order'].push(service)
+  values['i_struct'][service] = config
 
   service = "vnc1"
   config  = inetd.new(
@@ -246,8 +246,8 @@ def populate_ay_inetd(options)
     server   = "/usr/bin/Xvnc",
     service  = "vnc1"
     )
-  options['i_order'].push(service)
-  options['i_struct'][service] = config
+  values['i_order'].push(service)
+  values['i_struct'][service] = config
 
   service = "vnc2"
   config  = inetd.new(
@@ -258,8 +258,8 @@ def populate_ay_inetd(options)
     server   = "/usr/bin/Xvnc",
     service  = "vnc2"
     )
-  options['i_order'].push(service)
-  options['i_struct'][service] = config
+  values['i_order'].push(service)
+  values['i_struct'][service] = config
 
   service = "vnc3"
   config  = inetd.new(
@@ -270,8 +270,8 @@ def populate_ay_inetd(options)
     server   = "/usr/bin/Xvnc",
     service  = "vnc3"
     )
-  options['i_order'].push(service)
-  options['i_struct'][service] = config
+  values['i_order'].push(service)
+  values['i_struct'][service] = config
 
   service = "vnchttpd1"
   config  = inetd.new(
@@ -282,8 +282,8 @@ def populate_ay_inetd(options)
     server   = "/usr/bin/vnc_inetd_httpd",
     service  = "vnchttpd1"
     )
-  options['i_order'].push(service)
-  options['i_struct'][service] = config
+  values['i_order'].push(service)
+  values['i_struct'][service] = config
 
   service = "vnchttpd2"
   config  = inetd.new(
@@ -294,8 +294,8 @@ def populate_ay_inetd(options)
     server   = "/usr/bin/vnc_inetd_httpd",
     service  = "vnchttpd2"
     )
-  options['i_order'].push(service)
-  options['i_struct'][service] = config
+  values['i_order'].push(service)
+  values['i_struct'][service] = config
 
   service = "vnchttpd3"
   config  = inetd.new(
@@ -306,8 +306,8 @@ def populate_ay_inetd(options)
     server   = "/usr/bin/vnc_inetd_httpd",
     service  = "vnchttpd3"
     )
-  options['i_order'].push(service)
-  options['i_struct'][service] = config
+  values['i_order'].push(service)
+  values['i_struct'][service] = config
 
   return
 end
@@ -315,7 +315,7 @@ end
 
 # Populate Group information
 
-def populate_ay_groups(options)
+def populate_ay_groups(values)
   group = Struct.new(:gid, :group_password, :groupname, :userlist)
 
   group  = "users"
@@ -325,8 +325,8 @@ def populate_ay_groups(options)
     groupname      = group,
     userlist       = ""
     )
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "floppy"
   config = group.new(
@@ -335,8 +335,8 @@ def populate_ay_groups(options)
     groupname      = group,
     userlist       = ""
     )
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "bin"
   config = group.new(
@@ -345,8 +345,8 @@ def populate_ay_groups(options)
     groupname      = group,
     userlist       = "daemon"
     )
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "xok"
   config = group.new(
@@ -355,8 +355,8 @@ def populate_ay_groups(options)
     groupname      = group,
     userlist       = ""
     )
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "nobody"
   config = group.new(
@@ -365,8 +365,8 @@ def populate_ay_groups(options)
     groupname      = group,
     userlist       = ""
     )
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "modem"
   config = group.new(
@@ -375,8 +375,8 @@ def populate_ay_groups(options)
     groupname      = group,
     userlist       = ""
     )
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "lp"
   config = group.new(
@@ -385,8 +385,8 @@ def populate_ay_groups(options)
     groupname      = group,
     userlist       = ""
     )
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "tty"
   config = group.new(
@@ -395,11 +395,11 @@ def populate_ay_groups(options)
     groupname      = group,
     userlist       = ""
     )
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "postfix"
-  if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+  if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
     config = group.new(
       gid            = "51",
       group_password = "x",
@@ -414,8 +414,8 @@ def populate_ay_groups(options)
       userlist       = ""
       )
   end
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "uuid"
   config = group.new(
@@ -424,11 +424,11 @@ def populate_ay_groups(options)
     groupname      = group,
     userlist       = ""
     )
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "gdm"
-  if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+  if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
     config = group.new(
       gid            = "485",
       group_password = "x",
@@ -443,8 +443,8 @@ def populate_ay_groups(options)
       userlist       = ""
       )
   end
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "nogroup"
   config = group.new(
@@ -453,11 +453,11 @@ def populate_ay_groups(options)
     groupname      = group,
     userlist       = "nobody"
     )
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "maildrop"
-  if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+  if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
     config = group.new(
       gid            = "59",
       group_password = "x",
@@ -472,11 +472,11 @@ def populate_ay_groups(options)
       userlist       = ""
       )
   end
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "messagebus"
-  if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+  if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
     config = group.new(
       gid            = "499",
       group_password = "x",
@@ -491,8 +491,8 @@ def populate_ay_groups(options)
       userlist       = ""
       )
   end
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "video"
   config = group.new(
@@ -501,8 +501,8 @@ def populate_ay_groups(options)
     groupname      = group,
     userlist       = ""
     )
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "sys"
   config = group.new(
@@ -511,8 +511,8 @@ def populate_ay_groups(options)
     groupname      = group,
     userlist       = ""
     )
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "shadow"
   config = group.new(
@@ -521,8 +521,8 @@ def populate_ay_groups(options)
     groupname      = group,
     userlist       = ""
     )
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "console"
   config = group.new(
@@ -531,8 +531,8 @@ def populate_ay_groups(options)
     groupname      = group,
     userlist       = ""
     )
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "cdrom"
   config = group.new(
@@ -541,8 +541,8 @@ def populate_ay_groups(options)
     groupname      = group,
     userlist       = ""
     )
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "haldaemon"
   config = group.new(
@@ -551,8 +551,8 @@ def populate_ay_groups(options)
     groupname      = group,
     userlist       = ""
     )
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "trusted"
   config = group.new(
@@ -561,8 +561,8 @@ def populate_ay_groups(options)
     groupname      = group,
     userlist       = ""
     )
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "puppet"
   config = group.new(
@@ -571,8 +571,8 @@ def populate_ay_groups(options)
     groupname      = group,
     userlist       = ""
     )
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "dialout"
   config = group.new(
@@ -581,10 +581,10 @@ def populate_ay_groups(options)
     groupname      = group,
     userlist       = ""
     )
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
-  if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+  if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
 
     group  = "polkitd"
     config = group.new(
@@ -593,8 +593,8 @@ def populate_ay_groups(options)
       groupname      = group,
       userlist       = ""
       )
-    options['g_order'].push(group)
-    options['g_struct'][group] = config
+    values['g_order'].push(group)
+    values['g_struct'][group] = config
 
   else
 
@@ -605,13 +605,13 @@ def populate_ay_groups(options)
       groupname      = group,
       userlist       = ""
       )
-    options['g_order'].push(group)
-    options['g_struct'][group] = config
+    values['g_order'].push(group)
+    values['g_struct'][group] = config
 
   end
 
   group  = "pulse"
-  if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+  if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
     config = group.new(
       gid            = "489",
       group_password = "x",
@@ -626,8 +626,8 @@ def populate_ay_groups(options)
       userlist       = ""
       )
   end
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "wheel"
   config = group.new(
@@ -636,8 +636,8 @@ def populate_ay_groups(options)
     groupname      = group,
     userlist       = ""
     )
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "www"
   config = group.new(
@@ -646,8 +646,8 @@ def populate_ay_groups(options)
     groupname      = group,
     userlist       = ""
     )
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "games"
   config = group.new(
@@ -656,8 +656,8 @@ def populate_ay_groups(options)
     groupname      = group,
     userlist       = ""
     )
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "disk"
   config = group.new(
@@ -666,8 +666,8 @@ def populate_ay_groups(options)
     groupname      = group,
     userlist       = ""
     )
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "audio"
   config = group.new(
@@ -676,8 +676,8 @@ def populate_ay_groups(options)
     groupname      = group,
     userlist       = "pulse"
     )
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "suse-ncc"
   config = group.new(
@@ -686,8 +686,8 @@ def populate_ay_groups(options)
     groupname      = group,
     userlist       = ""
     )
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "ftp"
   config = group.new(
@@ -696,11 +696,11 @@ def populate_ay_groups(options)
     groupname      = group,
     userlist       = ""
     )
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "at"
-  if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+  if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
     config = group.new(
       gid            = "25",
       group_password = "x",
@@ -715,11 +715,11 @@ def populate_ay_groups(options)
       userlist       = ""
       )
   end
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "tape"
-  if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+  if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
     config = group.new(
       gid            = "497",
       group_password = "x",
@@ -734,8 +734,8 @@ def populate_ay_groups(options)
       userlist       = ""
       )
   end
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "kmem"
   config = group.new(
@@ -744,8 +744,8 @@ def populate_ay_groups(options)
     groupname      = group,
     userlist       = ""
     )
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "public"
   config = group.new(
@@ -754,8 +754,8 @@ def populate_ay_groups(options)
     groupname      = group,
     userlist       = ""
     )
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "root"
   config = group.new(
@@ -764,8 +764,8 @@ def populate_ay_groups(options)
     groupname      = group,
     userlist       = ""
     )
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "mail"
   config = group.new(
@@ -774,8 +774,8 @@ def populate_ay_groups(options)
     groupname      = group,
     userlist       = "postfix"
     )
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "daemon"
   config = group.new(
@@ -784,11 +784,11 @@ def populate_ay_groups(options)
     groupname      = group,
     userlist       = ""
     )
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "ntp"
-  if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+  if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
     config = group.new(
       gid            = "492",
       group_password = "x",
@@ -803,10 +803,10 @@ def populate_ay_groups(options)
       userlist       = ""
       )
   end
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
-  if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+  if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
 
     group  = "scard"
     config = group.new(
@@ -815,8 +815,8 @@ def populate_ay_groups(options)
       groupname      = group,
       userlist       = ""
       )
-    options['g_order'].push(group)
-    options['g_struct'][group] = config
+    values['g_order'].push(group)
+    values['g_struct'][group] = config
 
     group  = "lock"
     config = group.new(
@@ -825,8 +825,8 @@ def populate_ay_groups(options)
       groupname      = group,
       userlist       = ""
       )
-    options['g_order'].push(group)
-    options['g_struct'][group] = config
+    values['g_order'].push(group)
+    values['g_struct'][group] = config
 
     group  = "winbind"
     config = group.new(
@@ -835,8 +835,8 @@ def populate_ay_groups(options)
       groupname      = group,
       userlist       = ""
       )
-    options['g_order'].push(group)
-    options['g_struct'][group] = config
+    values['g_order'].push(group)
+    values['g_struct'][group] = config
 
     group  = "vnc"
     config = group.new(
@@ -845,8 +845,8 @@ def populate_ay_groups(options)
       groupname      = group,
       userlist       = ""
       )
-    options['g_order'].push(group)
-    options['g_struct'][group] = config
+    values['g_order'].push(group)
+    values['g_struct'][group] = config
 
     group  = "rtkit"
     config = group.new(
@@ -855,8 +855,8 @@ def populate_ay_groups(options)
       groupname      = group,
       userlist       = ""
       )
-    options['g_order'].push(group)
-    options['g_struct'][group] = config
+    values['g_order'].push(group)
+    values['g_struct'][group] = config
 
     group  = "systemd-journal"
     config = group.new(
@@ -865,8 +865,8 @@ def populate_ay_groups(options)
       groupname      = group,
       userlist       = ""
       )
-    options['g_order'].push(group)
-    options['g_struct'][group] = config
+    values['g_order'].push(group)
+    values['g_struct'][group] = config
 
     group  = "nscd"
     config = group.new(
@@ -875,8 +875,8 @@ def populate_ay_groups(options)
       groupname      = group,
       userlist       = ""
       )
-    options['g_order'].push(group)
-    options['g_struct'][group] = config
+    values['g_order'].push(group)
+    values['g_struct'][group] = config
 
     group  = "brlapi"
     config = group.new(
@@ -885,8 +885,8 @@ def populate_ay_groups(options)
       groupname      = group,
       userlist       = ""
       )
-    options['g_order'].push(group)
-    options['g_struct'][group] = config
+    values['g_order'].push(group)
+    values['g_struct'][group] = config
 
   end
 
@@ -897,11 +897,11 @@ def populate_ay_groups(options)
     groupname      = group,
     userlist       = ""
     )
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "pulse-access"
-  if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+  if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
     config = group.new(
       gid            = "488",
       group_password = "x",
@@ -916,11 +916,11 @@ def populate_ay_groups(options)
       userlist       = ""
       )
   end
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "ntadmin"
-  if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+  if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
     config = group.new(
       gid            = "71",
       group_password = "x",
@@ -935,8 +935,8 @@ def populate_ay_groups(options)
       userlist       = ""
       )
   end
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "man"
   config = group.new(
@@ -945,8 +945,8 @@ def populate_ay_groups(options)
     groupname      = group,
     userlist       = ""
     )
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "utmp"
   config = group.new(
@@ -955,8 +955,8 @@ def populate_ay_groups(options)
     groupname      = group,
     userlist       = ""
     )
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "news"
   config = group.new(
@@ -965,11 +965,11 @@ def populate_ay_groups(options)
     groupname      = group,
     userlist       = ""
     )
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   group  = "sshd"
-  if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+  if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
     config = group.new(
       gid            = "498",
       group_password = "x",
@@ -984,23 +984,23 @@ def populate_ay_groups(options)
       userlist       = ""
       )
   end
-  options['g_order'].push(group)
-  options['g_struct'][group] = config
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
-  return options
+  return values
 end
 
 # Populate list of packages to add
 
-def populate_ay_add_packages(options)
+def populate_ay_add_packages(values)
   add_packages = []
-  case options['service'].to_s
+  case values['service'].to_s
   when /sles_15/
     add_packages.push("openssh")
     add_packages.push("sudo")
     add_packages.push("wget")
   when /sles_12_[1-9]/
-    if !options['service'].to_s.match(/sles_12_3/)
+    if !values['service'].to_s.match(/sles_12_3/)
       add_packages.push("at-spi-32bit")
       add_packages.push("gdbm-32bit")
       add_packages.push("libcanberra-gtk-32bit")
@@ -1053,7 +1053,7 @@ end
 
 # Populate list of packages to remove
 
-def populate_ay_remove_packages(options)
+def populate_ay_remove_packages(values)
   remove_packages = []
   remove_packages.push("cups-autoconfig")
   remove_packages.push("cups-drivers")
@@ -1065,7 +1065,7 @@ def populate_ay_remove_packages(options)
   remove_packages.push("manufacturer-PPDs")
   remove_packages.push("pcmciautils")
   remove_packages.push("portmap")
-  if options['service'].to_s.match(/sles_12_0/)
+  if values['service'].to_s.match(/sles_12_0/)
     remove_packages.push("postfix")
   end
   remove_packages.push("rsyslog")
@@ -1077,16 +1077,16 @@ end
 
 # Populate patterns
 
-def populate_ay_patterns(options)
+def populate_ay_patterns(values)
   patterns = []
-  if options['service'].to_s.match(/sles_15/)
+  if values['service'].to_s.match(/sles_15/)
     patterns.push("base")
   else
     patterns.push("Minimal")
     patterns.push("base")
-    if !options['service'].to_s.match(/sles_12_[1-9]/)
+    if !values['service'].to_s.match(/sles_12_[1-9]/)
       patterns.push("Basis-Devel")
-      if !options['service'].to_s.match(/sles_12/)
+      if !values['service'].to_s.match(/sles_12/)
         patterns.push("gnome")
         patterns.push("print_server")
       end
@@ -1108,27 +1108,27 @@ end
 
 # Populate users
 
-def populate_ay_users(options)
+def populate_ay_users(values)
   user  = Struct.new(:fullname, :gid, :home, :expire, :flag, :inact, :max, :min, :warn, :shell, :uid, :user_password, :username)
 
-  user   = options['adminuser']
+  user   = values['adminuser']
   config = user.new(
-    fullname      = options['adminname'],
+    fullname      = values['adminname'],
     gid           = "100",
-    home          = options['adminhome'],
+    home          = values['adminhome'],
     expire        = "",
     flag          = "",
     inact         = "",
     max           = "99999",
     min           = "0",
     warn          = "7",
-    shell         = options['adminshell'],
+    shell         = values['adminshell'],
     uid           = "1000",
-    user_password = options['q_struct']['admin_crypt'].value,
-    username      = options['adminuser']
+    user_password = values['q_struct']['admin_crypt'].value,
+    username      = values['adminuser']
     )
-  options['u_struct'][user]=config
-  options['u_order'].push(user)
+  values['u_struct'][user]=config
+  values['u_order'].push(user)
 
   user   = "games"
   config = user.new(
@@ -1146,8 +1146,8 @@ def populate_ay_users(options)
     user_password = "*",
     username      = user
     )
-  options['u_struct'][user]=config
-  options['u_order'].push(user)
+  values['u_struct'][user]=config
+  values['u_order'].push(user)
 
   user   = "bin"
   config = user.new(
@@ -1165,8 +1165,8 @@ def populate_ay_users(options)
     user_password = "*",
     username      = user
     )
-  options['u_struct'][user]=config
-  options['u_order'].push(user)
+  values['u_struct'][user]=config
+  values['u_order'].push(user)
 
   user   = "nobody"
   config = user.new(
@@ -1184,8 +1184,8 @@ def populate_ay_users(options)
     user_password = "",
     username      = user
     )
-  options['u_struct'][user]=config
-  options['u_order'].push(user)
+  values['u_struct'][user]=config
+  values['u_order'].push(user)
 
   user   = "lp"
   config = user.new(
@@ -1203,8 +1203,8 @@ def populate_ay_users(options)
     user_password = "*",
     username      = user
     )
-  options['u_struct'][user]=config
-  options['u_order'].push(user)
+  values['u_struct'][user]=config
+  values['u_order'].push(user)
 
   user   = "uuid"
   config = user.new(
@@ -1222,8 +1222,8 @@ def populate_ay_users(options)
     user_password = "*",
     username      = user
     )
-  options['u_struct'][user]=config
-  options['u_order'].push(user)
+  values['u_struct'][user]=config
+  values['u_order'].push(user)
 
   user = "postfix"
   config = user.new(
@@ -1241,8 +1241,8 @@ def populate_ay_users(options)
     user_password = "*",
     username      = user
     )
-  options['u_struct'][user]=config
-  options['u_order'].push(user)
+  values['u_struct'][user]=config
+  values['u_order'].push(user)
 
   user   = "suse-ncc"
   config = user.new(
@@ -1260,8 +1260,8 @@ def populate_ay_users(options)
     user_password = "*",
     username      = user
     )
-  options['u_struct'][user]=config
-  options['u_order'].push(user)
+  values['u_struct'][user]=config
+  values['u_order'].push(user)
 
   user   = "ftp"
   config = user.new(
@@ -1279,10 +1279,10 @@ def populate_ay_users(options)
     user_password = "*",
     username      = user
     )
-  options['u_struct'][user]=config
-  options['u_order'].push(user)
+  values['u_struct'][user]=config
+  values['u_order'].push(user)
 
-  if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+  if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
 
     user   = "gdm"
     config = user.new(
@@ -1300,8 +1300,8 @@ def populate_ay_users(options)
       user_password = "!",
       username      = user
       )
-    options['u_struct'][user]=config
-    options['u_order'].push(user)
+    values['u_struct'][user]=config
+    values['u_order'].push(user)
 
   else
 
@@ -1321,8 +1321,8 @@ def populate_ay_users(options)
       user_password = "*",
       username      = user
       )
-    options['u_struct'][user]=config
-    options['u_order'].push(user)
+    values['u_struct'][user]=config
+    values['u_order'].push(user)
 
   end
 
@@ -1342,8 +1342,8 @@ def populate_ay_users(options)
     user_password = "*",
     username      = user
     )
-  options['u_struct'][user]=config
-  options['u_order'].push(user)
+  values['u_struct'][user]=config
+  values['u_order'].push(user)
 
 
   user  = "root"
@@ -1359,11 +1359,11 @@ def populate_ay_users(options)
     warn          = "",
     shell         = "/bin/bash",
     uid           = "0",
-    user_password = options['q_struct']['root_crypt'].value,
+    user_password = values['q_struct']['root_crypt'].value,
     username      = user
     )
-  options['u_struct'][user]=config
-  options['u_order'].push(user)
+  values['u_struct'][user]=config
+  values['u_order'].push(user)
 
   user   = "mail"
   config = user.new(
@@ -1381,10 +1381,10 @@ def populate_ay_users(options)
     user_password = "*",
     username      = user
     )
-  options['u_struct'][user]=config
-  options['u_order'].push(user)
+  values['u_struct'][user]=config
+  values['u_order'].push(user)
 
-  if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+  if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
 
     user   = "openslp"
     config = user.new(
@@ -1402,8 +1402,8 @@ def populate_ay_users(options)
       user_password = "!",
       username      = user
       )
-    options['u_struct'][user]=config
-    options['u_order'].push(user)
+    values['u_struct'][user]=config
+    values['u_order'].push(user)
 
     user   = "usbmuxd"
     config = user.new(
@@ -1421,8 +1421,8 @@ def populate_ay_users(options)
       user_password = "!",
       username      = user
       )
-    options['u_struct'][user]=config
-    options['u_order'].push(user)
+    values['u_struct'][user]=config
+    values['u_order'].push(user)
 
     user   = "statd"
     config = user.new(
@@ -1440,8 +1440,8 @@ def populate_ay_users(options)
       user_password = "!",
       username      = user
       )
-    options['u_struct'][user]=config
-    options['u_order'].push(user)
+    values['u_struct'][user]=config
+    values['u_order'].push(user)
 
     user   = "scard"
     config = user.new(
@@ -1459,8 +1459,8 @@ def populate_ay_users(options)
       user_password = "!",
       username      = user
       )
-    options['u_struct'][user]=config
-    options['u_order'].push(user)
+    values['u_struct'][user]=config
+    values['u_order'].push(user)
 
     user   = "vnc"
     config = user.new(
@@ -1478,8 +1478,8 @@ def populate_ay_users(options)
       user_password = "!",
       username      = user
       )
-    options['u_struct'][user]=config
-    options['u_order'].push(user)
+    values['u_struct'][user]=config
+    values['u_order'].push(user)
 
     user   = "sshd"
     config = user.new(
@@ -1497,8 +1497,8 @@ def populate_ay_users(options)
       user_password = "!",
       username      = user
       )
-    options['u_struct'][user]=config
-    options['u_order'].push(user)
+    values['u_struct'][user]=config
+    values['u_order'].push(user)
 
     user   = "nscd"
     config = user.new(
@@ -1516,8 +1516,8 @@ def populate_ay_users(options)
       user_password = "!",
       username      = user
       )
-    options['u_struct'][user]=config
-    options['u_order'].push(user)
+    values['u_struct'][user]=config
+    values['u_order'].push(user)
 
     user   = "rtkit"
     config = user.new(
@@ -1535,8 +1535,8 @@ def populate_ay_users(options)
       user_password = "!",
       username      = user
       )
-    options['u_struct'][user]=config
-    options['u_order'].push(user)
+    values['u_struct'][user]=config
+    values['u_order'].push(user)
 
     user   = "ftpsecure"
     config = user.new(
@@ -1554,8 +1554,8 @@ def populate_ay_users(options)
       user_password = "!",
       username      = user
       )
-    options['u_struct'][user]=config
-    options['u_order'].push(user)
+    values['u_struct'][user]=config
+    values['u_order'].push(user)
 
     user   = "rpc"
     config = user.new(
@@ -1573,8 +1573,8 @@ def populate_ay_users(options)
       user_password = "!",
       username      = user
       )
-    options['u_struct'][user]=config
-    options['u_order'].push(user)
+    values['u_struct'][user]=config
+    values['u_order'].push(user)
 
   end
 
@@ -1594,8 +1594,8 @@ def populate_ay_users(options)
     user_password = "*",
     username      = user
     )
-  options['u_struct'][user]=config
-  options['u_order'].push(user)
+  values['u_struct'][user]=config
+  values['u_order'].push(user)
 
 
   user   = "ntp"
@@ -1614,8 +1614,8 @@ def populate_ay_users(options)
     user_password = "*",
     username      = user
     )
-  options['u_struct'][user]=config
-  options['u_order'].push(user)
+  values['u_struct'][user]=config
+  values['u_order'].push(user)
 
 
   user   = "uucp"
@@ -1634,10 +1634,10 @@ def populate_ay_users(options)
     user_password = "*",
     username      = user
     )
-  options['u_struct'][user]=config
-  options['u_order'].push(user)
+  values['u_struct'][user]=config
+  values['u_order'].push(user)
 
-  if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+  if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
 
     user   = "messagebus"
     config = user.new(
@@ -1655,8 +1655,8 @@ def populate_ay_users(options)
       user_password = "!",
       username      = user
       )
-    options['u_struct'][user]=config
-    options['u_order'].push(user)
+    values['u_struct'][user]=config
+    values['u_order'].push(user)
 
   else
 
@@ -1676,8 +1676,8 @@ def populate_ay_users(options)
       user_password = "*",
       username      = user
       )
-    options['u_struct'][user]=config
-    options['u_order'].push(user)
+    values['u_struct'][user]=config
+    values['u_order'].push(user)
 
   end
 
@@ -1697,8 +1697,8 @@ def populate_ay_users(options)
     user_password = "*",
     username      = user
     )
-  options['u_struct'][user]=config
-  options['u_order'].push(user)
+  values['u_struct'][user]=config
+  values['u_order'].push(user)
 
   user   = "wwwrun"
   config = user.new(
@@ -1716,8 +1716,8 @@ def populate_ay_users(options)
     user_password = "*",
     username      = user
     )
-  options['u_struct'][user]=config
-  options['u_order'].push(user)
+  values['u_struct'][user]=config
+  values['u_order'].push(user)
 
   user   = "puppet"
   config = user.new(
@@ -1735,8 +1735,8 @@ def populate_ay_users(options)
     user_password = "*",
     username      = user
     )
-  options['u_struct'][user]=config
-  options['u_order'].push(user)
+  values['u_struct'][user]=config
+  values['u_order'].push(user)
 
   user   = "man"
   config = user.new(
@@ -1754,10 +1754,10 @@ def populate_ay_users(options)
     user_password = "*",
     username      = user
     )
-  options['u_struct'][user]=config
-  options['u_order'].push(user)
+  values['u_struct'][user]=config
+  values['u_order'].push(user)
 
-  if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+  if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
 
     user   = "polkitd"
     config = user.new(
@@ -1775,8 +1775,8 @@ def populate_ay_users(options)
       user_password = "*",
       username      = user
       )
-    options['u_struct'][user]=config
-    options['u_order'].push(user)
+    values['u_struct'][user]=config
+    values['u_order'].push(user)
 
   else
 
@@ -1796,8 +1796,8 @@ def populate_ay_users(options)
       user_password = "*",
       username      = user
       )
-    options['u_struct'][user]=config
-    options['u_order'].push(user)
+    values['u_struct'][user]=config
+    values['u_order'].push(user)
 
   end
 
@@ -1817,10 +1817,10 @@ def populate_ay_users(options)
     user_password = "*",
     username      = user
     )
-  options['u_struct'][user]=config
-  options['u_order'].push(user)
+  values['u_struct'][user]=config
+  values['u_order'].push(user)
 
-  if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+  if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
 
     user   = "pulse"
     config = user.new(
@@ -1838,8 +1838,8 @@ def populate_ay_users(options)
       user_password = "*",
       username      = user
       )
-    options['u_struct'][user]=config
-    options['u_order'].push(user)
+    values['u_struct'][user]=config
+    values['u_order'].push(user)
 
   else
 
@@ -1859,12 +1859,12 @@ def populate_ay_users(options)
       user_password = "*",
       username      = user
       )
-    options['u_struct'][user]=config
-    options['u_order'].push(user)
+    values['u_struct'][user]=config
+    values['u_order'].push(user)
 
   end
 
-  return options
+  return values
 end
 
 # Populate disabled http modules
@@ -1943,16 +1943,16 @@ end
 
 # Output client profile file
 
-def output_ay_client_profile(options,output_file)
-  options = populate_ay_users(options)
-  options = populate_ay_groups(options)
-  options = populate_ay_inetd(options)
-  gateway = get_ipv4_default_route(options)
-  hosts   = populate_ay_hosts(options)
+def output_ay_client_profile(values,output_file)
+  values = populate_ay_users(values)
+  values = populate_ay_groups(values)
+  values = populate_ay_inetd(values)
+  gateway = get_ipv4_default_route(values)
+  hosts   = populate_ay_hosts(values)
   xml_output = []
-  add_packages    = populate_ay_add_packages(options)
-  remove_packages = populate_ay_remove_packages(options)
-  patterns        = populate_ay_patterns(options)
+  add_packages    = populate_ay_add_packages(values)
+  remove_packages = populate_ay_remove_packages(values)
+  patterns        = populate_ay_patterns(values)
   disabled_services = populate_ay_disabled_services()
   enabled_services  = populate_ay_enabled_services()
   disabled_http_modules = populate_ay_disabled_http_modules()
@@ -1963,7 +1963,7 @@ def output_ay_client_profile(options,output_file)
   xml.profile(:xmlns => "http://www.suse.com/1.0/yast2ns", :"xmlns:config" => "http://www.suse.com/1.0/configns") {
     xml.tag!("add-on") {
       xml.add_on_products(:"config:type" => "list") {
-        if options['service'].to_s.match(/sles_15/)
+        if values['service'].to_s.match(/sles_15/)
           xml.listentry {
             xml.media_url{ xml.declare! :"[CDATA[dvd:///?devices=/dev/sr0]]" }
 #            xml.product("base")
@@ -1995,7 +1995,7 @@ def output_ay_client_profile(options,output_file)
         xml.space_left_action("SYSLOG")
         xml.tcp_client_max_idle("0")
         xml.tcp_listen_queue("5")
-        if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+        if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
           xml.tcp_max_per_addr("1")
         end
       }
@@ -2008,7 +2008,7 @@ def output_ay_client_profile(options,output_file)
     }
     xml.bootloader {
       xml.device_map(:"config:type" => "list") {
-        if not options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+        if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
           xml.device_map_entry {
             xml.firmware("fd0")
             xml.linux("/dev/fd0")
@@ -2021,12 +2021,12 @@ def output_ay_client_profile(options,output_file)
       }
       xml.global {
         xml.activate("true")
-        if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+        if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
           xml.append("resume=/dev/sda1 splash=silent quiet showopts")
           xml.append_failsafe("single")
         end
         xml.boot_root("true")
-        if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+        if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
           xml.cryptodisk("0",:"config:type" => "integer")
           xml.default("SLES 12-SP1")
           xml.distributor
@@ -2047,7 +2047,7 @@ def output_ay_client_profile(options,output_file)
         end
         xml.timeout("8",:"config:type" => "integer")
       }
-      if not options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+      if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
         xml.initrd_modules(:"config:type" => "list") {
           xml.initrd_module {
             xml.module("mptspi")
@@ -2072,12 +2072,12 @@ def output_ay_client_profile(options,output_file)
           }
         }
       end
-      if options['service'].to_s.match(/sles_12|sles_15/)
+      if values['service'].to_s.match(/sles_12|sles_15/)
         xml.loader_type("grub2")
       else
         xml.loader_type("grub")
       end
-      if not options['service'].to_s.match(/sles_12|sles_15/)
+      if not values['service'].to_s.match(/sles_12|sles_15/)
         xml.sections(:"config:type" => "list") {
           #xml.section {
           #  xml.append("resume=/dev/sda1 splash=silent showopts")
@@ -2113,17 +2113,17 @@ def output_ay_client_profile(options,output_file)
         }
       end
     }
-    if not options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+    if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
       xml.ca_mgm {
         xml.CAName("YaST_Default_CA")
         xml.ca_commonName("YaST Default CA (site)")
-        xml.country(options['country'])
+        xml.country(values['country'])
         xml.importCertificate("false", :'config:type' => "boolean")
         xml.locality
         xml.organisation
         xml.organisationUnit
-        xml.password(options['adminpassword'])
-        xml.server_commonName(options['name'])
+        xml.password(values['adminpassword'])
+        xml.server_commonName(values['name'])
         xml.server_email("postmaster@site")
         xml.state
         xml.takeLocalServerName("true", :'config:type' => "boolean")
@@ -2132,17 +2132,17 @@ def output_ay_client_profile(options,output_file)
     xml.deploy_image {
       xml.image_installation("false", :'config:type' => "boolean")
     }
-    if not options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+    if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
       xml.tag!("dhcp-server") {
         xml.allowed_interfaces(:"config:type" => "list")
         xml.chroot("1")
-        xml.other_options
+        xml.other_values
         xml.settings(:"config:type" => "list") {
           xml.settings_entry {
             xml.children(:"config:type" => "list")
             xml.directives(:"config:type" => "list")
             xml.id
-            xml.options(:"config:type" => "list")
+            xml.values(:"config:type" => "list")
             xml.parent_id
             xml.parent_type
             xml.type
@@ -2155,7 +2155,7 @@ def output_ay_client_profile(options,output_file)
         xml.allowed_interfaces(:"config:type" => "list")
         xml.chroot("1")
         xml.logging(:"config:type" => "list")
-        xml.options(:"config:type" => "list") {
+        xml.values(:"config:type" => "list") {
           xml.option {
             xml.key("forwarders")
             xml.value
@@ -2167,7 +2167,7 @@ def output_ay_client_profile(options,output_file)
       }
     end
     xml.firewall {
-      if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+      if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
         xml.FW_ALLOW_FW_BROADCAST_DMZ("no")
         xml.FW_ALLOW_FW_BROADCAST_EXT("no")
         xml.FW_ALLOW_FW_BROADCAST_INT("no")
@@ -2179,7 +2179,7 @@ def output_ay_client_profile(options,output_file)
       xml.FW_DEV_DMZ
       xml.FW_DEV_EXT
       xml.FW_DEV_INT
-      if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+      if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
         xml.FW_FORWARD_ALWAYS_INOUT_DEV
         xml.FW_FORWARD_MASQ
         xml.FW_IGNORE_FW_BROADCAST_DMZ("no")
@@ -2220,7 +2220,7 @@ def output_ay_client_profile(options,output_file)
         xml.start_firewall("false", :'config:type' => "boolean")
       end
     }
-    if not options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+    if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
       xml.tag!("ftp-server") {
         xml.AnonAuthen("1")
         xml.AnonCreatDirs("NO")
@@ -2262,7 +2262,7 @@ def output_ay_client_profile(options,output_file)
         xml.halt("false", :"config:type" => "boolean")
         xml.confirm("false", :"config:type" => "boolean")
       }
-      if not options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+      if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
         xml.mouse {
           xml.id("none")
         }
@@ -2279,21 +2279,21 @@ def output_ay_client_profile(options,output_file)
       end
     }
     xml.groups(:"config:type" => "list") {
-      options['g_order'].each do |group|
+      values['g_order'].each do |group|
         xml.group {
           xml.encrypted("true", :"config:type" => "boolean")
-          xml.gid(options['g_struct'][group].gid)
-          xml.group_password(options['g_struct'][group].group_password)
-          xml.groupname(options['g_struct'][group].groupname)
-          if options['g_struct'][group].userlist.match(/[a-z]/)
-            xml.userlist(options['g_struct'][group].userlist)
+          xml.gid(values['g_struct'][group].gid)
+          xml.group_password(values['g_struct'][group].group_password)
+          xml.groupname(values['g_struct'][group].groupname)
+          if values['g_struct'][group].userlist.match(/[a-z]/)
+            xml.userlist(values['g_struct'][group].userlist)
           else
             xml.userlist
           end
         }
       end
     }
-    if not options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+    if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
         xml.host {
         xml.hosts(:"config:type" => "list") {
           hosts.each do |host|
@@ -2330,14 +2330,14 @@ def output_ay_client_profile(options,output_file)
       xml.inetd {
         xml.last_created("0", :"config:type" => "integer")
         xml.netd_conf(:"config:type" => "list") {
-          options['i_order'].each do |service|
+          values['i_order'].each do |service|
             xml.conf {
-              xml.enabled(options['i_struct'][service].enabled, :"config:type" => "boolean")
-              xml.iid(options['i_struct'][service].iid)
-              xml.protocol(options['i_struct'][service].protocol)
-              xml.script(options['i_struct'][service].script)
-              xml.server(options['i_struct'][service].server)
-              xml.service(options['i_struct'][service].service)
+              xml.enabled(values['i_struct'][service].enabled, :"config:type" => "boolean")
+              xml.iid(values['i_struct'][service].iid)
+              xml.protocol(values['i_struct'][service].protocol)
+              xml.script(values['i_struct'][service].script)
+              xml.server(values['i_struct'][service].server)
+              xml.service(values['i_struct'][service].service)
             }
           end
         }
@@ -2350,40 +2350,40 @@ def output_ay_client_profile(options,output_file)
     end
     xml.kdump {
       xml.add_crash_kernel("false", :"config:type" => "boolean")
-      if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+      if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
         xml.crash_kernel("128M,high")
       else
         xml.crash_kernel("128M-:64M")
       end
       xml.general {
-        if not options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+        if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
           xml.KDUMPTOOL_FLAGS
         end
         xml.KDUMP_COMMANDLINE
         xml.KDUMP_COMMANDLINE_APPEND
-        if not options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+        if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
           xml.KDUMP_CONTINUE_ON_ERROR("false")
         end
         xml.KDUMP_COPY_KERNEL("yes")
         xml.KDUMP_DUMPFORMAT("compressed")
-        if not options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+        if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
           xml.KDUMP_DUMPLEVEL("0")
         else
           xml.KDUMP_DUMPLEVEL("31")
         end
         xml.KDUMP_FREE_DISK_SIZE("64")
-        if not options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+        if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
           xml.KDUMP_HOST_KEY
         end
         xml.KDUMP_IMMEDIATE_REBOOT("yes")
         xml.KDUMP_KEEP_OLD_DUMPS("5")
         xml.KDUMP_KERNELVER
-        if not options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+        if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
           xml.KDUMP_NETCONFIG("auto")
         end
         xml.KDUMP_NOTIFICATION_CC
         xml.KDUMP_NOTIFICATION_TO
-        if not options['service'].to_s.match(/sles_12_[1-3]|sles_15/)
+        if not values['service'].to_s.match(/sles_12_[1-3]|sles_15/)
           xml.KDUMP_POSTSCRIPT
           xml.KDUMP_PRESCRIPT
           xml.KDUMP_REQUIRED_PROGRAMS
@@ -2394,10 +2394,10 @@ def output_ay_client_profile(options,output_file)
         xml.KDUMP_SMTP_USER
         xml.KDUMP_TRANSFER
         xml.KDUMP_VERBOSE("3")
-        xml.KEXEC_OPTIONS
+        xml.KEXEC_values
       }
     }
-    if not options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+    if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
       xml.kerberos {
         xml.kerberos_client {
           xml.ExpertSettings {
@@ -2426,14 +2426,14 @@ def output_ay_client_profile(options,output_file)
       xml.keymap("english-us")
     }
     xml.language {
-      xml.language(options['language'])
-      if options['service'].to_s.match(/sles_12_[1-3]|sles_15/)
+      xml.language(values['language'])
+      if values['service'].to_s.match(/sles_12_[1-3]|sles_15/)
         xml.languages
       else
-        xml.languages(options['language'])
+        xml.languages(values['language'])
       end
     }
-    if not options['service'].to_s.match(/sles_12_[1-3]|sles_15/)
+    if not values['service'].to_s.match(/sles_12_[1-3]|sles_15/)
       xml.ldap {
         xml.base_config_dn
         xml.bind_dn
@@ -2453,10 +2453,10 @@ def output_ay_client_profile(options,output_file)
       }
     end
     xml.login_settings()
-    if not options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+    if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
       xml.mail {
         xml.aliases(:"config:type" => "list") {
-          options['u_order'].each do |user|
+          values['u_order'].each do |user|
             xml.alias {
               xml.alias(user)
               xml.comment
@@ -2474,23 +2474,23 @@ def output_ay_client_profile(options,output_file)
       }
     end
     xml.networking {
-      if not options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-        xml.dhcp_options {
+      if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+        xml.dhcp_values {
           xml.dhclient_client_id
           xml.dhclient_hostname_option("AUTO")
         }
       end
       xml.dns {
         xml.dhcp_hostname("false", :"config:type" => "boolean")
-        xml.domain(options['domainname'])
-        xml.hostname(options['name'])
+        xml.domain(values['domainname'])
+        xml.hostname(values['name'])
         xml.nameservers(:"config:type" => "list") {
-          xml.nameserver(options['nameserver'])
+          xml.nameserver(values['nameserver'])
         }
         xml.resolv_conf_policy("auto")
-        if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+        if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
           xml.searchlist(:"config:type" => "list") {
-            xml.search(options['domainname'])
+            xml.search(values['domainname'])
           }
         end
         xml.write_hostname("false", :"config:type" => "boolean")
@@ -2498,23 +2498,23 @@ def output_ay_client_profile(options,output_file)
       xml.interfaces(:"config:type" => "list") {
         xml.interface {
           xml.bootproto("static")
-          if options['service'].to_s.match(/sles_11/)
-            if options['q_struct']['nic'].value.match(/eth0/)
+          if values['service'].to_s.match(/sles_11/)
+            if values['q_struct']['nic'].value.match(/eth0/)
               xml.device("eth1")
             end
           else
-            xml.device(options['q_struct']['nic'].value)
+            xml.device(values['q_struct']['nic'].value)
           end
           xml.firewall("no")
-          xml.ipaddr(options['ip'])
-          xml.netmask(options['netmask'])
+          xml.ipaddr(values['ip'])
+          xml.netmask(values['netmask'])
           xml.startmode("auto")
-          if not options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+          if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
             xml.usercontrol("no")
           end
         }
         xml.interface {
-          if not options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+          if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
             xml.aliases {
               xml.alias2 {
                 xml.IPADDR("127.0.0.2")
@@ -2532,7 +2532,7 @@ def output_ay_client_profile(options,output_file)
           xml.netmask("255.0.0.0")
           xml.network("127.0.0.0")
           xml.prefixlen("8")
-          if not options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+          if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
             xml.startmode("auto")
           else
             xml.startmode("nfsroot")
@@ -2540,20 +2540,20 @@ def output_ay_client_profile(options,output_file)
           xml.usercontrol("no")
         }
       }
-      if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+      if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
         xml.ipv6("true", :"config:type" => "boolean")
         xml.keep_install_network("false", :"config:type" => "boolean")
       end
       xml.managed("false", :"config:type" => "boolean")
       xml.tag!("net-udev", :"config:type" => "list") {
         xml.rule {
-          xml.name(options['q_struct']['nic'].value)
+          xml.name(values['q_struct']['nic'].value)
           xml.rule("ATTR{address}")
-          xml.value(options['mac'])
+          xml.value(values['mac'])
         }
       }
       xml.routing {
-        if not options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+        if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
           xml.ip_forward("false", :"config:type" => "boolean")
           xml.routes(:"config:type" => "list") {
             xml.route {
@@ -2569,7 +2569,7 @@ def output_ay_client_profile(options,output_file)
         end
       }
     }
-    if not options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+    if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
       xml.nfs_server {
         xml.nfs_exports(:"config:type" => "list")
         xml.start_nfsserver("false", :"config:type" => "boolean")
@@ -2580,7 +2580,7 @@ def output_ay_client_profile(options,output_file)
         xml.nis_broken_server("false", :"config:type" => "boolean")
         xml.nis_domain
         xml.nis_local_only("false", :"config:type" => "boolean")
-        xml.nis_options
+        xml.nis_values
         xml.nis_other_domains(:"config:type" => "list")
         xml.nis_servers(:"config:type" => "list")
         xml.slp_domain()
@@ -2609,9 +2609,9 @@ def output_ay_client_profile(options,output_file)
         xml.start_yppasswdd("false", :"config:type" => "boolean")
         xml.start_ypxfrd("false", :"config:type" => "boolean")
       }
-      if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-        if options['timezone'].to_s.match(/Victoria/)
-          options['timezone'] = "Australia/Melbourne"
+      if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+        if values['timezone'].to_s.match(/Victoria/)
+          values['timezone'] = "Australia/Melbourne"
         end
       end
       xml.tag!("ntp-client") {
@@ -2620,7 +2620,7 @@ def output_ay_client_profile(options,output_file)
           xml.peer {
             xml.address($default_timeserver)
             xml.fudge_oprions(" stratum 10")
-            xml.options
+            xml.values
             xml.type("__clock")
           }
           xml.peer {
@@ -2629,7 +2629,7 @@ def output_ay_client_profile(options,output_file)
           }
           xml.peer {
             xml.address("/var/log/ntp   ")
-            xml.options
+            xml.values
             xml.type("logfile")
           }
           xml.peer {
@@ -2639,12 +2639,12 @@ def output_ay_client_profile(options,output_file)
           }
           xml.peer {
             xml.address("1      ")
-            xml.options
+            xml.values
             xml.type("trustedkey")
           }
           xml.peer {
             xml.address("1      ")
-            xml.options
+            xml.values
             xml.type("requestkey")
           }
         }
@@ -2655,7 +2655,7 @@ def output_ay_client_profile(options,output_file)
     xml.partitioning(:"config:type" => "list") {
       xml.drive {
         xml.device("/dev/sda")
-        if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+        if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
           xml.disklabel("msdos")
           xml.enable_snapshots("true", :"config:type" => "boolean")
         end
@@ -2669,25 +2669,25 @@ def output_ay_client_profile(options,output_file)
               xml.fstopt("defaults")
               xml.loop_fs("false",:"config:type" => "boolean")
               xml.mount("swap")
-              if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+              if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
                 xml.mountby("uuid",:"config:type" => "symbol")
               else
                 xml.mountby("device",:"config:type" => "symbol")
               end
               xml.partition_id("130",:"config:type" => "integer")
               xml.partition_nr("1",:"config:type" => "integer")
-              if not options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-                xml.raid_options()
+              if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+                xml.raid_values()
               end
               xml.resize("false",:"config:type" => "boolean")
-              swap_size = Integer(options['q_struct']['swapmax'].value)*1000*1000
+              swap_size = Integer(values['q_struct']['swapmax'].value)*1000*1000
               swap_size = swap_size.to_s
               xml.size(swap_size)
             }
             xml.partition {
               xml.create("true",:"config:type" => "boolean")
               xml.crypt_fs("false",:"config:type" => "boolean")
-              if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+              if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
                 xml.filesystem("btrfs",:"config:type" => "symbol")
                 xml.format("true",:"config:type" => "boolean")
                 xml.fstopt("defaults")
@@ -2698,21 +2698,21 @@ def output_ay_client_profile(options,output_file)
               end
               xml.loop_fs("false",:"config:type" => "boolean")
               xml.mount("/")
-              if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+              if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
                 xml.mountby("uuid",:"config:type" => "symbol")
               else
                 xml.mountby("device",:"config:type" => "symbol")
               end
               xml.partition_id("131",:"config:type" => "integer")
               xml.partition_nr("2",:"config:type" => "integer")
-              if not options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-                xml.raid_options()
+              if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+                xml.raid_values()
               end
               xml.resize("false",:"config:type" => "boolean")
-              root_size = Integer(options['q_struct']['rootsize'].value)*1000*1000*10
+              root_size = Integer(values['q_struct']['rootsize'].value)*1000*1000*10
               root_size = root_size.to_s
               xml.size(root_size)
-              if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+              if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
                 xml.subvolumes(:"config:type" => "list") {
                   xml.listentry("@")
                   xml.listentry("boot/grub2/i386-pc")
@@ -2742,7 +2742,7 @@ def output_ay_client_profile(options,output_file)
           xml.use("all")
       }
     }
-    if not options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+    if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
       xml.tag!("power-management") {
         xml.global_settings {
           xml.SCHEME
@@ -2844,7 +2844,7 @@ def output_ay_client_profile(options,output_file)
         xml.userdel_precmd("/usr/sbin/userdel-pre.local")
       }
     end
-    if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+    if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
       xml.tag!("services-manager") {
         xml.default_target("graphical")
         xml.services {
@@ -2858,11 +2858,11 @@ def output_ay_client_profile(options,output_file)
       }
     end
     xml.software {
-      if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+      if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
         xml.image
         xml.instsource
       end
-      if options['service'].to_s.match(/sles_15/)
+      if values['service'].to_s.match(/sles_15/)
         xml.products(:"config:type" => "list") {
           xml.product("SLES")
         }
@@ -2877,7 +2877,7 @@ def output_ay_client_profile(options,output_file)
           xml.pattern(pattern)
         end
       }
-      if not options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+      if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
         xml.tag!("remove-packages", :"config:type" => "list") {
           remove_packages.each do |package|
             xml.package(package)
@@ -2885,7 +2885,7 @@ def output_ay_client_profile(options,output_file)
         }
       end
     }
-    if not options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+    if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
       xml.sound {
       }
       xml.sshd {
@@ -2925,19 +2925,19 @@ def output_ay_client_profile(options,output_file)
     end
     xml.timezone {
       xml.hwclock("UTC")
-      xml.timezone(options['q_struct']['timezone'].value)
+      xml.timezone(values['q_struct']['timezone'].value)
     }
     xml.user_defaults {
       xml.expire
       xml.group("100")
-      if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+      if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
         xml.groups
       else
         xml.groups("video,dialout")
       end
       xml.home("/home")
       xml.inactive("-1")
-      if options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+      if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
         xml.no_groups("true", :"config:type" => "boolean")
       end
       xml.shell("/bin/bash")
@@ -2945,52 +2945,52 @@ def output_ay_client_profile(options,output_file)
       xml.umask("022")
     }
     xml.users(:"config:type" => "list") {
-      options['u_order'].each do |user|
+      values['u_order'].each do |user|
         xml.user {
           xml.encrypted("true", :"config:type" => "boolean")
-          xml.fullname(options['u_struct'][user].fullname)
-          xml.gid(options['u_struct'][user].gid)
-          xml.home(options['u_struct'][user].home)
+          xml.fullname(values['u_struct'][user].fullname)
+          xml.gid(values['u_struct'][user].gid)
+          xml.home(values['u_struct'][user].home)
           xml.password_settings {
-            if options['u_struct'][user].expire.match(/[a-z,0-9]/)
-              xml.expire(options['u_struct'][user].expire)
+            if values['u_struct'][user].expire.match(/[a-z,0-9]/)
+              xml.expire(values['u_struct'][user].expire)
             else
               xml.expire
             end
-            if options['u_struct'][user].flag.match(/[a-z,0-9]/)
-              xml.flag(options['u_struct'][user].flag)
+            if values['u_struct'][user].flag.match(/[a-z,0-9]/)
+              xml.flag(values['u_struct'][user].flag)
             else
               xml.flag
             end
-            if options['u_struct'][user].inact.match(/[a-z,0-9]/)
-              xml.inact(options['u_struct'][user].inact)
+            if values['u_struct'][user].inact.match(/[a-z,0-9]/)
+              xml.inact(values['u_struct'][user].inact)
             else
               xml.inact
             end
-            if options['u_struct'][user].max.match(/[a-z,0-9]/)
-              xml.max(options['u_struct'][user].max)
+            if values['u_struct'][user].max.match(/[a-z,0-9]/)
+              xml.max(values['u_struct'][user].max)
             else
               xml.max
             end
-            if options['u_struct'][user].min.match(/[a-z,0-9]/)
-              xml.max(options['u_struct'][user].min)
+            if values['u_struct'][user].min.match(/[a-z,0-9]/)
+              xml.max(values['u_struct'][user].min)
             else
               xml.min
             end
-            if options['u_struct'][user].warn.match(/[a-z,0-9]/)
-              xml.warn(options['u_struct'][user].warn)
+            if values['u_struct'][user].warn.match(/[a-z,0-9]/)
+              xml.warn(values['u_struct'][user].warn)
             else
               xml.warn
             end
           }
-          xml.shell(options['u_struct'][user].shell)
-          xml.uid(options['u_struct'][user].uid)
-          xml.user_password(options['u_struct'][user].user_password)
-          xml.username(options['u_struct'][user].username)
+          xml.shell(values['u_struct'][user].shell)
+          xml.uid(values['u_struct'][user].uid)
+          xml.user_password(values['u_struct'][user].user_password)
+          xml.username(values['u_struct'][user].username)
         }
       end
     }
-    if !options['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+    if !values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
       xml.x11 {
         xml.color_depth("8",:"config:type" => "integer")
         xml.display_manager("gdm")
@@ -3015,11 +3015,11 @@ def output_ay_client_profile(options,output_file)
     file.write(item)
   end
   file.close
-  message = "Information:\tValidating AutoYast XML configuration for "+options['name']
+  message = "Information:\tValidating AutoYast XML configuration for "+values['name']
   command = "xmllint #{output_file}"
-  execute_command(options,message,command)
-  if options['verbose'] == true
-    print_contents_of_file(options,"",output_file)
+  execute_command(values,message,command)
+  if values['verbose'] == true
+    print_contents_of_file(values,"",output_file)
   end
   return
 end
