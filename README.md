@@ -163,8 +163,7 @@ Packer support
 - Simplify creation of Packer images for VirtualBox and VMware Fusion
 - Currently supports Solaris 10, Solaris 11,
   Linux (RHEL, OEL, SuSE, Ubuntu, CentOS, Fedorac, Scientific),
-  Windows Server 2008 R2, 2012 R2, 2016, 2019, 202
-  ESXi
+  Windows Server 2008 R2, 2012 R2, 2016, 2019, 2023, ESXi
 
 Linux Container Creation
 
@@ -381,6 +380,22 @@ __ External network __ External Interface (e.g. en0)
 
 Requirements
 ------------
+
+As this script is written in ruby, and requires ruby modules,
+I recommend installing non system ruby with a package such as rbenv.
+
+https://github.com/rbenv/rbenv
+
+An example of that process on Ubuntu:
+
+```
+sudo apt-get update
+sudo apt-get -y install rbenv
+echo 'eval "$(rbenv init -)"' >> ~/.bashrc
+exec $SHELL
+rbenv install 3.1.2
+rbenv global 3.1.2
+```
 
 All:
 
