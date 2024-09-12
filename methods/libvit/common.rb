@@ -426,7 +426,9 @@ end
 
 def configure_kvm_import_client(values)
   if values['file'] == values['empty'] || !File.exist?(values['file'].to_s)
+    values['notice'] = true
     verbose_output(values, "Warning:\tNo file specified")
+    list_kvm_images(values)
     quit(values)
   end
   if values['os-type'] == values['empty'] or values['os-variant'] == values['empty'] or values['method'] == values['empty']

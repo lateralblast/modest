@@ -248,6 +248,7 @@ end
 def list_kvm_images(values)
   img_dir = values["imagedir"].to_s
   message = "Information:\tKVM images:"
+  verbose_output(values, message)
   command = "find #{img_dir} -name \"*.img\""
   output  = execute_command(values, message, command)
   verbose_output(values, output)

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      7.9.5
+# Version:      7.9.6
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -49,24 +49,16 @@ def handle_output(values, text)
     puts text
   end
   #values['stdout'].push(text)
-  return values
+  return
 end
 
 # Verbose output
 
 def verbose_output(values, text)
-  if values['output'].to_s.match(/html/)
-    if text == ""
-      text = "<br>"
-    end
+  if values['verbose'] == true or values['notice'] == true
+    handle_output(values, text)
   end
-  if values['output'].to_s.match(/text/)
-    if values['verbose'] == true
-      puts text
-    end
-  end
-  #values['stdout'].push(text)
-  return values
+  return
 end
 
 # If given --verbose switch enable verbose mode early
@@ -396,6 +388,7 @@ begin
     ['--noreboot', BOOLEAN],          # Don't reboot as part of post script (used for troubleshooting)
     ['--nosudo', BOOLEAN],            # Use sudo
     ['--nosuffix', BOOLEAN],          # Don't add suffix to AWS AMI names
+    ['--notice', BOOLEAN],            # Print notice messages
     ['--novncdir', REQUIRED],         # NoVNC directory
     ['--number', REQUIRED],           # Number of AWS instances
     ['--object', REQUIRED],           # AWS S3 object

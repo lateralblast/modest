@@ -424,6 +424,7 @@ def set_defaults(values, defaults)
   defaults['nokeys']          = false
   defaults['nomirror']        = true
   defaults['nosuffix']        = false
+  defaults['notice']          = false
   defaults['noreboot']        = false
   defaults['nobuild']         = false
   defaults['noboot']          = false
