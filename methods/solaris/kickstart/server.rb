@@ -58,7 +58,7 @@ def configure_ks_repo(values)
     check_dir = values['repodir']+"/isolinux"
   end
   if values['verbose'] == true
-    handle_output(values, "Information:\tChecking directory #{check_dir} exits")
+    verbose_output(values, "Information:\tChecking directory #{check_dir} exits")
   end
   if not File.directory?(check_dir)
     mount_iso(values)
@@ -164,7 +164,7 @@ def configure_ks_pxe_boot(values)
           execute_command(values, message, command)
         end
       else
-        handle_output(values, "Warning:\tSource directory #{rpm_dir} does not exist")
+        verbose_output(values, "Warning:\tSource directory #{rpm_dir} does not exist")
         quit(values)
       end
     end
@@ -276,13 +276,13 @@ def configure_linux_server(values, search_string)
   if values['file'].to_s.match(/[a-z,A-Z]/)
     if File.exist?(values['file'])
       if not values['file'].to_s.match(/CentOS|rhel|Fedora|SL|OracleLinux|ubuntu/)
-        handle_output(values, "Warning:\tISO #{values['file']} does not appear to be a valid Linux distribution")
+        verbose_output(values, "Warning:\tISO #{values['file']} does not appear to be a valid Linux distribution")
         quit(values)
       else
         iso_list[0] = values['file']
       end
     else
-      handle_output(values, "Warning:\tISO file #{values['file']} does not exist")
+      verbose_output(values, "Warning:\tISO file #{values['file']} does not exist")
     end
   else
     values['search'] = "CentOS|rhel|Fedora|SL|OracleLinux|ubuntu"
@@ -325,7 +325,7 @@ def configure_linux_server(values, search_string)
         configure_ks_vmware_repo(values)
       end
     else
-      handle_output(values, "Warning:\tISO file and/or Service name not found")
+      verbose_output(values, "Warning:\tISO file and/or Service name not found")
       quit(values)
     end
   end
@@ -338,10 +338,10 @@ def list_ks_services(values)
   values['method'] = "ks"
   dir_list = get_dir_item_list(values)
   message  = "Kickstart Services"
-  handle_output(values, message)
+  verbose_output(values, message)
   dir_list.each do |service|
-    handle_output(values, service)
+    verbose_output(values, service)
   end
-  handle_output(values, "")
+  verbose_output(values, "")
   return
 end

@@ -8,7 +8,7 @@ def check_qemu_vm_exists(values)
   host_list = execute_command(values, message, command)
   if not host_list.match(/#{values['name']}/)
     if values['verbose'] == true
-      handle_output(values, "Information:\tKVM VM #{values['name']} does not exist")
+      verbose_output(values, "Information:\tKVM VM #{values['name']} does not exist")
     end
     exists = false
   else

@@ -11,23 +11,23 @@ def list_cdom_services(values)
         list_doms(ldom_type, ldom_command)
       else
         if values['verbose'] == true
-          handle_output(values, "") 
-          handle_output(values, "Warning:\tThis service is only available on the Sun4v platform")
-          handle_output(values, "") 
+          verbose_output(values, "") 
+          verbose_output(values, "Warning:\tThis service is only available on the Sun4v platform")
+          verbose_output(values, "") 
         end
       end
     else
       if values['verbose'] == true
-        handle_output(values, "") 
-        handle_output(values, "Warning:\tThis service is only available on Solaris 10 or later")
-        handle_output(values, "") 
+        verbose_output(values, "") 
+        verbose_output(values, "Warning:\tThis service is only available on Solaris 10 or later")
+        verbose_output(values, "") 
       end
     end
   else
     if values['verbose'] == true
-      handle_output(values, "") 
-      handle_output(values, "Warning:\tThis service is only available on Solaris")
-      handle_output(values, "") 
+      verbose_output(values, "") 
+      verbose_output(values, "Warning:\tThis service is only available on Solaris")
+      verbose_output(values, "") 
     end
   end
   return
@@ -113,7 +113,7 @@ def check_cdom_config(values)
     command = "ldm list-config |grep #{config}"
     output  = execute_command(values, message, command)
     if output.match(/#{config}/)
-      handle_output(values, "Warning:\tLDom configuration #{config} already exists")
+      verbose_output(values, "Warning:\tLDom configuration #{config} already exists")
       quit(values)
     end
     if values['host-os-unamea'].match(/T5[0-9]|T3/)
@@ -141,8 +141,8 @@ def check_cdom_config(values)
       message = "Warning:\tRebooting primary domain to enable settings"
       execute_command(values, message, command)
     else
-      handle_output(values, "Warning:\tReboot required for settings to take effect")
-      handle_output(values, "Infromation:\tExecute #{command}")
+      verbose_output(values, "Warning:\tReboot required for settings to take effect")
+      verbose_output(values, "Infromation:\tExecute #{command}")
       quit(values)
     end
   end
@@ -188,7 +188,7 @@ end
 # Unconfigure LDom Server
 
 def unconfigure_cdom()
-  handle_output(values, "Warning:\tCurrently unconfiguring the Control Domain must be done manually")
+  verbose_output(values, "Warning:\tCurrently unconfiguring the Control Domain must be done manually")
   quit(values)
   return
 end

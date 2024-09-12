@@ -6,8 +6,8 @@ def check_osx_ip_forwarding(values, gw_if_name)
   message = "Information:\tChecking IP forwarding is enabled"
   command = "sudo sh -c \"sysctl -a net.inet.ip.forwarding |awk '{print $2}'\""
   if values['verbose'] == true
-    handle_output(values, message)
-    handle_output(values, "Executing:\t"+command)
+    verbose_output(values, message)
+    verbose_output(values, "Executing:\t"+command)
   end
   output = %x[#{command}]
   output = output.chomp.to_i
@@ -23,8 +23,8 @@ def check_osx_ip_forwarding(values, gw_if_name)
     command = "sudo sh -c \"ipfw list |grep 'any to any via #{gw_if_name}'\""
   end
   if values['verbose'] == true
-    handle_output(values, message)
-    handle_output(values, "Executing:\t"+command)
+    verbose_output(values, message)
+    verbose_output(values, "Executing:\t"+command)
   end
   output = %x[#{command}]
   return output
@@ -33,15 +33,13 @@ end
 # Check PF is configure on OS X 10.10 and later
 
 def check_osx_pfctl(values, gw_if_name, if_name)
-  if values['vmnetwork'].to_s.match(/hostonly/)
+  if values['vmnetwork'].to_s.match(/hostonly/) and values['dryrun'] == false and values['checknat'] == true
     pf_file = values['workdir']+"/pfctl_config"
     if File.exist?(pf_file)
       File.delete(pf_file)
     end
     output = File.open(pf_file, "w")
-    if values['verbose'] == true
-      handle_output(values, "Information:\tEnabling forwarding between #{gw_if_name} and #{if_name}")
-    end
+    verbose_output(values, "Information:\tEnabling forwarding between #{gw_if_name} and #{if_name}")
     output.write("nat on #{gw_if_name} from #{if_name}:network to any -> (#{gw_if_name})\n")
     output.write("pass inet proto icmp all\n")
     output.write("pass in on #{if_name} proto udp from any to any port domain keep state\n")
@@ -52,7 +50,7 @@ def check_osx_pfctl(values, gw_if_name, if_name)
     message = "Enabling:\tPacket filtering"
     command = "sudo sh -c \"pfctl -e\""
     execute_command(values, message, command)
-    message = "Loading:\yFilters from "+pf_file
+    message = "Loading:\tFilters from "+pf_file
     command = "sudo sh -c \"pfctl -F all -f #{pf_file}\""
     execute_command(values, message, command)
   end
@@ -182,7 +180,7 @@ def check_osx_service_is_enabled(values, service)
     plist_file = "/System"+plist_file
   end
   if not File.exist?(plist_file)
-    handle_output(values, "Warning:\tLaunch Agent not found for #{service}")
+    verbose_output(values, "Warning:\tLaunch Agent not found for #{service}")
     quit(values)
   end
   tmp_file = "/tmp/tmp.plist"
@@ -195,7 +193,7 @@ def check_osx_service_is_enabled(values, service)
   output = execute_command(values, message, command)
   if not output.match(/true/)
     if values['verbose'] == true
-      handle_output(values, "Information:\t#{service} enabled")
+      verbose_output(values, "Information:\t#{service} enabled")
     end
   else
     backup_file(values, plist_file)
@@ -341,7 +339,7 @@ def create_osx_dhcpd_plist(values)
     output  = execute_command(values, message, command)
   else
     output = "Information:\tCreating #{plist_file}"
-    handle_output(values, output)
+    verbose_output(values, output)
   end
   if not output.match(/#{values['nic']}/)
     xml = Builder::XmlMarkup.new(:target => xml_output, :indent => 2)

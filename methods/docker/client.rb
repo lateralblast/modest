@@ -7,9 +7,9 @@ def execute_docker_command(values)
 	exists  = check_docker_vm_exists(values)
 	if exists == true
 		output = %x[docker-machine ssh #{values['name']} "#{command}']
-		handle_output(values,output)
+		verbose_output(values,output)
 	else
-		handle_output(values, "Information:\tDocker instance #{values['name']} does not exist")
+		verbose_output(values, "Information:\tDocker instance #{values['name']} does not exist")
 	end
 	return
 end
@@ -19,9 +19,9 @@ end
 def connect_to_docker_client(values)
 	exists = check_docker_vm_exists(values)
 	if exists == true
-		handle_output(values, "Command:\tdocker ssh #{values['name']}")
+		verbose_output(values, "Command:\tdocker ssh #{values['name']}")
 	else
-		handle_output(values, "Information:\tDocker instance #{values['name']} does not exist")
+		verbose_output(values, "Information:\tDocker instance #{values['name']} does not exist")
 	end
 	return
 end
@@ -62,7 +62,7 @@ def configure_docker_client(values)
 		end
 		execute_command(values, message, command)
 	else
-		handle_output(values, "Information:\tDocker instance '#{values['name']}' already exists")
+		verbose_output(values, "Information:\tDocker instance '#{values['name']}' already exists")
 	end
 	return
 end
@@ -74,7 +74,7 @@ def unconfigure_docker_client(values)
 		command = "docker-machine rm --force #{values['name']}"
 		execute_command(values, message, command)
 	else
-		handle_output(values, "Information:\tDocker instance #{values['name']} does not exist")
+		verbose_output(values, "Information:\tDocker instance #{values['name']} does not exist")
 	end
 	return
 end

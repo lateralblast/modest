@@ -55,7 +55,7 @@ def list_packer_clients(values)
   vm_types.each do |vm_type|
     vm_dir = packer_dir+"/"+vm_type
     if File.directory?(vm_dir)
-      handle_output(values, "")
+      verbose_output(values, "")
       case vm_type
       when /vbox/
         vm_title = "VirtualBox"
@@ -73,15 +73,15 @@ def list_packer_clients(values)
       vm_list = Dir.entries(vm_dir)
       if vm_list.length > 0
         if values['output'].to_s.match(/html/)
-          handle_output(values, "<h1>Available Packer #{vm_title} clients</h1>")
-          handle_output(values, "<table border=\"1\">")
-          handle_output(values, "<tr>")
-          handle_output(values, "<th>VM</th>")
-          handle_output(values, "<th>OS</th>")
-          handle_output(values, "</tr>")
+          verbose_output(values, "<h1>Available Packer #{vm_title} clients</h1>")
+          verbose_output(values, "<table border=\"1\">")
+          verbose_output(values, "<tr>")
+          verbose_output(values, "<th>VM</th>")
+          verbose_output(values, "<th>OS</th>")
+          verbose_output(values, "</tr>")
         else
-          handle_output(values, "Packer #{vm_title} clients:")
-          handle_output(values, "")
+          verbose_output(values, "Packer #{vm_title} clients:")
+          verbose_output(values, "")
         end
         vm_list.each do |vm_name|
           if vm_name.match(/[a-z,A-Z]/)
@@ -94,20 +94,20 @@ def list_packer_clients(values)
                 vm_os = json.grep(/guest_os_type/)[0].split(/:/)[1].split(/"/)[1]
               end
               if values['output'].to_s.match(/html/)
-                handle_output(values, "<tr>")
-                handle_output(values, "<td>#{vm_name}</td>")
-                handle_output(values, "<td>#{vm_os}</td>")
-                handle_output(values, "</tr>")
+                verbose_output(values, "<tr>")
+                verbose_output(values, "<td>#{vm_name}</td>")
+                verbose_output(values, "<td>#{vm_os}</td>")
+                verbose_output(values, "</tr>")
               else
-                handle_output(values, "#{vm_name} os=#{vm_os}")
+                verbose_output(values, "#{vm_name} os=#{vm_os}")
               end
             end
           end
         end
         if values['output'].to_s.match(/html/)
-          handle_output(values, "</table>")
+          verbose_output(values, "</table>")
         else
-          handle_output(values, "")
+          verbose_output(values, "")
         end
       end
     end
@@ -133,7 +133,7 @@ end
 
 def unconfigure_packer_client(values)
 	if values['verbose'] == true
-		handle_output(values, "Information:\tDeleting Packer Image for #{values['name']}")
+		verbose_output(values, "Information:\tDeleting Packer Image for #{values['name']}")
 	end
 	packer_dir = values['clientdir']+"/packer/"+values['vm']
   values['clientdir'] = packer_dir+"/"+values['name']
@@ -145,14 +145,14 @@ def unconfigure_packer_client(values)
   [ ovf_file, cfg_file, json_file, disk_file ].each do |file_name|
     if File.exist?(file_name)
     	if values['verbose'] == true
-    		handle_output(values, "Information:\tDeleting file #{file_name}")
+    		verbose_output(values, "Information:\tDeleting file #{file_name}")
     	end
     	File.delete(file_name)
     end
   end
   if Dir.exist?(image_dir)
   	if values['verbose'] == true
-  		handle_output(values, "Information:\tDeleting directory #{image_dir}")
+  		verbose_output(values, "Information:\tDeleting directory #{image_dir}")
   	end
     if image_dir.match(/[a-z]/)
     	FileUtils.rm_rf(image_dir)
@@ -184,7 +184,7 @@ end
 # some times dead packer processes are left running which stop the build process starting
 
 def kill_packer_processes(values)
-  handle_output(values, "Information:\tMaking sure no existing Packer processes are running for #{values['name']}")
+  verbose_output(values, "Information:\tMaking sure no existing Packer processes are running for #{values['name']}")
   %x[ps -ef |grep packer |grep "#{values['name']}.json" |awk '{print $2}' |xargs kill]
   return
 end
@@ -260,21 +260,21 @@ def configure_packer_client(values)
     enable_linux_ufw_internal_network(values)
   end
   if values['verbose'] == true
-    handle_output(values, "Information:\tChecking Packer client directory")
+    verbose_output(values, "Information:\tChecking Packer client directory")
   end
   if values['verbose'] == true
-    handle_output(values, "Information:\tChecking Packer client configuration directory")
+    verbose_output(values, "Information:\tChecking Packer client configuration directory")
   end
   check_dir_exists(values, values['clientdir'])
   check_dir_owner(values, values['clientdir'], values['uid'])
   exists = check_vm_exists(values)
 	if exists == true
-  	handle_output(values, "Warning:\t#{values['vmapp']} VM #{values['name']} already exists")
+  	verbose_output(values, "Warning:\t#{values['vmapp']} VM #{values['name']} already exists")
 		quit(values)
 	end
 	exists = check_packer_image_exists(values)
 	if exists == true
-    handle_output(values, "Warning:\tPacker image for #{values['vmapp']} VM #{values['name']} already exists")
+    verbose_output(values, "Warning:\tPacker image for #{values['vmapp']} VM #{values['name']} already exists")
 		quit(values)
   end
   if values['vm'] == values['empty'] && values['service'] == values['empty'] && values['method'] == values['empty'] && values['type'] == values['empty'] && values['mode'] == values['empty']
@@ -309,7 +309,7 @@ def configure_packer_client(values)
     values['mount'] = ""
     image_dir = values['clientdir']+"/packer/"+values['vm']+"/"+values['name']+"/images/"
     if values['verbose'] == true
-      handle_output(values, "Information:\tChecking Packer image directory")
+      verbose_output(values, "Information:\tChecking Packer image directory")
     end
     check_dir_exists(values, image_dir)
     check_dir_owner(values, image_dir, values['uid'])
@@ -337,9 +337,9 @@ def build_packer_config(values)
   exists = check_vm_exists(values)
   if exists == true
     if values['vm'].to_s.match(/vbox/)
-      handle_output(values, "Warning:\tVirtualBox VM #{values['name']} already exists")
+      verbose_output(values, "Warning:\tVirtualBox VM #{values['name']} already exists")
     else
-      handle_output(values, "Warning:\tVMware Fusion VM #{values['name']} already exists")
+      verbose_output(values, "Warning:\tVMware Fusion VM #{values['name']} already exists")
     end
     quit(values)
   end
@@ -347,7 +347,7 @@ def build_packer_config(values)
   values['clientdir'] = values['clientdir']+"/packer/"+values['vm']+"/"+values['name']
   json_file = values['clientdir']+"/"+values['name']+".json"
   if not File.exist?(json_file)
-    handle_output(values, "Warning:\tJSON configuration file \"#{json_file}\" for #{values['name']} does not exist")
+    verbose_output(values, "Warning:\tJSON configuration file \"#{json_file}\" for #{values['name']} does not exist")
     quit(values)
   end
   if values['vm'].to_s.match(/fusion/) and values['vmnetwork'].to_s.match(/hostonly/)
@@ -370,8 +370,8 @@ def build_packer_config(values)
     end
   end
   if values['verbose'] == true
-    handle_output(values, message)
-    handle_output(values, "Executing:\t"+command)
+    verbose_output(values, message)
+    verbose_output(values, "Executing:\t"+command)
   end
   exec(command)
 	return
@@ -458,7 +458,7 @@ end
 def create_packer_ay_install_files(values)
   output_file = values['clientdir']+"/packer/"+values['vm']+"/"+values['name']+"/"+values['name']+".xml"
   if values['verbose'] == true
-    handle_output(values, "Information:\tChecking Packer AutoYast configuration directory")
+    verbose_output(values, "Information:\tChecking Packer AutoYast configuration directory")
   end
   check_dir_exists(values, values['clientdir'])
   check_dir_owner(values, values['clientdir'], owner['uid'])
@@ -507,7 +507,7 @@ end
 def create_packer_js_install_files(values)
   values['packerdir'] = values['clientdir']+"/packer/"+values['vm']+"/"+values['name']
   if values['verbose'] == true
-    handle_output(values, "Information:\tChecking Packer Jumpstart configuration directory")
+    verbose_output(values, "Information:\tChecking Packer Jumpstart configuration directory")
   end
   check_dir_exists(values, values['packerdir'])
   check_dir_owner(values, values['packerdir'], values['uid'])
@@ -589,23 +589,23 @@ end
 
 def create_packer_aws_install_files(values)
   if not values['number'].to_s.match(/[0,9]/)
-    handle_output(values, "Warning:\tIncorrect number of instances specified: '#{values['number']}'")
+    verbose_output(values, "Warning:\tIncorrect number of instances specified: '#{values['number']}'")
     quit(values)
   end
   values = handle_aws_values(values)
   exists  = check_aws_image_exists(values)
   if exists == "yes"
-    handle_output(values, "Warning:\tAWS AMI already exists with name #{values['name']}")
+    verbose_output(values, "Warning:\tAWS AMI already exists with name #{values['name']}")
     quit(values)
   end
   if not values['ami'].to_s.match(/^ami/)
     old_ami = values['ami']
     ec2, values['ami'] = get_aws_image(values)
     if values['ami'].to_s.match(/^none$/)
-      handle_output(values, "Warning:\tNo AWS AMI ID found for #{old_ami}")
-      handle_output(values, "Information:\tSetting AWS AMI ID to #{values['ami']}")
+      verbose_output(values, "Warning:\tNo AWS AMI ID found for #{old_ami}")
+      verbose_output(values, "Information:\tSetting AWS AMI ID to #{values['ami']}")
     else
-      handle_output(values, "Information:\tFound AWS AMI ID #{values['ami']} for #{old_ami}")
+      verbose_output(values, "Information:\tFound AWS AMI ID #{values['ami']} for #{old_ami}")
     end
   end
   script_dir     = values['clientdir']+"/scripts"
@@ -641,7 +641,7 @@ def copy_pkg_to_packer_client(pkg_name, values)
     source_pkg = pkg_name
   end
   if not File.exist?(source_pkg)
-    handle_output(values, "Warning:\tPackage #{source_pkg} does not exist")
+    verbose_output(values, "Warning:\tPackage #{source_pkg} does not exist")
     quit(values)
   end
   if not File.exist?(dest_pkg)
@@ -672,18 +672,18 @@ end
 def build_packer_aws_config(values)
   exists = check_aws_image_exists(values)
   if exists == "yes"
-    handle_output(values, "Warning:\tAWS image already exists for '#{values['name']}'")
+    verbose_output(values, "Warning:\tAWS image already exists for '#{values['name']}'")
     quit(values)
   end
   values['clientdir'] = values['clientdir']+"/packer/aws/"+values['name']
   json_file  = values['clientdir']+"/"+values['name']+".json"
   key_file   = values['clientdir']+"/"+values['name']+".key.pub"
   if not File.exist?(json_file)
-    handle_output(values, "Warning:\tPacker AWS config file '#{json_file}' does not exist")
+    verbose_output(values, "Warning:\tPacker AWS config file '#{json_file}' does not exist")
     quit(values)
   end
   if not File.exist?(key_file) and not File.symlink?(key_file)
-    handle_output(values, "Warning:\tPacker AWS key file '#{key_file}' does not exist")
+    verbose_output(values, "Warning:\tPacker AWS key file '#{key_file}' does not exist")
     quit(values)
   end
   message = "Information:\tCodesigning /usr/local/bin/packer"

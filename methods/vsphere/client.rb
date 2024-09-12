@@ -26,32 +26,32 @@ def list_vs_clients(values)
   client_list = get_vs_clients()
   if client_list.length > 0
     if values['output'].to_s.match(/html/)
-      handle_output(values, "<h1>Available vSphere clients:</h1>") 
-      handle_output(values, "<table border=\"1\">")
-      handle_output(values, "<tr>")
-      handle_output(values, "<th>Client</th>")
-      handle_output(values, "<th>Service</th>")
-      handle_output(values, "</tr>")
+      verbose_output(values, "<h1>Available vSphere clients:</h1>") 
+      verbose_output(values, "<table border=\"1\">")
+      verbose_output(values, "<tr>")
+      verbose_output(values, "<th>Client</th>")
+      verbose_output(values, "<th>Service</th>")
+      verbose_output(values, "</tr>")
     else
-      handle_output(values, "")
-      handle_output(values, "Available vSphere clients:")
-      handle_output(values, "")
+      verbose_output(values, "")
+      verbose_output(values, "Available vSphere clients:")
+      verbose_output(values, "")
     end
     client_list.each do |client_info|
       if values['output'].to_s.match(/html/)
         (values['name'], values['service']) = client_info.split(/ service = /)
-        handle_output(values, "<tr>")
-        handle_output(values, "<td>#{values['name']}</td>")
-        handle_output(values, "<td>#{values['service']}</td>")
-        handle_output(values, "</tr>")
+        verbose_output(values, "<tr>")
+        verbose_output(values, "<td>#{values['name']}</td>")
+        verbose_output(values, "<td>#{values['service']}</td>")
+        verbose_output(values, "</tr>")
       else
-        handle_output(client_info)
+        verbose_output(client_info)
       end
     end
     if values['output'].to_s.match(/html/)
-      handle_output(values, "</table>")
+      verbose_output(values, "</table>")
     else
-      handle_output(values, "")
+      verbose_output(values, "")
     end
   end
   return
@@ -66,7 +66,7 @@ def configure_vs_pxe_client(values)
   tftp_pxe_file  = "01"+tftp_pxe_file+".pxelinux"
   test_file      = values['tftpdir']+"/"+tftp_pxe_file
   if values['verbose'] == true
-    handle_output(values, "Information:\tChecking vSphere TFTP directory")
+    verbose_output(values, "Information:\tChecking vSphere TFTP directory")
   end
   check_dir_exists(values, values['tftpdir'])
   check_dir_owner(values, values['tftpdir'], values['uid'])
@@ -83,7 +83,7 @@ def configure_vs_pxe_client(values)
   end
   pxe_cfg_dir = values['tftpdir']+"/pxelinux.cfg"
   if values['verbose'] == true
-    handle_output(values, "Information:\tChecking vSphere PXE configuration directory")
+    verbose_output(values, "Information:\tChecking vSphere PXE configuration directory")
   end
   check_dir_exists(values, pxe_cfg_dir)
   check_dir_owner(values, pxe_cfg_dir, values['uid'])
@@ -132,7 +132,7 @@ def configure_vs_pxe_client(values)
   end
   esx_boot_file = values['tftpdir'].to_s+"/"+values['service'].to_s+"/boot.cfg"
   if values['verbose'] == true
-    handle_output(values, "Creating:\tBoot config file #{tftp_boot_file}")
+    verbose_output(values, "Creating:\tBoot config file #{tftp_boot_file}")
   end
   copy=[]
   file=IO.readlines(esx_boot_file)
@@ -166,7 +166,7 @@ def configure_vs_pxe_client(values)
   end
   tftp_boot_file_dir = File.dirname(tftp_boot_file)
   if values['verbose'] == true
-    handle_output(values, "Information:\tChecking vSphere TFTP boot file directory")
+    verbose_output(values, "Information:\tChecking vSphere TFTP boot file directory")
   end
   check_dir_exists(values, tftp_boot_file_dir)
   check_dir_owner(values, values['tftpdir'], values['uid'])
@@ -182,7 +182,7 @@ end
 def unconfigure_vs_pxe_client(values)
   values['mac'] = get_install_nac(values)
   if not values['mac']
-    handle_output(values, "Warning:\tNo MAC Address entry found for #{values['name']}")
+    verbose_output(values, "Warning:\tNo MAC Address entry found for #{values['name']}")
     quit(values)
   end
   tftp_pxe_file = values['mac'].gsub(/:/, "")
@@ -244,8 +244,8 @@ end
 def configure_vs_client(values)
   values['repodir'] = values['baserepodir']+"/"+values['service']
   if not File.directory?(values['repodir']) and not File.symlink?(values['repodir'])
-    handle_output(values, "Information:\tWarning service #{values['service']} does not exist")
-    handle_output(values, "")
+    verbose_output(values, "Information:\tWarning service #{values['service']} does not exist")
+    verbose_output(values, "")
     #list_vs_services(values)
     quit(values)
   end
@@ -427,12 +427,12 @@ end
 
 def output_vs_header(values, output_file)
   if values['verbose'] == true
-    handle_output(values, "Information:\tCreating vSphere file #{output_file}")
+    verbose_output(values, "Information:\tCreating vSphere file #{output_file}")
   end
   dir_name = File.dirname(output_file)
   top_dir  = dir_name.split(/\//)[0..-2].join("/")
   if values['verbose'] == true
-    handle_output(values, "Information:\tChecking vSphere boot header file directory")
+    verbose_output(values, "Information:\tChecking vSphere boot header file directory")
   end
   check_dir_owner(values, top_dir, values['uid'])
   check_dir_exists(values, dir_name)
@@ -445,7 +445,7 @@ def output_vs_header(values, output_file)
       else
         output=values['q_struct'][key].parameter+" "+values['q_struct'][key].value+"\n"
         if values['verbose'] == true
-          handle_output(values, output)
+          verbose_output(values, output)
         end
       end
       file.write(output)
@@ -471,12 +471,12 @@ end
 
 def check_vs_install_service(values)
   if !values['service'].to_s.match(/[a-z,A-Z]/)
-    handle_output(values, "Warning:\tService name not given")
+    verbose_output(values, "Warning:\tService name not given")
     quit(values)
   end
   client_list=Dir.entries(values['baserepodir'])
   if not client_list.grep(values['service'])
-    handle_output(values, "Warning:\tService name #{values['service']} does not exist")
+    verbose_output(values, "Warning:\tService name #{values['service']} does not exist")
     quit(values)
   end
   return

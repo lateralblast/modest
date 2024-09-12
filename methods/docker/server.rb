@@ -6,7 +6,7 @@ def configure_docker_server(values)
   check_dir_exists(values, values)
   values['tftpdir'] = values['exportdir']+"/tftpboot"
   if values['verbose'] == true
-    handle_output(values, "Information:\tChecking TFTP directory")
+    verbose_output(values, "Information:\tChecking TFTP directory")
   end
   check_dir_exists(values, values['tftpdir'])
   check_dir_owner(values, values['tftpdir'], values['uid'])
@@ -23,7 +23,7 @@ def configure_docker_server(values)
     create_docker_file(docker_file)
     build_docker_file(docker_file)
   else
-    handle_output(values, "Docker image #{values['scriptname']} already exists")
+    verbose_output(values, "Docker image #{values['scriptname']} already exists")
   end
   return
 end

@@ -4,7 +4,7 @@
 
 def handle_vm_install_status(values)
   if values['status'].to_s.match(/no/)
-    handle_output(values, "Warning:\tVirtualisation application does not exist for #{values['vm']}")
+    verbose_output(values, "Warning:\tVirtualisation application does not exist for #{values['vm']}")
     quit(values)
   end
   return
@@ -67,7 +67,7 @@ def get_client_vm_type(values)
   values['vm'] = ""
   values['valid-vm'].each do |test_vm|
     if values['verbose'] == true
-      handle_output(values, "Information:\tChecking if '#{values['name']}' is a '#{test_vm}' VM")
+      verbose_output(values, "Information:\tChecking if '#{values['name']}' is a '#{test_vm}' VM")
     end
     exists = eval"[check_#{test_vm}_is_installed(values)]"
     if exists.to_s.match(/yes/)
@@ -161,15 +161,15 @@ def vnc_to_vm(values)
             message = "Information:\tStarting noVNC web proxy on port "+local_vnc_port+" and redirecting to "+remote_vnc_port
             command = "cd '#{novnc_dir}' ; ./utils/launch.sh --listen #{local_vnc_port} --vnc #{values['ip']}:#{remote_vnc_port} &"
             execute_command(values, message, command)
-            handle_output(values, "Information:\tNoVNC started on port #{local_vnc_port}")
+            verbose_output(values, "Information:\tNoVNC started on port #{local_vnc_port}")
           else
-            handle_output(values, "Information:\tnoVNC already running")
+            verbose_output(values, "Information:\tnoVNC already running")
           end
         else
-          handle_output(values, "Warning:\tUnable to determine VNC port for #{values['vmapp']} VM #{values['name']}")
+          verbose_output(values, "Warning:\tUnable to determine VNC port for #{values['vmapp']} VM #{values['name']}")
         end
       else
-        handle_output(values, "Warning:\tUnable to determine IP for #{values['vmapp']} VM #{values['name']}")
+        verbose_output(values, "Warning:\tUnable to determine IP for #{values['vmapp']} VM #{values['name']}")
       end
     end
   end
@@ -460,8 +460,8 @@ def create_vm(values)
   end
   if not values['method'].to_s.match(/[a-z]/) and not values['os-type'].to_s.match(/[a-z]/)
     if values['verbose'] == true
-      handle_output(values, "Warning:\tInstall method or OS not specified")
-      handle_output(values, "Information:\tSetting OS to other")
+      verbose_output(values, "Warning:\tInstall method or OS not specified")
+      verbose_output(values, "Information:\tSetting OS to other")
     end
     values['method'] = "other"
   end
@@ -509,7 +509,7 @@ def list_vms(values)
   when /libvirt|qemu/
     list_kvm_vms(values)
   else
-    handle_output(values,"Warning:\tInvalid VM type")
+    verbose_output(values,"Warning:\tInvalid VM type")
     exit
   end
   return

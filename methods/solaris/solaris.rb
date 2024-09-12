@@ -3,7 +3,7 @@
 # List all solaris ISOs
 
 def list_sol_isos(search_string)
-  handle_output(values, "") 
+  verbose_output(values, "") 
   list_js_isos()
   list_ai_isos()
   return
@@ -84,11 +84,11 @@ def check_local_publisher(values)
   command = "pkg publisher | grep online"
   output  = execute_command(values, message, command)
   if not output.match(/online/)
-    handle_output(values, "Warning:\tNo local publisher online")
+    verbose_output(values, "Warning:\tNo local publisher online")
     values['repodir'] = values['baserepodir']+"/sol_"+values['update'].gsub(/\./, "_")
     publisher_dir      = values['repodir']+"/publisher"
     if not File.directory?(publisher_dir)
-      handle_output(values, "Warning:\tNo local repository")
+      verbose_output(values, "Warning:\tNo local repository")
       values['file'] = values['isodir']+"/sol-"+values['update'].gsub(/\./, "_")+"-repo-full.iso"
       if File.exist?(values['file'])
         mount_iso(values)
@@ -101,11 +101,11 @@ def check_local_publisher(values)
           command = "pkg set-publisher -G '*' -g #{values['repodir']} solaris"
           execute_command(values, message, command)
         else
-          handle_output(values, "Warning:\tNo local publisher directory found at: #{publisher_dir}")
+          verbose_output(values, "Warning:\tNo local publisher directory found at: #{publisher_dir}")
           quit(values)
         end
       else
-        handle_output(values, "Warning:\tNo local repository ISO file #{values['file']}")
+        verbose_output(values, "Warning:\tNo local repository ISO file #{values['file']}")
         quit(values)
       end
     end

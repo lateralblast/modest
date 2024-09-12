@@ -454,7 +454,7 @@ get '/' do
         get_client_config(values['name'],values['service'],values['method'],values['type'])
       end
     else
-      handle_output(values,"Warning:\tClient name not specified")
+      verbose_output(values,"Warning:\tClient name not specified")
     end
   when /list/
     if values['type'].to_s.match(/[a-z]/)

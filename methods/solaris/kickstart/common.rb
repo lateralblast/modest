@@ -5,8 +5,8 @@
 
 def check_linux_distro(linux_distro)
   if not linux_distro.match(/redhat|centos/)
-    handle_output(values, "Warning:\tNo Linux distribution given")
-    handle_output(values, "Use redhat or centos")
+    verbose_output(values, "Warning:\tNo Linux distribution given")
+    verbose_output(values, "Use redhat or centos")
     quit(values)
   end
   return

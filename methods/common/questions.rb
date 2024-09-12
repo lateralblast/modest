@@ -4,10 +4,10 @@
 def process_questions(values)
   values['q_order'].each do |key|
     if values['verbose'] == true
-      handle_output(values, "Information:\tProcessing value for #{key}")
+      verbose_output(values, "Information:\tProcessing value for #{key}")
     end
     if values['q_struct'][key].value == nil 
-      handle_output(values, "Warning:\tValue for #{key} is NULL")
+      verbose_output(values, "Warning:\tValue for #{key} is NULL")
       quit(values)
     end
     correct = false
@@ -91,7 +91,7 @@ def evaluate_answer(key, answer, values)
   end
   answer = answer.to_s
   if values['verbose'] == true
-    handle_output(values, "Information:\tSetting parameter #{key} to #{answer}")
+    verbose_output(values, "Information:\tSetting parameter #{key} to #{answer}")
   end
   return correct
 end

@@ -14,12 +14,12 @@ def get_vbox_vm_status(values)
   if exists == true
     vm_list = get_running_vbox_vms()
     if vm_list.to_s.match(/#{values['name']}/)
-      handle_output(values, "Information:\tVirtualBox VM #{values['name']} is Running")
+      verbose_output(values, "Information:\tVirtualBox VM #{values['name']} is Running")
     else
-      handle_output(values, "Information:\tVrtualBox VM #{values['name']} is Not Running")
+      verbose_output(values, "Information:\tVrtualBox VM #{values['name']} is Not Running")
     end
   else
-    handle_output(values, "Warning:\tFusion VM #{values['name']} doesn't exist")
+    verbose_output(values, "Warning:\tFusion VM #{values['name']} doesn't exist")
   end
   return
 end
@@ -29,7 +29,7 @@ end
 def import_packer_vbox_vm(values)
   (exists, images_dir) = check_packer_vm_image_exists(values)
   if exists == false
-    handle_output(values, "Warning:\tPacker VirtualBox VM image for #{values['name']} does not exist")
+    verbose_output(values, "Warning:\tPacker VirtualBox VM image for #{values['name']} does not exist")
     return exists
   end
   ovf_file = images_dir+"/"+values['name']+".ovf"
@@ -43,7 +43,7 @@ def import_packer_vbox_vm(values)
     end
     execute_command(values, message, command)
   else
-    handle_output(values, "Warning:\tOVF file for Packer VirtualBox VM #{values['name']} does not exist")
+    verbose_output(values, "Warning:\tOVF file for Packer VirtualBox VM #{values['name']} does not exist")
   end
   return exists
 end
@@ -56,7 +56,7 @@ def show_vbox_vm(values)
     output = %x[#{values['vboxmanage']} showvminfo '#{values['name']}']
     show_output_of_command("VirtualBox VM configuration", output)
   else
-    handle_output(values, "Warning:\tVirtualBox VM #{values['name']} does not exist")
+    verbose_output(values, "Warning:\tVirtualBox VM #{values['name']} does not exist")
   end
   return exists
 end
@@ -73,7 +73,7 @@ def set_vbox_value(values)
   if exists == true
     %x[#{values['vboxmanage']} modifyvm '#{values['name']}' --#{values['param']} #{values['value']}]
   else
-    handle_output(values, "Warning:\tVirtualBox VM #{values['name']} does not exist")
+    verbose_output(values, "Warning:\tVirtualBox VM #{values['name']} does not exist")
   end
   return exists
 end
@@ -85,7 +85,7 @@ def set_vbox_value(values)
   if exists == true
     %x[#{values['vboxmanage']} showvminfo '#{values['name']}' | grep '#{values['param']}']
   else
-    handle_output(values, "Warning:\tVirtualBox VM #{values['name']} does not exist")
+    verbose_output(values, "Warning:\tVirtualBox VM #{values['name']} does not exist")
   end
   return exist
 end
@@ -159,8 +159,8 @@ def list_vbox_vm_snapshots(values)
     list_all_vbox_vm_snapshots()
   else
     snapshot_list = get_vbox_vm_snapshots(values)
-    handle_output(values, "Snapshots for #{values['name']}:")
-    handle_output(snapshot_list)
+    verbose_output(values, "Snapshots for #{values['name']}:")
+    verbose_output(snapshot_list)
   end
   return
 end
@@ -170,7 +170,7 @@ end
 def snapshot_vbox_vm(values)
   exists = check_vbox_vm_exists(values)
   if exists == true
-    handle_output(values, "Warning:\tVirtualBox VM #{values['name']} does not exist")
+    verbose_output(values, "Warning:\tVirtualBox VM #{values['name']} does not exist")
     return exists
   end
   message = "Information:\tCloning VirtualBox VM "+values['name']+" to "+values['clone']
@@ -235,15 +235,15 @@ def list_running_vbox_vms(values)
   set_vboxm_bin()
   if values['vboxmanage'].to_s.match(/[a-z]/)
     vm_list = get_running_vbox_vms()
-    handle_output(values, "")
-    handle_output(values, "Running VirtualBox VMs:")
-    handle_output ("")
+    verbose_output(values, "")
+    verbose_output(values, "Running VirtualBox VMs:")
+    verbose_output ("")
     vm_list.each do |vm_name|
       vm_name = vm_name.split(/"/)[1]
       os_info = %x[#{values['vboxmanage']} showvminfo "#{vm_name}" |grep '^Guest OS' |cut -f2 -d:].chomp.gsub(/^\s+/, "")
-      handle_output(values, "#{vm_name}\t#{os_info}")
+      verbose_output(values, "#{vm_name}\t#{os_info}")
     end
-    handle_output(values, "")
+    verbose_output(values, "")
   end
   return
 end
@@ -299,7 +299,7 @@ end
 def clone_vbox_vm(values)
   exists = check_vbox_vm_exists(values)
   if exists == true
-    handle_output(values, "Warning:\tVirtualBox VM #{values['name']} does not exist")
+    verbose_output(values, "Warning:\tVirtualBox VM #{values['name']} does not exist")
     return exists
   end
   message = "Information:\tCloning VM "+values['name']+" to "+values['clone']
@@ -322,8 +322,8 @@ def export_vbox_ova(values)
     stop_vbox_vm(values)
     if not values['file'].to_s.match(/[0-9,a-z,A-Z]/)
       values['file'] = "/tmp/"+values['name']+".ova"
-      handle_output(values, "Warning:\tNo ouput file given")
-      handle_output(values, "Information:\tExporting VirtualBox VM #{values['name']} to #{values['file']}")
+      verbose_output(values, "Warning:\tNo ouput file given")
+      verbose_output(values, "Information:\tExporting VirtualBox VM #{values['name']} to #{values['file']}")
     end
     if not values['file'].to_s.match(/\.ova$/)
       values['file'] = values['file']+".ova"
@@ -332,7 +332,7 @@ def export_vbox_ova(values)
     command = "#{values['vboxmanage']} export \"#{values['name']}\" -o \"#{values['file']}\""
     execute_command(values, message, command)
   else
-    handle_output(values, "Warning:\tVirtualBox VM #{values['name']} does not exist")
+    verbose_output(values, "Warning:\tVirtualBox VM #{values['name']} does not exist")
   end
   return exists
 end
@@ -361,7 +361,7 @@ def import_vbox_ova(values)
       if values['vboxmanage'].to_s.match(/[a-z]/)
         values['name'] = %x[#{values['vboxmanage']} import -n #{values['file']} |grep "Suggested VM name'].split(/\n/)[-1]
         if not values['name'].to_s.match(/[0-9,a-z,A-Z]/)
-          handle_output(values, "Warning:\tCould not determine VM name for Virtual Appliance #{values['file']}")
+          verbose_output(values, "Warning:\tCould not determine VM name for Virtual Appliance #{values['file']}")
           quit(values)
         else
           values['name'] = values['name'].split(/Suggested VM name /)[1].chomp
@@ -372,7 +372,7 @@ def import_vbox_ova(values)
       end
     end
   else
-    handle_output(values, "Warning:\tVirtual Appliance #{values['file']} does not exist")
+    verbose_output(values, "Warning:\tVirtual Appliance #{values['file']} does not exist")
     return exists
   end
   if values['ip'].to_s.match(/[0-9]/)
@@ -396,7 +396,7 @@ def import_vbox_ova(values)
     configure_vmware_vcenter_defaults()
     configure_vmware_vbox_vm(values)
   end
-  handle_output(values, "Warning:\tVirtual Appliance #{values['file']} imported with VM name #{values['name']} and MAC address #{values['mac']}")
+  verbose_output(values, "Warning:\tVirtual Appliance #{values['file']} imported with VM name #{values['name']} and MAC address #{values['mac']}")
   return exists
 end
 
@@ -455,19 +455,19 @@ def set_vbox_bin(values)
     if values['host-os-uname'].to_s.match(/NT/)
       path = %x[echo $PATH]
       if not path.match(/VirtualBox/)
-        handle_output(values, "Warning:\tVirtualBox directory not in PATH")
+        verbose_output(values, "Warning:\tVirtualBox directory not in PATH")
         values['vm'] = "none"
       end
     end
     values['vboxmanage'] = %x[which VBoxManage].chomp
     if not values['vboxmanage'].to_s.match(/VBoxManage/) or values['vboxmanage'].to_s.match(/no VBoxManage/)
-      handle_output(values, "Warning:\tCould not find VBoxManage")
+      verbose_output(values, "Warning:\tCould not find VBoxManage")
       values['vm'] = "none"
     end
   else
     values['vboxmanage'] = %x[which vboxmanage].chomp
     if !values['vboxmanage'].to_s.match(/vboxmanage/) || values['vboxmanage'].to_s.match(/no vboxmanage/)
-      handle_output(values, "Warning:\tCould not find vboxmanage")
+      verbose_output(values, "Warning:\tCould not find vboxmanage")
       values['vm'] = "none"
     end
   end
@@ -482,7 +482,7 @@ def check_vbox_vm_exists(values)
   host_list = execute_command(values, message, command)
   if not host_list.match(values['name'])
     if values['verbose'] == true
-      handle_output(values, "Warning:\tVirtualBox VM #{values['name']} does not exist")
+      verbose_output(values, "Warning:\tVirtualBox VM #{values['name']} does not exist")
     end
     exists = false
   else
@@ -577,17 +577,17 @@ def list_vbox_vms(values)
       type_string = search_string+" VirtualBox"
     end
     if values['output'].to_s.match(/html/)
-      handle_output(values, "<h1>Available #{type_string} VMs</h1>")
-      handle_output(values, "<table border=\"1\">")
-      handle_output(values, "<tr>")
-      handle_output(values, "<th>VM</th>")
-      handle_output(values, "<th>OS</th>")
-      handle_output(values, "<th>MAC</th>")
-      handle_output(values, "</tr>")
+      verbose_output(values, "<h1>Available #{type_string} VMs</h1>")
+      verbose_output(values, "<table border=\"1\">")
+      verbose_output(values, "<tr>")
+      verbose_output(values, "<th>VM</th>")
+      verbose_output(values, "<th>OS</th>")
+      verbose_output(values, "<th>MAC</th>")
+      verbose_output(values, "</tr>")
     else
-      handle_output(values, "")
-      handle_output(values, "Available #{type_string} VMs:")
-      handle_output(values, "")
+      verbose_output(values, "")
+      verbose_output(values, "Available #{type_string} VMs:")
+      verbose_output(values, "")
     end
     vm_list.each do |line|
       line = line.chomp
@@ -597,21 +597,21 @@ def list_vbox_vms(values)
       vm_os  = get_vbox_vm_os(values)
       if search_string == "all" or line.match(/#{search_string}/)
         if values['output'].to_s.match(/html/)
-          handle_output(values, "<tr>")
-          handle_output(values, "<td>#{vm_name}</td>")
-          handle_output(values, "<td>#{vm_mac}</td>")
-          handle_output(values, "<td>#{vm_os}</td>")
-          handle_output(values, "</tr>")
+          verbose_output(values, "<tr>")
+          verbose_output(values, "<td>#{vm_name}</td>")
+          verbose_output(values, "<td>#{vm_mac}</td>")
+          verbose_output(values, "<td>#{vm_os}</td>")
+          verbose_output(values, "</tr>")
         else
           output = vm_name+" os="+vm_os+" mac="+vm_mac
-          handle_output(values, output)
+          verbose_output(values, output)
         end
       end
     end
     if values['output'].to_s.match(/html/)
-      handle_output(values, "</table>")
+      verbose_output(values, "</table>")
     else
-      handle_output(values, "")
+      verbose_output(values, "")
     end
   end
   return
@@ -672,7 +672,7 @@ def check_vbox_vm_doesnt_exist(values)
   command   = "#{values['vboxmanage']} list vms"
   host_list = execute_command(values, message, command)
   if host_list.match(values)
-    handle_output(values, "Information:\tVirtualBox VM #{values['name']} already exists")
+    verbose_output(values, "Information:\tVirtualBox VM #{values['name']} already exists")
     quit(values)
   end
   return
@@ -1045,7 +1045,7 @@ end
 def boot_vbox_vm(values)
   exists = check_vbox_vm_exists(values)
   if exists == false
-    handle_output(values, "Warning:\tVirtualBox VM #{values['name']} does not exist")
+    verbose_output(values, "Warning:\tVirtualBox VM #{values['name']} does not exist")
     return exists
   end
   if values['boot'].to_s.match(/cdrom|net|dvd|disk/)
@@ -1055,18 +1055,18 @@ def boot_vbox_vm(values)
   message = "Starting:\tVM "+values['name']
   if values['text'] == true or values['serial'] == true or values['headless'] == true
     command = "#{values['vboxmanage']} startvm #{values['name']} --type headless ; sleep 1"
-    handle_output(values, "")
-    handle_output(values, "Information:\tBooting and connecting to virtual serial port of #{values['name']}")
-    handle_output(values, "")
-    handle_output(values, "To disconnect from this session use CTRL-Q")
-    handle_output(values, "")
-    handle_output(values, "If you wish to re-connect to the serial console of this machine,")
-    handle_output(values, "run the following command")
-    handle_output(values, "")
-    handle_output(values, "socat UNIX-CONNECT:/tmp/#{values['name']} STDIO,raw,echo=0,escape=0x11,icanon=0")
-    handle_output(values, "")
-    handle_output(values, "Executing:\t #{command}")
-    handle_output(values, "")
+    verbose_output(values, "")
+    verbose_output(values, "Information:\tBooting and connecting to virtual serial port of #{values['name']}")
+    verbose_output(values, "")
+    verbose_output(values, "To disconnect from this session use CTRL-Q")
+    verbose_output(values, "")
+    verbose_output(values, "If you wish to re-connect to the serial console of this machine,")
+    verbose_output(values, "run the following command")
+    verbose_output(values, "")
+    verbose_output(values, "socat UNIX-CONNECT:/tmp/#{values['name']} STDIO,raw,echo=0,escape=0x11,icanon=0")
+    verbose_output(values, "")
+    verbose_output(values, "Executing:\t #{command}")
+    verbose_output(values, "")
     set_vbox_bin(values)
     if values['vboxmanage'].to_s.match(/[a-z]/)
       %x[#{values['vboxmanage']} startvm #{values['name']} --type headless ; sleep 1]
@@ -1078,15 +1078,15 @@ def boot_vbox_vm(values)
   if values['serial'] == true
     system("socat UNIX-CONNECT:/tmp/#{values['name']} STDIO,raw,echo=0,escape=0x11,icanon=0")
   else
-    handle_output(values, "")
-    handle_output(values, "If you wish to connect to the serial console of this machine,")
-    handle_output(values, "run the following command")
-    handle_output(values, "")
-    handle_output(values, "socat UNIX-CONNECT:/tmp/#{values['name']} STDIO,raw,echo=0,escape=0x11,icanon=0")
-    handle_output(values, "")
-    handle_output(values, "To disconnect from this session use CTRL-Q")
-    handle_output(values, "")
-    handle_output(values, "")
+    verbose_output(values, "")
+    verbose_output(values, "If you wish to connect to the serial console of this machine,")
+    verbose_output(values, "run the following command")
+    verbose_output(values, "")
+    verbose_output(values, "socat UNIX-CONNECT:/tmp/#{values['name']} STDIO,raw,echo=0,escape=0x11,icanon=0")
+    verbose_output(values, "")
+    verbose_output(values, "To disconnect from this session use CTRL-Q")
+    verbose_output(values, "")
+    verbose_output(values, "")
   end
   return exists
 end
@@ -1268,7 +1268,7 @@ def configure_vbox_vm(values)
   if values['vnc'] == true
     configure_vbox_vnc(values)
   end
-  handle_output(values, "Information:\tCreated VirtualBox VM #{values['name']} with MAC address #{values['mac']}")
+  verbose_output(values, "Information:\tCreated VirtualBox VM #{values['name']} with MAC address #{values['mac']}")
   return values
 end
 
@@ -1292,7 +1292,7 @@ def unconfigure_vbox_vm(values)
     if exists == true
       delete_vbox_vm_config(values)
     else
-      handle_output(values, "Warning:\tVirtualBox VM #{values['name']} does not exist")
+      verbose_output(values, "Warning:\tVirtualBox VM #{values['name']} does not exist")
       return exists
     end
   end

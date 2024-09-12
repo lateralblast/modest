@@ -252,7 +252,7 @@ def check_lxc_exists(values)
   command = "lxc-ls |grep '#{values['name']}'"
   output  = execute_command(values, message, command)
   if not output.match(/#{values['name']}/)
-    handle_output(values, "Warning:\tClient #{values['name']} doesn't exist")
+    verbose_output(values, "Warning:\tClient #{values['name']} doesn't exist")
     quit(values)
   end
   return
@@ -265,7 +265,7 @@ def check_lxc_doesnt_exist(values)
   command = "lxc-ls |grep '#{values['name']}'"
   output  = execute_command(values, message, command)
   if output.match(/#{values['name']}/)
-    handle_output(values, "Warning:\tClient #{values['name']} already exists")
+    verbose_output(values, "Warning:\tClient #{values['name']} already exists")
     quit(values)
   end
   return
@@ -345,9 +345,9 @@ end
 def configure_lxc(values)
   check_lxc_doesnt_exist(values)
   if not values['service'].to_s.match(/[a-z,A-Z]/) and not values['image'].to_s.match(/[a-z,A-Z]/)
-    handle_output(values, "Warning:\tImage file or Service name not specified")
-    handle_output(values, "Warning:\tIf this is the first time you have run this command it may take a while")
-    handle_output(values, "Information:\tCreating standard container")
+    verbose_output(values, "Warning:\tImage file or Service name not specified")
+    verbose_output(values, "Warning:\tIf this is the first time you have run this command it may take a while")
+    verbose_output(values, "Information:\tCreating standard container")
     values['ip'] = single_install_ip(values)
     values = populate_lxc_client_questions(values)
     process_questions(values)
@@ -364,7 +364,7 @@ def configure_lxc(values)
     end
     if values['image'].to_s.match(/[a-z,A-Z]/)
       if not File.exist?(values['image'])
-        handle_output(values, "Warning:\tImage file #{values['image']} does not exist")
+        verbose_output(values, "Warning:\tImage file #{values['image']} does not exist")
         quit(values)
       end
     end

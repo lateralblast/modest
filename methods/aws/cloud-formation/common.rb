@@ -19,7 +19,7 @@ def get_aws_cf_stacks(values)
   begin
     stacks = cf.describe_stacks.stacks 
   rescue Aws::CloudFormation::Errors::AccessDenied
-    handle_output(values,"Warning:\tUser needs to be given appropriate rights in AWS IAM")
+    verbose_output(values,"Warning:\tUser needs to be given appropriate rights in AWS IAM")
     quit(values)
   end
   return stacks

@@ -23,10 +23,10 @@ def list_zone_services(values)
     values['version'] = values['host-os-unamer'].split(/\./)[1]
     os_branded = values['version'].to_i-1
     os_branded = os_branded.to_s
-    handle_output(values, "Supported containers:")
-    handle_output(values, "") 
-    handle_output(values, "Solaris #{values['version']} (native)")
-    handle_output(values, "Solaris #{os_branded} (branded)")
+    verbose_output(values, "Supported containers:")
+    verbose_output(values, "") 
+    verbose_output(values, "Solaris #{values['version']} (native)")
+    verbose_output(values, "Solaris #{os_branded} (branded)")
   end
   return
 end
@@ -49,17 +49,17 @@ def list_zone_isos(values)
   iso_list = Dir.entries(values['isodir']).grep(/solaris/)
   if iso_list.length > 0
     if values['output'].to_s.match(/html/)
-      handle_output(values, "<h1>Available branded zone images:</h1>")
-      handle_output(values, "<table border=\"1\">")
-      handle_output(values, "<tr>")
-      handle_output(values, "<th>Image File</th>")
-      handle_output(values, "<th>Distribution</th>")
-      handle_output(values, "<th>Architecture</th>")
-      handle_output(values, "<th>Service Name</th>")
-      handle_output(values, "</tr>")
+      verbose_output(values, "<h1>Available branded zone images:</h1>")
+      verbose_output(values, "<table border=\"1\">")
+      verbose_output(values, "<tr>")
+      verbose_output(values, "<th>Image File</th>")
+      verbose_output(values, "<th>Distribution</th>")
+      verbose_output(values, "<th>Architecture</th>")
+      verbose_output(values, "<th>Service Name</th>")
+      verbose_output(values, "</tr>")
     else
-      handle_output(values, "Available branded zone images:")
-      handle_output(values, "") 
+      verbose_output(values, "Available branded zone images:")
+      verbose_output(values, "") 
     end
     if values['host-os-unamep'].to_s.match(/sparc/)
       search_arch = values['host-os-unamep']
@@ -72,26 +72,26 @@ def list_zone_isos(values)
         if image_file.match(/#{search_arch}/)
           (image_version, image_arch, values['service']) = get_zone_image_info(image_file)
           if values['output'].to_s.match(/html/)
-            handle_output(values, "<tr>")
-            handle_output(values, "<td>#{values['isodir']}/#{values['image']}</td>")
-            handle_output(values, "<td>Solaris</td>")
-            handle_output(values, "<td>#{image_version}</td>")
-            handle_output(values, "<td>#{values['service']}</td>")
-            handle_output(values, "</tr>")
+            verbose_output(values, "<tr>")
+            verbose_output(values, "<td>#{values['isodir']}/#{values['image']}</td>")
+            verbose_output(values, "<td>Solaris</td>")
+            verbose_output(values, "<td>#{image_version}</td>")
+            verbose_output(values, "<td>#{values['service']}</td>")
+            verbose_output(values, "</tr>")
           else
-            handle_output(values, "Image file:\t#{values['isodir']}/#{values['image']}")
-            handle_output(values, "Distribution:\tSolaris")
-            handle_output(values, "Version:\t#{image_version}")
-            handle_output(values, "Architecture:\t#{image_arch}")
-            handle_output(values, "Service Name\t#{values['service']}")
+            verbose_output(values, "Image file:\t#{values['isodir']}/#{values['image']}")
+            verbose_output(values, "Distribution:\tSolaris")
+            verbose_output(values, "Version:\t#{image_version}")
+            verbose_output(values, "Architecture:\t#{image_arch}")
+            verbose_output(values, "Service Name\t#{values['service']}")
           end
         end
       end
     end
     if values['output'].to_s.match(/html/)
-      handle_output(values, "</table>")
+      verbose_output(values, "</table>")
     else
-      handle_output(values, "")
+      verbose_output(values, "")
     end
   end
   return
@@ -100,12 +100,12 @@ end
 # List available zones
 
 def list_zones()
-  handle_output(values, "Available Zones:")
-  handle_output(values, "") 
+  verbose_output(values, "Available Zones:")
+  verbose_output(values, "") 
   message = ""
   command = "zoneadm list |grep -v global"
   output  = execute_command(values, message, command)
-  handle_output(values, output)
+  verbose_output(values, output)
   return
 end
 
@@ -121,10 +121,10 @@ end
 def print_branded_zone_info()
   branded_url = "http://www.oracle.com/technetwork/server-storage/solaris11/vmtemplates-zones-1949718.html"
   branded_dir = "/export/isos"
-  handle_output(values, "Warning:\tBranded zone templates not found")
-  handle_output(values, "Information:\tDownload them from #{branded_url}")
-  handle_output(values, "Information:\tCopy them to #{branded_dir}")
-  handle_output(values, "") 
+  verbose_output(values, "Warning:\tBranded zone templates not found")
+  verbose_output(values, "Information:\tDownload them from #{branded_url}")
+  verbose_output(values, "Information:\tCopy them to #{branded_dir}")
+  verbose_output(values, "") 
   return
 end
 
@@ -246,7 +246,7 @@ def standard_zone_post_install(values)
     command = "echo '#{admin_username} ALL=(ALL) NOPASSWD:ALL' > #{sudoers_file}"
     execute_command(values, message, command)
   else
-    handle_output(values, "Warning:\tZone #{values['name']} doesn't exist")
+    verbose_output(values, "Warning:\tZone #{values['name']} doesn't exist")
     quit(values)
   end
   return
@@ -280,7 +280,7 @@ def branded_zone_post_install(values)
     command = "cp #{tmp_file} #{post_file} ; rm #{tmp_file}"
     execute_command(values, message, command)
   else
-    handle_output(values, "Warning:\tZone #{values['name']} doesn't exist")
+    verbose_output(values, "Warning:\tZone #{values['name']} doesn't exist")
     quit(values)
   end
   return
@@ -295,7 +295,7 @@ def create_branded_zone(option)
     command = "cd /tmp ; #{values['image']} -p #{values['zonedir']} -i #{values['vmnic']} -z #{values['name']} -f"
     execute_command(values, message, command)
   else
-    handle_output(values, "Warning:\tImage file #{values['image']} doesn't exist")
+    verbose_output(values, "Warning:\tImage file #{values['image']} doesn't exist")
   end
   standard_zone_post_install(values['name'], values['release'])
   branded_zone_post_install(values['name'], values['release'])
@@ -413,7 +413,7 @@ def create_zone(values)
       end
       create_zone_config(values['name'], values['ip'])
       if values['host-os-unamer'].match(/11/) and virtual == true
-        handle_output(values, "Warning:\tCan't create branded zones with exclusive IPs in VMware")
+        verbose_output(values, "Warning:\tCan't create branded zones with exclusive IPs in VMware")
         quit(values)
       else
         create_branded_zone(values['image'], values['ip'], values['vmnic'], values['name'], values['release'])

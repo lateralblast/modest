@@ -7,7 +7,7 @@ def check_gdom_is_running(values)
   command = "ldm list-bindings #{values['name']} |grep '^#{values['name']}'"
   output  = execute_command(values, message, command)
   if not output.match(/active/)
-    handle_output(values, "Warning:\tGuest Domain #{values['name']} is not running")
+    verbose_output(values, "Warning:\tGuest Domain #{values['name']} is not running")
     quit(values)
   end
   return
@@ -20,7 +20,7 @@ def check_gdom_isnt_running(values)
   command = "ldm list-bindings #{values['name']} |grep '^#{values['name']}'"
   output  = execute_command(values, message, command)
   if output.match(/active/)
-    handle_output(values, "Warning:\tGuest Domain #{values['name']} is already running")
+    verbose_output(values, "Warning:\tGuest Domain #{values['name']} is already running")
     quit(values)
   end
   return
@@ -47,23 +47,23 @@ def list_gdoms(values)
         list_doms(ldom_type, ldom_command)
       else
         if values['verbose'] == true
-          handle_output(values, "") 
-          handle_output(values, "Warning:\tThis service is only available on the Sun4v platform")
-          handle_output(values, "") 
+          verbose_output(values, "") 
+          verbose_output(values, "Warning:\tThis service is only available on the Sun4v platform")
+          verbose_output(values, "") 
         end
       end
     else
       if values['verbose'] == true
-        handle_output(values, "") 
-        handle_output(values, "Warning:\tThis service is only available on Solaris 10 or later")
-        handle_output(values, "") 
+        verbose_output(values, "") 
+        verbose_output(values, "Warning:\tThis service is only available on Solaris 10 or later")
+        verbose_output(values, "") 
       end
     end
   else
     if values['verbose'] == true
-      handle_output(values, "") 
-      handle_output(values, "Warning:\tThis service is only available on Solaris")
-      handle_output(values, "") 
+      verbose_output(values, "") 
+      verbose_output(values, "Warning:\tThis service is only available on Solaris")
+      verbose_output(values, "") 
     end
   end
   return
@@ -111,7 +111,7 @@ def check_gdom_doesnt_exist(values)
   command = "ldm list |grep #{values['name']}"
   output  = execute_command(values, message, command)
   if output.match(/#{values['name']}/)
-    handle_output(values, "Warning:\tGuest domain #{values['name']} already exists")
+    verbose_output(values, "Warning:\tGuest domain #{values['name']} already exists")
     quit(values)
   end
   return
@@ -124,7 +124,7 @@ def check_gdom_exists(values)
   command = "ldm list |grep #{values['name']}"
   output  = execute_command(values, message, command)
   if not output.match(/#{values['name']}/)
-    handle_output(values, "Warning:\tGuest domain #{values['name']} doesn't exist")
+    verbose_output(values, "Warning:\tGuest domain #{values['name']} doesn't exist")
     quit(values)
   end
   return
@@ -316,11 +316,11 @@ def connect_to_gdom_console(values)
   check_gdom_is_running(values)
   vcc_port = get_gdom_console_port(values)
   vcc_port = vcc_port.chomp
-  handle_output(values, "") 
-  handle_output(values, "To connect to console of Guest Domain #{values['name']} type the following command: ")
-  handle_output(values, "") 
-  handle_output(values, "telnet localhost #{vcc_port}")
-  handle_output(values, "") 
+  verbose_output(values, "") 
+  verbose_output(values, "To connect to console of Guest Domain #{values['name']} type the following command: ")
+  verbose_output(values, "") 
+  verbose_output(values, "telnet localhost #{vcc_port}")
+  verbose_output(values, "") 
   return
 end
 

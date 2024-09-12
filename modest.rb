@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      7.9.4
+# Version:      7.9.5
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -47,6 +47,23 @@ def handle_output(values, text)
   end
   if values['output'].to_s.match(/text/)
     puts text
+  end
+  #values['stdout'].push(text)
+  return values
+end
+
+# Verbose output
+
+def verbose_output(values, text)
+  if values['output'].to_s.match(/html/)
+    if text == ""
+      text = "<br>"
+    end
+  end
+  if values['output'].to_s.match(/text/)
+    if values['verbose'] == true
+      puts text
+    end
   end
   #values['stdout'].push(text)
   return values
@@ -133,7 +150,7 @@ if File.directory?("./methods")
   file_list = Dir.glob("./methods/**/*")
   for file in file_list
     if file =~ /rb$/
-      handle_output(values, "Information:\tLoading module #{file}")
+      verbose_output(values, "Information:\tLoading module #{file}")
       require "#{file}"
     end
   end
@@ -162,7 +179,7 @@ valid_values = get_valid_values
 
 ARGV[0..-1].each do |switch|
   if !valid_values.grep(/--#{switch}/) || switch.match(/^-[a-z,A-Z][a-z,A-Z]/)
-    handle_output(values, "Invalid command line option: #{switch}")
+    verbose_output(values, "Invalid command line option: #{switch}")
     values['output'] = 'text'
     quit(values)
   end
@@ -213,6 +230,7 @@ begin
     ['--changelog', BOOLEAN],         # Print changelog
     ['--channel', BOOLEAN],           # Channel (KVM)
     ['--check', REQUIRED],            # Check
+    ['--checknat', BOOLEAN],          # Check NAT configuration
     ['--checksum', BOOLEAN],          # Do checksums
     ['--cidr', REQUIRED],             # CIDR
     ['--client', REQUIRED],           # Client / AWS Name
@@ -254,7 +272,6 @@ begin
     ['--dnsmasq', BOOLEAN],           # Update / Check DNSmasq
     ['--diskmode', REQUIRED],         # Disk mode (e.g. thin)
     ['--domainname', REQUIRED],       # Set domain (Used with deploy for VCSA)
-    ['--dry-run', BOOLEAN],           # Dryrun flag
     ['--dryrun', BOOLEAN],            # Dryrun flag
     ['--email', REQUIRED],            # AWS ACL email
     ['--empty', REQUIRED],            # Empty / Null value
@@ -558,10 +575,6 @@ if values['options'].to_s.match(/[a-z]/)
   end
 end
 
-if values['dryrun'] = true
-  values['dry-run'] = true
-end
-
 # Handle alternate values
 
 [ "list", "create", "delete", "start", "stop", "restart", "build" ].each do |switch|
@@ -655,8 +668,8 @@ raw_params.each do |raw_param|
           test_value = test_value.split(",")[0]
         end
         if !defaults[valid_param].to_s.downcase.match(/#{test_value.downcase}/)
-          handle_output(defaults, "Warning:\tOption --#{raw_param} has an invalid value: #{values[raw_param]}")
-          handle_output(defaults, "Information:\tValid values for --#{raw_param} are: \n #{defaults[valid_param].to_s}")
+          verbose_output(defaults, "Warning:\tOption --#{raw_param} has an invalid value: #{values[raw_param]}")
+          verbose_output(defaults, "Information:\tValid values for --#{raw_param} are: \n #{defaults[valid_param].to_s}")
           quit(defaults)
         end
       end
@@ -704,7 +717,7 @@ raw_params.each do |raw_param|
     end
     if values['verbose'] == true
       values['output'] = "text"
-      handle_output(values, "Information:\tSetting option #{raw_param} to #{values[raw_param]}")
+      verbose_output(values, "Information:\tSetting option #{raw_param} to #{values[raw_param]}")
     end
   end
 end
@@ -716,14 +729,14 @@ defaults.each do |param, value|
     values[param] = defaults[param]
     if values['verbose'] == true
       values['output'] = "text"
-      handle_output(values, "Information:\tSetting option #{param} to #{values[param]}")
+      verbose_output(values, "Information:\tSetting option #{param} to #{values[param]}")
     end
   end
   if values['action'] == "info"
     if values['info'].match(/os/)
       if param.match(/^os/)
         values['verbose'] = true
-        handle_output(values, "Information:\tParameter #{param} is #{values[param]}")
+        verbose_output(values, "Information:\tParameter #{param} is #{values[param]}")
         values['verbose'] = false
       end
     end
@@ -749,7 +762,7 @@ if values['vm'] != values['empty']
         if values['type'] != "service"
           if values['ip'] == values['empty']
             if !values['vmnetwork'].to_s.match(/nat/)
-              handle_output(values, "Warning:\tNo IP specified and DHCP not specified")
+              verbose_output(values, "Warning:\tNo IP specified and DHCP not specified")
               quit(values)
             end
           end
@@ -778,7 +791,7 @@ end
 
 if values['setup'] != values['empty']
   if !File.exist?(values['setup'])
-    handle_output(values, "Warning:\tSetup script '#{values['setup']}' not found")
+    verbose_output(values, "Warning:\tSetup script '#{values['setup']}' not found")
     quit(values)
   end
 end
@@ -795,7 +808,7 @@ end
 
 if values['action'].to_s.match(/delete/)
   if values['name'] == values['empty'] && values['service'] == values['empty']
-    handle_output(values, "Warning:\tNo service of client name specified")
+    verbose_output(values, "Warning:\tNo service of client name specified")
     quit(values)
   end
 end
@@ -830,7 +843,7 @@ end
 
 if values['type'].to_s.match(/ansible|packer/)
   if values['vm'] == values['empty']
-    handle_output(values, "Warning:\tNo VM type specified")
+    verbose_output(values, "Warning:\tNo VM type specified")
     quit(values)
   end
 end
@@ -855,7 +868,7 @@ end
 
 if values['keyfile'] != values['empty']
   if !File.exist?(values['keyfile'])
-    handle_output(values, "Warning:\tKey file #{values['keyfile']} does not exist")
+    verbose_output(values, "Warning:\tKey file #{values['keyfile']} does not exist")
     if values['action'].to_s.match(/create/) and !option['type'].to_s.match(/key/)
       quit(values)
     end
@@ -866,7 +879,7 @@ end
 
 if values['sshkeyfile'] != values['empty']
   if !File.exist?(values['sshkeyfile'])
-    handle_output(values, "Warning:\tSSH Key file #{values['sshkeyfile']} does not exist")
+    verbose_output(values, "Warning:\tSSH Key file #{values['sshkeyfile']} does not exist")
     if values['action'].to_s.match(/create/)
       check_ssh_keys(values)
     end
@@ -891,7 +904,7 @@ if values['vm'] != values['empty']
       end
     end
     if values['access'] == values['empty'] || values['secret'] == values['empty']
-      handle_output(values, "Warning:\tAWS Access and Secret Keys not found")
+      verbose_output(values, "Warning:\tAWS Access and Secret Keys not found")
       quit(values)
     else
       if !File.exist?(values['creds'])
@@ -906,7 +919,7 @@ end
 if values['name'] != values['empty']
   check_hostname(values)
   if values['verbose'] == true
-    handle_output(values, "Information:\tSetting client name to #{values['name']}")
+    verbose_output(values, "Information:\tSetting client name to #{values['name']}")
   end
 end
 
@@ -951,7 +964,7 @@ if values['mac'] != values['empty']
   end
   values['mac'] = check_install_mac(values)
   if values['verbose'] == true
-     handle_output(values, "Information:\tSetting client MAC address to #{values['mac']}")
+     verbose_output(values, "Information:\tSetting client MAC address to #{values['mac']}")
   end
 else
   values['mac'] = ""
@@ -998,15 +1011,15 @@ end
 
 if values['share'] != values['empty']
   if !File.directory?(values['share'])
-    handle_output(values, "Warning:\tShare point #{values['share']} doesn't exist")
+    verbose_output(values, "Warning:\tShare point #{values['share']} doesn't exist")
     quit(values)
   end
   if values['mount'] == values['empty']
     values['mount'] = File.basename(values['share'])
   end
   if values['verbose'] == true
-    handle_output(values, "Information:\tSharing #{values['share']}")
-    handle_output(values, "Information:\tSetting mount point to #{values['mount']}")
+    verbose_output(values, "Information:\tSharing #{values['share']}")
+    verbose_output(values, "Information:\tSetting mount point to #{values['mount']}")
   end
 end
 
@@ -1030,7 +1043,7 @@ if values['clone'] == values['empty']
     values['clone'] = values['name'] + "-" + clone_date
   end
   if values['verbose'] == true && values['clone']
-    handle_output(values, "Information:\tSetting clone name to #{values['clone']}")
+    verbose_output(values, "Information:\tSetting clone name to #{values['clone']}")
   end
 end
 
@@ -1060,7 +1073,7 @@ if values['file'] != values['empty']
   end
   if !values['action'].to_s.match(/download/)
     if !File.exist?(values['file']) && !values['file'].to_s.match(/^http/)
-      handle_output(values, "Warning:\tFile #{values['file']} does not exist")
+      verbose_output(values, "Warning:\tFile #{values['file']} does not exist")
       if !values['test'] == true
         quit(values)
       end
@@ -1075,14 +1088,14 @@ if values['file'] != values['empty']
     if values['method'] == values['empty']
       values['method'] = get_install_method_from_iso(values)
       if values['method'] == nil
-        handle_output(values, "Could not determine install method")
+        verbose_output(values, "Could not determine install method")
         quit(values)
       end
     end
     if values['type'] == values['empty']
       values['type'] = get_install_type_from_file(values)
       if values['verbose'] == true
-        handle_output(values, "Information:\tSetting install type to #{values['type']}")
+        verbose_output(values, "Information:\tSetting install type to #{values['type']}")
       end
     end
   end
@@ -1093,11 +1106,11 @@ end
 if values['param'] != values['empty']
   if !values['action'].to_s.match(/get/)
     if !values['value']
-      handle_output(values, "Warning:\tSetting a parameter requires a value")
+      verbose_output(values, "Warning:\tSetting a parameter requires a value")
       quit(values)
     else
       if !values['value']
-        handle_output(values, "Warning:\tSetting a parameter requires a value")
+        verbose_output(values, "Warning:\tSetting a parameter requires a value")
         quit(values)
       end
     end
@@ -1106,7 +1119,7 @@ end
 
 if values['value'] != values['empty']
   if values['param'] == values['empty']
-    handle_output(values, "Warning:\tSetting a value requires a parameter")
+    verbose_output(values, "Warning:\tSetting a value requires a parameter")
     quit(values)
   end
 end
@@ -1119,16 +1132,16 @@ if values['method'] != values['empty']
       values['mode'] = "server"
       values['vm']   = "cdom"
       if values['verbose'] == true
-        handle_output(values, "Information:\tSetting mode to server")
-        handle_output(values, "Information:\tSetting vm to cdrom")
+        varbose_output(values, "Information:\tSetting mode to server")
+        verbose_output(values, "Information:\tSetting vm to cdrom")
       end
     else
       if values['method'].to_s.match(/gdom/)
         values['mode'] = "client"
         values['vm']   = "gdom"
         if values['verbose'] == true
-          handle_output(values, "Information:\tSetting mode to client")
-          handle_output(values, "Information:\tSetting vm to gdom")
+          verbose_output(values, "Information:\tSetting mode to client")
+          verbose_output(values, "Information:\tSetting vm to gdom")
         end
       else
         if values['method'].to_s.match(/ldom/)
@@ -1137,12 +1150,12 @@ if values['method'] != values['empty']
             values['vm']     = "gdom"
             values['mode']   = "client"
             if values['verbose'] == true
-              handle_output(values, "Information:\tSetting mode to client")
-              handle_output(values, "Information:\tSetting method to gdom")
-              handle_output(values, "Information:\tSetting vm to gdom")
+              verbose_output(values, "Information:\tSetting mode to client")
+              verbose_output(values, "Information:\tSetting method to gdom")
+              verbose_output(values, "Information:\tSetting vm to gdom")
             end
           else
-            handle_output(values, "Warning:\tCould not determine whether to run in server of client mode")
+            verbose_output(values, "Warning:\tCould not determine whether to run in server of client mode")
             quit(values)
           end
         end
@@ -1172,16 +1185,16 @@ else
         values['vm']     = "gdom"
         values['method'] = "gdom"
         if values['verbose'] == true
-          handle_output(values, "Information:\tSetting method to gdom")
-          handle_output(values, "Information:\tSetting vm to gdom")
+          verbose_output(values, "Information:\tSetting method to gdom")
+          verbose_output(values, "Information:\tSetting vm to gdom")
         end
       end
       if values['mode'].to_s.match(/server/)
         values['vm']     = "cdom"
         values['method'] = "cdom"
         if values['verbose'] == true
-          handle_output(values, "Information:\tSetting method to cdom")
-          handle_output(values, "Information:\tSetting vm to cdom")
+          verbose_output(values, "Information:\tSetting method to cdom")
+          verbose_output(values, "Information:\tSetting vm to cdom")
         end
       end
     end
@@ -1193,8 +1206,8 @@ end
 if !values['vmnetwork'].to_s.match(/nat/)
   if values['vm'].to_s.match(/virtualbox|vbox/)
     if values['type'].to_s.match(/packer/) || values['method'].to_s.match(/packer/) && !values['action'].to_s.match(/delete|import/)
-      handle_output(values, "Warning:\tPacker has a bug that causes issues with Hostonly and Bridged network on VirtualBox")
-      handle_output(values, "Warning:\tTo deal with this an addition port may be added to the SSH daemon config file")
+      verbose_output(values, "Warning:\tPacker has a bug that causes issues with Hostonly and Bridged network on VirtualBox")
+      verbose_output(values, "Warning:\tTo deal with this an addition port may be added to the SSH daemon config file")
     end
   end
 end
@@ -1212,22 +1225,22 @@ end
 
 if values['action'].to_s.match(/build|import/)
   if values['type'] == values['empty']
-    handle_output(values, "Information:\tSetting Install Service to Packer")
+    verbose_output(values, "Information:\tSetting Install Service to Packer")
     values['type'] = "packer"
   end
   if values['vm'] == values['empty']
     if values['name'] == values['empty']
-      handle_output(values, "Warning:\tNo client name specified")
+      verbose_output(values, "Warning:\tNo client name specified")
       quit(values)
     end
     values['vm'] = get_client_vm_type_from_packer(values)
   end
   if values['vm'] == values['empty']
-    handle_output(values, "Warning:\tVM type not specified")
+    verbose_output(values, "Warning:\tVM type not specified")
     quit(values)
   else
     if !values['vm'].to_s.match(/vbox|fusion|aws|kvm|parallels|qemu/)
-      handle_output(values, "Warning:\tInvalid VM type specified")
+      verbose_output(values, "Warning:\tInvalid VM type specified")
       quit(values)
     end
   end
@@ -1258,7 +1271,7 @@ if values['action'].to_s.match(/deploy/)
     check_ovftool_exists
     if values['type'].to_s.match(/vcsa/)
       if values['file'] == values['empty']
-        handle_output(values, "Warning:\tNo deployment image file specified")
+        verbose_output(values, "Warning:\tNo deployment image file specified")
         quit(values)
       end
       check_password(values)
@@ -1294,7 +1307,7 @@ if values['action'].to_s.match(/list|info/)
     quit(values)
   else
     if values['vm'] == values['empty'] && values['service'] == values['empty'] && values['method'] == values['empty'] && values['type'] == values['empty'] && values['mode'] == values['empty']
-      handle_output(values, "Warning:\tNo type or service specified")
+      verbose_output(values, "Warning:\tNo type or service specified")
     end
   end
 end
@@ -1327,11 +1340,11 @@ if values['action'] != values['empty']
       end
     end
     if values['vm'] == values['empty']
-      handle_output(values, "Information:\tVirtualisation method not specified, setting virtualisation method to VMware")
+      verbose_output(values, "Information:\tVirtualisation method not specified, setting virtualisation method to VMware")
       values['vm'] = "vm"
     end
     if values['server'] == values['empty'] || values['ip'] == values['empty']
-      handle_output(values, "Warning:\tRemote server hostname or IP not specified")
+      verbose_output(values, "Warning:\tRemote server hostname or IP not specified")
       quit(values)
     end
   end
@@ -1351,38 +1364,38 @@ end
 
 if values['service'] != values['empty']
   if values['verbose'] == true
-    handle_output(values, "Information:\tSetting install service to #{values['service']}")
+    verbose_output(values, "Information:\tSetting install service to #{values['service']}")
   end
   if values['type'].to_s.match(/^packer$/)
     check_packer_is_installed(values)
     values['mode']    = "client"
     if values['method'] == values['empty'] && values['os-type'] == values['empty'] && !values['action'].to_s.match(/build|list|import|delete/) && !values['vm'].to_s.match(/aws/)
-      handle_output(values, "Warning:\tNo OS, or Install Method specified for build type #{values['service']}")
+      verbose_output(values, "Warning:\tNo OS, or Install Method specified for build type #{values['service']}")
       quit(values)
     end
     if values['vm'] == values['empty'] && !values['action'].to_s.match(/list/)
-      handle_output(values, "Warning:\tNo VM type specified for build type #{values['service']}")
+      verbose_output(values, "Warning:\tNo VM type specified for build type #{values['service']}")
       quit(values)
     end
     if values['name'] == values['empty'] && !values['action'].to_s.match(/list/) && !values['vm'].to_s.match(/aws/)
-      handle_output(values, "Warning:\tNo Client name specified for build type #{values['service']}")
+      verbose_output(values, "Warning:\tNo Client name specified for build type #{values['service']}")
       quit(values)
     end
     if values['file'] == values['empty'] && !values['action'].to_s.match(/build|list|import|delete/) && !values['vm'].to_s.match(/aws/)
-      handle_output(values, "Warning:\tNo ISO file specified for build type #{values['service']}")
+      verbose_output(values, "Warning:\tNo ISO file specified for build type #{values['service']}")
       quit(values)
     end
     if !values['ip'].to_s.match(/[0-9]/) && !values['action'].to_s.match(/build|list|import|delete/) && !values['vm'].to_s.match(/aws/)
       if values['vmnetwork'].to_s.match(/hostonly/)
         values = set_hostonly_info(values)
-        handle_output(values, "Information:\tNo IP Address specified, setting to #{values['ip']} ")
+        verbose_output(values, "Information:\tNo IP Address specified, setting to #{values['ip']} ")
       else
-        handle_output(values, "Warning:\tNo IP Address specified ")
+        verbose_output(values, "Warning:\tNo IP Address specified ")
       end
     end
     if !values['mac'].to_s.match(/[0-9]|[A-F]|[a-f]/) && !values['action'].to_s.match(/build|list|import|delete/)
-      handle_output(values, "Warning:\tNo MAC Address specified")
-      handle_output(values, "Information:\tGenerating MAC Address")
+      verbose_output(values, "Warning:\tNo MAC Address specified")
+      verbose_output(values, "Information:\tGenerating MAC Address")
       if values['vm'] != values['empty']
         if values['vm'] != values['empty']
           values['mac'] = generate_mac_address(values)
@@ -1400,33 +1413,33 @@ else
       check_packer_is_installed(values)
       values['mode'] = "client"
       if values['method'] == values['empty'] && values['os-type'] == values['empty'] && !values['action'].to_s.match(/build|list|import|delete/)
-        handle_output(values, "Warning:\tNo OS, or Install Method specified for build type #{values['service']}")
+        verbose_output(values, "Warning:\tNo OS, or Install Method specified for build type #{values['service']}")
         quit(values)
       end
       if values['vm'] == values['empty'] && !values['action'].to_s.match(/list/)
-        handle_output(values, "Warning:\tNo VM type specified for build type #{values['service']}")
+        verbose_output(values, "Warning:\tNo VM type specified for build type #{values['service']}")
         quit(values)
       end
       if values['name'] == values['empty'] && !values['action'].to_s.match(/list/)
-        handle_output(values, "Warning:\tNo Client name specified for build type #{values['service']}")
+        verbose_output(values, "Warning:\tNo Client name specified for build type #{values['service']}")
         quit(values)
       end
       if values['file'] == values['empty'] && !values['action'].to_s.match(/build|list|import|delete/)
-        handle_output(values, "Warning:\tNo ISO file specified for build type #{values['service']}")
+        verbose_output(values, "Warning:\tNo ISO file specified for build type #{values['service']}")
         quit(values)
       end
       if !values['ip'].to_s.match(/[0-9]/) && !values['action'].to_s.match(/build|list|import|delete/) && !values['vmnetwork'].to_s.match(/nat/)
         if values['vmnetwork'].to_s.match(/hostonly/)
           values = set_hostonly_info(values)
-          handle_output(values, "Information:\tNo IP Address specified, setting to #{values['ip']} ")
+          verbose_output(values, "Information:\tNo IP Address specified, setting to #{values['ip']} ")
         else
-          handle_output(values, "Warning:\tNo IP Address specified ")
+          verbose_output(values, "Warning:\tNo IP Address specified ")
           quit(values)
         end
       end
       if !values['mac'].to_s.match(/[0-9]|[A-F]|[a-f]/) && !values['action'].to_s.match(/build|list|import|delete/)
-        handle_output(values, "Warning:\tNo MAC Address specified")
-        handle_output(values, "Information:\tGenerating MAC Address")
+        verbose_output(values, "Warning:\tNo MAC Address specified")
+        verbose_output(values, "Information:\tGenerating MAC Address")
         if values['vm'] == values['empty']
           values['vm'] = "none"
         end
@@ -1455,7 +1468,7 @@ if values['action'].to_s.match(/import/)
       end
     end
     if !vm_exists.match(/yes/)
-      handle_output(values, "Warning:\tNo install file, type or service specified")
+      verbose_output(values, "Warning:\tNo install file, type or service specified")
       quit(values)
     end
   end
@@ -1471,7 +1484,7 @@ if values['release'].to_s.match(/[0-9]/)
       values['vm'] = "none"
     end
     if values['vm'].to_s.match(/zone/) && values['host-os-unamer'].match(/10|11/) && !values['release'].to_s.match(/10|11/)
-      handle_output(values, "Warning:\tInvalid release number: #{values['release']}")
+      verbose_output(values, "Warning:\tInvalid release number: #{values['release']}")
       quit(values)
     end
 #    if !values['release'].to_s.match(/[0-9]/) || values['release'].to_s.match(/[a-z,A-Z]/)
@@ -1487,7 +1500,7 @@ else
   end
 end
 if values['verbose'] == true && values['release']
-  handle_output(values, "Information:\tSetting Operating System version to #{values['release']}")
+  verbose_output(values, "Information:\tSetting Operating System version to #{values['release']}")
 end
 
 # Handle empty OS option
@@ -1497,7 +1510,7 @@ if values['os-type'] == values['empty']
     if values['action'].to_s.match(/add|create/)
       if values['method'] == values['empty']
         if !values['vm'].to_s.match(/ldom|cdom|gdom|aws|mp|multipass/) && !values['type'].to_s.match(/network/)
-          handle_output(values, "Warning:\tNo OS or install method specified when creating VM")
+          verbose_output(values, "Warning:\tNo OS or install method specified when creating VM")
           quit(values)
         end
       end
@@ -1534,8 +1547,8 @@ if values['host-os-uname'].to_s.match(/SunOS/) and !values['publisher'] == value
     if values['publisherhost'].to_s.match(/:/)
       (values['publisherhost'], values['publisherport']) = values['publisherhost'].split(/:/)
     end
-    handle_output(values, "Information:\tSetting publisher host to #{values['publisherhost']}")
-    handle_output(values, "Information:\tSetting publisher port to #{values['publisherport']}")
+    verbose_output(values, "Information:\tSetting publisher host to #{values['publisherhost']}")
+    verbose_output(values, "Information:\tSetting publisher port to #{values['publisherport']}")
   else
     if values['mode'] == "server" || values['file'].to_s.match(/repo/)
       if values['host-os-uname'] == "SunOS"
@@ -1544,8 +1557,8 @@ if values['host-os-uname'].to_s.match(/SunOS/) and !values['publisher'] == value
         values['publisherhost'] = values['hostip']
         values['publisherport'] = $default_ai_port
         if values['verbose'] == true
-          handle_output(values, "Information:\tSetting publisher host to #{values['publisherhost']}")
-          handle_output(values, "Information:\tSetting publisher port to #{values['publisherport']}")
+          verbose_output(values, "Information:\tSetting publisher host to #{values['publisherhost']}")
+          verbose_output(values, "Information:\tSetting publisher port to #{values['publisherport']}")
         end
       end
     else
@@ -1637,10 +1650,10 @@ if values['vm'] != values['empty']
           values['vm'] = "cdom"
         end
       else
-        handle_output(values, "Warning:\tLDoms require Solaris 10 or 11")
+        verbose_output(values, "Warning:\tLDoms require Solaris 10 or 11")
       end
     else
-      handle_output(values, "Warning:\tLDoms require Solaris on SPARC")
+      verbose_output(values, "Warning:\tLDoms require Solaris on SPARC")
       quit(values)
     end
   end
@@ -1648,7 +1661,7 @@ if values['vm'] != values['empty']
     print_valid_list(values, "Warning:\tInvalid VM type", values['valid-vm'])
   end
   if values['verbose'] == true
-    handle_output(values, "Information:\tSetting VM type to #{values['vm']}")
+    verbose_output(values, "Information:\tSetting VM type to #{values['vm']}")
   end
 else
   values['vm'] = "none"
@@ -1665,7 +1678,7 @@ if values['vm'] != values['empty'] || values['method'] != values['empty']
     end
   end
   if values['verbose'] == true && values['model']
-    handle_output(values, "Information:\tSetting model to #{values['model']}")
+    verbose_output(values, "Information:\tSetting model to #{values['model']}")
   end
 end
 
@@ -1791,8 +1804,8 @@ end
 
 if values['type'].to_s.match(/packer/) && values['os-type'].to_s.match(/win/)
   if !values['vmnetwork'].to_s.match(/nat/)
-    handle_output(values, "Warning:\tPacker only supports installing Windows with a NAT network")
-    handle_output(values, "Information:\tSetting network to NAT mode")
+    verbose_output(values, "Warning:\tPacker only supports installing Windows with a NAT network")
+    verbose_output(values, "Information:\tSetting network to NAT mode")
     values['vmnetwork'] = "nat"
   end
   values['shell'] = "winrm"
@@ -1801,7 +1814,7 @@ end
 # Handle VM named none
 
 if values['action'].to_s.match(/create/) && values['name'] == "none" && values['mode'] != "server" and values['type'] != "service"
-  handle_output(values, "Warning:\tInvalid client name")
+  verbose_output(values, "Warning:\tInvalid client name")
   quit(values)
 end
 
@@ -1809,7 +1822,7 @@ end
 
 if values['os-type'] == "purity"
   if values['setup'] == values['empty']
-    handle_output(values, "Warning:\tNo setup file specified")
+    verbose_output(values, "Warning:\tNo setup file specified")
     quit(values)
   end
 end
@@ -1917,6 +1930,16 @@ def handle_action(values)
       if values['vm'] != values['empty']
         show_vm_config(values)
       end
+    when /listisos|listimages/
+      case values['vm']
+      when /kvm/
+        list_kvm_images(values)
+      end
+    when /listvms/
+      case values['vm']
+      when /kvm/
+        list_kvm_vms(values)
+      end
     when /list/
       if values['file'] != values['empty']
         describe_file(values)
@@ -2020,7 +2043,7 @@ def handle_action(values)
       end
     when /delete|remove|terminate/
       if values['name'] == values['empty'] && values['service'] == values['empty']
-        handle_output(values, "Warning:\tNo service of client name specified")
+        verbose_output(values, "Warning:\tNo service of client name specified")
         quit(values)
       end
       if values['type'].to_s.match(/network|snapshot/) && values['vm'] != values['empty']
@@ -2047,8 +2070,8 @@ def handle_action(values)
               values['sudo'] = false
               delete_vm(values)
             else
-              handle_output(values, "Warning:\tNo VM, client or service specified")
-              handle_output(values, "Available services")
+              verbose_output(values, "Warning:\tNo VM, client or service specified")
+              verbose_output(values, "Available services")
               list_all_services(values)
             end
           end
@@ -2061,7 +2084,7 @@ def handle_action(values)
                 if values['name'] != values['empty'] && values['snapshot'] != values['empty']
                   delete_vm_snapshot(values)
                 else
-                  handle_output(values, "Warning:\tClient name or snapshot not specified")
+                  verbose_output(values, "Warning:\tClient name or snapshot not specified")
                 end
               else
                 delete_vm(values)
@@ -2100,16 +2123,16 @@ def handle_action(values)
               delete_aws_snapshot(values)
             else
               if values['snapshot'] == values['empty']
-                handle_output(values, "Warning:\tNo snapshot name specified")
+                verbose_output(values, "Warning:\tNo snapshot name specified")
                 if values['name'] == values['empty']
-                  handle_output(values, "Warning:\tNo client name specified")
+                  verbose_output(values, "Warning:\tNo client name specified")
                   list_all_vm_snapshots(values)
                 else
                   list_vm_snapshots(values)
                 end
               else
                 if values['name'] == values['empty'] && values['snapshot'] == values['empty']
-                  handle_output(values, "Warning:\tNo client or snapshot name specified")
+                  verbose_output(values, "Warning:\tNo client or snapshot name specified")
                   return values
                 else
                   delete_vm_snapshot(values)
@@ -2146,7 +2169,7 @@ def handle_action(values)
             if values['ami'] != values['empty']
               delete_aws_image(values)
             else
-              handle_output(values, "Warning:\tNo #{values['vm']} type, instance or image specified")
+              verbose_output(values, "Warning:\tNo #{values['vm']} type, instance or image specified")
             end
           end
           return values
@@ -2188,11 +2211,11 @@ def handle_action(values)
         return values
       end
       if values['type'] == values['empty'] && values['vm'] == values['empty'] && values['service'] == values['empty']
-        handle_output(values, "Warning:\tNo service type or VM specified")
+        verbose_output(values, "Warning:\tNo service type or VM specified")
         return values
       end
     if values['type'].to_s.match(/service/) && !values['service'].to_s.match(/[a-z]/) && !values['service'] == values['empty']
-        handle_output(values, "Warning:\tNo service name specified")
+        verbose_output(values, "Warning:\tNo service name specified")
         return values
       end
       if values['file'] == values['empty']
@@ -2243,7 +2266,7 @@ def handle_action(values)
           configure_ansible_aws_client(values)
         else
           if values['key'] == values['empty'] && values['group'] == values['empty']
-            handle_output(values, "Warning:\tNo Key Pair or Security Group specified")
+            verbose_output(values, "Warning:\tNo Key Pair or Security Group specified")
             return values
           else
             values = configure_aws_client(values)
@@ -2260,7 +2283,7 @@ def handle_action(values)
         return values
       end
       if values['vm'] == values['empty'] && values['method'] == values['empty'] && values['type'] == values['empty'] && !values['mode'].to_s.match(/server/)
-        handle_output(values, "Warning:\tNo VM, Method or specified")
+        verbose_output(values, "Warning:\tNo VM, Method or specified")
       end
       if values['mode'].to_s.match(/server/) || values['type'].to_s.match(/service/) && values['file'] != values['empty'] && values['vm'] == values['empty'] && !values['type'].to_s.match(/packer/) && !values['service'].to_s.match(/packer/)
         values['mode'] = "server"
@@ -2371,10 +2394,10 @@ def handle_action(values)
             if values['method'].to_s.match(/ai/)
               configure_ai_server(values)
             else
-              handle_output(values, "Warning:\tNo install method specified")
+              verbose_output(values, "Warning:\tNo install method specified")
             end
           else
-            handle_output(values, "Warning:\tClient or service name not specified")
+            verbose_output(values, "Warning:\tClient or service name not specified")
           end
         end
       end
@@ -2410,7 +2433,7 @@ def handle_action(values)
             end
           else
             if values['name'] == values['empty']
-              handle_output(values, "Warning:\tClient name not specified")
+              verbose_output(values, "Warning:\tClient name not specified")
             end
           end
         end
@@ -2431,7 +2454,7 @@ def handle_action(values)
             stop_vm(values)
             boot_vm(values)
           else
-            handle_output(values, "Warning:\tClient name not specified")
+            verbose_output(values, "Warning:\tClient name not specified")
           end
         else
           if values['name'] != values['empty']
@@ -2445,7 +2468,7 @@ def handle_action(values)
               end
             end
           else
-            handle_output(values, "Warning:\tInstall service or VM type not specified")
+            verbose_output(values, "Warning:\tInstall service or VM type not specified")
           end
         end
       end
@@ -2479,7 +2502,7 @@ def handle_action(values)
       if values['clone'] != values['empty'] && values['name'] != values['empty']
         eval"[clone_#{values['vm']}_vm(values)]"
       else
-        handle_output(values, "Warning:\tClient name or clone name not specified")
+        verbose_output(values, "Warning:\tClient name or clone name not specified")
       end
     when /running|stopped|suspended|paused/
       if values['vm'] != values['empty'] && values['vm'] != values['empty']
@@ -2487,7 +2510,7 @@ def handle_action(values)
       end
     when /crypt/
       values['crypt'] = get_password_crypt(values)
-      handle_output(values, "")
+      verbose_output(values, "")
     when /post/
       eval"[execute_#{values['vm']}_post(values)]"
     when /change|modify/
@@ -2499,7 +2522,7 @@ def handle_action(values)
           eval"[change_#{values['vm']}_vm_mac(values)]"
         end
       else
-        handle_output(values, "Warning:\tClient name not specified")
+        verbose_output(values, "Warning:\tClient name not specified")
       end
     when /attach/
       if values['vm'] != values['empty'] && values['vm'] != values['empty']
@@ -2509,7 +2532,7 @@ def handle_action(values)
       if values['vm'] != values['empty'] && values['name'] != values['empty'] && values['vm'] != values['empty']
         eval"[detach_file_from_#{values['vm']}_vm(values)]"
       else
-        handle_output(values, "Warning:\tClient name or virtualisation platform not specified")
+        verbose_output(values, "Warning:\tClient name or virtualisation platform not specified")
       end
     when /share/
       if values['vm'] != values['empty'] && values['vm'] != values['empty']
@@ -2520,7 +2543,7 @@ def handle_action(values)
         if values['name'] != values['empty']
           eval"[snapshot_#{values['vm']}_vm(values)]"
         else
-          handle_output(values, "Warning:\tClient name not specified")
+          verbose_output(values, "Warning:\tClient name not specified")
         end
       end
     when /migrate/
@@ -2538,7 +2561,7 @@ def handle_action(values)
         if values['name'] != values['empty']
           eval"[restore_#{values['vm']}_vm_snapshot(values)]"
         else
-          handle_output(values, "Warning:\tClient name not specified")
+          verbose_output(values, "Warning:\tClient name not specified")
         end
       end
     when /set/
@@ -2568,11 +2591,11 @@ def handle_action(values)
         if values['name'] != values['empty']
           connect_to_virtual_serial(values)
         else
-          handle_output(values, "Warning:\tClient name not specified")
+          verbose_output(values, "Warning:\tClient name not specified")
         end
       end
     else
-      handle_output(values, "Warning:\tAction #{values['method']}")
+      verbose_output(values, "Warning:\tAction #{values['method']}")
     end
   end
   return values

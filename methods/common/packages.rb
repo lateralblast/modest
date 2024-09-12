@@ -72,7 +72,7 @@ end
 
 def handle_pkg(p_struct, pkg_name, build_type, pkg_repo_dir)
   if values['verbose'] == true
-    handle_output(values, "Information:\tHandling Package #{pkg_name}")
+    verbose_output(values, "Information:\tHandling Package #{pkg_name}")
   end
   depend_list   = []
   pkg_version   = p_struct[pkg_name].version
@@ -92,7 +92,7 @@ def handle_pkg(p_struct, pkg_name, build_type, pkg_repo_dir)
       end
       if not depend_pkg_name.match(/#{pkg_name}/)
         if values['verbose'] == true
-          handle_output(values, "Information:\tHandling dependency #{depend_pkg_name}")
+          verbose_output(values, "Information:\tHandling dependency #{depend_pkg_name}")
         end
         build_pkg(p_struct, depend_pkg_name, build_type, pkg_repo_dir)
         install_pkg(p_struct, depend_pkg_name, pkg_repo_dir)

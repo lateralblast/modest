@@ -291,7 +291,7 @@ end
 def unconfigure_ks_pxe_client(values)
   values['mac'] = get_install_mac(values)
   if not values['mac']
-    handle_output(values,"Warning:\tNo MAC Address entry found for #{values['name']}")
+    verbose_output(values,"Warning:\tNo MAC Address entry found for #{values['name']}")
     quit(values)
   end
   if values['biostype'].to_s.match(/efi/)
@@ -387,8 +387,8 @@ def configure_ks_client(values)
     values['clientdir'] = values['clientdir']+"/"+values['service']+"/"+values['name']
     check_fs_exists(values,values['clientdir'])
     if not File.directory?(values['repodir'])
-      handle_output(values,"Warning:\tService #{values['service']} does not exist")
-      handle_output(values,"")
+      verbose_output(values,"Warning:\tService #{values['service']} does not exist")
+      verbose_output(values,"")
       list_ks_services()
       quit(values)
     end
@@ -711,7 +711,7 @@ def populate_ks_post_list(values)
     rpm_list = build_ks_alt_rpm_list(values['service'])
     alt_dir  = values['baserepodir']+"/"+values['service']+"/alt"
     if values['verbose'] == true
-      handle_output(values,"Checking:\tAdditional packages")
+      verbose_output(values,"Checking:\tAdditional packages")
     end
     if File.directory?(alt_dir)
       rpm_list.each do |rpm_url|
@@ -918,12 +918,12 @@ end
 
 def check_ks_install_service(values)
   if not values['service'].to_s.match(/[a-z,A-Z]/)
-    handle_output(values,"Warning:\tService name not given")
+    verbose_output(values,"Warning:\tService name not given")
     quit(values)
   end
   client_list = Dir.entries(values['baserepodir'])
   if not client_list.grep(values['service'])
-    handle_output(values,"Warning:\tService name #{values['service']} does not exist")
+    verbose_output(values,"Warning:\tService name #{values['service']} does not exist")
     quit(values)
   end
   return

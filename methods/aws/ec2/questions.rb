@@ -221,7 +221,7 @@ def populate_aws_questions(values, user_data_file)
       question  = "Dry run",
       ask       = "yes",
       parameter = "",
-      value     = values['dry-run'],
+      value     = values['dryrun'],
       valid     = "",
       eval      = "no"
     )

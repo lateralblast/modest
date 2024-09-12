@@ -120,7 +120,7 @@ def configure_js_repo(values)
   end
   check_dir = values['repodir']+"/boot"
   if values['verbose'] == true
-    handle_output(values, "Checking:\tDirectory #{check_dir} exists")
+    verbose_output(values, "Checking:\tDirectory #{check_dir} exists")
   end
   if not File.directory?(check_dir)
     if values['host-os-uname'].to_s.match(/SunOS/)
@@ -131,12 +131,12 @@ def configure_js_repo(values)
         check_dir = values['mountdir']+"/installer"
       end
       if values['verbose'] == true
-        handle_output(values, "Checking:\tDirectory #{check_dir} exists")
+        verbose_output(values, "Checking:\tDirectory #{check_dir} exists")
       end
       if File.directory?(check_dir) or File.exist?(check_dir)
         iso_update = get_js_iso_update(values)
         if not iso_update.match(/#{values['update']}/)
-          handle_output(values, "Warning:\tISO update version does not match ISO name")
+          verbose_output(values, "Warning:\tISO update version does not match ISO name")
           quit(values)
         end
         message = "Information:\tCopying ISO file "+values['file']+" contents to "+values['repodir']
@@ -168,7 +168,7 @@ def configure_js_repo(values)
         end
         execute_command(values, message, command)
       else
-        handle_output(values, "Warning:\tISO #{values['file']} is not mounted")
+        verbose_output(values, "Warning:\tISO #{values['file']} is not mounted")
         return
       end
       umount_iso(values)
@@ -230,11 +230,11 @@ def list_js_services(values)
   values['method'] = "js"
   dir_list = get_dir_item_list(values)
   message  = "Jumpstart Services:"
-  handle_output(values, message)
+  verbose_output(values, message)
   dir_list.each do |service|
-    handle_output(values, service)
+    verbose_output(values, service)
   end
-  handle_output(values, "")
+  verbose_output(values, "")
   return
 end
 
@@ -278,13 +278,13 @@ def configure_js_server(values)
   if values['file'].to_s.match(/[a-z,A-Z]/)
     if File.exist?(values['file'])
       if not values['file'].to_s.match(/sol/)
-        handle_output(values, "Warning:\tISO #{values['file']} does not appear to be a valid Solaris distribution")
+        verbose_output(values, "Warning:\tISO #{values['file']} does not appear to be a valid Solaris distribution")
         quit(values)
       else
         iso_list[0] = values['file']
       end
     else
-      handle_output(values, "Warning:\tISO file #{values['file']} does not exist")
+      verbose_output(values, "Warning:\tISO file #{values['file']} does not exist")
     end
   else
     iso_list = get_base_dir_list(values)
@@ -304,7 +304,7 @@ def configure_js_server(values)
       if iso_arch.match(/x86/)
         iso_arch = "i386"
       else
-        handle_output(values, "Warning:\tCould not determine architecture from ISO name")
+        verbose_output(values, "Warning:\tCould not determine architecture from ISO name")
         quit(values)
       end
     end

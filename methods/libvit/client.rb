@@ -22,14 +22,14 @@ end
 
 def list_running_kvm_vms(values)
   vm_list = get_running_kvm_vms(values)
-  handle_output(values, "")
-  handle_output(values, "Running VMs:")
-  handle_output(values, "")
+  verbose_output(values, "")
+  verbose_output(values, "Running VMs:")
+  verbose_output(values, "")
   vm_list.each do |entry|
     (header, values['id'], values['name'], values['status']) = entry.split(/\s+/)
-    handle_output(values, "")
+    verbose_output(values, "")
   end
-  handle_output(values, "")
+  verbose_output(values, "")
   return
 end
 
@@ -75,8 +75,8 @@ def unconfigure_kvm_vm(values)
         command = "rm #{disk_file}"
         output  = execute_command(values, message, command)
       else
-        handle_output(values, "Warning:\tFile #{disk_file} already exists")
-        handle_output(values, "Information:\tUse --force option to delete file")
+        verbose_output(values, "Warning:\tFile #{disk_file} already exists")
+        verbose_output(values, "Information:\tUse --force option to delete file")
         quit(values)
       end
     end
@@ -121,20 +121,20 @@ def boot_kvm_vm(values)
     execute_command(values, message, command)
     if values['serial'] == true
       if values['verbose'] == true
-        handle_output(values, "Information:\tConnecting to serial port of #{values['name']}")
+        verbose_output(values, "Information:\tConnecting to serial port of #{values['name']}")
       end
       begin
         socket = UNIXSocket.open("/tmp/#{values['name']}")
         socket.each_line do |line|
-          handle_output(line)
+          verbose_output(line)
         end
       rescue
-        handle_output(values, "Warning:\tCannot open socket")
+        verbose_output(values, "Warning:\tCannot open socket")
         quit(values)
       end
     end
   else
-    handle_output(values, "Warning:\tVMware KVM VM #{values['name']} does not exist")
+    verbose_output(values, "Warning:\tVMware KVM VM #{values['name']} does not exist")
   end
   return
 end
@@ -153,7 +153,7 @@ def destroy_kvm_vm(values)
     execute_command(values, message, command)
   else
     string = "Information:\tKVM client #{values['name']} does not exist"
-    handle_output(values, string)
+    verbose_output(values, string)
   end
   return
 end
@@ -170,11 +170,11 @@ def stop_kvm_vm(values)
       execute_command(values, message, command)
     else
       string = "Information:\tKVM client #{values['name']} is not running"
-      handle_output(values, string)
+      verbose_output(values, string)
     end
   else
     string = "Information:\tKVM client #{values['name']} does not exist"
-    handle_output(values, string)
+    verbose_output(values, string)
   end
   return
 end
@@ -184,7 +184,7 @@ end
 def import_kvm_ova(values)
   base_dir = values['imagedir']+"/kvm"
   if values['verbose'] == true
-    handle_output(values, "Information:\tChecking KVM image directory")
+    verbose_output(values, "Information:\tChecking KVM image directory")
   end
   check_dir_exists(values, base_dir)
   check_dir_owner(values, base_dir, values['uid'])
@@ -235,10 +235,10 @@ def import_kvm_ova(values)
         execute_command(values, message, command)
       end
     else
-      handle_output(values, "Warning:\tFailed to extract disk image \"#{v_disk}\" from \"#{values['file']}\"")
+      verbose_output(values, "Warning:\tFailed to extract disk image \"#{v_disk}\" from \"#{values['file']}\"")
     end
   else
-    handle_output(values, "Warning:\tImage file \"#{values['file']}\" for KVM VM does not exist")
+    verbose_output(values, "Warning:\tImage file \"#{values['file']}\" for KVM VM does not exist")
   end
   return
 end
@@ -248,9 +248,9 @@ end
 def list_kvm_images(values)
   img_dir = values["imagedir"].to_s
   message = "Information:\tKVM images:"
-  command = "ls #{img_dir}"
+  command = "find #{img_dir} -name \"*.img\""
   output  = execute_command(values, message, command)
-  handle_output(values, output)
+  verbose_output(values, output)
   return
 end
 

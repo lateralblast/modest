@@ -227,7 +227,7 @@ def unconfigure_js_client(values)
     if File.directory(values['repodir'])
       remove_js_client(values)
     else
-      handle_output(values, "Warning:\tClient #{values['name']} does not exist under service #{values['service']}")
+      verbose_output(values, "Warning:\tClient #{values['name']} does not exist under service #{values['service']}")
     end
   end
   service_list = Dir.entries(values['baserepodir'])
@@ -282,7 +282,7 @@ def configure_js_client(values)
   end
   if values['file'].to_s.match(/flar/)
     if not File.exist?(values['image'])
-      handle_output(values, "Warning:\tFlar file #{values['file']} does not exist")
+      verbose_output(values, "Warning:\tFlar file #{values['file']} does not exist")
       quit(values)
     else
       message = "Information:\tMaking sure file is world readable"
@@ -301,13 +301,13 @@ def configure_js_client(values)
       values['service'] = values['service']+"_"+values['arch']
     end
     if not values['service'].to_s.match(/#{values['arch']}/)
-      handle_output(values, "Information:\tService #{values['service']} and Client architecture #{values['arch']} do not match")
+      verbose_output(values, "Information:\tService #{values['service']} and Client architecture #{values['arch']} do not match")
      quit(values)
     end
     values['repodir']=values['baserepodir']+"/"+values['service']
     if not File.directory?(values['repodir'])
-      handle_output(values, "Warning:\tService #{values['service']} does not exist")
-      handle_output(values, "") 
+      verbose_output(values, "Warning:\tService #{values['service']} does not exist")
+      verbose_output(values, "") 
       list_js_services(values)
       quit(values)
     end

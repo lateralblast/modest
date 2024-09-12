@@ -75,7 +75,7 @@ def create_vcsa_deploy_script(values)
   values['netmask'] = values['netmask'].gsub(/\//, "")
   uid = %x[id -u].chomp
   if values['verbose'] == true
-    handle_output(values, "Information:\tChecking VCSA client directory")
+    verbose_output(values, "Information:\tChecking VCSA client directory")
   end
   check_dir_exists(values, values['clientdir'])
   check_dir_owner(values, values['clientdir'], uid)
@@ -298,7 +298,7 @@ def create_vcsa_json(values)
     end
     uid = %x[id -u].chomp
     if values['verbose'] == true
-      handle_output(values, "Information:\tChecking VCSA JSON configuration directory")
+      verbose_output(values, "Information:\tChecking VCSA JSON configuration directory")
     end
     check_dir_exists(values, values['clientdir'])
     check_dir_owner(values, values['clientdir'], uid)

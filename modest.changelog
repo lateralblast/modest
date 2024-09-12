@@ -1588,4 +1588,6 @@
 # 7.9.3: Tue 10 Sep 2024 22:25:43 AEST
 # Updated methods
 # 7.9.4: Wed 11 Sep 2024 19:12:10 AEST
-# Added options switch and updated dry-run switch
+# Added options switch and updated dryrun switch
+# 7.9.5: Thu 12 Sep 2024 16:32:14 AEST
+# Improvements for MacOS

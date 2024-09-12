@@ -55,18 +55,18 @@ end
 
 def list_all_parallels_vms(values)
   vm_list = get_all_parallels_vms(values)
-  handle_output(values, "")
-  handle_output(values, "Parallels VMS:")
-  handle_output(values, "")
+  verbose_output(values, "")
+  verbose_output(values, "Parallels VMS:")
+  verbose_output(values, "")
   vm_list.each do |vm_name|
     os_info = %x[prlctl list --info "#{vm_name}" |grep '^OS' |cut -f2 -d:].chomp.gsub(/^\s+/, "")
     case os_info
     when /rhel/
     	os_info = "RedHat Enterprise Linux"
     end
-    handle_output(values, "#{vm_name}\t#{os_info}")
+    verbose_output(values, "#{vm_name}\t#{os_info}")
   end
-  handle_output(values, "")
+  verbose_output(values, "")
   return
 end
 
@@ -77,14 +77,14 @@ def list_running_parallels_vms(values)
   command = "prlctl list --all |grep running |awk '{print $4}'"
 	vm_list = execute_command(values, message, command)
   vm_list = vm_list.split("\n")
-  handle_output(values, "")
-  handle_output(values, "Running Parallels VMS:")
-  handle_output(values, "")
+  verbose_output(values, "")
+  verbose_output(values, "Running Parallels VMS:")
+  verbose_output(values, "")
   vm_list.each do |vm_name|
     os_info = get_parallels_os(values, vm_name)
-    handle_output(values, "#{vm_name}\t#{os_info}")
+    verbose_output(values, "#{vm_name}\t#{os_info}")
   end
-  handle_output(values, "")
+  verbose_output(values, "")
   return
 end
 
@@ -96,14 +96,14 @@ def list_stopped_parallels_vms(values)
   vm_list = execute_command(values, message, command)
   vm_list = vm_list.split("\n")
   vm_list = %x[prlctl list --all |grep stopped |awk '{print $4}'].split("\n")
-  handle_output(values, "")
-  handle_output(values, "Stopped Parallels VMS:")
-  handle_output(values, "")
+  verbose_output(values, "")
+  verbose_output(values, "Stopped Parallels VMS:")
+  verbose_output(values, "")
   vm_list.each do |vm_name|
     os_info = get_parallels_os(values, vm_name)
-    handle_output(values, "#{vm_name}\t#{os_info}")
+    verbose_output(values, "#{vm_name}\t#{os_info}")
   end
-  handle_output(values, "")
+  verbose_output(values, "")
   return
 end
 
@@ -130,7 +130,7 @@ end
 def clone_parallels_vm(values)
   exists = check_parallels_vm_exists(values)
   if exists == false
-    handle_output(values, "Warning:\tParallels VM #{values['name']} does not exist")
+    verbose_output(values, "Warning:\tParallels VM #{values['name']} does not exist")
     quit(values)
   end
   message = "Information:\tCloning Parallels VM "+values['name']+" to "+values['clone']
@@ -391,21 +391,21 @@ def boot_parallels_vm(values)
   check_parallels_hostonly_network(values)
   exists = check_parallels_vm_exists(values)
   if exists == false
-    handle_output(values, "Warning:\tParallels VM #{values['name']} does not exist")
+    verbose_output(values, "Warning:\tParallels VM #{values['name']} does not exist")
     quit(values)
   end
   message = "Starting:\tVM "+values['name']
   if values['text'] == true or values['serial'] == true
-    handle_output(values, "")
-    handle_output(values, "Information:\tBooting and connecting to virtual serial port of #{values['name']}")
-    handle_output(values, "")
-    handle_output(values, "To disconnect from this session use CTRL-Q")
-    handle_output(values, "")
-    handle_output(values, "If you wish to re-connect to the serial console of this machine,")
-    handle_output(values, "run the following command")
-    handle_output(values, "")
-    handle_output(values, "socat UNIX-CONNECT:/tmp/#{values['name']} STDIO,raw,echo=0,escape=0x11,icanon=0")
-    handle_output(values, "")
+    verbose_output(values, "")
+    verbose_output(values, "Information:\tBooting and connecting to virtual serial port of #{values['name']}")
+    verbose_output(values, "")
+    verbose_output(values, "To disconnect from this session use CTRL-Q")
+    verbose_output(values, "")
+    verbose_output(values, "If you wish to re-connect to the serial console of this machine,")
+    verbose_output(values, "run the following command")
+    verbose_output(values, "")
+    verbose_output(values, "socat UNIX-CONNECT:/tmp/#{values['name']} STDIO,raw,echo=0,escape=0x11,icanon=0")
+    verbose_output(values, "")
     %x[prlctl start #{values['name']}]
   else
     command = "prlctl start #{values['name']} ; open \"/Applications/Parallels Desktop.app\" &"
@@ -414,15 +414,15 @@ def boot_parallels_vm(values)
   if values['serial'] == true
     system("socat UNIX-CONNECT:/tmp/#{values['name']} STDIO,raw,echo=0,escape=0x11,icanon=0")
   else
-    handle_output(values, "")
-    handle_output(values, "If you wish to connect to the serial console of this machine,")
-    handle_output(values, "run the following command")
-    handle_output(values, "")
-    handle_output(values, "socat UNIX-CONNECT:/tmp/#{values['name']} STDIO,raw,echo=0,escape=0x11,icanon=0")
-    handle_output(values, "")
-    handle_output(values, "To disconnect from this session use CTRL-Q")
-    handle_output(values, "")
-    handle_output(values, "")
+    verbose_output(values, "")
+    verbose_output(values, "If you wish to connect to the serial console of this machine,")
+    verbose_output(values, "run the following command")
+    verbose_output(values, "")
+    verbose_output(values, "socat UNIX-CONNECT:/tmp/#{values['name']} STDIO,raw,echo=0,escape=0x11,icanon=0")
+    verbose_output(values, "")
+    verbose_output(values, "To disconnect from this session use CTRL-Q")
+    verbose_output(values, "")
+    verbose_output(values, "")
   end
   return
 end
@@ -458,7 +458,7 @@ def configure_parallels_vm(values)
   else
     values['mac'] = get_parallels_vm_mac(values)
   end
-  handle_output(values, "Created Parallels VM #{values['name']} with MAC address #{values['mac']}")
+  verbose_output(values, "Created Parallels VM #{values['name']} with MAC address #{values['mac']}")
   return
 end
 
@@ -514,7 +514,7 @@ end
 def check_parallels_vm_doesnt_exist(values)
   exists = check_parallels_vm_exists(values)
   if exists == true
-    handle_output(values, "Parallels VM #{values['name']} already exists")
+    verbose_output(values, "Parallels VM #{values['name']} already exists")
     quit(values)
   end
   return
@@ -541,7 +541,7 @@ def unconfigure_parallels_vm(values)
   check_parallels_is_installed(values)
   exists = check_parallels_vm_exists(values)
   if exists == false
-    handle_output(values, "Parallels VM #{values['name']} does not exist")
+    verbose_output(values, "Parallels VM #{values['name']} does not exist")
     quit(values)
   end
   stop_parallels_vm(values)

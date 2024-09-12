@@ -24,11 +24,11 @@ def connect_to_multipass_vm(values)
   exists = check_multipass_vm_exists(values)
   if exists == true
     output = "Information:\tTo connect to Multipass VM #{values['name']}"
-    handle_output(values, output)
+    verbose_output(values, output)
     output = "multipass shell #{values['name']}"
-    handle_output(values, output)
+    verbose_output(values, output)
   else
-    handle_output(values, "Warning:\tMultipass VM #{values['name']} does not exist")
+    verbose_output(values, "Warning:\tMultipass VM #{values['name']} does not exist")
   end
   return
 end
@@ -128,7 +128,7 @@ def multipass_post_install(values)
   exec_data.each do |shell_command| 
     exec_command = "multipass exec #{host_name} -- sudo sh -c \"#{shell_command}\""
     if values['nobuild'] == true
-      handle_output(values, exec_command)
+      verbose_output(values, exec_command)
     else
       %x[#{exec_command}]
     end
@@ -152,10 +152,10 @@ def list_multipass_vms(values)
   message = "Informtion:\tGetting list of local Multipass instances"
   output  = execute_command(values, message, command)
   vm_list = output.split("\n")
-  handle_output(values, "Image:\t\t\tState:\t\t  IPv4:\t\t   Image")
+  verbose_output(values, "Image:\t\t\tState:\t\t  IPv4:\t\t   Image")
   vm_list = output.split("\n")
   vm_list.each do |line|
-    handle_output(values, line)
+    verbose_output(values, line)
   end
   return
 end
@@ -198,7 +198,7 @@ end
 def check_multipass_vm_exists(values)
   exists = false
   if values['name'] == values['empty']
-    handle_output(values, "Warning:\tNo client name specified")
+    verbose_output(values, "Warning:\tNo client name specified")
     quit(values)
   end
   vm_name = values['name'].to_s
@@ -219,9 +219,9 @@ def execute_multipass_command(values)
 	if exists == true
     command = "multipass exec #{values['name']} -- bash -c \"#{command}\""
 		output  = %x[#{command}]
-		handle_output(values, output)
+		verbose_output(values, output)
 	else
-		handle_output(values, "Information:\tMultipass instance #{values['name']} does not exist")
+		verbose_output(values, "Information:\tMultipass instance #{values['name']} does not exist")
 	end
   return
 end
@@ -233,7 +233,7 @@ def configure_multipass_vm(values)
   vm_name = values['name'].to_s
   values = process_memory_value(values)
   if exists == true
-    handle_output(values, "Warning:\tMultipass VM #{vm_name} already exists")
+    verbose_output(values, "Warning:\tMultipass VM #{vm_name} already exists")
     quit(values)
   else
     message = "Information:\tCreating Multipass VM #{vm_name}"
@@ -261,8 +261,8 @@ def configure_multipass_vm(values)
     if values['nobuild'] == false
       execute_command(values, message, command)
     else
-      handle_output(values, "Build Command:")
-      handle_output(values, command)
+      verbose_output(values, "Build Command:")
+      verbose_output(values, command)
     end
   end
   values = multipass_post_install(values)
@@ -275,7 +275,7 @@ def get_multipass_vm_info(values)
   exists  = check_multipass_vm_exists(values)
   vm_name = values['name'].to_s
   if exists == true && !values['action'].to_s.match(/list/)
-    handle_output(values, "Warning:\tMultipass VM #{vm_name} already exists")
+    verbose_output(values, "Warning:\tMultipass VM #{vm_name} already exists")
   else
     message = "Information:\Getting information for Multipass VM #{vm_name}"
     command = "multipass info #{vm_name}"
@@ -284,10 +284,10 @@ def get_multipass_vm_info(values)
     lines.each do |line|
       if values['search'] != values['empty']
         if line.downcase.match(/#{values['search'].to_s.downcase}/)
-          handle_output(values, line)
+          verbose_output(values, line)
         end
       else
-        handle_output(values, line)
+        verbose_output(values, line)
       end
     end
   end
@@ -309,7 +309,7 @@ def unconfigure_multipass_vm(values)
     command = "multipass delete #{vm_name}; multipass purge"
     execute_command(values, message, command)
   else
-    handle_output(values, "Warning:\tMultipass VM #{vm_name} does not exist")
+    verbose_output(values, "Warning:\tMultipass VM #{vm_name} does not exist")
   end
   return
 end
@@ -324,7 +324,7 @@ def boot_multipass_vm(values)
     command = "multipass start #{vm_name}"
     execute_command(values, message, command)
   else
-    handle_output("Warning:\tMultipass VM #{vm_name} does not exist")
+    verbose_output("Warning:\tMultipass VM #{vm_name} does not exist")
   end
   return
 end
@@ -339,7 +339,7 @@ def stop_multipass_vm(values)
     command = "multipass stop #{vm_name}"
     execute_command(values, message, command)
   else
-    handle_output("Warning:\tMultipass VM #{vm_name} does not exist")
+    verbose_output("Warning:\tMultipass VM #{vm_name} does not exist")
   end
   return
 end

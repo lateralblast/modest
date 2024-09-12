@@ -5,24 +5,24 @@
 def list_other_isos(values, search_string)
   iso_list = get_base_dir_list(values)
   if iso_list.length > 0
-    handle_output(values, "Other available ISOs:")
-    handle_output(values, "")
+    verbose_output(values, "Other available ISOs:")
+    verbose_output(values, "")
   end
   iso_list.each do |file_name|
     file_name = file_name.chomp
     (iso_distro, iso_version, iso_arch) = get_other_version_info(file_name)
-    handle_output(values, "ISO file:\t#{file_name}")
-    handle_output(values, "Distribution:\t#{iso_distro}")
-    handle_output(values, "Version:\t#{iso_version}")
-    handle_output(values, "Architecture:\t#{iso_arch}")
+    verbose_output(values, "ISO file:\t#{file_name}")
+    verbose_output(values, "Distribution:\t#{iso_distro}")
+    verbose_output(values, "Version:\t#{iso_version}")
+    verbose_output(values, "Architecture:\t#{iso_arch}")
     values['service'] = iso_distro.downcase+"_"+iso_version.gsub(/\./, "_")+"_"+iso_arch
     values['repodir'] = values['baserepodir']+"/"+values['service']
     if File.directory?(values['repodir'])
-      handle_output(values, "Service Name:\t#{values['service']} (exists)")
+      verbose_output(values, "Service Name:\t#{values['service']} (exists)")
     else
-      handle_output(values, "Service Name:\t#{values['service']}")
+      verbose_output(values, "Service Name:\t#{values['service']}")
     end
-    handle_output(values, "")
+    verbose_output(values, "")
   end
   return
 end
