@@ -298,6 +298,15 @@ end
 
 def handle_vm_values(values)
   if values['vm'] != values['empty']
+    values['vm'] = values['vm'].gsub(/virtualbox/, "vbox")
+    values['vm'] = values['vm'].gsub(/mp/, "multipass")
+    if values['vm'].to_s.match(/aws/)
+      if values['service'] == values['empty']
+        values['service'] = $default_aws_type
+      end
+    end
+  end
+  if values['vm'] != values['empty']
     values['mode'] = "client"
     values = check_local_config(values)
     case values['vm']
@@ -436,6 +445,313 @@ def handle_ssh_key_values(values)
       verbose_output(values, "Warning:\tSSH Key file #{values['sshkeyfile']} does not exist")
       if values['action'].to_s.match(/create/)
         check_ssh_keys(values)
+      end
+    end
+  end
+  return values
+end
+
+# Handle memory values
+
+def handle_memory_values(values)
+  if values['memory'] == values['empty']
+    if values['vm'] != values['empty']
+      if values['os-type'].to_s.match(/vs|esx|vmware|vsphere/) || values['method'].to_s.match(/vs|esx|vmware|vsphere/)
+        values['memory'] = "4096"
+      end
+      if values['os-type'] != values['empty']
+        if values['os-type'].to_s.match(/sol/)
+          if values['release'].to_i > 9
+            values['memory'] = "2048"
+          end
+        end
+      else
+        if values['method'] == "ai"
+          values['memory'] = "2048"
+        end
+      end
+    end
+  end
+  return values
+end
+
+# Handle OS values
+
+def handle_os_values(values)
+  if values['os-type'] == values['empty']
+    if values['vm'] != values['empty']
+      if values['action'].to_s.match(/add|create/)
+        if values['method'] == values['empty']
+          if !values['vm'].to_s.match(/ldom|cdom|gdom|aws|mp|multipass/) && !values['type'].to_s.match(/network/)
+            verbose_output(values, "Warning:\tNo OS or install method specified when creating VM")
+            quit(values)
+          end
+        end
+      end
+    end
+  end
+  return values
+end
+
+# Handle release values
+
+def handle_release_values(values)
+  if values['release'].to_s.match(/[0-9]/)
+    if values['type'].to_s.match(/packer/) && values['action'].to_s.match(/build|delete|import/)
+      values['release'] = ""
+    else
+      if values['vm'] == values['empty']
+        values['vm'] = "none"
+      end
+      if values['vm'].to_s.match(/zone/) && values['host-os-unamer'].match(/10|11/) && !values['release'].to_s.match(/10|11/)
+        verbose_output(values, "Warning:\tInvalid release number: #{values['release']}")
+        quit(values)
+      end
+    end
+  else
+    if values['vm'].to_s.match(/zone/)
+      values['release'] = values['host-os-unamer']
+    else
+      values['release'] = values['empty']
+    end
+  end
+  if values['verbose'] == true && values['release']
+    verbose_output(values, "Information:\tSetting Operating System version to #{values['release']}")
+  end
+  return values
+end
+
+# Handle console values
+
+def handle_console_values(values)
+  if values['console'] != values['empty']
+    case values['console']
+    when /x11/
+      values['text'] = false
+    when /serial/
+      values['serial'] = true
+      values['text']   = true
+    when /headless/
+      values['headless'] = true
+    else
+      values['text'] = true
+    end
+  else
+    values['console'] = "text"
+    values['text']    = false
+  end
+  return values
+end
+
+# Handle import/build action
+
+def handle_import_build_action(values)
+  if values['action'].to_s.match(/build|import/)
+    if values['type'] == values['empty']
+      verbose_output(values, "Information:\tSetting Install Service to Packer")
+      values['type'] = "packer"
+    end
+    if values['vm'] == values['empty']
+      if values['name'] == values['empty']
+        verbose_output(values, "Warning:\tNo client name specified")
+        quit(values)
+      end
+      values['vm'] = get_client_vm_type_from_packer(values)
+    end
+    if values['vm'] == values['empty']
+      verbose_output(values, "Warning:\tVM type not specified")
+      quit(values)
+    else
+      if !values['vm'].to_s.match(/vbox|fusion|aws|kvm|parallels|qemu/)
+        verbose_output(values, "Warning:\tInvalid VM type specified")
+        quit(values)
+      end
+    end
+  end
+  return values
+end
+
+# Handle file values
+
+def handle_file_values(values)
+  if values['file'] != values['empty']
+    if values['vm'] == "vbox" && values['file'] == "tools"
+      values['file'] = values['vboxadditions']
+    end
+    if !values['action'].to_s.match(/download/)
+      if !File.exist?(values['file']) && !values['file'].to_s.match(/^http/)
+        verbose_output(values, "Warning:\tFile #{values['file']} does not exist")
+        if !values['test'] == true
+          quit(values)
+        end
+      end
+    end
+    if values['action'].to_s.match(/deploy/)
+      if values['type'] == values['empty']
+        values['type'] = get_install_type_from_file(values)
+      end
+    end
+    if values['file'] != values['empty'] && values['action'].to_s.match(/create|add/)
+      if values['method'] == values['empty']
+        values['method'] = get_install_method_from_iso(values)
+        if values['method'] == nil
+          verbose_output(values, "Could not determine install method")
+          quit(values)
+        end
+      end
+      if values['type'] == values['empty']
+        values['type'] = get_install_type_from_file(values)
+        if values['verbose'] == true
+          verbose_output(values, "Information:\tSetting install type to #{values['type']}")
+        end
+      end
+    end
+  end
+  return values
+end
+
+# Handle mount values
+
+def handle_mount_values(values)
+  if values['file'].to_s.match(/[A-Z]|[a-z]|[0-9]/) && !values['action'].to_s.match(/list/)
+    values['sudo'] = defaults['sudo']
+    values['host-os-uname'] = defaults['host-os-uname']
+    if !values['mountdir']
+      values['mountdir'] = defaults['mountdir']
+    end
+    if !values['output']
+      values['output'] = defaults['output']
+    end
+    values['executehost'] = defaults['executehost']
+    if values['file'] != defaults['empty']
+      values = get_install_service_from_file(values)
+    end
+  end
+  return values
+end
+
+# Handle admin user values
+
+def handle_admin_user_values(values)
+  if values['adminuser'] == values['empty']
+    if values['action']
+      if values['action'].to_s.match(/connect|ssh/)
+        if values['vm']
+          if values['vm'].to_s.match(/aws/)
+            values['adminuser'] = values['awsuser']
+          else
+            values['adminuser'] = %x[whoami].chomp
+          end
+        else
+          if values['id']
+            values['adminuser'] = values['awsuser']
+          else
+            values['adminuser'] = %x[whoami].chomp
+          end
+        end
+      end
+    else
+    values['adminuser'] = %x[whoami].chomp
+  end
+end
+  return values
+end
+
+# Handle arch values
+
+def handle_arch_values(values)
+  if values['arch'] != values['empty']
+    values['arch'] = values['arch'].downcase
+    if values['arch'].to_s.match(/sun4u|sun4v/)
+      values['arch'] = "sparc"
+    end
+    if values['os-type'].to_s.match(/vmware/)
+      values['arch'] = "x86_64"
+    end
+    if values['os-type'].to_s.match(/bsd/)
+      values['arch'] = "i386"
+    end
+  end
+  return values
+end
+
+# Handle install shell values
+
+def handle_install_shell_values(values)
+  if values['shell'] == values['empty']
+    if values['os-type'].to_s.match(/win/)
+      values['shell'] = "winrm"
+    else
+      values['shell'] = "ssh"
+    end
+  end
+  return values
+end
+
+# Handle share values
+
+def handle_share_values(values)
+  if values['share'] != values['empty']
+    if !File.directory?(values['share'])
+      verbose_output(values, "Warning:\tShare point #{values['share']} doesn't exist")
+      quit(values)
+    end
+    if values['mount'] == values['empty']
+      values['mount'] = File.basename(values['share'])
+    end
+    if values['verbose'] == true
+      verbose_output(values, "Information:\tSharing #{values['share']}")
+      verbose_output(values, "Information:\tSetting mount point to #{values['mount']}")
+    end
+  end
+  return values
+end
+
+# Handle timezone values
+
+def handle_timezone_values(values)
+  if values['timezone'] == values['empty']
+    if values['os-type'] != values['empty']
+      if values['os-type'].to_s.match(/win/)
+       values['timezone'] = values['time']
+      else
+        values['timezone'] = values['timezone']
+      end
+    end
+  end
+  return values
+end
+
+# Handle clone values
+
+def handle_clone_values(values)
+  if values['clone'] == values['empty']
+    if values['action'] == "snapshot"
+      clone_date = %x[date].chomp.downcase.gsub(/ |:/, "_")
+      values['clone'] = values['name'] + "-" + clone_date
+    end
+    if values['verbose'] == true && values['clone']
+      verbose_output(values, "Information:\tSetting clone name to #{values['clone']}")
+    end
+  end
+  return values
+end
+
+# Handle size values
+
+def handle_size_values(values)
+  if !values['size'] == values['empty']
+    if values['type'].to_s.match(/vcsa/)
+      if !values['size'].to_s.match(/[0-9]/)
+        values['size'] = $default_vcsa_size
+      end
+    end
+  else
+    if !values['vm'].to_s.match(/aws/) && !values['type'].to_s.match(/cloud|cf|stack/)
+      if values['type'].to_s.match(/vcsa/)
+        values['size'] = $default_vcsa_size
+      else
+        values['size'] = values['size']
       end
     end
   end

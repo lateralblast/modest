@@ -812,9 +812,9 @@ def handle_vm_action(values)
   return values
 end
 
-# Handle import action
+# Handle packer import action
 
-def handle_import_action(values)
+def handle_pacler_import_action(values)
   if values['action'].to_s.match(/import/)
     if values['file'] == values['empty'] && values['service'] == values['empty'] && !values['type'].to_s.match(/packer/)
       vm_types  = [ "fusion", "vbox" ]
@@ -832,6 +832,47 @@ def handle_import_action(values)
       if !vm_exists.match(/yes/)
         verbose_output(values, "Warning:\tNo install file, type or service specified")
         quit(values)
+      end
+    end
+  end
+  return values
+end
+
+# Handle list action
+
+def handle_list_action(values)
+  if values['action'].to_s.match(/list|info/)
+    if values['file'] && !values['file'] == values['empty']
+      describe_file(values)
+      quit(values)
+    else
+      if values['vm'] == values['empty'] && values['service'] == values['empty'] && values['method'] == values['empty'] && values['type'] == values['empty'] && values['mode'] == values['empty']
+        verbose_output(values, "Warning:\tNo type or service specified")
+      end
+    end
+  end
+  return values
+end
+
+# Handle deploy action
+
+def handle_deploy_action(values)
+  if values['action'].to_s.match(/deploy/)
+    if values['type'] == values['empty']
+      values['type'] = "esx"
+    end
+    if values['type'].to_s.match(/esx|vcsa/)
+      if values['serverpassword'] == values['empty']
+        values['serverpassword'] = values['rootpassword']
+      end
+      check_ovftool_exists
+      if values['type'].to_s.match(/vcsa/)
+        if values['file'] == values['empty']
+          verbose_output(values, "Warning:\tNo deployment image file specified")
+          quit(values)
+        end
+        check_password(values)
+        check_password(values)
       end
     end
   end

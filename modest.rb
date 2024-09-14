@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      7.9.7
+# Version:      7.9.8
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -600,20 +600,7 @@ end
 
 # If we've been given a file try to get os and other insformation from file
 
-if values['file'].to_s.match(/[A-Z]|[a-z]|[0-9]/) && !values['action'].to_s.match(/list/)
-  values['sudo'] = defaults['sudo']
-  values['host-os-uname'] = defaults['host-os-uname']
-  if !values['mountdir']
-    values['mountdir'] = defaults['mountdir']
-  end
-  if !values['output']
-    values['output'] = defaults['output']
-  end
-  values['executehost'] = defaults['executehost']
-  if values['file'] != defaults['empty']
-    values = get_install_service_from_file(values)
-  end
-end
+values = handle_mount_values(values)
 
 # Set SSH port
 
@@ -738,158 +725,35 @@ end
 
 # If specified admin set admin user
 
-if values['adminuser'] == values['empty']
-  if values['action']
-    if values['action'].to_s.match(/connect|ssh/)
-      if values['vm']
-        if values['vm'].to_s.match(/aws/)
-          values['adminuser'] = values['awsuser']
-        else
-          values['adminuser'] = %x[whoami].chomp
-        end
-      else
-        if values['id']
-          values['adminuser'] = values['awsuser']
-        else
-          values['adminuser'] = %x[whoami].chomp
-        end
-      end
-    end
-  else
-    values['adminuser'] = %x[whoami].chomp
-  end
-end
+values = handle_admin_user_values(values)
 
-# Handle architecture switch
+# Handle architecture values
 
- if values['arch'] != values['empty']
-   values['arch'] = values['arch'].downcase
-   if values['arch'].to_s.match(/sun4u|sun4v/)
-     values['arch'] = "sparc"
-   end
-   if values['os-type'].to_s.match(/vmware/)
-     values['arch'] = "x86_64"
-   end
-   if values['os-type'].to_s.match(/bsd/)
-     values['arch'] = "i386"
-   end
- end
+values = handle_arch_values(values)
 
 # Handle install shell
 
-if values['shell'] == values['empty']
-  if values['os-type'].to_s.match(/win/)
-    values['shell'] = "winrm"
-  else
-    values['shell'] = "ssh"
-  end
-end
-
-# Handle vm switch
-
-if values['vm'] != values['empty']
-  values['vm'] = values['vm'].gsub(/virtualbox/, "vbox")
-  values['vm'] = values['vm'].gsub(/mp/, "multipass")
-  if values['vm'].to_s.match(/aws/)
-    if values['service'] == values['empty']
-      values['service'] = $default_aws_type
-    end
-  end
-end
+values = handle_install_shell_values(values)
 
 # Handle share switch
 
-if values['share'] != values['empty']
-  if !File.directory?(values['share'])
-    verbose_output(values, "Warning:\tShare point #{values['share']} doesn't exist")
-    quit(values)
-  end
-  if values['mount'] == values['empty']
-    values['mount'] = File.basename(values['share'])
-  end
-  if values['verbose'] == true
-    verbose_output(values, "Information:\tSharing #{values['share']}")
-    verbose_output(values, "Information:\tSetting mount point to #{values['mount']}")
-  end
-end
+values = handle_share_values(values)
 
-# Get Timezone
+# Handle timezone values
 
-if values['timezone'] == values['empty']
-  if values['os-type'] != values['empty']
-    if values['os-type'].to_s.match(/win/)
-     values['timezone'] = values['time']
-    else
-      values['timezone'] = values['timezone']
-    end
-  end
-end
+values = handle_timezone_values(values)
 
 # Handle clone switch
 
-if values['clone'] == values['empty']
-  if values['action'] == "snapshot"
-    clone_date = %x[date].chomp.downcase.gsub(/ |:/, "_")
-    values['clone'] = values['name'] + "-" + clone_date
-  end
-  if values['verbose'] == true && values['clone']
-    verbose_output(values, "Information:\tSetting clone name to #{values['clone']}")
-  end
-end
+values = handle_clone_values(values)
 
 # Handle option size
 
-if !values['size'] == values['empty']
-  if values['type'].to_s.match(/vcsa/)
-    if !values['size'].to_s.match(/[0-9]/)
-      values['size'] = $default_vcsa_size
-    end
-  end
-else
-  if !values['vm'].to_s.match(/aws/) && !values['type'].to_s.match(/cloud|cf|stack/)
-    if values['type'].to_s.match(/vcsa/)
-      values['size'] = $default_vcsa_size
-    else
-      values['size'] = values['size']
-    end
-  end
-end
+values = handle_size_values(values)
 
 # Try to determine install method when given just a file/ISO
 
-if values['file'] != values['empty']
-  if values['vm'] == "vbox" && values['file'] == "tools"
-    values['file'] = values['vboxadditions']
-  end
-  if !values['action'].to_s.match(/download/)
-    if !File.exist?(values['file']) && !values['file'].to_s.match(/^http/)
-      verbose_output(values, "Warning:\tFile #{values['file']} does not exist")
-      if !values['test'] == true
-        quit(values)
-      end
-    end
-  end
-  if values['action'].to_s.match(/deploy/)
-    if values['type'] == values['empty']
-      values['type'] = get_install_type_from_file(values)
-    end
-  end
-  if values['file'] != values['empty'] && values['action'].to_s.match(/create|add/)
-    if values['method'] == values['empty']
-      values['method'] = get_install_method_from_iso(values)
-      if values['method'] == nil
-        verbose_output(values, "Could not determine install method")
-        quit(values)
-      end
-    end
-    if values['type'] == values['empty']
-      values['type'] = get_install_type_from_file(values)
-      if values['verbose'] == true
-        verbose_output(values, "Information:\tSetting install type to #{values['type']}")
-      end
-    end
-  end
-end
+values = handle_file_values(values)
 
 # Handle values and parameters
 
@@ -940,28 +804,7 @@ end
 
 # Check action when set to build or import
 
-if values['action'].to_s.match(/build|import/)
-  if values['type'] == values['empty']
-    verbose_output(values, "Information:\tSetting Install Service to Packer")
-    values['type'] = "packer"
-  end
-  if values['vm'] == values['empty']
-    if values['name'] == values['empty']
-      verbose_output(values, "Warning:\tNo client name specified")
-      quit(values)
-    end
-    values['vm'] = get_client_vm_type_from_packer(values)
-  end
-  if values['vm'] == values['empty']
-    verbose_output(values, "Warning:\tVM type not specified")
-    quit(values)
-  else
-    if !values['vm'].to_s.match(/vbox|fusion|aws|kvm|parallels|qemu/)
-      verbose_output(values, "Warning:\tInvalid VM type specified")
-      quit(values)
-    end
-  end
-end
+values = handle_import_build_action(values)
 
 if values['ssopassword'] != values['empty']
   values['adminpassword'] = values['ssopassword']
@@ -975,59 +818,17 @@ if values['netmask'] == values['empty']
   end
 end
 
-# # Handle deploy
+# Handle deploy action
 
-if values['action'].to_s.match(/deploy/)
-  if values['type'] == values['empty']
-    values['type'] = "esx"
-  end
-  if values['type'].to_s.match(/esx|vcsa/)
-    if values['serverpassword'] == values['empty']
-      values['serverpassword'] = values['rootpassword']
-    end
-    check_ovftool_exists
-    if values['type'].to_s.match(/vcsa/)
-      if values['file'] == values['empty']
-        verbose_output(values, "Warning:\tNo deployment image file specified")
-        quit(values)
-      end
-      check_password(values)
-      check_password(values)
-    end
-  end
-end
+values = handle_deploy_action(values)
 
-# Handle console switch
+# Handle console values
 
-if values['console'] != values['empty']
-  case values['console']
-  when /x11/
-    values['text'] = false
-  when /serial/
-    values['serial'] = true
-    values['text']   = true
-  when /headless/
-    values['headless'] = true
-  else
-    values['text'] = true
-  end
-else
-  values['console'] = "text"
-  values['text']    = false
-end
+values = handle_console_values(values)
 
 # Handle list option for action switch
 
-if values['action'].to_s.match(/list|info/)
-  if values['file'] && !values['file'] == values['empty']
-    describe_file(values)
-    quit(values)
-  else
-    if values['vm'] == values['empty'] && values['service'] == values['empty'] && values['method'] == values['empty'] && values['type'] == values['empty'] && values['mode'] == values['empty']
-      verbose_output(values, "Warning:\tNo type or service specified")
-    end
-  end
-end
+values = handle_list_action(values)
 
 # Handle action switch
 
@@ -1047,72 +848,19 @@ end
 
 # Make sure a service (e.g. packer) or an install file (e.g. OVA) is specified for an import
 
-values = hacnle_import_action(values)
+values = hacnle_packer_import_action(values)
 
-# Handle release switch
+# Handle release values
 
-if values['release'].to_s.match(/[0-9]/)
-  if values['type'].to_s.match(/packer/) && values['action'].to_s.match(/build|delete|import/)
-    values['release'] = ""
-  else
-    if values['vm'] == values['empty']
-      values['vm'] = "none"
-    end
-    if values['vm'].to_s.match(/zone/) && values['host-os-unamer'].match(/10|11/) && !values['release'].to_s.match(/10|11/)
-      verbose_output(values, "Warning:\tInvalid release number: #{values['release']}")
-      quit(values)
-    end
-#    if !values['release'].to_s.match(/[0-9]/) || values['release'].to_s.match(/[a-z,A-Z]/)
-#      puts "Warning:\tInvalid release number: " + values['release']
-#      quit(values)
-#    end
-  end
-else
-  if values['vm'].to_s.match(/zone/)
-    values['release'] = values['host-os-unamer']
-  else
-    values['release'] = values['empty']
-  end
-end
-if values['verbose'] == true && values['release']
-  verbose_output(values, "Information:\tSetting Operating System version to #{values['release']}")
-end
+values = handle_release_values(values)
 
-# Handle empty OS option
+# Handle OS values
 
-if values['os-type'] == values['empty']
-  if values['vm'] != values['empty']
-    if values['action'].to_s.match(/add|create/)
-      if values['method'] == values['empty']
-        if !values['vm'].to_s.match(/ldom|cdom|gdom|aws|mp|multipass/) && !values['type'].to_s.match(/network/)
-          verbose_output(values, "Warning:\tNo OS or install method specified when creating VM")
-          quit(values)
-        end
-      end
-    end
-  end
-end
+values = handle_os_values(values)
 
-# Handle memory switch
+# Handle memory values
 
-if values['memory'] == values['empty']
-  if values['vm'] != values['empty']
-    if values['os-type'].to_s.match(/vs|esx|vmware|vsphere/) || values['method'].to_s.match(/vs|esx|vmware|vsphere/)
-      values['memory'] = "4096"
-    end
-    if values['os-type'] != values['empty']
-      if values['os-type'].to_s.match(/sol/)
-        if values['release'].to_i > 9
-          values['memory'] = "2048"
-        end
-      end
-    else
-      if values['method'] == "ai"
-        values['memory'] = "2048"
-      end
-    end
-  end
-end
+values = handle_memory_values(values)
 
 # Get/set publisher port (Used for configuring AI server)
 
