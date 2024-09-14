@@ -263,7 +263,6 @@ def resize_kvm_image(values)
   return
 end
 
-
 def convert_kvm_image(values)
   input_file = values['inputfile'].to_s
   if !File.exist?(input_file) or values['inputfile'] == values['empty']
@@ -373,6 +372,8 @@ end
 # Configure a KVM client
 
 def configure_kvm_client(values)
+  values = populate_ks_questions(values)
+  values = process_questions(values)
   add_hosts_entry(values)
   exists = check_kvm_vm_exists(values)
   if exists == true

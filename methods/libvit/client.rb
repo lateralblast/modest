@@ -254,4 +254,3 @@ def list_kvm_images(values)
   verbose_output(values, output)
   return
 end
-

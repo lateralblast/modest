@@ -1593,3 +1593,5 @@
 # Improvements for MacOS
 # 7.9.6: Thu 12 Sep 2024 18:19:04 AEST
 # Output tweaks
+# 7.9.7: Sat 14 Sep 2024 12:05:47 AEST
+# Cloud-init improvements and code cleanup
