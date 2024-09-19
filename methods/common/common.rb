@@ -1808,10 +1808,9 @@ def get_item_version_info(file_name)
       iso_version = iso_info[1]
       iso_arch    = "x86_64"
     when /vmware/
-      iso_version = iso_info[3].split(/\./)[0..-2].join(".")
-      iso_update  = iso_info[3].split(/\./)[-1]
-      iso_release = iso_info[4].split(/\./)[-3]
-      iso_version = iso_version+"."+iso_update+"."+iso_release
+      iso_release = iso_info[3].gsub(/U/,".")
+      iso_update  = iso_info[4].split(/\./)[0]
+      iso_version = iso_release+"."+iso_update
       iso_arch    = "x86_64"
     else
       iso_version = iso_info[2]

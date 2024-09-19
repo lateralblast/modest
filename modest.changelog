@@ -1599,3 +1599,5 @@
 # Cleaned up values code more
 # 7.9.9: Thu 19 Sep 2024 11:58:10 AEST
 # Bug fixes
+# 8.0.0: Thu 19 Sep 2024 18:17:56 AEST
+# ISO version determination fixes

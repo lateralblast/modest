@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      7.9.9
+# Version:      8.0.0
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -292,6 +292,8 @@ begin
     ['--gatewaynode', REQUIRED],      # Gateway Node
     ['--graphics', REQUIRED],         # Graphics (KVM)
     ['--grant', REQUIRED],            # AWS ACL grant
+    ['--growpart', BOOLEAN],          # Grow partition
+    ['--nogrowpart', BOOLEAN],        # Don't grow partition
     ['--group', REQUIRED],            # Group Name (e.g. AWS)
     ['--guest', REQUIRED],            # Guest OS
     ['--gwifname', REQUIRED],         # Gateway Interface name
@@ -417,6 +419,7 @@ begin
     ['--ports', REQUIRED],            # Port (makes to and from the same in the case of and IP rule)
     ['--post', REQUIRED],             # Post install configuration
     ['--postscript', REQUIRED],       # Post install script
+    ['--powerstate', REQUIRED],       # Powermode for cloud-init (e.g. reboot/noreboot)
     ['--preseedfile', REQUIRED],      # Preseed file
     ['--prefix', REQUIRED],           # AWS S3 prefix
     ['--preservesources', BOOLEAN],   # Preserve Sources List
@@ -621,6 +624,10 @@ values = set_local_config(values)
 # Clean up values
 
 values = cleanup_values(values, defaults)
+
+# Handle power state values
+
+values = handle_power_state_values(values)
 
 # Create required directories
 

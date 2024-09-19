@@ -757,3 +757,15 @@ def handle_size_values(values)
   end
   return values
 end
+
+# Handle power state values
+
+def handle_power_state_values(values)
+  if values['reboot'] == true
+    values['powerstate'] = "reboot"
+  end
+  if values['noreboot'] == true
+    values['powerstate'] = "noreboot"
+  end
+  return values
+end
