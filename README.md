@@ -4,7 +4,7 @@
 MODEST
 ======
 
-Version: 7.9.8
+Version: 7.9.9
 
 Introduction
 ------------
@@ -462,6 +462,7 @@ Required Packages for Linux:
 - tftp-server
 - dhcp
 - winlib (for building Windows VMs with Packer)
+- net-tools (required for ifconfig on Ubuntu)
 
 
 Required packages for Mac OS:

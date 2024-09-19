@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      7.9.8
+# Version:      7.9.9
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -188,7 +188,7 @@ begin
     ['--acl', REQUIRED],              # AWS ACL
     ['--action', REQUIRED],           # Action (e.g. boot, stop, create, delete, list, etc)
     ['--admingid', REQUIRED],         # Admin user GID for client VM to be created
-    ['--admingecos', REQUIRED],       # Admin GECOS field 
+    ['--admingecos', REQUIRED],       # Admin GECOS field
     ['--admingroup', REQUIRED],       # Admin user Group for client VM to be created
     ['--adminhome', REQUIRED],        # Admin user Home directory for client VM to be created
     ['--adminshell', REQUIRED],       # Admin user shell for client VM to be created
@@ -677,7 +677,7 @@ end
 
 # Handle base ISO dir when dir option set
 
-if values['action'] == "list" && values['type'].to_s.match(/iso|img|image/) && values['dir']
+if values['action'] == "list" && values['type'].to_s.match(/iso|img|image/) && !values['dir'] == values['empty']
   values['isodir'] = values['dir']
 end
 
@@ -712,7 +712,7 @@ values = handle_ssh_key_values(values)
 
 # Handle AWS credentials
 
-values = handles_aws_values(values)
+values = handle_aws_vm_values(values)
 
 # Handle client name switch
 
@@ -848,7 +848,7 @@ end
 
 # Make sure a service (e.g. packer) or an install file (e.g. OVA) is specified for an import
 
-values = hacnle_packer_import_action(values)
+values = handle_packer_import_action(values)
 
 # Handle release values
 

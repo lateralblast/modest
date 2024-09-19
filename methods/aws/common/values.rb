@@ -1,6 +1,6 @@
 # Handle AWS values
 
-def handle_aws_values(values)
+def handle_aws_vm_values(values)
   if values['vm'] != values['empty']
     if values['vm'].to_s.match(/aws/)
       if values['creds']

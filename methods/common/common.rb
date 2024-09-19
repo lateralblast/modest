@@ -1832,7 +1832,7 @@ end
 
 def list_items(values)
   if !values['output'].to_s.match(/html/) && !values['vm'].to_s.match(/mp|multipass/)
-    string = values['isodir'].to_s+":"
+    string = "Information:\tDirectory #{values['isodir']}"
     verbose_output(values, string)
   end
   if values['file'] == values['empty']
@@ -3712,14 +3712,17 @@ def execute_command(values, message, command)
       end
     end
     if command.match(/^sudo/)
-      if values['host-os-uname'].to_s.match(/Darwin/)
-        sudo_check = %x[dscacheutil -q group -a name admin |grep users]
-      else
-        sudo_check = %x[getent group #{values['sudogroup']}].chomp
-      end
-      if !sudo_check.match(/#{values['user']}/)
-        verbose_output(values, "Warning:\tUser #{values['user']} is not in sudoers group #{values['sudogroup']}")
-        quit(values)
+      sudo_check = %x[ sudo -l |grep NOPASSWD ]
+      if not sudo_check.match(/NOPASSWD/)
+        if values['host-os-uname'].to_s.match(/Darwin/)
+          sudo_check = %x[dscacheutil -q group -a name admin |grep users]
+        else
+          sudo_check = %x[getent group #{values['sudogroup']}].chomp
+        end
+        if !sudo_check.match(/#{values['user']}/)
+          verbose_output(values, "Warning:\tUser #{values['user']} is not in sudoers group #{values['sudogroup']}")
+          quit(values)
+        end
       end
     end
     if values['verbose'] == true
@@ -3951,9 +3954,6 @@ def get_base_dir_list(values)
     quit(values)
   end
   iso_list = []
-  if values['verbose'] == true
-    verbose_output(values, "Checking:\t#{values['isodir']}")
-  end
   if values['file'] == values['empty']
     check_fs_exists(values, values['isodir'])
     case values['type'].to_s

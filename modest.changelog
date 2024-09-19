@@ -1597,3 +1597,5 @@
 # Cloud-init improvements and code cleanup
 # 7.9.8: Sat 14 Sep 2024 13:04:53 AEST
 # Cleaned up values code more
+# 7.9.9: Thu 19 Sep 2024 11:58:10 AEST
+# Bug fixes

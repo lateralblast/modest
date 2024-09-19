@@ -814,7 +814,7 @@ end
 
 # Handle packer import action
 
-def handle_pacler_import_action(values)
+def handle_packer_import_action(values)
   if values['action'].to_s.match(/import/)
     if values['file'] == values['empty'] && values['service'] == values['empty'] && !values['type'].to_s.match(/packer/)
       vm_types  = [ "fusion", "vbox" ]
