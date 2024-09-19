@@ -189,8 +189,7 @@ def set_defaults(values, defaults)
         defaults['nic'] = "eth0"
         network_test = %x[ifconfig -a |grep eth0].chomp
         if !network_test.match(/eth0/)
-          output = %x[ip r |grep default |awk '{print $5}']
-          defaults['nic'] = output.split(/\s+/)[-1].chomp
+          defaults['nic'] = %x[ip r |grep default |awk '{print $5}']
         end
       end
     end
