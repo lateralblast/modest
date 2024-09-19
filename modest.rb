@@ -600,7 +600,7 @@ end
 
 # If we've been given a file try to get os and other insformation from file
 
-values = handle_mount_values(values)
+values = handle_mount_values(values, defaults)
 
 # Set SSH port
 

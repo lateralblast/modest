@@ -30,7 +30,7 @@ def handle_values(values)
     values['method'] = values['method'].gsub(/kickstart/, "ks")
     values['method'] = values['method'].gsub(/preseed/, "ps")
     values['method'] = values['method'].gsub(/cloudinit|cloudconfig|subiquity/, "ci")
-  end 
+  end
   # Handle hostname
   if values['name']
     if not values['hostname']
@@ -63,7 +63,7 @@ def handle_values(values)
     user_crypt    = "#{user}crypt"
     if not values[user_crypt]
       if values[user_password]
-        values[user_crypt] = get_password_crypt(values[user_password]) 
+        values[user_crypt] = get_password_crypt(values[user_password])
       end
     end
   end
@@ -109,7 +109,7 @@ def handle_values(values)
       values['action'] = "import"
     end
   end
-  return values  
+  return values
 end
 
 # Clean up values
@@ -612,7 +612,7 @@ end
 
 # Handle mount values
 
-def handle_mount_values(values)
+def handle_mount_values(values, defaults)
   if values['file'].to_s.match(/[A-Z]|[a-z]|[0-9]/) && !values['action'].to_s.match(/list/)
     values['sudo'] = defaults['sudo']
     values['host-os-uname'] = defaults['host-os-uname']
