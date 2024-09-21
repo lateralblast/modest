@@ -601,6 +601,22 @@ raw_params.each do |raw_param|
   end
 end
 
+# Handle options
+
+if values['options']
+  if values['options'].to_s.match(/[a-z]/)
+    options = []
+    if values['options'].to_s.match(/\,/)
+      options = values['options'].split(/\,/)
+    else
+      options[0] = values['options']
+    end
+    options.each do |option|
+      values[option] = true
+    end
+  end
+end
+
 # If we've been given a file try to get os and other insformation from file
 
 values = handle_mount_values(values, defaults)
