@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      8.0.3
+# Version:      8.0.4
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -581,8 +581,6 @@ begin
     ['--vmtools', REQUIRED],            # Install VM tools or Guest Additions
     ['--vmtype',  REQUIRED],            # VM type
     ['--vmxfile', REQUIRED],            # VMX file
-    ['--vnc', BOOLEAN],                 # Enable VNC mode
-    ['--novnc', BOOLEAN],               # Enable VNC mode
     ['--vncpassword', REQUIRED],        # VNC password
     ['--vsock',  REQUIRED],             # vSock (KVM)
     ['--vswitch',  REQUIRED],           # vSwitch

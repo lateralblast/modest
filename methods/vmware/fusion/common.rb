@@ -1952,7 +1952,7 @@ def populate_fusion_vm_vmx_info(values)
     vmx_info.push("sharedFolder0.expiration,never")
     vmx_info.push("sharedFolder.maxNum,1")
   end
-  if values['vnc'] == true
+  if values['enablevnc'] == true
     vmx_info.push("RemoteDisplay.vnc.enabled,TRUE")
     vmx_info.push("RemoteDisplay.vnc.port,5900")
     vmx_info.push("RemoteDisplay.vnc.password,#{values['vncpassword']}")

@@ -1265,7 +1265,7 @@ def configure_vbox_vm(values)
     configure_vmware_esxi_vbox_vm(values)
   end
   add_cpu_to_vbox_vm(values)
-  if values['vnc'] == true
+  if values['enablevnc'] == true
     configure_vbox_vnc(values)
   end
   verbose_output(values, "Information:\tCreated VirtualBox VM #{values['name']} with MAC address #{values['mac']}")

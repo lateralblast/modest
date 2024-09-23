@@ -1607,3 +1607,6 @@
 # Added more KVM cloud-init support
 # 8.0.3: Mon 23 Sep 2024 16:27:04 AEST
 # Options processing cleanup
+# 8.0.4: Tue 24 Sep 2024 07:38:45 AEST
+# Code cleanup
+
