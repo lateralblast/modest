@@ -7,7 +7,7 @@
 
 def get_ai_repo_version(values)
   values = get_ai_publisherurl(values)
-  if values['test'] == true || values['host-os-uname'].to_s.match(/Darwin/)
+  if values['dryrun'] == true || values['host-os-uname'].to_s.match(/Darwin/)
     version  = "0.175.1"
   else
     message = "Information:\tDetermining if available repository version from "+values['publisherurl']

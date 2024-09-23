@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      8.0.0
+# Version:      8.0.3
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -183,381 +183,422 @@ include Getopt
 
 begin
   values = Long.getopts(
-    ['--accelerator', REQUIRED],      # Packer accelerator
-    ['--access', REQUIRED],           # AWS Access Key
-    ['--acl', REQUIRED],              # AWS ACL
-    ['--action', REQUIRED],           # Action (e.g. boot, stop, create, delete, list, etc)
-    ['--admingid', REQUIRED],         # Admin user GID for client VM to be created
-    ['--admingecos', REQUIRED],       # Admin GECOS field
-    ['--admingroup', REQUIRED],       # Admin user Group for client VM to be created
-    ['--adminhome', REQUIRED],        # Admin user Home directory for client VM to be created
-    ['--adminshell', REQUIRED],       # Admin user shell for client VM to be created
-    ['--adminsudo', REQUIRED],        # Admin sudo command for client VM to be created
-    ['--adminuid', REQUIRED],         # Admin user UID for client VM to be created
-    ['--adminuser', REQUIRED],        # Admin username for client VM to be created
-    ['--adminpassword', REQUIRED],    # Client admin password
-    ['--admincrypt', REQUIRED],       # Password crypt
-    ['--aidir', REQUIRED],            # Solaris AI Directory
-    ['--aiport', REQUIRED],           # Solaris AI Port
-    ['--ami', REQUIRED],              # AWS AMI ID
-    ['--arch', REQUIRED],             # Architecture of client or VM (e.g. x86_64)
-    ['--audio', REQUIRED],            # Audio
-    ['--auditsize', REQUIRED],        # Set audit fs size
-    ['--auditfs', REQUIRED],          # Set audit fs
-    ['--autostart', BOOLEAN],         # Autostart (KVM)
-    ['--autoyastfile', REQUIRED],     # AutoYaST file
-    ['--awsuser', REQUIRED],          # AWS User
-    ['--baserepodir', REQUIRED],      # Base repository directory
-    ['--bename', REQUIRED],           # ZFS BE (Boot Environment) name
-    ['--biosdevnames', BOOLEAN],      # Use biosdevnames (e.g. eth0 instead of eno1)
-    ['--biostype', REQUIRED],         # BIOS boot type (bios/uefi)
-    ['--blkiotune', REQUIRED],        # Block IO tune (KVM)
-    ['--boot', REQUIRED],             # Set boot device
-    ['--bootfs', REQUIRED],           # Set boot fs
-    ['--bootcommand', REQUIRED],      # Packer Boot command
-    ['--bootproto', REQUIRED],        # Set boot protocol
-    ['--bootsize', REQUIRED],         # Set boot fs size
-    ['--bootwait', REQUIRED],         # Packer Boot wait
-    ['--bridge', REQUIRED],           # Set bridge
-    ['--bucket', REQUIRED],           # AWS S3 bucket
-    ['--build', BOOLEAN],             # Build (Packer)
-    ['--changelog', BOOLEAN],         # Print changelog
-    ['--channel', BOOLEAN],           # Channel (KVM)
-    ['--check', REQUIRED],            # Check
-    ['--checknat', BOOLEAN],          # Check NAT configuration
-    ['--checksum', BOOLEAN],          # Do checksums
-    ['--cidr', REQUIRED],             # CIDR
-    ['--client', REQUIRED],           # Client / AWS Name
-    ['--clientdir', REQUIRED],        # Base Client Directory
-    ['--clientnic', REQUIRED],        # Client NIC
-    ['--clock', REQUIRED],            # Clock (KVM)
-    ['--clone', REQUIRED],            # Clone name
-    ['--cloudfile', REQUIRED],        # Cloud init config image (KVM)
-    ['--cloudinitfile', REQUIRED],    # Cloud init config file (KVM)
-    ['--command', REQUIRED],          # Run command
-    ['--comment', REQUIRED],          # Comment
-    ['--configfile', REQUIRED],       # Config file (KVM)
-    ['--connect', REQUIRED],          # Connect (KVM)
-    ['--console', REQUIRED],          # Select console type (e.g. text, serial, x11) (default is text)
-    ['--container', BOOLEAN],         # AWS AMI export container
-    ['--containertype', REQUIRED],    # AWS AMI export container
-    ['--controller', REQUIRED],       # Specify disk controller
-    ['--copykeys', BOOLEAN],          # Copy SSH Keys (default)
-    ['--country', REQUIRED],          # Country
-    ['--cpu', REQUIRED],              # Type of CPU (e.g. KVM CPU type)
-    ['--cputune', REQUIRED],          # CPU tune (KVM)
-    ['--create', BOOLEAN],            # Create client / service
-    ['--creds', REQUIRED],            # Credentials file
-    ['--datastore', REQUIRED],        # Datastore to deploy to on remote server
-    ['--defaults', BOOLEAN],          # Answer yes to all questions (accept defaults)
-    ['--delete', BOOLEAN],            # Delete client / service
-    ['--desc', REQUIRED],             # Description
-    ['--destory-on-exit', BOOLEAN],   # Destroy on exit (KVM)
-    ['--dhcp', BOOLEAN],              # DHCP
-    ['--dhcpdfile', REQUIRED],        # DHCP Config file
-    ['--dhcpdrange', REQUIRED],       # Set DHCP range
-    ['--dir', REQUIRED],              # Directory / Direction
-    ['--disk', REQUIRED],             # Disk file
-    ['--disk1', REQUIRED],            # Disk file
-    ['--disk2', REQUIRED],            # Disk file
-    ['--disksize', REQUIRED],         # Packer Disk size
-    ['--diskinterface', REQUIRED],    # Disk interface
-    ['--dnsmasq', BOOLEAN],           # Update / Check DNSmasq
-    ['--diskmode', REQUIRED],         # Disk mode (e.g. thin)
-    ['--domainname', REQUIRED],       # Set domain (Used with deploy for VCSA)
-    ['--dryrun', BOOLEAN],            # Dryrun flag
-    ['--email', REQUIRED],            # AWS ACL email
-    ['--empty', REQUIRED],            # Empty / Null value
-    ['--enable', REQUIRED],           # Enable flag
-    ['--enableethernet', BOOLEAN],    # Enable ethernet flag
-    ['--enablevhv', BOOLEAN],         # Enable VHV flag
-    ['--enablevnc', BOOLEAN],         # Enable VNC flag
-    ['--environment', REQUIRED],      # Environment
-    ['--epel', REQUIRED],             # EPEL Mirror
-    ['--ethernetdevice', REQUIRED],   # Ethernet device (e.g. e1000)
-    ['--events', REQUIRED],           # Events (KVM))
-    ['--exportdir', REQUIRED],        # Export directory
-    ['--extra-args', REQUIRED],       # Extra args (KVM)
-    ['--features',  REQUIRED],        # Features (KVM)
-    ['--file',  REQUIRED],            # File, eg ISO
-    ['--filedir', REQUIRED],          # File / ISO Directory
-    ['--files', REQUIRED],            # Set default files resolution entry, eg "dns, files"
-    ['--filesystem', REQUIRED],       # Filesystem (KVM)
-    ['--finish', REQUIRED],           # Jumpstart finish file
-    ['--force',  BOOLEAN],            # Force mode
-    ['--format', REQUIRED],           # AWS / Output disk format (e.g. VMDK, RAW, VHD)
-    ['--from', REQUIRED],             # From
-    ['--fusiondir', REQUIRED],        # VMware Fusion Directory
-    ['--gateway', REQUIRED],          # Gateway IP
-    ['--gatewaynode', REQUIRED],      # Gateway Node
-    ['--graphics', REQUIRED],         # Graphics (KVM)
-    ['--grant', REQUIRED],            # AWS ACL grant
-    ['--growpart', BOOLEAN],          # Grow partition
-    ['--nogrowpart', BOOLEAN],        # Don't grow partition
-    ['--group', REQUIRED],            # Group Name (e.g. AWS)
-    ['--guest', REQUIRED],            # Guest OS
-    ['--gwifname', REQUIRED],         # Gateway Interface name
-    ['--headless', BOOLEAN],          # Headless mode for builds
-    ['--help', BOOLEAN],              # Display usage information
-    ['--home', REQUIRED],             # Set home directory
-    ['--homefs', REQUIRED],           # Set home fs
-    ['--homesize', REQUIRED],         # Set home fs size
-    ['--host', REQUIRED],             # Type of host (e.g. Docker)
-    ['--hostdev', REQUIRED],          # Host device (KVM)
-    ['--hostnet', REQUIRED],          # Host network
-    ['--hostonlyip', REQUIRED],       # Hostonly IP
-    ['--hostname', REQUIRED],         # Hostname
-    ['--hosts', REQUIRED],            # Set default hosts resolution entry, eg "files"
-    ['--host-device', REQUIRED],      # Host device (e.g. KVM passthough)
-    ['--httpbindaddress', REQUIRED],  # Packer HTTP bind address
-    ['--httpdirectory', REQUIRED],    # Packer HTTP directory
-    ['--httpportmax', REQUIRED],      # Packer HTTP port max
-    ['--httpportmin', REQUIRED],      # Packer HTTP port min
-    ['--hvm', BOOLEAN],               # HVM (KVM)
-    ['--hwversion', REQUIRED],        # VMware Hardware Version
-    ['--hwvirtex', REQUIRED],         # hwvirtex (on/off)
-    ['--id', REQUIRED],               # AWS Instance ID
-    ['--idmap', REQUIRED],            # ID map (KVM)
-    ['--ifname', REQUIRED],           # Interface number / name
-    ['--imagedir', REQUIRED],         # Base Image Directory
-    ['--import', BOOLEAN],            # Import (KVM)
-    ['--info', REQUIRED],             # Used with info option
-    ['--initrd-inject', REQUIRED],    # Inject initrd (KVM)
-    ['--inputfile', REQUIRED],        # Input file (KVM)
-    ['--install', REQUIRED],          # Install (KVM)
-    ['--installdrivers', BOOLEAN],    # Install Drivers
-    ['--installsecurity', BOOLEAN],   # Install Security Updates
-    ['--installupdates', BOOLEAN],    # Install Package Updates
-    ['--installupgrades', BOOLEAN],   # Install Package Upgrades
-    ['--iothreads', REQUIRED],        # IO threads (KVM)
-    ['--ip', REQUIRED],               # IP Address of client
-    ['--ipfamily', REQUIRED],         # IP family (e.g. IPv4 or IPv6)
-    ['--ips', REQUIRED],              # IP Addresses of client
-    ['--isochecksum', REQUIRED],      # Packer ISO checksum
-    ['--isodir', REQUIRED],           # ISO Directory
-    ['--isourl', REQUIRED],           # Packer ISO URL
-    ['--ldomdir', REQUIRED],          # Base LDom Directory
-    ['--jsonfile', REQUIRED],         # JSON file
-    ['--karch', REQUIRED],            # Solaris Jumpstart karch
-    ['--kernel', REQUIRED],           # Kernel
-    ['--key', REQUIRED],              # AWS Key Name
-    ['--keydir', REQUIRED],           # AWS Key Dir
-    ['--keyfile', REQUIRED],          # AWS Keyfile
-    ['--keymap', REQUIRED],           # Key map
-    ['--keyname', REQUIRED],          # AWS Key name (defaults to region)
-    ['--kickstartfile', REQUIRED],    # Kickstart file
-    ['--kvmgid', REQUIRED],           # Set KVM gid
-    ['--kvmgroup', REQUIRED],         # Set KVM group
-    ['--launchSecurity', REQUIRED],   # Launch Security (KVM)
-    ['--license', REQUIRED],          # License key (e.g. ESX)
-    ['--list', BOOLEAN],              # List items
-    ['--livecd', BOOLEAN],            # Specify Live CD (Changes install method)
-    ['--locale', REQUIRED],           # Select language/language (e.g. en_US)
-    ['--localfs', REQUIRED],          # Set local fs
-    ['--localsize', REQUIRED],        # Set local fs size
-    ['--lockpassword', BOOLEAN],      # Lock password
-    ['--logfs', REQUIRED],            # Set log fs
-    ['--logsize', REQUIRED],          # Set log fs size
-    ['--lxcdir', REQUIRED],           # Linux Container Directory
-    ['--lxcimagedir', REQUIRED],      # Linux Image Directory
-    ['--mac', REQUIRED],              # MAC Address
-    ['--machine', REQUIRED],          # Solaris Jumpstart Machine file
-    ['--masked', BOOLEAN],            # Mask passwords in output (WIP)
-    ['--memballoon', REQUIRED],       # VM memory balloon
-    ['--memdev', REQUIRED],           # Memdev (KVM)
-    ['--memory', REQUIRED],           # VM memory size
-    ['--memorybacking', REQUIRED],    # VM memory backing (KVM)
-    ['--memtune', REQUIRED],          # VM memory tune (KVM)
-    ['--metadata', REQUIRED],         # Metadata (KVM)
-    ['--method', REQUIRED],           # Install method (e.g. Kickstart)
-    ['--mirror', REQUIRED],           # Mirror / Repo
-    ['--mirrordisk', BOOLEAN],        # Mirror disk as part of post install
-    ['--mode', REQUIRED],             # Set mode to client or server
-    ['--model', REQUIRED],            # Model
-    ['--mountdir', REQUIRED],         # Mount point
-    ['--mouse', REQUIRED],            # Mouse
-    ['--name', REQUIRED],             # Client / AWS Name
-    ['--nameserver', REQUIRED],       # Delete client or VM
-    ['--net', REQUIRED],              # Default Solaris Network (Solaris 11)
-    ['--netbootdir', REQUIRED],       # Netboot directory (Solaris 11 tftpboot directory)
-    ['--netbridge', REQUIRED],        # Packer Net bridge
-    ['--netdevice', REQUIRED],        # Packer Net device
-    ['--netmask', REQUIRED],          # Set netmask
-    ['--network', REQUIRED],          # Network (KVM)
-    ['--networkfile', REQUIRED],      # Network config file (KVM)
-    ['--nic', REQUIRED],              # Default NIC
-    ['--noautoconsole', BOOLEAN],     # No autoconsole (KVM)
-    ['--noboot', BOOLEAN],            # Create VM/configs but don't boot
-    ['--nobuild', BOOLEAN],           # Create VM/configs but don't build
-    ['--nokeys', BOOLEAN],            # Don't copy SSH Keys
-    ['--noreboot', BOOLEAN],          # Don't reboot as part of post script (used for troubleshooting)
-    ['--nosudo', BOOLEAN],            # Use sudo
-    ['--nosuffix', BOOLEAN],          # Don't add suffix to AWS AMI names
-    ['--notice', BOOLEAN],            # Print notice messages
-    ['--novncdir', REQUIRED],         # NoVNC directory
-    ['--number', REQUIRED],           # Number of AWS instances
-    ['--object', REQUIRED],           # AWS S3 object
-    ['--opencsw', REQUIRED],          # OpenCSW Mirror / Repo
-    ['--options', REQUIRED],          # Options
-    ['--os-info', REQUIRED],          # OS Info
-    ['--os-type', REQUIRED],          # OS Type
-    ['--os-variant', REQUIRED],       # OS Variant
-    ['--output', REQUIRED],           # Output format (e.g. text/html)
-    ['--outputdirectory', REQUIRED],  # Packer output directory
-    ['--outputfile', REQUIRED],       # Output file (KVM)
-    ['--packages', REQUIRED],         # Specify additional packages to install
-    ['--packer', REQUIRED],           # Packer binary
-    ['--packersshport', REQUIRED],    # Packer binary
-    ['--packerversion', REQUIRED],    # Packer version
-    ['--panic', REQUIRED],            # Panic (KVM)
-    ['--parallel', REQUIRED],         # Parallel (KVM)
-    ['--param', REQUIRED],            # Set a parameter of a VM
-    ['--paravirt', BOOLEAN],          # Paravirt (KVM)
-    ['--perms', REQUIRED],            # AWS perms
-    ['--pkgdir', REQUIRED],           # Base Package Directory
-    ['--pm', REQUIRED],               # PM (KVM)
-    ['--ports', REQUIRED],            # Port (makes to and from the same in the case of and IP rule)
-    ['--post', REQUIRED],             # Post install configuration
-    ['--postscript', REQUIRED],       # Post install script
-    ['--powerstate', REQUIRED],       # Powermode for cloud-init (e.g. reboot/noreboot)
-    ['--preseedfile', REQUIRED],      # Preseed file
-    ['--prefix', REQUIRED],           # AWS S3 prefix
-    ['--preservesources', BOOLEAN],   # Preserve Sources List
-    ['--print-xml', REQUIRED],        # Print XML (KVM)
-    ['--proto', REQUIRED],            # Protocol
-    ['--publisher', REQUIRED],        # Set publisher information (Solaris AI)
-    ['--publisherhost', REQUIRED],    # Publisher host
-    ['--publisherport', REQUIRED],    # Publisher port
-    ['--publisherurl', REQUIRED],     # Publisher URL
-    ['--pxe', BOOLEAN],               # PXE (KVM)
-    ['--pxebootdir', REQUIRED],       # PXE boot dir
-    ['--qemu-commandline', REQUIRED], # Qemu commandline (KVM)
-    ['--reboot', BOOLEAN],            # Reboot as part of post script
-    ['--redirdev', REQUIRED],         # Redirdev (KVM)
-    ['--release', REQUIRED],          # OS Release
-    ['--region', REQUIRED],           # AWS Region
-    ['--repo', REQUIRED],             # Set repository
-    ['--repodir', REQUIRED],          # Base Repository Directory
-    ['--resource', REQUIRED],         # Resource (KVM)
-    ['--restart', BOOLEAN],           # Re-start VM
-    ['--rng', REQUIRED],              # RNG (KVM)
-    ['--rootdisk', REQUIRED],         # Set root device to install to
-    ['--rootfs', REQUIRED],           # Set root fs
-    ['--rootpassword', REQUIRED],     # Client root password
-    ['--rootcrypt', REQUIRED],        # Client root password
-    ['--rootsize', REQUIRED],         # Set root device size in M
-    ['--rootuser', REQUIRED],         # Set root user name
-    ['--rpoolname', REQUIRED],        # Solaris rpool name
-    ['--rtcuseutc', REQUIRED],        # rtcuseutc
-    ['--rules', REQUIRED],            # Solaris Jumpstart rules file
-    ['--scratchfs', REQUIRED],        # Set root fs
-    ['--scratchsize', REQUIRED],      # Set root device size in M
-    ['--scriptname', REQUIRED],       # Set scriptname
-    ['--search', REQUIRED],           # Search string
-    ['--seclabel', REQUIRED],         # Seclabel (KVM)
-    ['--secret', REQUIRED],           # AWS Secret Key
-    ['--serial', BOOLEAN],            # Serial
-    ['--sharedfolder', REQUIRED],     # Install shell (used for packer, e.g. winrm, ssh)
-    ['--shell', REQUIRED],            # Install shell (used for packer, e.g. winrm, ssh)
-    ['--size', REQUIRED],             # VM disk size (if used with deploy action, this sets the size of the VM, e.g. tiny)
-    ['--server', REQUIRED],           # Server name/IP (allow execution of commands on a remote host, or deploy to)
-    ['--serveradmin', REQUIRED],      # Admin username for server to deploy to
-    ['--servernetwork', REQUIRED],    # Server network (used when deploying to a remote server)
-    ['--servernetmask', REQUIRED],    # Server netmask (used when deploying to a remote server)
-    ['--serverpassword', REQUIRED],   # Admin password of server to deploy to
-    ['--service', REQUIRED],          # Service name
-    ['--setup', REQUIRED],            # Setup script
-    ['--share', REQUIRED],            # Shared folder
-    ['--shutdowncommand', REQUIRED],  # Packer Shutdown command
-    ['--shutdowntimeout', REQUIRED],  # Packer Shutdown timeout
-    ['--sitename', REQUIRED],         # Sitename for VCSA
-    ['--smartcard', REQUIRED],        # Smartcard (KVM)
-    ['--snapshot', REQUIRED],         # AWS snapshot
-    ['--socker', REQUIRED],           # Socket file
-    ['--sound', REQUIRED],            # Sound (KVM)
-    ['--splitvols', BOOLEAN],         # Split volumes, e.g. seperate /, /var, etc
-    ['--sshkey', REQUIRED],           # SSH Key
-    ['--sshkeyfile', REQUIRED],       # SSH Keyfile
-    ['--sshpassword', REQUIRED],      # Packer SSH Port min
-    ['--sshport', REQUIRED],          # SSH Port
-    ['--sshportmax', REQUIRED],       # Packer SSH Port max
-    ['--sshportmin', REQUIRED],       # Packer SSH Port min
-    ['--sshusername', REQUIRED],      # Packer SSH Port min
-    ['--sshpty', BOOLEAN],            # Packer SSH PTY
-    ['--ssopassword', REQUIRED],      # SSO password
-    ['--stack', REQUIRED],            # AWS CF Stack
-    ['--start', BOOLEAN],             # Start VM
-    ['--stop', BOOLEAN],              # Stop VM
-    ['--strict', BOOLEAN],            # Ignore SSH keys
-    ['--sudo', BOOLEAN],              # Use sudo
-    ['--sudoers', REQUIRED],          # Sudoers entry
-    ['--sudogroup', REQUIRED],        # Set Sudo group
-    ['--suffix', REQUIRED],           # AWS AMI Name suffix
-    ['--sysid', REQUIRED],            # Solaris Jumpstart sysid file
-    ['--sysinfo', REQUIRED],          # Sysinfo (KVM)
-    ['--target', REQUIRED],           # AWS target format (e.g. citrix, vmware, windows)
-    ['--techpreview', BOOLEAN],       # Test mode
-    ['--terminal', REQUIRED],         # Terminal type
-    ['--test', BOOLEAN],              # Test mode
-    ['--tftpdir', REQUIRED],          # TFTP Directory
-    ['--time', REQUIRED],             # Set time e.g. Eastern Standard Time
-    ['--timeserver', REQUIRED],       # Set NTP server IP / Address
-    ['--timezone', REQUIRED],         # Set timezone e.g. Australia/Victoria
-    ['--tmpfs', REQUIRED],            # Set tmp fs
-    ['--tmpsize', REQUIRED],          # Set tmp fs size
-    ['--to', REQUIRED],               # To
-    ['--tpm', REQUIRED],              # TPM (KVM)
-    ['--transient', BOOLEAN],         # Transient (KVM)
-    ['--trunk', REQUIRED],            # Mirror Trunk (e.g. stable)
-    ['--type', REQUIRED],             # Install type (e.g. ISO, client, OVA, Network)
-    ['--uid', REQUIRED],              # UID
-    ['--unattended', BOOLEAN],        # Unattended (KVM)
-    ['--unmasked', BOOLEAN],          # Unmask passwords in output (WIP)
-    ['--userpassword', REQUIRED],     # User password
-    ['--usercrypt', REQUIRED],        # User password crypt
-    ['--usrfs', REQUIRED],            # Set usr fs
-    ['--usrsize', REQUIRED],          # Set usr fs size
-    ['--utc', REQUIRED],              # UTC off/on
-    ['--value', REQUIRED],            # Set the value of a parameter
-    ['--varfs', REQUIRED],            # Set var fs
-    ['--varsize', REQUIRED],          # Set var fs size
-    ['--vcpus', REQUIRED],            # Number of CPUs
-    ['--verbose', BOOLEAN],           # Verbose mode
-    ['--version', BOOLEAN],           # Display version information
-    ['--video', BOOLEAN],             # Video (KVM)
-    ['--virtdir', REQUIRED],          # Base Client Directory
-    ['--virtiofile', REQUIRED],       # VirtIO driver file/cdrom
-    ['--virtualdevice', REQUIRED],    # Virtual disk device (e.g. lsilogic)
-    ['--virt-type', BOOLEAN],         # Virtualisation type (KVM)
-    ['--vlanid',  REQUIRED],          # VLAN ID
-    ['--vm',  REQUIRED],              # VM type
-    ['--vmdir',  REQUIRED],           # VM Directory
-    ['--vmdkfile', REQUIRED],         # VMDK file
-    ['--vmnet',  REQUIRED],           # VM Network (e.g. vmnet1 or vboxnet0)
-    ['--vmnetdhcp',  BOOLEAN],        # VM Network DHCP
-    ['--vmgateway', REQUIRED],        # Set VM network gateway
-    ['--vmnetwork', REQUIRED],        # Set network type (e.g. hostonly, bridged, nat)
-    ['--vmnic',  REQUIRED],           # VM NIC (e.g. eth0)
-    ['--vmtools', REQUIRED],          # Install VM tools or Guest Additions
-    ['--vmtype',  REQUIRED],          # VM type
-    ['--vmxfile', REQUIRED],          # VMX file
-    ['--vnc', BOOLEAN],               # Enable VNC mode
-    ['--vncpassword', REQUIRED],      # VNC password
-    ['--vsock',  REQUIRED],           # vSock (KVM)
-    ['--vswitch',  REQUIRED],         # vSwitch
-    ['--vtxvpid',  REQUIRED],         # vtxvpid
-    ['--vtxux',  REQUIRED],           # vtxux
-    ['--wait', REQUIRED],             # Wait (KVM)
-    ['--winshell', REQUIRED],         # Packer Windows remote action shell (e.g. winrm)
-    ['--winrminsecure', BOOLEAN],     # Packer winrm insecure
-    ['--winrmport', REQUIRED],        # Packer winrm port
-    ['--winrmusessl', BOOLEAN],       # Packer winrm use SSL
-    ['--watchdog', REQUIRED],         # Watchdog (KVM)
-    ['--workdir', REQUIRED],          # Base Work Directory
-    ['--yes', REQUIRED],              # Answer yes to questions
-    ['--zone', REQUIRED],             # Zone file
-    ['--zonedir', REQUIRED],          # Base Zone Directory
-    ['--zpool', REQUIRED]             # Boot zpool name
+    ['--accelerator', REQUIRED],        # Packer accelerator
+    ['--access', REQUIRED],             # AWS Access Key
+    ['--acl', REQUIRED],                # AWS ACL
+    ['--action', REQUIRED],             # Action (e.g. boot, stop, create, delete, list, etc)
+    ['--admingid', REQUIRED],           # Admin user GID for client VM to be created
+    ['--admingecos', REQUIRED],         # Admin GECOS field
+    ['--admingroup', REQUIRED],         # Admin user Group for client VM to be created
+    ['--adminhome', REQUIRED],          # Admin user Home directory for client VM to be created
+    ['--adminshell', REQUIRED],         # Admin user shell for client VM to be created
+    ['--adminsudo', REQUIRED],          # Admin sudo command for client VM to be created
+    ['--adminuid', REQUIRED],           # Admin user UID for client VM to be created
+    ['--adminuser', REQUIRED],          # Admin username for client VM to be created
+    ['--adminpassword', REQUIRED],      # Client admin password
+    ['--admincrypt', REQUIRED],         # Password crypt
+    ['--aidir', REQUIRED],              # Solaris AI Directory
+    ['--aiport', REQUIRED],             # Solaris AI Port
+    ['--ami', REQUIRED],                # AWS AMI ID
+    ['--arch', REQUIRED],               # Architecture of client or VM (e.g. x86_64)
+    ['--autoconsole', BOOLEAN],         # Autoconsole (KVM)
+    ['--noautoconsole', BOOLEAN],       # No autoconsole (KVM)
+    ['--audio', REQUIRED],              # Audio
+    ['--auditsize', REQUIRED],          # Set audit fs size
+    ['--auditfs', REQUIRED],            # Set audit fs
+    ['--autostart', BOOLEAN],           # Autostart (KVM)
+    ['--noautostart', BOOLEAN],         # No autostart (KVM)
+    ['--autoyastfile', REQUIRED],       # AutoYaST file
+    ['--awsuser', REQUIRED],            # AWS User
+    ['--baserepodir', REQUIRED],        # Base repository directory
+    ['--bename', REQUIRED],             # ZFS BE (Boot Environment) name
+    ['--biosdevnames', BOOLEAN],        # Use biosdevnames (e.g. eth0 instead of eno1)
+    ['--nobiosdevnames', BOOLEAN],      # Don't use biosdevnames (e.g. eth0 instead of eno1)
+    ['--biostype', REQUIRED],           # BIOS boot type (bios/uefi)
+    ['--blkiotune', REQUIRED],          # Block IO tune (KVM)
+    ['--boot', REQUIRED],               # Set boot device
+    ['--bootfs', REQUIRED],             # Set boot fs
+    ['--bootcommand', REQUIRED],        # Packer Boot command
+    ['--bootproto', REQUIRED],          # Set boot protocol
+    ['--bootsize', REQUIRED],           # Set boot fs size
+    ['--bootwait', REQUIRED],           # Packer Boot wait
+    ['--bridge', REQUIRED],             # Set bridge
+    ['--bucket', REQUIRED],             # AWS S3 bucket
+    ['--build', BOOLEAN],               # Build (Packer)
+    ['--nobuild', BOOLEAN],             # Don't build (Packer)
+    ['--changelog', BOOLEAN],           # Print changelog
+    ['--channel', BOOLEAN],             # Channel (KVM)
+    ['--nochannel', BOOLEAN],           # No channel (KVM)
+    ['--check', REQUIRED],              # Check
+    ['--checknat', BOOLEAN],            # Check NAT configuration
+    ['--checksum', BOOLEAN],            # Do checksums
+    ['--nochecksum', BOOLEAN],          # Don't do checksums
+    ['--cidr', REQUIRED],               # CIDR
+    ['--client', REQUIRED],             # Client / AWS Name
+    ['--clientdir', REQUIRED],          # Base Client Directory
+    ['--clientnic', REQUIRED],          # Client NIC
+    ['--clock', REQUIRED],              # Clock (KVM)
+    ['--clone', REQUIRED],              # Clone name
+    ['--cloudfile', REQUIRED],          # Cloud init config image (KVM)
+    ['--cloudinitfile', REQUIRED],      # Cloud init config file (KVM)
+    ['--command', REQUIRED],            # Run command
+    ['--comment', REQUIRED],            # Comment
+    ['--configfile', REQUIRED],         # Config file (KVM)
+    ['--connect', REQUIRED],            # Connect (KVM)
+    ['--console', REQUIRED],            # Select console type (e.g. text, serial, x11) (default is text)
+    ['--container', BOOLEAN],           # AWS AMI export container
+    ['--containertype', REQUIRED],      # AWS AMI export container
+    ['--controller', REQUIRED],         # Specify disk controller
+    ['--copykeys', BOOLEAN],            # Copy SSH Keys (default)
+    ['--nocopykeys', BOOLEAN],          # Don't copy SSH Keys (default)
+    ['--country', REQUIRED],            # Country
+    ['--cpu', REQUIRED],                # Type of CPU (e.g. KVM CPU type)
+    ['--cputune', REQUIRED],            # CPU tune (KVM)
+    ['--cputype', REQUIRED],            # CPU type (KVM)
+    ['--creds', REQUIRED],              # Credentials file
+    ['--datastore', REQUIRED],          # Datastore to deploy to on remote server
+    ['--defaults', BOOLEAN],            # Answer defaults to all questions (accept defaults)
+    ['--nodefaults', BOOLEAN],          # Don't answer defaults to all questions (accept defaults)
+    ['--delete', BOOLEAN],              # Delete client / service
+    ['--nodelete', BOOLEAN],            # Don't delete client / service
+    ['--desc', REQUIRED],               # Description
+    ['--destroy-on-exit', BOOLEAN],     # Destroy on exit (KVM)
+    ['--nodestroy-on-exit', BOOLEAN],   # Don't destroy on exit (KVM)
+    ['--dhcp', BOOLEAN],                # DHCP
+    ['--nodhcp', BOOLEAN],              # No DHCP
+    ['--dhcpdfile', REQUIRED],          # DHCP Config file
+    ['--dhcpdrange', REQUIRED],         # Set DHCP range
+    ['--dir', REQUIRED],                # Directory / Direction
+    ['--disk', REQUIRED],               # Disk file / KVM disk file entry
+    ['--disk1', REQUIRED],              # Disk file
+    ['--disk2', REQUIRED],              # Disk file
+    ['--diskformat', REQUIRED],         # KVM Disk format
+    ['--disksize', REQUIRED],           # Packer Disk size
+    ['--diskinterface', REQUIRED],      # Disk interface
+    ['--dnsmasq', BOOLEAN],             # Update / Check DNSmasq
+    ['--nodnsmasq', BOOLEAN],           # No DNSmasq Update / Check
+    ['--diskmode', REQUIRED],           # Disk mode (e.g. thin)
+    ['--domainname', REQUIRED],         # Set domain (Used with deploy for VCSA)
+    ['--dryrun', BOOLEAN],              # Dryrun flag
+    ['--nodryrun', BOOLEAN],            # No dryrun flag
+    ['--email', REQUIRED],              # AWS ACL email
+    ['--empty', REQUIRED],              # Empty / Null value
+    ['--enable', REQUIRED],             # Enable flag
+    ['--enableethernet', BOOLEAN],      # Enable ethernet flag
+    ['--disableethernet', BOOLEAN],     # Disable ethernet flag
+    ['--enablevhv', BOOLEAN],           # Enable VHV flag
+    ['--disablevhv', BOOLEAN],          # Disable VHV flag
+    ['--enablevnc', BOOLEAN],           # Enable VNC flag
+    ['--disablevnc', BOOLEAN],          # Disable VNC flag
+    ['--environment', REQUIRED],        # Environment
+    ['--epel', REQUIRED],               # EPEL Mirror
+    ['--ethernetdevice', REQUIRED],     # Ethernet device (e.g. e1000)
+    ['--events', REQUIRED],             # Events (KVM))
+    ['--exportdir', REQUIRED],          # Export directory
+    ['--extra-args', REQUIRED],         # Extra args (KVM)
+    ['--features',  REQUIRED],          # Features (KVM)
+    ['--file',  REQUIRED],              # File, eg ISO
+    ['--filedir', REQUIRED],            # File / ISO Directory
+    ['--files', REQUIRED],              # Set default files resolution entry, eg "dns, files"
+    ['--filesystem', REQUIRED],         # Filesystem (KVM)
+    ['--finish', REQUIRED],             # Jumpstart finish file
+    ['--force',  BOOLEAN],              # Force mode
+    ['--noforce',  BOOLEAN],            # Don't use force mode
+    ['--format', REQUIRED],             # AWS / Output disk format (e.g. VMDK, RAW, VHD)
+    ['--from', REQUIRED],               # From
+    ['--fusiondir', REQUIRED],          # VMware Fusion Directory
+    ['--gateway', REQUIRED],            # Gateway IP
+    ['--gatewaynode', REQUIRED],        # Gateway Node
+    ['--graphics', REQUIRED],           # Graphics (KVM)
+    ['--grant', REQUIRED],              # AWS ACL grant
+    ['--growpart', BOOLEAN],            # Grow partition
+    ['--nogrowpart', BOOLEAN],          # Don't grow partition
+    ['--growpartdevice', REQUIRED],     # Grow partition device
+    ['--growpartmode', REQUIRED],       # Groe part mode
+    ['--group', REQUIRED],              # Group Name (e.g. AWS)
+    ['--guest', REQUIRED],              # Guest OS
+    ['--gwifname', REQUIRED],           # Gateway Interface name
+    ['--headless', BOOLEAN],            # Headless mode for builds
+    ['--noheadless', BOOLEAN],          # Don't use headless mode for builds
+    ['--help', BOOLEAN],                # Display usage information
+    ['--home', REQUIRED],               # Set home directory
+    ['--homefs', REQUIRED],             # Set home fs
+    ['--homesize', REQUIRED],           # Set home fs size
+    ['--host', REQUIRED],               # Type of host (e.g. Docker)
+    ['--hostdev', REQUIRED],            # Host device (KVM)
+    ['--hostnet', REQUIRED],            # Host network
+    ['--hostonlyip', REQUIRED],         # Hostonly IP
+    ['--hostname', REQUIRED],           # Hostname
+    ['--hosts', REQUIRED],              # Set default hosts resolution entry, eg "files"
+    ['--host-device', REQUIRED],        # Host device (e.g. KVM passthough)
+    ['--httpbindaddress', REQUIRED],    # Packer HTTP bind address
+    ['--httpdirectory', REQUIRED],      # Packer HTTP directory
+    ['--httpportmax', REQUIRED],        # Packer HTTP port max
+    ['--httpportmin', REQUIRED],        # Packer HTTP port min
+    ['--hvm', BOOLEAN],                 # HVM (KVM)
+    ['--hwversion', REQUIRED],          # VMware Hardware Version
+    ['--hwvirtex', REQUIRED],           # hwvirtex (on/off)
+    ['--id', REQUIRED],                 # AWS Instance ID
+    ['--idmap', REQUIRED],              # ID map (KVM)
+    ['--ifname', REQUIRED],             # Interface number / name
+    ['--imagedir', REQUIRED],           # Base Image Directory
+    ['--import', BOOLEAN],              # Import (KVM)
+    ['--info', REQUIRED],               # Used with info option
+    ['--initrd-inject', REQUIRED],      # Inject initrd (KVM)
+    ['--inputfile', REQUIRED],          # Input file (KVM)
+    ['--install', REQUIRED],            # Install (KVM)
+    ['--installdrivers', BOOLEAN],      # Install Drivers
+    ['--dontinstalldrivers', BOOLEAN],  # Don't install Drivers
+    ['--installsecurity', BOOLEAN],     # Install Security Updates
+    ['--donginstallsecurity', BOOLEAN], # Don't install Security Updates
+    ['--installupdates', BOOLEAN],      # Install Package Updates
+    ['--dontinstallupdates', BOOLEAN],  # Don't install Package Updates
+    ['--installupgrades', BOOLEAN],     # Install Package Upgrades
+    ['--dontinstallupgrades', BOOLEAN], # Don't install Package Upgrades
+    ['--iothreads', REQUIRED],          # IO threads (KVM)
+    ['--ip', REQUIRED],                 # IP Address of client
+    ['--ipfamily', REQUIRED],           # IP family (e.g. IPv4 or IPv6)
+    ['--ips', REQUIRED],                # IP Addresses of client
+    ['--isochecksum', REQUIRED],        # Packer ISO checksum
+    ['--isodir', REQUIRED],             # ISO Directory
+    ['--isourl', REQUIRED],             # Packer ISO URL
+    ['--ldomdir', REQUIRED],            # Base LDom Directory
+    ['--jsonfile', REQUIRED],           # JSON file
+    ['--karch', REQUIRED],              # Solaris Jumpstart karch
+    ['--kernel', REQUIRED],             # Kernel
+    ['--key', REQUIRED],                # AWS Key Name
+    ['--keydir', REQUIRED],             # AWS Key Dir
+    ['--keyfile', REQUIRED],            # AWS Keyfile
+    ['--keymap', REQUIRED],             # Key map
+    ['--keyname', REQUIRED],            # AWS Key name (defaults to region)
+    ['--kickstartfile', REQUIRED],      # Kickstart file
+    ['--kvmgid', REQUIRED],             # Set KVM gid
+    ['--kvmgroup', REQUIRED],           # Set KVM group
+    ['--launchSecurity', REQUIRED],     # Launch Security (KVM)
+    ['--license', REQUIRED],            # License key (e.g. ESX)
+    ['--list', BOOLEAN],                # List items
+    ['--livecd', BOOLEAN],              # Specify Live CD (Changes install method)
+    ['--locale', REQUIRED],             # Select language/language (e.g. en_US)
+    ['--localfs', REQUIRED],            # Set local fs
+    ['--localsize', REQUIRED],          # Set local fs size
+    ['--lockpassword', BOOLEAN],        # Lock password
+    ['--logfs', REQUIRED],              # Set log fs
+    ['--logsize', REQUIRED],            # Set log fs size
+    ['--lxcdir', REQUIRED],             # Linux Container Directory
+    ['--lxcimagedir', REQUIRED],        # Linux Image Directory
+    ['--mac', REQUIRED],                # MAC Address
+    ['--machine', REQUIRED],            # Solaris Jumpstart Machine file
+    ['--masked', BOOLEAN],              # Mask passwords in output (WIP)
+    ['--unmasked', BOOLEAN],            # Unmask passwords in output (WIP)
+    ['--memballoon', REQUIRED],         # VM memory balloon
+    ['--memdev', REQUIRED],             # Memdev (KVM)
+    ['--memory', REQUIRED],             # VM memory size
+    ['--memorybacking', REQUIRED],      # VM memory backing (KVM)
+    ['--memtune', REQUIRED],            # VM memory tune (KVM)
+    ['--metadata', REQUIRED],           # Metadata (KVM)
+    ['--method', REQUIRED],             # Install method (e.g. Kickstart)
+    ['--mirror', REQUIRED],             # Mirror / Repo
+    ['--mirrordisk', BOOLEAN],          # Mirror disk as part of post install
+    ['--mode', REQUIRED],               # Set mode to client or server
+    ['--model', REQUIRED],              # Model
+    ['--mountdir', REQUIRED],           # Mount point
+    ['--mouse', REQUIRED],              # Mouse
+    ['--name', REQUIRED],               # Client / AWS Name
+    ['--nameserver', REQUIRED],         # Delete client or VM
+    ['--net', REQUIRED],                # Default Solaris Network (Solaris 11)
+    ['--netbootdir', REQUIRED],         # Netboot directory (Solaris 11 tftpboot directory)
+    ['--netbridge', REQUIRED],          # Packer Net bridge
+    ['--netdevice', REQUIRED],          # Packer Net device
+    ['--netmask', REQUIRED],            # Set netmask
+    ['--network', REQUIRED],            # Network (KVM)
+    ['--networkfile', REQUIRED],        # Network config file (KVM)
+    ['--nic', REQUIRED],                # Default NIC
+    ['--noboot', BOOLEAN],              # Create VM/configs but don't boot
+    ['--nobuild', BOOLEAN],             # Create VM/configs but don't build
+    ['--nokeys', BOOLEAN],              # Don't copy SSH Keys
+    ['--noreboot', BOOLEAN],            # Don't reboot as part of post script (used for troubleshooting)
+    ['--nosudo', BOOLEAN],              # Use sudo
+    ['--nosuffix', BOOLEAN],            # Don't add suffix to AWS AMI names
+    ['--notice', BOOLEAN],              # Print notice messages
+    ['--novncdir', REQUIRED],           # NoVNC directory
+    ['--number', REQUIRED],             # Number of AWS instances
+    ['--object', REQUIRED],             # AWS S3 object
+    ['--opencsw', REQUIRED],            # OpenCSW Mirror / Repo
+    ['--options', REQUIRED],            # Options
+    ['--os-info', REQUIRED],            # OS Info
+    ['--os-type', REQUIRED],            # OS Type
+    ['--os-variant', REQUIRED],         # OS Variant
+    ['--output', REQUIRED],             # Output format (e.g. text/html)
+    ['--outputdirectory', REQUIRED],    # Packer output directory
+    ['--outputfile', REQUIRED],         # Output file (KVM)
+    ['--packages', REQUIRED],           # Specify additional packages to install
+    ['--packer', REQUIRED],             # Packer binary
+    ['--packersshport', REQUIRED],      # Packer binary
+    ['--packerversion', REQUIRED],      # Packer version
+    ['--panic', REQUIRED],              # Panic (KVM)
+    ['--parallel', REQUIRED],           # Parallel (KVM)
+    ['--param', REQUIRED],              # Set a parameter of a VM
+    ['--paravirt', BOOLEAN],            # Paravirt (KVM)
+    ['--noparavirt', BOOLEAN],          # No paravirt (KVM)
+    ['--perms', REQUIRED],              # AWS perms
+    ['--pkgdir', REQUIRED],             # Base Package Directory
+    ['--pm', REQUIRED],                 # PM (KVM)
+    ['--pool', REQUIRED],               # Pool (KVM)
+    ['--ports', REQUIRED],              # Port (makes to and from the same in the case of and IP rule)
+    ['--post', REQUIRED],               # Post install configuration
+    ['--postscript', REQUIRED],         # Post install script
+    ['--powerstate', REQUIRED],         # Powermode for cloud-init (e.g. reboot/noreboot)
+    ['--preseedfile', REQUIRED],        # Preseed file
+    ['--prefix', REQUIRED],             # AWS S3 prefix
+    ['--preservesources', BOOLEAN],     # Preserve Sources List
+    ['--dontpreservesources', BOOLEAN], # Preserve Sources List
+    ['--print-xml', REQUIRED],          # Print XML (KVM)
+    ['--proto', REQUIRED],              # Protocol
+    ['--publisher', REQUIRED],          # Set publisher information (Solaris AI)
+    ['--publisherhost', REQUIRED],      # Publisher host
+    ['--publisherport', REQUIRED],      # Publisher port
+    ['--publisherurl', REQUIRED],       # Publisher URL
+    ['--pxe', BOOLEAN],                 # PXE (KVM)
+    ['--nopxe', BOOLEAN],               # No PXE (KVM)
+    ['--pxebootdir', REQUIRED],         # PXE boot dir
+    ['--qemu-commandline', REQUIRED],   # Qemu commandline (KVM)
+    ['--reboot', BOOLEAN],              # Reboot as part of post script
+    ['--noreboot', BOOLEAN],            # Don't reboot as part of post script
+    ['--dontreboot', BOOLEAN],          # Don't reboot as part of post script
+    ['--redirdev', REQUIRED],           # Redirdev (KVM)
+    ['--release', REQUIRED],            # OS Release
+    ['--region', REQUIRED],             # AWS Region
+    ['--repo', REQUIRED],               # Set repository
+    ['--repodir', REQUIRED],            # Base Repository Directory
+    ['--resource', REQUIRED],           # Resource (KVM)
+    ['--restart', BOOLEAN],             # Re-start VM
+    ['--norestart', BOOLEAN],           # Don't re-start VM
+    ['--dontrestart', BOOLEAN],         # Don't re-start VM
+    ['--rng', REQUIRED],                # RNG (KVM)
+    ['--rootdisk', REQUIRED],           # Set root device to install to
+    ['--rootfs', REQUIRED],             # Set root fs
+    ['--rootpassword', REQUIRED],       # Client root password
+    ['--rootcrypt', REQUIRED],          # Client root password
+    ['--rootsize', REQUIRED],           # Set root device size in M
+    ['--rootuser', REQUIRED],           # Set root user name
+    ['--rpoolname', REQUIRED],          # Solaris rpool name 
+    ['--rtcuseutc', REQUIRED],          # rtcuseutc
+    ['--rules', REQUIRED],              # Solaris Jumpstart rules file
+    ['--scratchfs', REQUIRED],          # Set root fs
+    ['--scratchsize', REQUIRED],        # Set root device size in M
+    ['--scriptname', REQUIRED],         # Set scriptname
+    ['--search', REQUIRED],             # Search string
+    ['--seclabel', REQUIRED],           # Seclabel (KVM)
+    ['--secret', REQUIRED],             # AWS Secret Key
+    ['--serial', BOOLEAN],              # Serial
+    ['--noserial', BOOLEAN],            # No Serial
+    ['--sharedfolder', REQUIRED],       # Install shell (used for packer, e.g. winrm, ssh)
+    ['--shell', REQUIRED],              # Install shell (used for packer, e.g. winrm, ssh)
+    ['--size', REQUIRED],               # VM disk size (if used with deploy action, this sets the size of the VM, e.g. tiny)
+    ['--server', REQUIRED],             # Server name/IP (allow execution of commands on a remote host, or deploy to)
+    ['--serveradmin', REQUIRED],        # Admin username for server to deploy to
+    ['--servernetwork', REQUIRED],      # Server network (used when deploying to a remote server)
+    ['--servernetmask', REQUIRED],      # Server netmask (used when deploying to a remote server)
+    ['--serverpassword', REQUIRED],     # Admin password of server to deploy to
+    ['--service', REQUIRED],            # Service name
+    ['--setup', REQUIRED],              # Setup script
+    ['--share', REQUIRED],              # Shared folder
+    ['--shutdowncommand', REQUIRED],    # Packer Shutdown command
+    ['--shutdowntimeout', REQUIRED],    # Packer Shutdown timeout
+    ['--sitename', REQUIRED],           # Sitename for VCSA
+    ['--smartcard', REQUIRED],          # Smartcard (KVM)
+    ['--snapshot', REQUIRED],           # AWS snapshot
+    ['--socker', REQUIRED],             # Socket file
+    ['--sound', REQUIRED],              # Sound (KVM)
+    ['--splitvols', BOOLEAN],           # Split volumes, e.g. seperate /, /var, etc
+    ['--nosplitvols', BOOLEAN],         # Don't split volumes, e.g. seperate /, /var, etc
+    ['--sshkey', REQUIRED],             # SSH Key
+    ['--sshkeyfile', REQUIRED],         # SSH Keyfile
+    ['--sshpassword', REQUIRED],        # Packer SSH Port min
+    ['--sshport', REQUIRED],            # SSH Port
+    ['--sshportmax', REQUIRED],         # Packer SSH Port max
+    ['--sshportmin', REQUIRED],         # Packer SSH Port min
+    ['--sshusername', REQUIRED],        # Packer SSH Port min
+    ['--sshpty', BOOLEAN],              # Packer SSH PTY
+    ['--ssopassword', REQUIRED],        # SSO password
+    ['--stack', REQUIRED],              # AWS CF Stack
+    ['--start', BOOLEAN],               # Start VM
+    ['--dontstart', BOOLEAN],           # Don't start VM
+    ['--stop', BOOLEAN],                # Stop VM
+    ['--dontstop', BOOLEAN],            # Don't stop VM
+    ['--strict', BOOLEAN],              # Ignore SSH keys
+    ['--sudo', BOOLEAN],                # Use sudo
+    ['--nosudo', BOOLEAN],              # Don't use sudo
+    ['--sudoers', REQUIRED],            # Sudoers entry
+    ['--sudogroup', REQUIRED],          # Set Sudo group
+    ['--suffix', REQUIRED],             # AWS AMI Name suffix
+    ['--sysid', REQUIRED],              # Solaris Jumpstart sysid file
+    ['--sysinfo', REQUIRED],            # Sysinfo (KVM)
+    ['--target', REQUIRED],             # AWS target format (e.g. citrix, vmware, windows)
+    ['--techpreview', BOOLEAN],         # Use VMware tech preview if available
+    ['--terminal', REQUIRED],           # Terminal type
+    ['--tftpdir', REQUIRED],            # TFTP Directory
+    ['--time', REQUIRED],               # Set time e.g. Eastern Standard Time
+    ['--timeserver', REQUIRED],         # Set NTP server IP / Address
+    ['--timezone', REQUIRED],           # Set timezone e.g. Australia/Victoria
+    ['--tmpfs', REQUIRED],              # Set tmp fs
+    ['--tmpsize', REQUIRED],            # Set tmp fs size
+    ['--to', REQUIRED],                 # To
+    ['--tpm', REQUIRED],                # TPM (KVM)
+    ['--transient', BOOLEAN],           # Transient (KVM)
+    ['--notransient', BOOLEAN],         # No transient (KVM)
+    ['--trunk', REQUIRED],              # Mirror Trunk (e.g. stable)
+    ['--type', REQUIRED],               # Install type (e.g. ISO, client, OVA, Network)
+    ['--uid', REQUIRED],                # UID
+    ['--unattended', BOOLEAN],          # Unattended (KVM)
+    ['--userpassword', REQUIRED],       # User password
+    ['--usage', REQUIRED],              # Usage information
+    ['--usercrypt', REQUIRED],          # User password crypt
+    ['--usrfs', REQUIRED],              # Set usr fs
+    ['--usrsize', REQUIRED],            # Set usr fs size
+    ['--utc', REQUIRED],                # UTC off/on
+    ['--value', REQUIRED],              # Set the value of a parameter
+    ['--varfs', REQUIRED],              # Set var fs
+    ['--varsize', REQUIRED],            # Set var fs size
+    ['--vcpus', REQUIRED],              # Number of CPUs
+    ['--verbose', BOOLEAN],             # Verbose mode
+    ['--version', BOOLEAN],             # Display version information
+    ['--video', BOOLEAN],               # Video (KVM)
+    ['--novideo', BOOLEAN],             # No video (KVM)
+    ['--virtdir', REQUIRED],            # Base Client / KVM Directory
+    ['--virtiofile', REQUIRED],         # VirtIO driver file/cdrom
+    ['--virtualdevice', REQUIRED],      # Virtual disk device (e.g. lsilogic)
+    ['--virt-type', REQUIRED],          # Virtualisation type (KVM)
+    ['--vlanid',  REQUIRED],            # VLAN ID
+    ['--vm',  REQUIRED],                # VM type
+    ['--vmdir',  REQUIRED],             # VM Directory
+    ['--vmdkfile', REQUIRED],           # VMDK file
+    ['--vmnet',  REQUIRED],             # VM Network (e.g. vmnet1 or vboxnet0)
+    ['--vmnetdhcp',  BOOLEAN],          # VM Network DHCP
+    ['--vmgateway', REQUIRED],          # Set VM network gateway
+    ['--vmnetwork', REQUIRED],          # Set network type (e.g. hostonly, bridged, nat)
+    ['--vmnic',  REQUIRED],             # VM NIC (e.g. eth0)
+    ['--vmtools', REQUIRED],            # Install VM tools or Guest Additions
+    ['--vmtype',  REQUIRED],            # VM type
+    ['--vmxfile', REQUIRED],            # VMX file
+    ['--vnc', BOOLEAN],                 # Enable VNC mode
+    ['--novnc', BOOLEAN],               # Enable VNC mode
+    ['--vncpassword', REQUIRED],        # VNC password
+    ['--vsock',  REQUIRED],             # vSock (KVM)
+    ['--vswitch',  REQUIRED],           # vSwitch
+    ['--vtxvpid',  REQUIRED],           # vtxvpid
+    ['--vtxux',  REQUIRED],             # vtxux
+    ['--wait', REQUIRED],               # Wait (KVM)
+    ['--winshell', REQUIRED],           # Packer Windows remote action shell (e.g. winrm)
+    ['--winrminsecure', BOOLEAN],       # Packer winrm insecure
+    ['--winrmport', REQUIRED],          # Packer winrm port
+    ['--winrmusessl', BOOLEAN],         # Packer winrm use SSL
+    ['--watchdog', REQUIRED],           # Watchdog (KVM)
+    ['--workdir', REQUIRED],            # Base Work Directory
+    ['--yes', REQUIRED],                # Answer yes to questions
+    ['--zone', REQUIRED],               # Zone file
+    ['--zonedir', REQUIRED],            # Base Zone Directory
+    ['--zpool', REQUIRED]               # Boot zpool name
   )
 rescue
   values['output'] = 'text'
@@ -565,6 +606,17 @@ rescue
   print_help(values)
   quit(values)
 end
+
+# Handle usage
+
+if values['usage']
+  if not values['usage'] == values['empty']
+    print_usage(values)
+    quit(values)
+  end
+end
+
+# Handle values
 
 values = handle_values(values)
 
@@ -612,7 +664,13 @@ if values['options']
       options[0] = values['options']
     end
     options.each do |option|
-      values[option] = true
+      if option.match(/^no|^disable|^dont|^un/)
+        temp_option = option.gsub(/^no|^dont|^un/,"")
+        temp_option = option.gsub(/dsable/,"enable")
+        values[temp_option] = false
+      else
+        values[option] = true
+      end
     end
   end
 end
@@ -644,6 +702,14 @@ values = cleanup_values(values, defaults)
 # Handle power state values
 
 values = handle_power_state_values(values)
+
+# Hanfle cloud-init values
+
+values = handle_cloud_init_values(values)
+
+# Handle libvirt/KVM values
+
+values = handle_libvirt_values(values)
 
 # Create required directories
 

@@ -236,17 +236,6 @@ def print_help(values)
   return
 end
 
-# Output if verbose flag set
-
-#def verbose_output(values, text)
-#  if values['verbose'] == true
-#    values = verbose_output(values, text)
-#  end
-#  return values
-#end
-
-# HTML header
-
 def html_header(pipe, title)
   pipe.push("<html>")
   pipe.push("<header>")
@@ -3654,7 +3643,7 @@ def execute_command(values, message, command)
       verbose_output(values, message)
     end
   end
-  if values['test'] == true
+  if values['dryrun'] == true
     if not command.match(/create|id|groups|update|import|delete|svccfg|rsync|cp|touch|svcadm|VBoxManage|vboxmanage|vmrun|docker/)
       execute = true
     end
@@ -3972,7 +3961,7 @@ def get_base_dir_list(values)
     if search_string.match(/sol_11/)
       if not iso_list.grep(/full/)
         verbose_output(values, "Warning:\tNo full repository ISO images exist in #{values['isodir']}")
-        if values['test'] != true
+        if values['dryrun'] != true
           quit(values)
         end
       end
@@ -4348,7 +4337,7 @@ def mount_iso(values)
   if not File.directory?(iso_test_dir) and not File.exist?(iso_test_dir) and not values['file'].to_s.match(/DVD2\.iso|2of2\.iso|repo-full|VCSA/)
     verbose_output(values, "Warning:\tISO did not mount, or this is not a repository ISO")
     verbose_output(values, "Warning:\t#{iso_test_dir} does not exist")
-    if values['test'] != true
+    if values['dryrun'] != true
       umount_iso(values)
       quit(values)
     end
@@ -4401,7 +4390,7 @@ def copy_iso(values)
         iso_repo_dir = values['mountdir']
       else
         verbose_output(values, "Warning:\tRepository source directory does not exist")
-        if values['test'] != true
+        if values['dryrun'] != true
           quit(values)
         end
       end
@@ -4428,7 +4417,7 @@ def copy_iso(values)
   end
   if not File.directory?(values['repodir']) and not File.symlink?(values['repodir']) and not values['file'].to_s.match(/\.iso/)
     verbose_output(values, "Warning:\tRepository directory #{values['repodir']} does not exist")
-    if values['test'] != true
+    if values['dryrun'] != true
       quit(values)
     end
   end
@@ -4436,7 +4425,7 @@ def copy_iso(values)
     if values['file'].to_s.match(/sol/)
       if not File.directory?(iso_repo_dir)
         verbose_output(values, "Warning:\tRepository source directory #{iso_repo_dir} does not exist")
-        if values['test'] != true
+        if values['dryrun'] != true
           quit(values)
         end
       end

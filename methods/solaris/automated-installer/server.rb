@@ -59,7 +59,7 @@ def check_default_route(values)
   output  = execute_command(values, message, command)
   if !output.match(/[0-9]/)
     verbose_output(values, "Warning:\tNo default route exists")
-    if values['test'] != true
+    if values['dryrun'] != true
       quit(values)
     end
   end

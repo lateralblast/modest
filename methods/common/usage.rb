@@ -1,5 +1,48 @@
 # Usage information
 
+def print_usage_info(values)
+  values['verbose'] = true
+  values['output']  = "text"
+  option = ""
+  info   = ""
+  verbose_output(values, "")
+  verbose_output(values, "Options:")
+  verbose_output(values, "")
+  option_list = get_valid_values()
+  option_list.each do |line|
+    if line.match(/BOOLEAN/)
+      if not line.match(/file_array/) 
+        info   = line.split(/# /)[1]
+        option = line.split(/# /)[0]
+        option = option.split(/--/)[1]
+        option = option.split(/'/)[0]
+        if option.length < 7
+          verbose_output(values, "#{option}:\t\t\t#{info}")
+        else
+          if option.length < 15
+            verbose_output(values, "#{option}:\t\t#{info}")
+          else
+            verbose_output(values, "#{option}:\t#{info}")
+          end
+        end
+      end
+    end
+  end
+  return
+end
+
+def print_usage(values)
+  case values['usage'].to_s
+  when /help/
+    print_help(values)
+  when /option/
+    print_usage_info(values)
+  else
+    print_help(values)
+  end
+  return
+end
+
 def print_error_header(type)
   verbose_output(values, "")
   if type.length > 2

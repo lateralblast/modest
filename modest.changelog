@@ -1603,3 +1603,7 @@
 # ISO version determination fixes
 # 8.0.1: Sat 21 Sep 2024 12:11:39 AEST
 # Added code to hadndle options
+# 8.0.2: Sun 22 Sep 2024 18:00:01 AEST
+# Added more KVM cloud-init support
+# 8.0.3: Mon 23 Sep 2024 16:27:04 AEST
+# Options processing cleanup

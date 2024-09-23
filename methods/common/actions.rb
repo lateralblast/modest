@@ -91,6 +91,8 @@ def handle_action(values)
       end
     when /help/
       print_help(values)
+    when /usage/
+      print_usage(values)
     when /version/
       print_version
     when /info|usage|help/

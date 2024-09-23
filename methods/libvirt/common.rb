@@ -372,7 +372,11 @@ end
 # Configure a KVM client
 
 def configure_kvm_client(values)
-  values = populate_ks_questions(values)
+  if values['method'] = "ci"
+    values = populate_ci_questions(values)
+  else
+    values = populate_ks_questions(values)
+  end
   values = process_questions(values)
   add_hosts_entry(values)
   exists = check_kvm_vm_exists(values)

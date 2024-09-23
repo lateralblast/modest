@@ -74,10 +74,8 @@ def populate_ci_questions(values)
   values['q_struct'][name] = config
   values['q_order'].push(name)
 
-  if values['q_struct']['adminpassword'].value == values['adminpassword']
-    admin_crypt = values['admincrypt']
-  else
-    admin_crypt = get_password_crypt(values['q_struct']['adminpassword'].value)
+  if values['admincrypt'] == values['empty']
+    values['admincrypt'] = get_password_crypt(values['adminpassword'])
   end
 
   name   = "passwd"
@@ -86,9 +84,9 @@ def populate_ci_questions(values)
     question  = "Admin Password Crypt",
     ask       = "yes",
     parameter = "",
-    value     = admin_crypt,
+    value     = values['admincrypt'],
     valid     = "",
-    eval      = "no"
+    eval      = "get_password_crypt(values['adminpassword'])"
     )
   values['q_struct'][name] = config
   values['q_order'].push(name)
@@ -119,19 +117,61 @@ def populate_ci_questions(values)
   values['q_struct'][name] = config
   values['q_order'].push(name)
 
-  name = "graphics"
+  name   = "lock_passwd"
   config = qs.new(
     type      = "",
-    question  = "Graphics mode",
+    question  = "Lock Password",
     ask       = "yes",
     parameter = "",
-    value     = values['headless'],
+    value     = values['lockpassword'],
     valid     = "",
     eval      = "no"
     )
   values['q_struct'][name] = config
   values['q_order'].push(name)
 
+  if values['growpart'] == true
+
+    name   = "growpartdevice"
+    config = qs.new(
+      type      = "",
+      question  = "Grow partition on device",
+      ask       = "yes",
+      parameter = "",
+      value     = values['growpartdevice'],
+      valid     = "",
+      eval      = "no"
+      )
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
+
+    name   = "growpartdevice"
+    config = qs.new(
+      type      = "",
+      question  = "Grow partition mode",
+      ask       = "yes",
+      parameter = "",
+      value     = values['growpartmode'],
+      valid     = "",
+      eval      = "no"
+      )
+    values['q_struct'][name] = config
+    values['q_order'].push(name)
+
+  end
+
+  name = "powerstate"
+  config = qs.new(
+    type      = "",
+    question  = "Power state",
+    ask       = "yes",
+    parameter = "",
+    value     = values['powerstate'],
+    valid     = "",
+    eval      = "no"
+    )
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
 
   name = "vmnic"
   config = qs.new(
@@ -236,6 +276,32 @@ def populate_ci_questions(values)
     ask       = "yes",
     parameter = "",
     value     = values['vcpu'],
+    valid     = "",
+    eval      = "no"
+    )
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
+
+  name = "cpu"
+  config = qs.new(
+    type      = "",
+    question  = "CPU family",
+    ask       = "yes",
+    parameter = "",
+    value     = values['kvmcpu'],
+    valid     = "",
+    eval      = "no"
+    )
+  values['q_struct'][name] = config
+  values['q_order'].push(name)
+
+  name = "diskformat"
+  config = qs.new(
+    type      = "",
+    question  = "Disk format",
+    ask       = "yes",
+    parameter = "",
+    value     = values['diskformat'],
     valid     = "",
     eval      = "no"
     )

@@ -310,6 +310,7 @@ def set_defaults(values, defaults)
   defaults['dhcp']            = false
   defaults['disableautoconf'] = "true"
   defaults['diskmode']        = "thin"
+  defaults['diskformat']      = "qcow2"
   defaults['diskinterface']   = "ide"
   defaults['dnsmasq']         = false
   defaults['domainname']      = "lab.net"
@@ -337,6 +338,9 @@ def set_defaults(values, defaults)
   defaults['gateway']         = ""
   defaults['graphics']        = "none"
   defaults['grant']           = "CanonicalUser"
+  defaults['growpart']        = true
+  defaults['growpartdevice']  = "/"
+  defaults['growpartmode']    = "auto"
   defaults['hardwareversion'] = "8"
   defaults['headless']        = false
   defaults['hostname']        = %x['hostname'].chomp
@@ -396,6 +400,7 @@ def set_defaults(values, defaults)
   defaults['ldomdir']         = '/ldoms'
   defaults['local']           = "local"
   defaults['locale']          = "en_US"
+  defaults['lockpassword']    = false
   defaults['lxcdir']          = "/export/clients/lxc"
   defaults['lxcimagedir']     = "/export/clients/lxc/images"
   defaults['mac']             = ""
@@ -471,8 +476,14 @@ def set_defaults(values, defaults)
   defaults['sshconfig']       = defaults['home'].to_s+"/.ssh/config"
   defaults['sshenadble']      = "true"
   defaults['sshkeydir']       = defaults['home'].to_s+"/.ssh"
-  defaults['sshkeytype']      = "rsa"
-  defaults['sshkeyfile']      = defaults['home'].to_s+"/.ssh/id_"+defaults['sshkeytype'].to_s+".pub"
+  [ 'dsa', 'rsa', 'ed25519' ].each do |ssh_key_type|
+    ssh_key_file = defaults['sshkeydir']+"/id_"+ssh_key_type+".pub"
+    if File.exist?(ssh_key_file)
+      defaults['sshkeyfile'] = ssh_key_file
+      defaults['sshkeytype'] = ssh_key_type
+      defaults['sshkey']     = File.read(ssh_key_file)
+    end
+  end
   defaults['sshkeybits']      = "2048"
   defaults['sshport']         = "22"
   defaults['sshpty']          = true
@@ -573,10 +584,18 @@ end
 # Set some parameter once we have more details
 
 def reset_defaults(values, defaults)
+  if values['arch'].to_s.match(/arm|aarch/)
+    defaults['cputype'] = "cortex-a57"
+  else
+    defaults['cputype'] = "host"
+  end
   if values['file'].to_s.match(/[a-z]/)
     defaults['arch'] = get_install_arch_from_file(values)
     if !values['service'].to_s.match(/[a-z]/)
       defaults['service'] = get_install_service_from_file(values)
+    end
+    if values['file'].to_s.match(/cloudimg/)
+      defaults['method'] = "ci"
     end
   end
   if values['file'].to_s.match(/VMware-VMvisor-Installer/)
@@ -815,7 +834,7 @@ def reset_defaults(values, defaults)
   if values['os-type'].to_s.match(/vmware/)
     defaults['size'] = "40G"
   end
-  if values['test'] == true
+  if values['dryrun'] == true
     defaults['test']     = true
     defaults['download'] = false
   else
