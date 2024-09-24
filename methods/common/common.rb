@@ -286,13 +286,15 @@ end
 
 def write_array_to_file(values, file_array, file_name, file_mode)
   dir_name = Pathname.new(file_name).dirname
-  if !Dir.exist?(dir_name)
-    FileUtils.mkpath(dir_name)
-  end
+  check_dir_exists(values, dir_name)
   if file_mode.match(/a/)
     file_mode = "a"
   else
     file_mode = "w"
+  end
+  if values['dryrun'] == true
+    file_name = File.basename(file_name)
+    file_name = "/tmp/modest_#{file_name}"
   end
   file = File.open(file_name, file_mode)
   file_array.each do |line|
@@ -3525,7 +3527,6 @@ end
 
 def check_dir_exists(values, dir_name)
   output = ""
-  dir_name = dir_name.to_s
   if !File.directory?(dir_name) && !File.symlink?(dir_name)
     if dir_name.match(/[a-z]|[A-Z]/)
       message = "Information:\tCreating: "+dir_name

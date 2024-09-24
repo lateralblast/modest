@@ -1611,3 +1611,5 @@
 # Code cleanup
 # 8.0.5: Tue 24 Sep 2024 12:07:28 AEST
 # Added some dryrun handling
+# 8.0.6: Tue 24 Sep 2024 14:00:26 AEST
+# Added dryrun handling to file creation
