@@ -2204,22 +2204,27 @@ def check_dir_owner(values, dir_name, dir_uid)
     verbose_output(values, "Warning:\tDirectory name not set")
     quit(values)
   end
-  test_uid = File.stat(dir_name).uid
-  if test_uid.to_i != dir_uid.to_i
-    message = "Information:\tChanging ownership of "+dir_name+" to "+dir_uid.to_s
-    if dir_name.to_s.match(/^\/etc/)
-      command = "sudo chown -R #{dir_uid.to_s} \"#{dir_name}\""
-    else
-      command = "chown -R #{dir_uid.to_s} \"#{dir_name}\""
+  if values['dryrun'] == true and not Dir.exist?(dir_name)
+    message = "Warning:\tDirectory #{dir_name} does not exist"
+    verbose_output(values, message)
+  else
+    test_uid = File.stat(dir_name).uid
+    if test_uid.to_i != dir_uid.to_i
+      message = "Information:\tChanging ownership of "+dir_name+" to "+dir_uid.to_s
+      if dir_name.to_s.match(/^\/etc/)
+        command = "sudo chown -R #{dir_uid.to_s} \"#{dir_name}\""
+      else
+        command = "chown -R #{dir_uid.to_s} \"#{dir_name}\""
+      end
+      execute_command(values, message, command)
+      message = "Information:\tChanging permissions of "+dir_name+" to "+dir_uid.to_s
+      if dir_name.to_s.match(/^\/etc/)
+        command = "sudo chmod -R u+w \"#{dir_name}\""
+      else
+        command = "chmod -R u+w \"#{dir_name}\""
+      end
+      execute_command(values, message, command)
     end
-    execute_command(values, message, command)
-    message = "Information:\tChanging permissions of "+dir_name+" to "+dir_uid.to_s
-    if dir_name.to_s.match(/^\/etc/)
-      command = "sudo chmod -R u+w \"#{dir_name}\""
-    else
-      command = "chmod -R u+w \"#{dir_name}\""
-    end
-    execute_command(values, message, command)
   end
   return
 end
@@ -3637,7 +3642,7 @@ def execute_command(values, message, command)
     end
   end
   output  = ""
-  execute = 0
+  execute = false
   if values['verbose'] == true
     if message.match(/[a-z,A-Z,0-9]/)
       verbose_output(values, message)
@@ -3717,7 +3722,7 @@ def execute_command(values, message, command)
       verbose_output(values, "Executing:\t#{command}")
     end
     if values['executehost'].to_s.match(/localhost/)
-      if values['dryrun'] == true
+      if values['dryrun'] == true and execute == true
         if command.match(/list|find/)
           output = %x[#{command}]
         end
