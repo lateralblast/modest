@@ -1613,3 +1613,5 @@
 # Added some dryrun handling
 # 8.0.6: Tue 24 Sep 2024 14:00:26 AEST
 # Added dryrun handling to file creation
+# 8.0.7: Tue 24 Sep 2024 15:41:18 AEST
+# Updates for KVM

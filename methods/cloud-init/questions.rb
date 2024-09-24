@@ -123,7 +123,7 @@ def populate_ci_questions(values)
     question  = "Lock Password",
     ask       = "yes",
     parameter = "",
-    value     = values['lockpassword'],
+    value     = values['lockpassword'].to_s,
     valid     = "",
     eval      = "no"
     )
@@ -249,7 +249,7 @@ def populate_ci_questions(values)
     question  = "Graphics mode",
     ask       = "yes",
     parameter = "",
-    value     = values['headless'],
+    value     = values['headless'].to_s,
     valid     = "",
     eval      = "no"
     )
@@ -288,7 +288,7 @@ def populate_ci_questions(values)
     question  = "CPU family",
     ask       = "yes",
     parameter = "",
-    value     = values['kvmcpu'],
+    value     = values['cputype'],
     valid     = "",
     eval      = "no"
     )

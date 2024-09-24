@@ -21,20 +21,30 @@ def check_kvm_network_bridge_exists(values)
   exists  = false
   net_dev = values['bridge'].to_s
   message = "Information:\tChecking KVM network device #{net_dev} exists"
-  command = "virsh net-list --all |grep #{net_dev}"
-  output  = execute_command(values, message, command)
-  if output.match(/#{net_dev}/)
-    if output.match(/inactive/)
-      verbose_output(values, "Warning:\tDefault KVM network #{net_dev}is not active")
-      output  = execute_command(values,message, command)
-      message = "Information:\tSetting KVM default network to autostart"
-      command = "virsh net-autostart #{net_dev}"
-      execute_command(values, message, command)
-      message = "Information:\tStarting KVM default network"
-      command = "virsh net-start #{net_dev}"
-      execute_command(values, message, command)
+  if values['vmnetwork'].to_s.match(/bridge/)
+    command = "ip link show #{net_dev}"
+    output  = execute_command(values, message, command)
+    if output.match(/does not exist/)
+      exists = false
+    else
+      exists = true
     end
-    exists = true
+  else
+    command = "virsh net-list --all |grep #{net_dev}"
+    output  = execute_command(values, message, command)
+    if output.match(/#{net_dev}/)
+      if output.match(/inactive/)
+        verbose_output(values, "Warning:\tDefault KVM network #{net_dev}is not active")
+        output  = execute_command(values,message, command)
+        message = "Information:\tSetting KVM default network to autostart"
+        command = "virsh net-autostart #{net_dev}"
+        execute_command(values, message, command)
+        message = "Information:\tStarting KVM default network"
+        command = "virsh net-start #{net_dev}"
+        execute_command(values, message, command)
+      end
+      exists = true
+    end
   end
   return exists
 end
