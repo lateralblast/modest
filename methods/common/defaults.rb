@@ -523,7 +523,6 @@ def set_defaults(values, defaults)
   defaults['vboxmanage']      = "/usr/local/bin/VBoxManage"
   defaults['vcpu']            = "1"
   defaults['vgname']          = "vg01"
-  defaults['vnc']             = false
   defaults['verbose']         = "false"
   defaults['virtiofile']      = ""
   defaults['virtualdevice']   = "lsilogic"
@@ -584,6 +583,9 @@ end
 # Set some parameter once we have more details
 
 def reset_defaults(values, defaults)
+  if values['vm'].to_s.match(/kvm/) and values['vmnetwork'].to_s.match(/bridged/)
+    defaults['bridge'] = "br0"
+  end
   if values['arch'].to_s.match(/arm|aarch/)
     defaults['cputype'] = "cortex-a57"
   else

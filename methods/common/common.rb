@@ -3650,7 +3650,7 @@ def execute_command(values, message, command)
     end
   end
   if values['dryrun'] == true
-    if not command.match(/create|id|groups|update|import|delete|svccfg|rsync|cp|touch|svcadm|VBoxManage|vboxmanage|vmrun|docker/)
+    if not command.match(/create|id|groups|update|import|delete|svccfg|rsync|cp|touch|svcadm|VBoxManage|vboxmanage|vmrun|docker|rm|cp|convert|cloud-localds|chown|chmod|restart|stop|start|resize/)
       execute = true
     end
   else
@@ -3724,9 +3724,7 @@ def execute_command(values, message, command)
     end
     if values['executehost'].to_s.match(/localhost/)
       if values['dryrun'] == true and execute == true
-        if command.match(/list|find/)
-          output = %x[#{command}]
-        end
+        output = %x[#{command}]
       else
         output = %x[#{command}]
       end
