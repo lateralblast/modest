@@ -533,16 +533,22 @@ def configure_kvm_import_client(values)
     if values['configfile'] == values['empty']
       config_path = Pathname.new(values['outputfile'].to_s)
       config_path = config_path.dirname.to_s
-      config_file = "#{config_path}/#{values['name'].to_s}.cfg"
+      if values['dryrun'] == true
+        config_file = "#{values['tmpdir']}/#{values['name'].to_s}.cfg"
+      else
+        config_file = "#{config_path}/#{values['name'].to_s}.cfg"
+      end
     end
     if values['networkfile'] == values['empty']
       config_path  = Pathname.new(values['outputfile'].to_s)
       config_path  = config_path.dirname.to_s
-      network_file = "#{config_path}/#{values['name'].to_s}_network.cfg"
+      if values['dryrun'] == true
+        network_file = "#{values['tmpdir']}/#{values['name'].to_s}_network.cfg"
+      else
+        network_file = "#{config_path}/#{values['name'].to_s}_network.cfg"
+      end
     end
-    if values['verbose'] == true
-      verbose_output(values, "Information:\tChecking KVM output directory")
-    end
+    verbose_output(values, "Information:\tChecking KVM output directory")
     check_dir_exists(values, config_path)
     check_dir_owner(values, config_path, values['uid'])
     case values['os-variant'].to_s

@@ -294,7 +294,7 @@ def write_array_to_file(values, file_array, file_name, file_mode)
   end
   if values['dryrun'] == true
     file_name = File.basename(file_name)
-    file_name = "/tmp/modest_#{file_name}"
+    file_name = "#{values['tmpdir']}/#{file_name}"
   end
   file = File.open(file_name, file_mode)
   file_array.each do |line|
