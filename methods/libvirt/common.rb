@@ -587,10 +587,10 @@ def configure_kvm_import_client(values)
     end
     file.write("    passwd: #{values['answers']['admin_crypt'].value}\n")
     if values['method'].to_s.match(/ci/)
-      file.write("    sudo: #{values['answers']['sudoers']}\n")
-      file.write("    lock_passwd: #{values['answers']['lock_passwd'].value}\n")
       file.write("    ssh-authorized-keys:\n")
       file.write("      - #{values['answers']['ssh-authorized-keys'].value}\n")
+      file.write("    sudo: #{values['answers']['sudoers'].value}\n")
+      file.write("    lock_passwd: #{values['answers']['lock_passwd'].value}\n")
     else
       file.write("    lock_passwd: false\n")
     end
