@@ -588,7 +588,7 @@ def configure_kvm_import_client(values)
     file.write("    passwd: #{values['answers']['admin_crypt'].value}\n")
     if values['method'].to_s.match(/ci/)
       file.write("    sudo: #{values['answers']['sudoers']}\n")
-      file.write("    lock_passwd: #{values['lock_passwd'].value}\n")
+      file.write("    lock_passwd: #{values['answers']['lock_passwd'].value}\n")
       file.write("    ssh-authorized-keys:\n")
       file.write("      - #{values['answers']['ssh-authorized-keys'].value}\n")
     else
@@ -600,12 +600,21 @@ def configure_kvm_import_client(values)
       file.write("  - #{package}\n")
     end
     file.write("growpart:\n")
-    file.write("  mode: #{values['answers']['growpartmode'].value}\n")
-    growpart_device = values['answers']['growpartdevice'].value
-    file.write("  devices: ['#{growpart_device}']\n")
-    if values['reboot'] == true
-      file.write("power_state:\n")
-      file.write("  mode: #{values['answers']['powerstate'].value}\n")
+    if values['method'].to_s.match(/ci/)
+      file.write("  mode: #{values['answers']['growpartmode'].value}\n")
+      growpart_device = values['answers']['growpartdevice'].value
+      file.write("  devices: ['#{growpart_device}']\n")
+      if values['reboot'] == true
+        file.write("power_state:\n")
+        file.write("  mode: #{values['answers']['powerstate'].value}\n")
+      end
+    else
+      file.write("  mode: auto\n")
+      file.write("  devices: ['/']\n")
+      if values['reboot'] == true
+        file.write("power_state:\n")
+        file.write("  mode: reboot\n")
+      end
     end
     if values['dnsmasq'] == true
       file.write("runcmd:\n")
