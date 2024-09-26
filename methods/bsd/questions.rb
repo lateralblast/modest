@@ -10,7 +10,7 @@ def populate_coreos_questions(values)
   values['ip'] = single_install_ip(values)
 
   name   = "hostname"
-  config = Ks.new (
+  config = Ks.new(
     type      = "",
     question  = "Hostname",
     ask       = "yes",
@@ -23,7 +23,7 @@ def populate_coreos_questions(values)
   values['order'].push(name)
 
   name   = "nic"
-  config = Ks.new (
+  config = Ks.new(
     type      = "",
     question  = "Primary Network Interface",
     ask       = "yes",
@@ -36,7 +36,7 @@ def populate_coreos_questions(values)
   values['order'].push(name)
 
   name   = "ip"
-  config = Ks.new (
+  config = Ks.new(
     type      = "",
     question  = "IP",
     ask       = "yes",
@@ -49,7 +49,7 @@ def populate_coreos_questions(values)
   values['order'].push(name)
 
   name   = "netmask"
-  config = Ks.new (
+  config = Ks.new(
     type      = "",
     question  = "Netmask",
     ask       = "yes",
@@ -62,7 +62,7 @@ def populate_coreos_questions(values)
   values['order'].push(name)
 
   name   = "nameserver"
-  config = Ks.new (
+  config = Ks.new(
     type      = "",
     question  = "Nameserver(s)",
     ask       = "yes",
@@ -77,7 +77,7 @@ def populate_coreos_questions(values)
   gateway = values['ip'].split(/\./)[0..2].join(".")+"."+values['gatewaynode']
 
   name   = "gateway"
-  config = Ks.new (
+  config = Ks.new(
     type      = "",
     question  = "Gateway",
     ask       = "yes",
@@ -92,7 +92,7 @@ def populate_coreos_questions(values)
   broadcast = values['ip'].split(/\./)[0..2].join(".")+".255"
 
   name   = "broadcast"
-  config = Ks.new (
+  config = Ks.new(
     type      = "",
     question  = "Broadcast",
     ask       = "yes",
@@ -107,7 +107,7 @@ def populate_coreos_questions(values)
   network_address = values['ip'].split(/\./)[0..2].join(".")+".0"
 
   name   = "network_address"
-  config = Ks.new (
+  config = Ks.new(
     type      = "",
     question  = "Network Address",
     ask       = "yes",
@@ -120,7 +120,7 @@ def populate_coreos_questions(values)
   values['order'].push(name)
 
   name   = "root_password"
-  config = Ks.new (
+  config = Ks.new(
     type      = "",
     question  = "Root Password",
     ask       = "yes",
@@ -133,7 +133,7 @@ def populate_coreos_questions(values)
   values['order'].push(name)
 
   name   = "root_crypt"
-  config = Ks.new (
+  config = Ks.new(
     type      = "",
     question  = "Root Password Crypt",
     ask       = "yes",
@@ -146,7 +146,7 @@ def populate_coreos_questions(values)
   values['order'].push(name)
 
   name   = "rootpw"
-  config = Ks.new (
+  config = Ks.new(
     type      = "output",
     question  = "Root Password Configuration",
     ask       = "yes",
@@ -159,7 +159,7 @@ def populate_coreos_questions(values)
   values['order'].push(name)
 
   name   = "admin_user"
-  config = Ks.new (
+  config = Ks.new(
     type      = "",
     question  = "Admin Username",
     ask       = "yes",
@@ -172,7 +172,7 @@ def populate_coreos_questions(values)
   values['order'].push(name)
 
   name   = "admin_uid"
-  config = Ks.new (
+  config = Ks.new(
     type      = "",
     question  = "Admin User ID",
     ask       = "yes",
@@ -185,7 +185,7 @@ def populate_coreos_questions(values)
   values['order'].push(name)
 
   name   = "admin_shell"
-  config = Ks.new (
+  config = Ks.new(
     type      = "",
     question  = "Admin User Shell",
     parameter = "",
@@ -197,7 +197,7 @@ def populate_coreos_questions(values)
   values['order'].push(name)
 
   name   = "admin_home"
-  config = Ks.new (
+  config = Ks.new(
     type      = "",
     question  = "Admin User Home Directory",
     ask       = "yes",
@@ -210,7 +210,7 @@ def populate_coreos_questions(values)
   values['order'].push(name)
 
   name   = "admin_group"
-  config = Ks.new (
+  config = Ks.new(
     type      = "",
     question  = "Admin User Group",
     ask       = "yes",
@@ -223,7 +223,7 @@ def populate_coreos_questions(values)
   values['order'].push(name)
 
   name   = "admin_gid"
-  config = Ks.new (
+  config = Ks.new(
     type      = "",
     question  = "Admin Group ID",
     ask       = "yes",
@@ -236,7 +236,7 @@ def populate_coreos_questions(values)
   values['order'].push(name)
 
   name   = "admin_password"
-  config = Ks.new (
+  config = Ks.new(
     type      = "",
     question  = "Admin User Password",
     ask       = "yes",
@@ -249,7 +249,7 @@ def populate_coreos_questions(values)
   values['order'].push(name)
 
   name = "admin_crypt"
-  config = Ks.new (
+  config = Ks.new(
     type      = "",
     question  = "Admin User Password Crypt",
     ask       = "yes",

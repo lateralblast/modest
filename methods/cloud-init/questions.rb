@@ -10,7 +10,7 @@ def populate_ci_questions(values)
   values['ip'] = single_install_ip(values)
 
   name   = "hostname"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Hostname",
     ask       = "yes",
@@ -23,7 +23,7 @@ def populate_ci_questions(values)
   values['order'].push(name)
 
   name   = "groups"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Admin Group",
     ask       = "yes",
@@ -36,7 +36,7 @@ def populate_ci_questions(values)
   values['order'].push(name)
 
   name   = "adminuser"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Admin User",
     ask       = "yes",
@@ -49,7 +49,7 @@ def populate_ci_questions(values)
   values['order'].push(name)
 
   name   = "shell"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Admin Shell",
     ask       = "yes",
@@ -62,7 +62,7 @@ def populate_ci_questions(values)
   values['order'].push(name)
 
   name   = "password"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Admin Password",
     ask       = "yes",
@@ -79,7 +79,7 @@ def populate_ci_questions(values)
   end
 
   name   = "passwd"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Admin Password Crypt",
     ask       = "yes",
@@ -92,7 +92,7 @@ def populate_ci_questions(values)
   values['order'].push(name)
 
   name   = "ssh-authorized-keys"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Admin SSH key",
     ask       = "yes",
@@ -118,7 +118,7 @@ def populate_ci_questions(values)
   values['order'].push(name)
 
   name   = "lock_passwd"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Lock Password",
     ask       = "yes",
@@ -133,7 +133,7 @@ def populate_ci_questions(values)
   if values['growpart'] == true
 
     name   = "growpartdevice"
-    config = qs.new (
+    config = qs.new(
       type      = "",
       question  = "Grow partition on device",
       ask       = "yes",
@@ -146,7 +146,7 @@ def populate_ci_questions(values)
     values['order'].push(name)
 
     name   = "growpartmode"
-    config = qs.new (
+    config = qs.new(
       type      = "",
       question  = "Grow partition mode",
       ask       = "yes",
@@ -161,7 +161,7 @@ def populate_ci_questions(values)
   end
 
   name   = "powerstate"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Power state",
     ask       = "yes",
@@ -174,7 +174,7 @@ def populate_ci_questions(values)
   values['order'].push(name)
 
   name   = "vmnic"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Ethernet",
     ask       = "yes",
@@ -189,7 +189,7 @@ def populate_ci_questions(values)
   if values['dhcp'] == false
 
     name   = "ip"
-    config = qs.new (
+    config = qs.new(
       type      = "",
       question  = "IP Address",
       ask       = "yes",
@@ -202,7 +202,7 @@ def populate_ci_questions(values)
     values['order'].push(name)
 
     name   = "cidr"
-    config = qs.new (
+    config = qs.new(
       type      = "",
       question  = "CIDR",
       ask       = "yes",
@@ -215,7 +215,7 @@ def populate_ci_questions(values)
     values['order'].push(name)
 
     name   = "nameserver"
-    config = qs.new (
+    config = qs.new(
       type      = "",
       question  = "Nameserver",
       ask       = "yes",
@@ -229,7 +229,7 @@ def populate_ci_questions(values)
 
 
     name   = "vmgateway"
-    config = qs.new (
+    config = qs.new(
       type      = "",
       question  = "Gatewayr",
       ask       = "yes",
@@ -244,7 +244,7 @@ def populate_ci_questions(values)
   end
 
   name   = "graphics"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Graphics mode",
     ask       = "yes",
@@ -257,7 +257,7 @@ def populate_ci_questions(values)
   values['order'].push(name)
 
   name   = "memory"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Memory",
     ask       = "yes",
@@ -270,7 +270,7 @@ def populate_ci_questions(values)
   values['order'].push(name)
 
   name   = "vcpu"
-  config = qs.new (
+  config = qs.new(
     type      = "output",
     question  = "Number of vCPUs",
     ask       = "yes",
@@ -283,7 +283,7 @@ def populate_ci_questions(values)
   values['order'].push(name)
 
   name   = "cpu"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "CPU family",
     ask       = "yes",
@@ -296,7 +296,7 @@ def populate_ci_questions(values)
   values['order'].push(name)
 
   name   = "diskformat"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Disk format",
     ask       = "yes",

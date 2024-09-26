@@ -58,7 +58,7 @@ def populate_vs_questions(values)
   values['ip'] = single_install_ip(values)
 
   name   = "headless_mode"
-  config = vs.new (
+  config = vs.new(
     type      = "",
     question  = "Headless mode",
     ask       = "yes",
@@ -71,7 +71,7 @@ def populate_vs_questions(values)
   values['order'].push(name)
 
   name   = "ks_header"
-  config = vs.new (
+  config = vs.new(
     type      = "output",
     question  = "VSphere file header comment",
     ask       = "yes",
@@ -84,7 +84,7 @@ def populate_vs_questions(values)
   values['order'].push(name)
 
   name   = "vmaccepteula"
-  config = vs.new (
+  config = vs.new(
     type      = "output",
     question  = "Accept EULA",
     ask       = "yes",
@@ -97,7 +97,7 @@ def populate_vs_questions(values)
   values['order'].push(name)
 
   name   = "install"
-  config = vs.new (
+  config = vs.new(
     type      = "output",
     question  = "Install type",
     ask       = "yes",
@@ -110,7 +110,7 @@ def populate_vs_questions(values)
   values['order'].push(name)
 
   name   = "nic"
-  config = vs.new (
+  config = vs.new(
     type      = "",
     question  = "Primary Network Interface",
     ask       = "yes",
@@ -123,7 +123,7 @@ def populate_vs_questions(values)
   values['order'].push(name)
 
   name   = "bootproto"
-  config = vs.new (
+  config = vs.new(
     type      = "",
     question  = "Boot Protocol",
     ask       = "yes",
@@ -136,7 +136,7 @@ def populate_vs_questions(values)
   values['order'].push(name)
 
   name   = "hostname"
-  config = vs.new (
+  config = vs.new(
     type      = "",
     question  = "Hostname",
     ask       = "yes",
@@ -149,7 +149,7 @@ def populate_vs_questions(values)
   values['order'].push(name)
 
   name   = "ip"
-  config = vs.new (
+  config = vs.new(
     type      = "",
     question  = "IP",
     ask       = "yes",
@@ -162,7 +162,7 @@ def populate_vs_questions(values)
   values['order'].push(name)
 
   name   = "network"
-  config = vs.new (
+  config = vs.new(
     type      = "output",
     question  = "Network Configuration",
     ask       = "yes",
@@ -175,7 +175,7 @@ def populate_vs_questions(values)
   values['order'].push(name)
 
   name   = "datastore"
-  config = vs.new (
+  config = vs.new(
     type      = "",
     question  = "Local datastore name",
     ask       = "yes",
@@ -188,7 +188,7 @@ def populate_vs_questions(values)
   values['order'].push(name)
 
   name   = "vm_network_name"
-  config = vs.new (
+  config = vs.new(
     type      = "",
     question  = "VM network name",
     ask       = "yes",
@@ -201,7 +201,7 @@ def populate_vs_questions(values)
   values['order'].push(name)
 
   name   = "vm_network_vlanid"
-  config = vs.new (
+  config = vs.new(
     type      = "",
     question  = "VM network VLAN ID",
     ask       = "yes",
@@ -214,7 +214,7 @@ def populate_vs_questions(values)
   values['order'].push(name)
 
   name   = "vm_network_vswitch"
-  config = vs.new (
+  config = vs.new(
     type      = "",
     question  = "VM network vSwitch",
     ask       = "yes",
@@ -227,7 +227,7 @@ def populate_vs_questions(values)
   values['order'].push(name)
 
   name   = "root_password"
-  config = vs.new (
+  config = vs.new(
     type      = "",
     question  = "Root Password",
     ask       = "yes",
@@ -240,7 +240,7 @@ def populate_vs_questions(values)
   values['order'].push(name)
 
   name   = "root_crypt"
-  config = vs.new (
+  config = vs.new(
     type      = "",
     question  = "Root Password Crypt",
     ask       = "yes",
@@ -253,7 +253,7 @@ def populate_vs_questions(values)
   values['order'].push(name)
 
   name   = "rootpw"
-  config = vs.new (
+  config = vs.new(
     type      = "output",
     question  = "Root Password Configuration",
     ask       = "yes",
@@ -266,7 +266,7 @@ def populate_vs_questions(values)
   values['order'].push(name)
 
   name   = "finish"
-  config = vs.new (
+  config = vs.new(
     type      = "output",
     question  = "Finish Command",
     ask       = "yes",

@@ -9,7 +9,7 @@ def populate_aws_questions(values, user_data_file)
   if values['type'].to_s.match(/packer|ansible/)
 
     name   = "name"
-    config = Ks.new (
+    config = Ks.new(
       type      = "",
       question  = "AMI Name",
       ask       = "no",
@@ -22,7 +22,7 @@ def populate_aws_questions(values, user_data_file)
     values['order'].push(name)
   
     name   = "access_key"
-    config = Ks.new (
+    config = Ks.new(
       type      = "",
       question  = "Access Key",
       ask       = "yes",
@@ -37,7 +37,7 @@ def populate_aws_questions(values, user_data_file)
     if values['unmasked'] == true
 
       name   = "secret_key"
-      config = Ks.new (
+      config = Ks.new(
         type      = "",
         question  = "Secret Key",
         ask       = "yes",
@@ -50,7 +50,7 @@ def populate_aws_questions(values, user_data_file)
       values['order'].push(name)
 
       name   = "keyfile"
-      config = Ks.new (
+      config = Ks.new(
         type      = "",
         question  = "AWS Key file",
         ask       = "yes",
@@ -65,7 +65,7 @@ def populate_aws_questions(values, user_data_file)
     else
 
       name   = "secret_key"
-      config = Ks.new (
+      config = Ks.new(
         type      = "",
         question  = "Secret Key",
         ask       = "no",
@@ -78,7 +78,7 @@ def populate_aws_questions(values, user_data_file)
       values['order'].push(name)
 
       name   = "keyfile"
-      config = Ks.new (
+      config = Ks.new(
         type      = "",
         question  = "AWS Key file",
         ask       = "no",
@@ -93,7 +93,7 @@ def populate_aws_questions(values, user_data_file)
     end
 
     name   = "type"
-    config = Ks.new (
+    config = Ks.new(
       type      = "",
       question  = "AWS Type",
       ask       = "yes",
@@ -106,7 +106,7 @@ def populate_aws_questions(values, user_data_file)
     values['order'].push(name)
 
     name   = "region"
-    config = Ks.new (
+    config = Ks.new(
       type      = "",
       question  = "Region",
       ask       = "yes",
@@ -119,7 +119,7 @@ def populate_aws_questions(values, user_data_file)
     values['order'].push(name) 
 
     name   = "ssh_username"
-    config = Ks.new (
+    config = Ks.new(
       type      = "",
       question  = "SSH Username",
       ask       = "yes",
@@ -132,7 +132,7 @@ def populate_aws_questions(values, user_data_file)
     values['order'].push(name)
 
     name   = "ami_name"
-    config = Ks.new (
+    config = Ks.new(
       type      = "",
       question  = "AMI Name",
       ask       = "yes",
@@ -149,7 +149,7 @@ def populate_aws_questions(values, user_data_file)
   if values['type'].to_s.match(/packer/)
 
     name   = "user_data_file"
-    config = Ks.new (
+    config = Ks.new(
       type      = "",
       question  = "User Data File",
       ask       = "yes",
@@ -164,7 +164,7 @@ def populate_aws_questions(values, user_data_file)
   else
 
     name   = "min_count"
-    config = Ks.new (
+    config = Ks.new(
       type      = "",
       question  = "Minimum Instances",
       ask       = "yes",
@@ -177,7 +177,7 @@ def populate_aws_questions(values, user_data_file)
     values['order'].push(name)  
 
     name   = "max_count"
-    config = Ks.new (
+    config = Ks.new(
       type      = "",
       question  = "Maximum Instances",
       ask       = "yes",
@@ -190,7 +190,7 @@ def populate_aws_questions(values, user_data_file)
     values['order'].push(name)  
 
     name   = "key_name"
-    config = Ks.new (
+    config = Ks.new(
       type      = "",
       question  = "Key Name",
       ask       = "yes",
@@ -203,7 +203,7 @@ def populate_aws_questions(values, user_data_file)
     values['order'].push(name)  
 
     name   = "security_group"
-    config = Ks.new (
+    config = Ks.new(
       type      = "",
       question  = "Security Groups",
       ask       = "yes",
@@ -216,7 +216,7 @@ def populate_aws_questions(values, user_data_file)
     values['order'].push(name) 
 
     name   = "dry_run"
-    config = Ks.new (
+    config = Ks.new(
       type      = "",
       question  = "Dry run",
       ask       = "yes",
@@ -231,7 +231,7 @@ def populate_aws_questions(values, user_data_file)
   end
 
   name   = "source_ami"
-  config = Ks.new (
+  config = Ks.new(
     type      = "",
     question  = "Source AMI",
     ask       = "yes",
@@ -244,7 +244,7 @@ def populate_aws_questions(values, user_data_file)
   values['order'].push(name)
 
   name   = "instance_type"
-  config = Ks.new (
+  config = Ks.new(
     type      = "",
     question  = "Instance Type",
     ask       = "yes",
@@ -257,7 +257,7 @@ def populate_aws_questions(values, user_data_file)
   values['order'].push(name)
 
   name   = "open_ports"
-  config = Ks.new (
+  config = Ks.new(
     type      = "",
     question  = "Open ports",
     ask       = "yes",
@@ -270,7 +270,7 @@ def populate_aws_questions(values, user_data_file)
   values['order'].push(name)
 
   name   = "default_cidr"
-  config = Ks.new (
+  config = Ks.new(
     type      = "",
     question  = "Default CIDR",
     ask       = "yes",

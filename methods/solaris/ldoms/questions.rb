@@ -8,7 +8,7 @@ def populate_cdom_questions(values)
   if values['host-os-unamea'].match(/T5[0-9]|T3/)
 
     name   = "cdom_mau"
-    config = ld.new (
+    config = ld.new(
       question  = "Control Domain Cryptographic Units",
       ask       = "yes",
       value     = values['mau'],
@@ -21,7 +21,7 @@ def populate_cdom_questions(values)
   end
 
   name   = "cdom_vcpu"
-  config = ld.new (
+  config = ld.new(
     question  = "Control Domain Virtual CPUs",
     ask       = "yes",
     value     = values['vcpus'],
@@ -32,7 +32,7 @@ def populate_cdom_questions(values)
   values['order'].push(name)
 
   name   = "cdom_memory"
-  config = ld.new (
+  config = ld.new(
     question  = "Control Domain Memory",
     ask       = "yes",
     value     = values['vcpus'],
@@ -43,7 +43,7 @@ def populate_cdom_questions(values)
   values['order'].push(name)
 
   name   = "cdom_name"
-  config = ld.new (
+  config = ld.new(
     question  = "Control Domain Configuration Name",
     ask       = "yes",
     value     = values['name'],
@@ -65,7 +65,7 @@ def populate_gdom_questions(values)
   if values['host-os-unamea'].match(/T5[0-9]|T3/)
 
     name   = "gdom_mau"
-    config = ld.new (
+    config = ld.new(
       question  = "Domain Cryptographic Units",
       ask       = "yes",
       value     = values['mau'],
@@ -78,7 +78,7 @@ def populate_gdom_questions(values)
   end
 
   name   = "gdom_vcpu"
-  config = ld.new (
+  config = ld.new(
     question  = "Guest Domain Virtual CPUs",
     ask       = "yes",
     value     = values['vcpus'],
@@ -89,7 +89,7 @@ def populate_gdom_questions(values)
   values['order'].push(name)
 
   name   = "gdom_memory"
-  config = ld.new (
+  config = ld.new(
     question  = "Guest Domain Memory",
     ask       = "yes",
     value     = values['memory'],
@@ -100,7 +100,7 @@ def populate_gdom_questions(values)
   values['order'].push(name)
 
   name   = "gdom_disk"
-  config = ld.new (
+  config = ld.new(
     question  = "Guest Domain Disk",
     ask       = "yes",
     value     = client_disk,
@@ -111,7 +111,7 @@ def populate_gdom_questions(values)
   values['order'].push(name)
 
   name   = "gdom_size"
-  config = ld.new (
+  config = ld.new(
     question  = "Guest Domain Disk Size",
     ask       = "yes",
     value     = values['size'],

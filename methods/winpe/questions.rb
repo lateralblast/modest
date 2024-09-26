@@ -19,7 +19,7 @@ def populate_pe_questions(values)
   # values['order']  = []
 
   name   = "headless_mode"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Headless mode",
     ask       = "yes",
@@ -32,7 +32,7 @@ def populate_pe_questions(values)
   values['order'].push(name)
 
   name   = "values['label']"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Installation Label",
     ask       = "yes",
@@ -45,7 +45,7 @@ def populate_pe_questions(values)
   values['order'].push(name)
 
   name   = "cpu_arch"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "CPU Architecture",
     ask       = "yes",
@@ -58,7 +58,7 @@ def populate_pe_questions(values)
   values['order'].push(name)
 
   name   = "boot_disk_size"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Boot disk size",
     ask       = "yes",
@@ -71,7 +71,7 @@ def populate_pe_questions(values)
   values['order'].push(name)
 
   name   = "language"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Language",
     ask       = "yes",
@@ -84,7 +84,7 @@ def populate_pe_questions(values)
   values['order'].push(name)
 
   name   = "locale"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Locale",
     ask       = "yes",
@@ -97,7 +97,7 @@ def populate_pe_questions(values)
   values['order'].push(name)
 
   name   = "organisation"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Organisation",
     ask       = "yes",
@@ -110,7 +110,7 @@ def populate_pe_questions(values)
   values['order'].push(name)
 
   name   = "timezone"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Time Zone",
     ask       = "yes",
@@ -123,7 +123,7 @@ def populate_pe_questions(values)
   values['order'].push(name)
 
   name   = "admin_username"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Admin Username",
     ask       = "yes",
@@ -136,7 +136,7 @@ def populate_pe_questions(values)
   values['order'].push(name)
 
   name   = "admin_fullname"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Admin Fullname",
     ask       = "yes",
@@ -149,7 +149,7 @@ def populate_pe_questions(values)
   values['order'].push(name)
 
   name   = "admin_password"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Admin Password",
     ask       = "yes",
@@ -162,7 +162,7 @@ def populate_pe_questions(values)
   values['order'].push(name)
 
   name   = "license_key"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "License Key",
     ask       = "yes",
@@ -175,7 +175,7 @@ def populate_pe_questions(values)
   values['order'].push(name)
 
   name   = "search_domain"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Search Domain",
     ask       = "yes",
@@ -188,7 +188,7 @@ def populate_pe_questions(values)
   values['order'].push(name)
 
   name   = "install_shell"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Install Shell",
     ask       = "yes",
@@ -201,7 +201,7 @@ def populate_pe_questions(values)
   values['order'].push(name)
 
   name   = "network_type"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Network Type",
     ask       = "yes",
@@ -218,7 +218,7 @@ def populate_pe_questions(values)
   if values['vmnetwork'].to_s.match(/hostonly|bridged/)
 
     name   = "network_name"
-    config = qs.new (
+    config = qs.new(
       type      = "string",
       question  = "Network Name",
       ask       = "yes",
@@ -231,7 +231,7 @@ def populate_pe_questions(values)
     values['order'].push(name)
 
     name   = "ip_address"
-    config = qs.new (
+    config = qs.new(
       type      = "string",
       question  = "IP Address",
       ask       = "yes",
@@ -244,7 +244,7 @@ def populate_pe_questions(values)
     values['order'].push(name)
 
     name   = "gateway_address"
-    config = qs.new (
+    config = qs.new(
       type      = "string",
       question  = "Gateway Address",
       ask       = "yes",
@@ -257,7 +257,7 @@ def populate_pe_questions(values)
     values['order'].push(name)
 
     name   = "network_cidr"
-    config = qs.new (
+    config = qs.new(
       type      = "string",
       question  = "Network CIDR",
       ask       = "yes",
@@ -270,7 +270,7 @@ def populate_pe_questions(values)
     values['order'].push(name)
 
     name   = "nameserver_ip"
-    config = qs.new (
+    config = qs.new(
       type      = "string",
       question  = "Nameserver IP Address",
       ask       = "yes",

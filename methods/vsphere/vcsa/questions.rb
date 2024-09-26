@@ -11,7 +11,7 @@ def populate_vcsa_questions(values)
   values['ip'] = single_install_ip(values)
 
   name   = "headless_mode"
-  config = Js.new (
+  config = Js.new(
     type      = "",
     question  = "Headless mode",
     ask       = "yes",
@@ -24,7 +24,7 @@ def populate_vcsa_questions(values)
   values['order'].push(name)
 
   name   = "esx.hostname"
-  config = Ks.new (
+  config = Ks.new(
     type      = "string",
     question  = "ESX Server Hostname",
     ask       = "yes",
@@ -37,7 +37,7 @@ def populate_vcsa_questions(values)
   values['order'].push(name)
 
   name   = "esx.datastore"
-  config = Ks.new (
+  config = Ks.new(
     type      = "string",
     question  = "Datastore",
     ask       = "yes",
@@ -50,7 +50,7 @@ def populate_vcsa_questions(values)
   values['order'].push(name)
 
   name   = "esx.username"
-  config = Ks.new (
+  config = Ks.new(
     type      = "string",
     question  = "ESX Username",
     ask       = "yes",
@@ -63,7 +63,7 @@ def populate_vcsa_questions(values)
   values['order'].push(name)
 
   name   = "esx.password"
-  config = Ks.new (
+  config = Ks.new(
     type      = "string",
     question  = "ESX Password",
     ask       = "no",
@@ -89,7 +89,7 @@ def populate_vcsa_questions(values)
   values['order'].push(name)
 
   name   = "deployment.network"
-  config = Ks.new (
+  config = Ks.new(
     type      = "string",
     question  = "Deployment Network",
     ask       = "yes",
@@ -102,7 +102,7 @@ def populate_vcsa_questions(values)
   values['order'].push(name)
 
   name   = "appliance.name"
-  config = Ks.new (
+  config = Ks.new(
     type      = "string",
     question  = "Appliance Name",
     ask       = "yes",
@@ -115,7 +115,7 @@ def populate_vcsa_questions(values)
   values['order'].push(name)
 
   name   = "appliance.thin.disk.mode"
-  config = Ks.new (
+  config = Ks.new(
     type      = "boolean",
     question  = "Appliance Disk Mode",
     ask       = "yes",
@@ -128,7 +128,7 @@ def populate_vcsa_questions(values)
   values['order'].push(name)
 
   name   = "root.password"
-  config = Ks.new (
+  config = Ks.new(
     type      = "string",
     question  = "Root Password",
     ask       = "yes",
@@ -141,7 +141,7 @@ def populate_vcsa_questions(values)
   values['order'].push(name)
 
   name   = "ssh.enable"
-  config = Ks.new (
+  config = Ks.new(
     type      = "boolean",
     question  = "SSH Enable",
     ask       = "yes",
@@ -154,7 +154,7 @@ def populate_vcsa_questions(values)
   values['order'].push(name)
 
   name   = "ntp.servers"
-  config = Ks.new (
+  config = Ks.new(
     type      = "string",
     question  = "NTP Servers",
     ask       = "yes",
@@ -167,7 +167,7 @@ def populate_vcsa_questions(values)
   values['order'].push(name)
 
   name   = "password"
-  config = Ks.new (
+  config = Ks.new(
     type      = "string",
     question  = "SSO password",
     ask       = "yes",
@@ -180,7 +180,7 @@ def populate_vcsa_questions(values)
   values['order'].push(name)
 
   name   = "domain-name"
-  config = Ks.new (
+  config = Ks.new(
     type      = "string",
     question  = "NTP Servers",
     ask       = "yes",
@@ -193,7 +193,7 @@ def populate_vcsa_questions(values)
   values['order'].push(name)
 
   name   = "site-name"
-  config = Ks.new (
+  config = Ks.new(
     type      = "string",
     question  = "Site Name",
     ask       = "yes",
@@ -206,7 +206,7 @@ def populate_vcsa_questions(values)
   values['order'].push(name)
 
   name   = "ip.family"
-  config = Ks.new (
+  config = Ks.new(
     type      = "string",
     question  = "IP Family",
     ask       = "yes",
@@ -219,7 +219,7 @@ def populate_vcsa_questions(values)
   values['order'].push(name)
 
   name   = "mode"
-  config = Ks.new (
+  config = Ks.new(
     type      = "string",
     question  = "IP Configuration",
     ask       = "yes",
@@ -232,7 +232,7 @@ def populate_vcsa_questions(values)
   values['order'].push(name)
 
   name   = "ip"
-  config = Ks.new (
+  config = Ks.new(
     type      = "string",
     question  = "IP Address",
     ask       = "yes",
@@ -245,7 +245,7 @@ def populate_vcsa_questions(values)
   values['order'].push(name)
 
   name   = "prefix"
-  config = Ks.new (
+  config = Ks.new(
     type      = "string",
     question  = "Subnet Mask",
     ask       = "yes",
@@ -260,7 +260,7 @@ def populate_vcsa_questions(values)
   gateway = values['ip'].split(/\./)[0..2].join(".")+"."+values['gatewaynode']
 
   name   = "gateway"
-  config = Ks.new (
+  config = Ks.new(
     type      = "string",
     question  = "Gateway",
     ask       = "yes",
@@ -273,7 +273,7 @@ def populate_vcsa_questions(values)
   values['order'].push(name)
 
   name   = "dns.servers"
-  config = Ks.new (
+  config = Ks.new(
     type      = "string",
     question  = "Nameserver(s)",
     ask       = "yes",
@@ -286,7 +286,7 @@ def populate_vcsa_questions(values)
   values['order'].push(name)
 
   name   = "system.name"
-  config = Ks.new (
+  config = Ks.new(
     type      = "string",
     question  = "Hostname",
     ask       = "yes",

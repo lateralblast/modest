@@ -60,7 +60,7 @@ def populate_ps_questions(values)
   if values['service'].to_s != "purity"
 
     name   = "headless_mode"
-    config = qs.new ( 
+    config = qs.new( 
       type      = "",
       question  = "Headless mode",
       ask       = "yes",
@@ -83,7 +83,7 @@ def populate_ps_questions(values)
     end
 
     name   = "language"
-    config = qs.new (
+    config = qs.new(
       type      = "string",
       question  = "Language",
       ask       = "yes",
@@ -96,7 +96,7 @@ def populate_ps_questions(values)
     values['order'].push(name)
 
     name   = "country"
-    config = qs.new (
+    config = qs.new(
       type      = "string",
       question  = "Country",
       ask       = "yes",
@@ -109,7 +109,7 @@ def populate_ps_questions(values)
     values['order'].push(name)
 
     name   = "locale"
-    config = qs.new (
+    config = qs.new(
       type      = "string",
       question  = "Locale",
       ask       = "yes",
@@ -122,7 +122,7 @@ def populate_ps_questions(values)
     values['order'].push(name)
 
     name   = "console"
-    config = qs.new (
+    config = qs.new(
       type      = "boolean",
       question  = "Enable keymap detection",
       ask       = "no",
@@ -135,7 +135,7 @@ def populate_ps_questions(values)
     values['order'].push(name)
   
     name   = "layout"
-    config = qs.new (
+    config = qs.new(
       type      = "string",
       question  = "Keyboard layout",
       ask       = "no",
@@ -148,7 +148,7 @@ def populate_ps_questions(values)
     values['order'].push(name)
 
     name   = "disable_autoconfig"
-    config = qs.new (
+    config = qs.new(
       type      = "boolean",
       question  = "Disable network autoconfig",
       ask       = "yes",
@@ -175,7 +175,7 @@ def populate_ps_questions(values)
     end
 
     name   = "disable_dhcp"
-    config = qs.new (
+    config = qs.new(
       type      = "boolean",
       question  = "Disable DHCP",
       ask       = "yes",
@@ -190,7 +190,7 @@ def populate_ps_questions(values)
   end
 
   name   = "admin_fullname"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "User full name",
     ask       = "yes",
@@ -203,7 +203,7 @@ def populate_ps_questions(values)
   values['order'].push(name)
 
   name   = "admin_username"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Username",
     ask       = "yes",
@@ -216,7 +216,7 @@ def populate_ps_questions(values)
   values['order'].push(name)
 
   name   = "admin_shell"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Shell",
     ask       = "yes",
@@ -229,7 +229,7 @@ def populate_ps_questions(values)
   values['order'].push(name)
 
   name   = "admin_sudo"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Sudo",
     ask       = "yes",
@@ -255,7 +255,7 @@ def populate_ps_questions(values)
   values['order'].push(name)
 
   name   = "admin_password"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "User password",
     ask       = "yes",
@@ -268,7 +268,7 @@ def populate_ps_questions(values)
   values['order'].push(name)
 
   name   = "admin_crypt"
-  config = qs.new (
+  config = qs.new(
     type      = "password",
     question  = "User Password Crypt",
     ask       = "yes",
@@ -281,7 +281,7 @@ def populate_ps_questions(values)
   values['order'].push(name)
 
   name   = "admin_groups"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "User groups",
     ask       = "yes",
@@ -296,7 +296,7 @@ def populate_ps_questions(values)
   if !values['method'] == "ci"
 
     name   = "admin_home_encrypt"
-    config = qs.new (
+    config = qs.new(
       type      = "boolean",
       question  = "Encrypt user home directory",
       ask       = "yes",
@@ -311,7 +311,7 @@ def populate_ps_questions(values)
   end
 
   name   = "locale"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Locale",
     ask       = "yes",
@@ -342,7 +342,7 @@ def populate_ps_questions(values)
   end
 
   name   = "interface"
-  config = qs.new (
+  config = qs.new(
     type      = "select",
     question  = "Network interface",
     ask       = "yes",
@@ -365,7 +365,7 @@ def populate_ps_questions(values)
   end
 
   name   = "nameserver"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Nameservers",
     ask       = "yes",
@@ -380,7 +380,7 @@ def populate_ps_questions(values)
   if values['answers']['disable_dhcp'].value.match(/true/)
 
     name   = "ip"
-    config = qs.new (
+    config = qs.new(
       type      = "string",
       question  = "IP address",
       ask       = "yes",
@@ -393,7 +393,7 @@ def populate_ps_questions(values)
     values['order'].push(name)
 
     name   = "netmask"
-    config = qs.new (
+    config = qs.new(
       type      = "string",
       question  = "Netmask",
       ask       = "yes",
@@ -410,7 +410,7 @@ def populate_ps_questions(values)
   if values['service'].to_s.match(/live/) || values['vm'].to_s.match(/mp|multipass/)
 
     name   = "cidr"
-    config = qs.new (
+    config = qs.new(
       type      = "string",
       question  = "CIDR",
       ask       = "yes",
@@ -455,7 +455,7 @@ def populate_ps_questions(values)
   end
 
   name   = "gateway"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Gateway",
     ask       = "yes",
@@ -472,7 +472,7 @@ def populate_ps_questions(values)
     broadcast = values['ip'].split(/\./)[0..2].join(".")+".255"
 
     name   = "broadcast"
-    config = qs.new (
+    config = qs.new(
       type      = "",
       question  = "Broadcast",
       ask       = "yes",
@@ -487,7 +487,7 @@ def populate_ps_questions(values)
     network_address = values['ip'].split(/\./)[0..2].join(".")+".0"
 
     name   = "network_address"
-    config = qs.new (
+    config = qs.new(
       type      = "",
       question  = "Network Address",
       ask       = "yes",
@@ -508,7 +508,7 @@ def populate_ps_questions(values)
   end
 
   name   = "static"
-  config = qs.new (
+  config = qs.new(
     type      = "boolean",
     question  = "Confirm Static",
     ask       = "yes",
@@ -521,7 +521,7 @@ def populate_ps_questions(values)
   values['order'].push(name)
 
   name   = "hostname"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Hostname",
     ask       = "yes",
@@ -567,7 +567,7 @@ def populate_ps_questions(values)
   client_domain = values['domainname'].to_s
 
   name   = "domain"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Domainname",
     ask       = "yes",
@@ -580,7 +580,7 @@ def populate_ps_questions(values)
   values['order'].push(name)
 
   name   = "timezone"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Timezone",
     ask       = "yes",
@@ -593,7 +593,7 @@ def populate_ps_questions(values)
   values['order'].push(name)
 
   name   = "timeserver"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Timeserer",
     ask       = "yes",
@@ -610,7 +610,7 @@ def populate_ps_questions(values)
     if install_ip1.match(/[0-9]/)
 
       name   = "eth1_ip"
-      config = qs.new (
+      config = qs.new(
         type      = "string",
         question  = "IP address for eth1",
         ask       = "yes",
@@ -640,7 +640,7 @@ def populate_ps_questions(values)
     if install_ip2.match(/[0-9]/)
 
       name   = "eth2_ip"
-      config = qs.new (
+      config = qs.new(
         type      = "string",
         question  = "IP address for eth2",
         ask       = "yes",
@@ -653,7 +653,7 @@ def populate_ps_questions(values)
       values['order'].push(name)
 
       name   = "eth2_service"
-      config = qs.new (
+      config = qs.new(
         type      = "string",
         question  = "Service for eth2",
         ask       = "yes",
@@ -670,7 +670,7 @@ def populate_ps_questions(values)
     if install_ip3.match(/[0-9]/)
 
       name   = "eth3_ip"
-      config = qs.new (
+      config = qs.new(
         type      = "string",
         question  = "IP address for eth3",
         ask       = "yes",
@@ -683,7 +683,7 @@ def populate_ps_questions(values)
       values['order'].push(name)
 
       name   = "eth3_service"
-      config = qs.new (
+      config = qs.new(
         type      = "string",
         question  = "Service for eth3",
         ask       = "yes",
@@ -700,7 +700,7 @@ def populate_ps_questions(values)
     if install_ip4.match(/[0-9]/)
 
       name   = "eth4_ip"
-      config = qs.new (
+      config = qs.new(
         type      = "string",
         question  = "IP address for eth4",
         ask       = "yes",
@@ -713,7 +713,7 @@ def populate_ps_questions(values)
       values['order'].push(name) 
 
       name   = "eth4_service"
-      config = qs.new (
+      config = qs.new(
         type      = "string",
         question  = "Service for eth4",
         ask       = "yes",
@@ -730,7 +730,7 @@ def populate_ps_questions(values)
     if install_ip5.match(/[0-9]/)
 
       name   = "eth5_ip"
-      config = qs.new (
+      config = qs.new(
         type      = "string",
         question  = "IP address for eth5",
         ask       = "yes",
@@ -743,7 +743,7 @@ def populate_ps_questions(values)
       values['order'].push(name) 
 
       name   = "eth5_service"
-      config = qs.new (
+      config = qs.new(
         type      = "string",
         question  = "Service for eth5",
         ask       = "yes",
@@ -763,7 +763,7 @@ def populate_ps_questions(values)
   if !values['method'].to_s.match(/ci/)
 
     name   = "firmware"
-    config = qs.new (
+    config = qs.new(
       type      = "boolean",
       question  = "Prompt for firmware",
       ask       = "no",
@@ -776,7 +776,7 @@ def populate_ps_questions(values)
     values['order'].push(name)
 
     name   = "clock"
-    config = qs.new (
+    config = qs.new(
       type      = "string",
       question  = "Hardware clock set to UTC",
       ask       = "yes",
@@ -804,7 +804,7 @@ def populate_ps_questions(values)
 #  values['order'].push(name)
 
   name   = "mirror_country"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Mirror country",
     ask       = "no",
@@ -817,7 +817,7 @@ def populate_ps_questions(values)
   values['order'].push(name)
 
   name   = "mirror_hostname"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Mirror hostname",
     ask       = "no",
@@ -831,7 +831,7 @@ def populate_ps_questions(values)
   values['order'].push(name)
 
   name   = "mirror_directory"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Mirror directory",
     ask       = "no",
@@ -861,7 +861,7 @@ def populate_ps_questions(values)
   if !values['method'].to_s.match(/ci/)
 
     name   = "mirror_proxy"
-    config = qs.new (
+    config = qs.new(
       type      = "string",
       question  = "Mirror country",
       ask       = "no",
@@ -874,7 +874,7 @@ def populate_ps_questions(values)
     values['order'].push(name)
 
     name   = "updates"
-    config = qs.new (
+    config = qs.new(
       type      = "select",
       question  = "Update policy",
       ask       = "yes",
@@ -895,7 +895,7 @@ def populate_ps_questions(values)
   end
 
   name   = "software"
-  config = qs.new (
+  config = qs.new(
     type      = "multiselect",
     question  = "Software",
     ask       = "yes",
@@ -910,7 +910,7 @@ def populate_ps_questions(values)
   if !values['method'].to_s.match(/ci/)
 
     name   = "additional_packages"
-    config = qs.new (
+    config = qs.new(
       type      = "string",
       question  = "Additional packages",
       ask       = "yes",
@@ -925,7 +925,7 @@ def populate_ps_questions(values)
   end
 
   name   = "exit"
-  config = qs.new (
+  config = qs.new(
     type      = "boolean",
     question  = "Exit installer",
     ask       = "yes",
@@ -938,7 +938,7 @@ def populate_ps_questions(values)
   values['order'].push(name)
 
   name   = "basicfilesystem_choose_label"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Basic Filesystem Chose Label",
     ask       = "no",
@@ -951,7 +951,7 @@ def populate_ps_questions(values)
   values['order'].push(name)
 
   name   = "basicfilesystem_default_label"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Basic Filesystem Default Label",
     ask       = "no",
@@ -964,7 +964,7 @@ def populate_ps_questions(values)
   values['order'].push(name)
 
   name   = "partition_choose_label"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Partition Chose Label",
     ask       = "no",
@@ -977,7 +977,7 @@ def populate_ps_questions(values)
   values['order'].push(name)
 
   name   = "partition_default_label"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Partition Default Label",
     ask       = "no",
@@ -990,7 +990,7 @@ def populate_ps_questions(values)
   values['order'].push(name)
 
   name   = "choose_label"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Partition Chose Label",
     ask       = "no",
@@ -1003,7 +1003,7 @@ def populate_ps_questions(values)
   values['order'].push(name)
 
   name   = "default_label"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Partition Default Label",
     ask       = "no",
@@ -1016,7 +1016,7 @@ def populate_ps_questions(values)
   values['order'].push(name)
 
   name   = "partition_disk"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Parition disk",
     ask       = "yes",
@@ -1029,7 +1029,7 @@ def populate_ps_questions(values)
   values['order'].push(name)
 
   name   = "partition_method"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Parition method",
     ask       = "yes",
@@ -1042,7 +1042,7 @@ def populate_ps_questions(values)
   values['order'].push(name)
 
   name   = "remove_existing_lvm"
-  config = qs.new (
+  config = qs.new(
     type      = "boolean",
     question  = "Remove existing LVM devices",
     ask       = "yes",
@@ -1055,7 +1055,7 @@ def populate_ps_questions(values)
   values['order'].push(name)
 
   name   = "remove_existing_md"
-  config = qs.new (
+  config = qs.new(
     type      = "boolean",
     question  = "Remove existing MD devices",
     ask       = "yes",
@@ -1068,7 +1068,7 @@ def populate_ps_questions(values)
   values['order'].push(name)
 
   name   = "partition_write"
-  config = qs.new (
+  config = qs.new(
     type      = "boolean",
     question  = "Write parition",
     ask       = "yes",
@@ -1081,7 +1081,7 @@ def populate_ps_questions(values)
   values['order'].push(name)
 
   name   = "partition_overwrite"
-  config = qs.new (
+  config = qs.new(
     type      = "boolean",
     question  = "Overwrite existing parition",
     ask       = "yes",
@@ -1094,7 +1094,7 @@ def populate_ps_questions(values)
   values['order'].push(name) 
 
   name   = "partition_size"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Partition size",
     ask       = "yes",
@@ -1107,7 +1107,7 @@ def populate_ps_questions(values)
   values['order'].push(name) 
 
   name   = "filesystem_type"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Write partition label",
     ask       = "yes",
@@ -1120,7 +1120,7 @@ def populate_ps_questions(values)
   values['order'].push(name)
 
   name   = "volume_name"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Volume name",
     ask       = "yes",
@@ -1135,7 +1135,7 @@ def populate_ps_questions(values)
   if values['splitvols'] == true
 
     name   = "filesystem_layout"
-    config = qs.new (
+    config = qs.new(
       type      = "select",
       question  = "Filesystem recipe",
       ask       = "yes",
@@ -1148,7 +1148,7 @@ def populate_ps_questions(values)
     values['order'].push(name)
 
     name   = "filesystem_recipe"
-    config = qs.new (
+    config = qs.new(
       type      = "string",
       question  = "Filesystem layout",
       ask       = "yes",
@@ -1270,7 +1270,7 @@ def populate_ps_questions(values)
   else
 
     name   = "filesystem_layout"
-    config = qs.new (
+    config = qs.new(
       type      = "select",
       question  = "Filesystem layout",
       ask       = "yes",
@@ -1285,7 +1285,7 @@ def populate_ps_questions(values)
   end
 
   name   = "partition_label"
-  config = qs.new (
+  config = qs.new(
     type      = "boolean",
     question  = "Write partition label",
     ask       = "no",
@@ -1298,7 +1298,7 @@ def populate_ps_questions(values)
   values['order'].push(name)
 
   name   = "partition_finish"
-  config = qs.new (
+  config = qs.new(
     type      = "select",
     question  = "Finish partition",
     ask       = "no",
@@ -1311,7 +1311,7 @@ def populate_ps_questions(values)
   values['order'].push(name)
 
   name   = "partition_confirm"
-  config = qs.new (
+  config = qs.new(
     type      = "boolean",
     question  = "Confirm partition",
     ask       = "no",
@@ -1324,7 +1324,7 @@ def populate_ps_questions(values)
   values['order'].push(name)
 
   name   = "partition_nooverwrite"
-  config = qs.new (
+  config = qs.new(
     type      = "boolean",
     question  = "Don't overwrite partition",
     ask       = "no",
@@ -1337,7 +1337,7 @@ def populate_ps_questions(values)
   values['order'].push(name)
 
   name   = "kernel_image"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Kernel image",
     ask       = "yes",
@@ -1350,7 +1350,7 @@ def populate_ps_questions(values)
   values['order'].push(name)
 
   name   = "additional_packages"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Additional packages",
     ask       = "yes",
@@ -1363,7 +1363,7 @@ def populate_ps_questions(values)
   values['order'].push(name)
 
   name   = "root_login"
-  config = qs.new (
+  config = qs.new(
     type      = "boolean",
     question  = "Root login",
     ask       = "yes",
@@ -1376,7 +1376,7 @@ def populate_ps_questions(values)
   values['order'].push(name)
 
   name   = "make_user"
-  config = qs.new (
+  config = qs.new(
     type      = "boolean",
     question  = "Create user",
     ask       = "yes",
@@ -1389,7 +1389,7 @@ def populate_ps_questions(values)
   values['order'].push(name)
 
   name   = "root_password"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Root password",
     ask       = "yes",
@@ -1402,7 +1402,7 @@ def populate_ps_questions(values)
   values['order'].push(name)
 
   name   = "root_crypt"
-  config = qs.new (
+  config = qs.new(
     type      = "password",
     question  = "Root Password Crypt",
     ask       = "yes",
@@ -1415,7 +1415,7 @@ def populate_ps_questions(values)
   values['order'].push(name)
 
   name   = "install_grub_mbr"
-  config = qs.new (
+  config = qs.new(
     type      = "boolean",
     question  = "Install grub",
     ask       = "yes",
@@ -1428,7 +1428,7 @@ def populate_ps_questions(values)
   values['order'].push(name)
 
   name   = "install_grub_bootdev"
-  config = qs.new (
+  config = qs.new(
     type      = "string",
     question  = "Install grub to device",
     ask       = "yes",
@@ -1441,7 +1441,7 @@ def populate_ps_questions(values)
   values['order'].push(name)
 
   name   = "reboot_note"
-  config = qs.new (
+  config = qs.new(
     type      = "note",
     question  = "Install grub",
     ask       = "no",
@@ -1478,7 +1478,7 @@ def populate_ps_questions(values)
 #  if not values['type'].to_s.match(/packer/)
 
     name   = "late_command"
-    config = qs.new (
+    config = qs.new(
       type      = "string",
       question  = "Post install commands",
       ask       = "yes",

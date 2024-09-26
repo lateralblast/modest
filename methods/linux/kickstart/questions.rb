@@ -168,7 +168,7 @@ def populate_ks_questions(values)
   end
 
   name   = "headless_mode"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Headless mode",
     ask       = "yes",
@@ -181,7 +181,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "install_service"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Service Name",
     ask       = "yes",
@@ -196,7 +196,7 @@ def populate_ks_questions(values)
   if values['service'].to_s.match(/rhel_5/)
 
     name   = "values['key']"
-    config = qs.new (
+    config = qs.new(
       type      = "",
       question  = "Installation Key",
       ask       = "no",
@@ -211,7 +211,7 @@ def populate_ks_questions(values)
   end
 
   name   = "ks_header"
-  config = qs.new (
+  config = qs.new(
     type      = "output",
     question  = "Kickstart file header comment",
     ask       = "yes",
@@ -227,7 +227,7 @@ def populate_ks_questions(values)
 
   if values['service'].to_s.match(/rhel_5/)
 
-    config = qs.new (
+    config = qs.new(
       type      = "output",
       question  = "Firewall",
       ask       = "yes",
@@ -239,7 +239,7 @@ def populate_ks_questions(values)
 
   else
 
-    config = qs.new (
+    config = qs.new(
       type      = "output",
       question  = "Firewall",
       ask       = "yes",
@@ -255,7 +255,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "console"
-  config = qs.new (
+  config = qs.new(
     type      = "output",
     question  = "Console type",
     ask       = "yes",
@@ -270,7 +270,7 @@ def populate_ks_questions(values)
   if not values['service'].to_s.match(/[el,centos,rocky,alma]_9/)
 
     name   = "values['type']"
-    config = qs.new (
+    config = qs.new(
       type      = "output",
       question  = "Install type",
       ask       = "yes",
@@ -285,7 +285,7 @@ def populate_ks_questions(values)
   end
 
   name   = "values['method']"
-  config = qs.new (
+  config = qs.new(
     type      = "output",
     question  = "Install Medium",
     ask       = "yes",
@@ -328,7 +328,7 @@ def populate_ks_questions(values)
   if not values['service'].to_s.match(/fedora|[centos,sl,el,rocky,alma]_[6,7,8,9]/)
 
     name   = "support_language"
-    config = qs.new (
+    config = qs.new(
       type      = "output",
       question  = "Support Language",
       ask       = "yes",
@@ -343,7 +343,7 @@ def populate_ks_questions(values)
   end
 
   name   = "keyboard"
-  config = qs.new (
+  config = qs.new(
     type      = "output",
     question  = "Keyboard",
     ask       = "yes",
@@ -356,7 +356,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "videocard"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Video Card",
     ask       = "yes",
@@ -369,7 +369,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "videoram"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Video RAM",
     ask       = "yes",
@@ -382,7 +382,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "hsync"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Horizontal Sync",
     ask       = "yes",
@@ -395,7 +395,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "vsync"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Vertical Sync",
     ask       = "yes",
@@ -408,7 +408,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "resolution"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Resolution",
     ask       = "yes",
@@ -421,7 +421,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "depth"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Bit Depth",
     ask       = "yes",
@@ -434,7 +434,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "xconfig"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Xconfig",
     ask       = "yes",
@@ -449,7 +449,7 @@ def populate_ks_questions(values)
   nic_name = get_nic_name_from_install_service(values)
 
   name   = "nic"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Primary Network Interface",
     ask       = "yes",
@@ -462,7 +462,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "bootproto"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Boot Protocol",
     ask       = "yes",
@@ -475,7 +475,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "hostname"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Hostname",
     ask       = "yes",
@@ -488,7 +488,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "ip"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "IP",
     ask       = "yes",
@@ -501,7 +501,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "netmask"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Netmask",
     ask       = "yes",
@@ -514,7 +514,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "nameserver"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Nameserver(s)",
     ask       = "yes",
@@ -557,7 +557,7 @@ def populate_ks_questions(values)
   end
 
   name   = "gateway"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Gateway",
     ask       = "yes",
@@ -572,7 +572,7 @@ def populate_ks_questions(values)
   broadcast = values['ip'].split(/\./)[0..2].join(".")+".255"
 
   name   = "broadcast"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Broadcast",
     ask       = "yes",
@@ -587,7 +587,7 @@ def populate_ks_questions(values)
   network_address = values['ip'].split(/\./)[0..2].join(".")+".0"
 
   name   = "network_address"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Network Address",
     ask       = "yes",
@@ -600,7 +600,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "network"
-  config = qs.new (
+  config = qs.new(
     type      = "output",
     question  = "Network Configuration",
     ask       = "yes",
@@ -613,7 +613,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "root_password"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Root Password",
     ask       = "yes",
@@ -626,7 +626,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "root_crypt"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Root Password Crypt",
     ask       = "yes",
@@ -639,7 +639,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "rootpw"
-  config = qs.new (
+  config = qs.new(
     type      = "output",
     question  = "Root Password Configuration",
     ask       = "yes",
@@ -671,7 +671,7 @@ def populate_ks_questions(values)
   end 
 
   name   = "enabled_services"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Enabled Services",
     ask       = "yes",
@@ -684,7 +684,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "disabled_services"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Disabled Services",
     ask       = "yes",
@@ -699,7 +699,7 @@ def populate_ks_questions(values)
   if not values['service'].to_s.match(/fedora|[centos,el,rocky,alma]_[8,9]/)
 
     name   = "services"
-    config = qs.new (
+    config = qs.new(
       type      = "output",
       question  = "Services",
       ask       = "yes",
@@ -714,7 +714,7 @@ def populate_ks_questions(values)
   end
 
   name   = "admin_username"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Admin Username",
     ask       = "yes",
@@ -727,7 +727,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "admin_uid"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Admin User ID",
     ask       = "yes",
@@ -740,7 +740,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "admin_shell"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Admin User Shell",
     parameter = "",
@@ -752,7 +752,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "admin_home"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Admin User Home Directory",
     ask       = "yes",
@@ -765,7 +765,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "admin_group"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Admin User Group",
     ask       = "yes",
@@ -778,7 +778,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "admin_gid"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Admin Group ID",
     ask       = "yes",
@@ -791,7 +791,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "admin_password"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Admin User Password",
     ask       = "yes",
@@ -804,7 +804,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "admin_crypt"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Admin User Password Crypt",
     ask       = "yes",
@@ -817,7 +817,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "selinux"
-  config = qs.new (
+  config = qs.new(
     type      = "output",
     question  = "SELinux Configuration",
     ask       = "yes",
@@ -831,7 +831,7 @@ def populate_ks_questions(values)
 
   if values['service'].to_s.match(/[centos,rhel,rocky,alma]_9/)
     name   = "authselect"
-    config = qs.new (
+    config = qs.new(
       type      = "output",
       question  = "Authentication Configuration",
       ask       = "yes",
@@ -842,7 +842,7 @@ def populate_ks_questions(values)
     )
   else
     name   = "authconfig"
-    config = qs.new (
+    config = qs.new(
       type      = "output",
       question  = "Authentication Configuration",
       ask       = "yes",
@@ -856,7 +856,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "timezone"
-  config = qs.new (
+  config = qs.new(
     type      = "output",
     question  = "Timezone",
     ask       = "yes",
@@ -869,7 +869,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "bootstrap"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Bootstrap",
     ask       = "yes",
@@ -882,7 +882,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "bootloader"
-  config = qs.new (
+  config = qs.new(
     type      = "output",
     question  = "Bootloader",
     ask       = "yes",
@@ -898,7 +898,7 @@ def populate_ks_questions(values)
 
   if values['service'].to_s.match(/fedora|[centos,el,sl,rocky,alma]_[7,8,9]/)
 
-    config = qs.new (
+    config = qs.new(
       type      = "output",
       question  = "Zero MBR",
       ask       = "no",
@@ -910,7 +910,7 @@ def populate_ks_questions(values)
 
   else
 
-    config = qs.new (
+    config = qs.new(
       type      = "output",
       question  = "Zero MBR",
       ask       = "no",
@@ -926,7 +926,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "bootdevice"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Boot Device",
     ask       = "yes",
@@ -939,7 +939,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "clearpart"
-  config = qs.new (
+  config = qs.new(
     type      = "output",
     question  = "Clear Parition",
     ask       = "yes",
@@ -952,7 +952,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "bootfs"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Boot Filesystem",
     ask       = "no",
@@ -965,7 +965,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "bootsize"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Boot Size",
     ask       = "yes",
@@ -978,7 +978,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "bootpart"
-  config = qs.new (
+  config = qs.new(
     type      = "output",
     question  = "Boot Parition",
     ask       = "yes",
@@ -991,7 +991,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "volname"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Physical Volume Name",
     ask       = "yes",
@@ -1004,7 +1004,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "volsize"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Physical Volume Size",
     ask       = "yes",
@@ -1017,7 +1017,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "volpart"
-  config = qs.new (
+  config = qs.new(
     type      = "output",
     question  = "Physical Volume Configuration",
     ask       = "yes",
@@ -1030,7 +1030,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "volgroupname"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Volume Group Name",
     ask       = "yes",
@@ -1043,7 +1043,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "pesize"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Physical Extent Size",
     ask       = "yes",
@@ -1056,7 +1056,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "volgroup"
-  config = qs.new (
+  config = qs.new(
     type      = "output",
     question  = "Volume Group Configuration",
     ask       = "yes",
@@ -1069,7 +1069,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "swapmin"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Minimum Swap Size",
     ask       = "yes",
@@ -1082,7 +1082,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "swapmax"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Maximum Swap Size",
     ask       = "yes",
@@ -1095,7 +1095,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "swapvol"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Swap Volume Name",
     ask       = "yes",
@@ -1108,7 +1108,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "logswap"
-  config = qs.new (
+  config = qs.new(
     type      = "output",
     question  = "Swap Logical Volume Configuration",
     ask       = "yes",
@@ -1121,7 +1121,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "rootfs"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Root Filesystem",
     ask       = "yes",
@@ -1134,7 +1134,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "rootvol"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Root Volume Name",
     ask       = "yes",
@@ -1147,7 +1147,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "rootsize"
-  config = qs.new (
+  config = qs.new(
     type      = "",
     question  = "Root Size",
     ask       = "yes",
@@ -1160,7 +1160,7 @@ def populate_ks_questions(values)
   values['order'].push(name)
 
   name   = "logroot"
-  config = qs.new (
+  config = qs.new(
     type      = "output",
     question  = "Root Logical Volume Configuration",
     ask       = "yes",
@@ -1179,7 +1179,7 @@ def populate_ks_questions(values)
   end
 
   name   = "finish"
-  config = qs.new (
+  config = qs.new(
     type      = "output",
     question  = "Finish Command",
     ask       = "yes",

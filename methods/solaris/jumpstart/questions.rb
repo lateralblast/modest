@@ -289,7 +289,7 @@ def populate_js_machine_questions(values)
   # Store system model information from previous set of questions
 
   name   = "headless_mode"
-  config = js.new (
+  config = js.new(
     type      = "",
     question  = "Headless mode",
     ask       = "yes",
@@ -302,7 +302,7 @@ def populate_js_machine_questions(values)
   values['order'].push(name)
 
   name   = "system_model"
-  config = js.new (
+  config = js.new(
     type      = "",
     question  = "System Model",
     ask       = "yes",
@@ -318,7 +318,7 @@ def populate_js_machine_questions(values)
   # values = get_arch_from_model(values)
 
   name   = "root_disk_id"
-  config = js.new (
+  config = js.new(
     type      = "",
     question  = "System Disk",
     ask       = "yes",
@@ -341,7 +341,7 @@ def populate_js_machine_questions(values)
   end
 
   name   = "mirror_disk"
-  config = js.new (
+  config = js.new(
     type      = "",
     question  = "Mirror Disk",
     ask       = "yes",
@@ -357,7 +357,7 @@ def populate_js_machine_questions(values)
 
   if values['model'].to_s.match(/[a-z]/)
     
-    config = js.new (
+    config = js.new(
       type      = "",
       question  = "System Disk",
       ask       = "yes",
@@ -369,7 +369,7 @@ def populate_js_machine_questions(values)
 
   else
 
-    config = js.new (
+    config = js.new(
       type      = "",
       question  = "System Disk",
       ask       = "no",
@@ -385,7 +385,7 @@ def populate_js_machine_questions(values)
   values['order'].push(name)
 
   name   = "memory_size"
-  config = js.new (
+  config = js.new(
     type      = "",
     question  = "System Memory Size",
     ask       = "yes",
@@ -398,7 +398,7 @@ def populate_js_machine_questions(values)
   values['order'].push(name)
 
   name   = "disk_size"
-  config = js.new (
+  config = js.new(
     type      = "",
     question  = "System Memory Size",
     ask       = "yes",
@@ -411,7 +411,7 @@ def populate_js_machine_questions(values)
   values['order'].push(name)
 
   name   = "dump_size"
-  config = js.new (
+  config = js.new(
     type      = "",
     question  = "System Dump Size",
     ask       = "yes",
@@ -428,7 +428,7 @@ def populate_js_machine_questions(values)
   end
 
   name   = "install_type"
-  config = js.new (
+  config = js.new(
     type      = "output",
     question  = "Install Type",
     ask       = "yes",
@@ -445,7 +445,7 @@ def populate_js_machine_questions(values)
     archive_url = "http://"+values['publisherhost']+values['image']
 
     name   = "archive_location"
-    config = js.new (
+    config = js.new(
       type      = "output",
       question  = "Install Type",
       ask       = "yes",
@@ -462,7 +462,7 @@ def populate_js_machine_questions(values)
   if not values['image'].to_s.match(/flar/)
 
     name   = "system_type"
-    config = js.new (
+    config = js.new(
       type      = "output",
       question  = "System Type",
       ask       = "yes",
@@ -475,7 +475,7 @@ def populate_js_machine_questions(values)
     values['order'].push(name)
 
     name   = "cluster"
-    config = js.new (
+    config = js.new(
       type      = "output",
       question  = "Install Cluser",
       ask       = "yes",
@@ -490,7 +490,7 @@ def populate_js_machine_questions(values)
   end
 
   name   = "disk_partitioning"
-  config = js.new (
+  config = js.new(
     type      = "output",
     question  = "Disk Paritioning",
     ask       = "yes",
@@ -507,7 +507,7 @@ def populate_js_machine_questions(values)
     if Integer(values['update']) >= 6
 
       name   = "root_fs"
-      config = js.new (
+      config = js.new(
         type      = "",
         question  = "Root filesystem",
         ask       = "yes",
@@ -520,7 +520,7 @@ def populate_js_machine_questions(values)
       values['order'].push(name)
 
       name = "rpool_name"
-      config = js.new (
+      config = js.new(
         type      = "",
         question  = "Root Pool Name",
         ask       = "yes",
@@ -547,7 +547,7 @@ def populate_js_machine_questions(values)
     end
 
     name   = f_struct[fs_name].name+"_size"
-    config = js.new (
+    config = js.new(
       type      = "",
       question  = f_struct[fs_name].name.capitalize+" Size",
       ask       = "yes",
@@ -564,7 +564,7 @@ def populate_js_machine_questions(values)
     if not values['service'].to_s.match(/sol_10/)
 
       name   = f_struct[fs_name].name+"_fs"
-      config = js.new (
+      config = js.new(
         type      = "output",
         question  = "UFS Root File System",
         ask       = "yes",
@@ -583,7 +583,7 @@ def populate_js_machine_questions(values)
   if values['service'].to_s.match(/sol_10_0[6-9]|sol_10_[10,11]/) and values['answers']['root_fs'].value.match(/zfs/)
 
     name   = "zfs_layout"
-    config = js.new (
+    config = js.new(
       type      = "output",
       question  = "ZFS File System Layout",
       ask       = "yes",
@@ -598,7 +598,7 @@ def populate_js_machine_questions(values)
     zfs_bootenv=get_js_zfs_bootenv(values)
 
     name   = "zfs_bootenv"
-    config = js.new (
+    config = js.new(
       type      = "output",
       question  = "File System Layout",
       ask       = "yes",
@@ -615,7 +615,7 @@ def populate_js_machine_questions(values)
   if not values['answers']['mirror_disk'].value.match(/no/)
 
     name   = "metadb_size"
-    config = js.new (
+    config = js.new(
       type      = "",
       question  = "Metadb Size",
       ask       = "yes",
@@ -628,7 +628,7 @@ def populate_js_machine_questions(values)
     values['order'].push(name)
   
     name   = "metadb_count"
-    config = js.new (
+    config = js.new(
       type      = "",
       question  = "Metadb Count",
       ask       = "yes",
@@ -641,7 +641,7 @@ def populate_js_machine_questions(values)
     values['order'].push(name)
 
     name   = "root_metadb"
-    config = js.new (
+    config = js.new(
       type      = "output",
       question  = "Root Disk Metadb",
       ask       = "yes",
@@ -654,7 +654,7 @@ def populate_js_machine_questions(values)
     values['order'].push(name)
 
     name   = "mirror_metadb"
-    config = js.new (
+    config = js.new(
       type      = "output",
       question  = "Mirror Disk Metadb",
       ask       = "yes",
@@ -679,7 +679,7 @@ def populate_js_sysid_questions(values)
   # values['order']  = []
 
   name   = "hostname"
-  config = js.new (
+  config = js.new(
     type      = "",
     question  = "System Hostname",
     ask       = "yes",
@@ -691,7 +691,7 @@ def populate_js_sysid_questions(values)
   values['answers'][name] = config
 
   name   = "os_version"
-  config = js.new (
+  config = js.new(
     type      = "",
     question  = "OS Version",
     ask       = "yes",
@@ -703,7 +703,7 @@ def populate_js_sysid_questions(values)
   values['answers'][name] = config
 
   name   = "os_update"
-  config = js.new (
+  config = js.new(
     type      = "",
     question  = "OS Update",
     ask       = "yes",
@@ -715,7 +715,7 @@ def populate_js_sysid_questions(values)
   values['answers'][name] = config
 
   name   = "ip_address"
-  config = js.new (
+  config = js.new(
     type      = "",
     question  = "System IP",
     ask       = "yes",
@@ -728,7 +728,7 @@ def populate_js_sysid_questions(values)
   values['order'].push(name)
 
   name   = "netmask"
-  config = js.new (
+  config = js.new(
     type      = "",
     question  = "System Netmask",
     ask       = "yes",
@@ -743,7 +743,7 @@ def populate_js_sysid_questions(values)
   ipv4_default_route=get_ipv4_default_route(values)
 
   name   = "system_model"
-  config = js.new (
+  config = js.new(
     type      = "",
     question  = "System Model",
     ask       = "yes",
@@ -758,7 +758,7 @@ def populate_js_sysid_questions(values)
   if not values['arch'].to_s.match(/i386|sun4/)
 
     name   = "system_karch"
-    config = js.new (
+    config = js.new(
       type      = "",
       question  = "System Kernel Architecture",
       ask       = "yes",
@@ -773,7 +773,7 @@ def populate_js_sysid_questions(values)
   else
 
     name   = "system_karch"
-    config = js.new (
+    config = js.new(
       type      = "",
       question  = "System Kernel Architecture",
       ask       = "yes",
@@ -788,7 +788,7 @@ def populate_js_sysid_questions(values)
   end
 
   name   = "nic_model"
-  config = js.new (
+  config = js.new(
     type      = "",
     question  = "Network Interface",
     ask       = "yes",
@@ -801,7 +801,7 @@ def populate_js_sysid_questions(values)
   values['order'].push(name)
 
   name   = "default_route"
-  config = js.new (
+  config = js.new(
     type      = "",
     question  = "Default Route",
     ask       = "yes",
@@ -816,7 +816,7 @@ def populate_js_sysid_questions(values)
   if Integer(values['version']) > 7
 
     name   = "protocol_ipv6"
-    config = js.new (
+    config = js.new(
       type      = "",
       question  = "IPv6",
       ask       = "yes",
@@ -831,7 +831,7 @@ def populate_js_sysid_questions(values)
   end
 
   name   = "network_interface"
-  config = js.new (
+  config = js.new(
     type      = "output",
     question  = "Network Interface",
     ask       = "yes",
@@ -844,7 +844,7 @@ def populate_js_sysid_questions(values)
   values['order'].push(name)
 
   name   = "timezone"
-  config = js.new (
+  config = js.new(
     type      = "output",
     question  = "Timezone",
     ask       = "yes",
@@ -857,7 +857,7 @@ def populate_js_sysid_questions(values)
   values['order'].push(name)
 
   name   = "system_locale"
-  config = js.new (
+  config = js.new(
     type      = "output",
     question  = "System Locale",
     ask       = "yes",
@@ -870,7 +870,7 @@ def populate_js_sysid_questions(values)
   values['order'].push(name)
 
   name   = "keyboard"
-  config = js.new (
+  config = js.new(
     type      = "output",
     question  = "Keyboard Type",
     ask       = "yes",
@@ -883,7 +883,7 @@ def populate_js_sysid_questions(values)
   values['order'].push(name)
 
   name   = "terminal"
-  config = js.new (
+  config = js.new(
     type      = "output",
     question  = "Terminal Type",
     ask       = "yes",
@@ -896,7 +896,7 @@ def populate_js_sysid_questions(values)
   values['order'].push(name)
 
   name   = "root_password"
-  config = js.new (
+  config = js.new(
     type      = "",
     question  = "Root password",
     ask       = "yes",
@@ -909,7 +909,7 @@ def populate_js_sysid_questions(values)
   values['order'].push(name)
 
   name   = "root_crypt"
-  config = js.new (
+  config = js.new(
     type      = "output",
     question  = "Root password (encrypted)",
     ask       = "no",
@@ -922,7 +922,7 @@ def populate_js_sysid_questions(values)
   values['order'].push(name)
 
   name   = "timeserver"
-  config = js.new (
+  config = js.new(
     type      = "output",
     question  = "Timeserver",
     ask       = "yes",
@@ -935,7 +935,7 @@ def populate_js_sysid_questions(values)
   values['order'].push(name)
 
   name   = "name_service"
-  config = js.new (
+  config = js.new(
     type      = "output",
     question  = "Name Service",
     ask       = "yes",
@@ -952,7 +952,7 @@ def populate_js_sysid_questions(values)
     if values['update'].to_i >= 5
 
       name   = "nfs4_domain"
-      config = js.new (
+      config = js.new(
         type      = "output",
         question  = "NFSv4 Domain",
         ask       = "yes",
@@ -969,7 +969,7 @@ def populate_js_sysid_questions(values)
   end
 
   name   = "security_policy"
-  config = js.new (
+  config = js.new(
     type      = "output",
     question  = "Security",
     ask       = "yes",
@@ -986,7 +986,7 @@ def populate_js_sysid_questions(values)
     if values['update'].to_i >= 10
 
       name   = "auto_reg"
-      config = js.new (
+      config = js.new(
         type      = "output",
         question  = "Auto Registration",
         ask       = "yes",
