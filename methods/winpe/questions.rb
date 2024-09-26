@@ -15,11 +15,11 @@ def populate_pe_questions(values)
     network_name = "Local Area Connection"
   end
 
-  # values['q_struct'] = {}
-  # values['q_order']  = []
+  # values['answers'] = {}
+  # values['order']  = []
 
-  name = "headless_mode"
-  config = qs.new(
+  name   = "headless_mode"
+  config = qs.new (
     type      = "",
     question  = "Headless mode",
     ask       = "yes",
@@ -27,12 +27,12 @@ def populate_pe_questions(values)
     value     = values['headless'].to_s.downcase,
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "values['label']"
-  config = qs.new(
+  name   = "values['label']"
+  config = qs.new (
     type      = "string",
     question  = "Installation Label",
     ask       = "yes",
@@ -40,12 +40,12 @@ def populate_pe_questions(values)
     value     = values['label'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "cpu_arch"
-  config = qs.new(
+  name   = "cpu_arch"
+  config = qs.new (
     type      = "string",
     question  = "CPU Architecture",
     ask       = "yes",
@@ -53,12 +53,12 @@ def populate_pe_questions(values)
     value     = values['arch'].gsub(/x86_64/,"amd64"),
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "boot_disk_size"
-  config = qs.new(
+  name   = "boot_disk_size"
+  config = qs.new (
     type      = "string",
     question  = "Boot disk size",
     ask       = "yes",
@@ -66,12 +66,12 @@ def populate_pe_questions(values)
     value     = values['size'].gsub(/G/,""),
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "language"
-  config = qs.new(
+  name   = "language"
+  config = qs.new (
     type      = "string",
     question  = "Language",
     ask       = "yes",
@@ -79,12 +79,12 @@ def populate_pe_questions(values)
     value     = values['locale'].gsub(/_/,"-"),
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "locale"
-  config = qs.new(
+  name   = "locale"
+  config = qs.new (
     type      = "string",
     question  = "Locale",
     ask       = "yes",
@@ -92,12 +92,12 @@ def populate_pe_questions(values)
     value     = values['locale'].gsub(/_/,"-"),
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "organisation"
-  config = qs.new(
+  name   = "organisation"
+  config = qs.new (
     type      = "string",
     question  = "Organisation",
     ask       = "yes",
@@ -105,12 +105,12 @@ def populate_pe_questions(values)
     value     = values['organisation'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "timezone"
-  config = qs.new(
+  name   = "timezone"
+  config = qs.new (
     type      = "string",
     question  = "Time Zone",
     ask       = "yes",
@@ -118,12 +118,12 @@ def populate_pe_questions(values)
     value     = values['timezone'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "admin_username"
-  config = qs.new(
+  name   = "admin_username"
+  config = qs.new (
     type      = "string",
     question  = "Admin Username",
     ask       = "yes",
@@ -131,12 +131,12 @@ def populate_pe_questions(values)
     value     = values['adminuser'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "admin_fullname"
-  config = qs.new(
+  name   = "admin_fullname"
+  config = qs.new (
     type      = "string",
     question  = "Admin Fullname",
     ask       = "yes",
@@ -144,12 +144,12 @@ def populate_pe_questions(values)
     value     = values['adminname'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "admin_password"
-  config = qs.new(
+  name   = "admin_password"
+  config = qs.new (
     type      = "string",
     question  = "Admin Password",
     ask       = "yes",
@@ -157,12 +157,12 @@ def populate_pe_questions(values)
     value     = values['adminpassword'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "license_key"
-  config = qs.new(
+  name   = "license_key"
+  config = qs.new (
     type      = "string",
     question  = "License Key",
     ask       = "yes",
@@ -170,12 +170,12 @@ def populate_pe_questions(values)
     value     = values['license'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "search_domain"
-  config = qs.new(
+  name   = "search_domain"
+  config = qs.new (
     type      = "string",
     question  = "Search Domain",
     ask       = "yes",
@@ -183,12 +183,12 @@ def populate_pe_questions(values)
     value     = values['domainname'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "install_shell"
-  config = qs.new(
+  name   = "install_shell"
+  config = qs.new (
     type      = "string",
     question  = "Install Shell",
     ask       = "yes",
@@ -196,12 +196,12 @@ def populate_pe_questions(values)
     value     = values['winshell'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "network_type"
-  config = qs.new(
+  name   = "network_type"
+  config = qs.new (
     type      = "string",
     question  = "Network Type",
     ask       = "yes",
@@ -209,16 +209,16 @@ def populate_pe_questions(values)
     value     = values['vmnetwork'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  values['vmnetwork'] = values['q_struct']['network_type'].value
+  values['vmnetwork'] = values['answers']['network_type'].value
 
   if values['vmnetwork'].to_s.match(/hostonly|bridged/)
 
-    name = "network_name"
-    config = qs.new(
+    name   = "network_name"
+    config = qs.new (
       type      = "string",
       question  = "Network Name",
       ask       = "yes",
@@ -226,12 +226,12 @@ def populate_pe_questions(values)
       value     = network_name,
       valid     = "",
       eval      = "no"
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
 
-    name = "ip_address"
-    config = qs.new(
+    name   = "ip_address"
+    config = qs.new (
       type      = "string",
       question  = "IP Address",
       ask       = "yes",
@@ -239,12 +239,12 @@ def populate_pe_questions(values)
       value     = values['ip'],
       valid     = "",
       eval      = "no"
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
 
-    name = "gateway_address"
-    config = qs.new(
+    name   = "gateway_address"
+    config = qs.new (
       type      = "string",
       question  = "Gateway Address",
       ask       = "yes",
@@ -252,12 +252,12 @@ def populate_pe_questions(values)
       value     = values['vmgateway'],
       valid     = "",
       eval      = "no"
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
 
-    name = "network_cidr"
-    config = qs.new(
+    name   = "network_cidr"
+    config = qs.new (
       type      = "string",
       question  = "Network CIDR",
       ask       = "yes",
@@ -265,12 +265,12 @@ def populate_pe_questions(values)
       value     = values['cidr'],
       valid     = "",
       eval      = "no"
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
 
-    name = "nameserver_ip"
-    config = qs.new(
+    name   = "nameserver_ip"
+    config = qs.new (
       type      = "string",
       question  = "Nameserver IP Address",
       ask       = "yes",
@@ -278,9 +278,9 @@ def populate_pe_questions(values)
       value     = values['nameserver'],
       valid     = "",
       eval      = "no"
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
 
   end
   return

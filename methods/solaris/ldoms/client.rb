@@ -82,8 +82,8 @@ end
 # Create Guest domain disk
 
 def create_gdom_disk(values)
-  client_disk = values['q_struct']['gdom_disk'].value
-  disk_size   = values['q_struct']['gdom_size'].value
+  client_disk = values['answers']['gdom_disk'].value
+  disk_size   = values['answers']['gdom_size'].value
   disk_size   = disk_size.downcase
   vds_disk    = values['name']+"_vdisk0"
   if not client_disk.match(/\/dev/)
@@ -207,8 +207,8 @@ end
 # Create Guest domain
 
 def create_gdom(values)
-  memory   = values['q_struct']['gdom_memory'].value
-  vcpu     = values['q_struct']['gdom_vcpu'].value
+  memory   = values['answers']['gdom_memory'].value
+  vcpu     = values['answers']['gdom_vcpu'].value
   vds_disk = values['name']+"_vdisk0"
   message  = "Information:\tCreating guest domain "+values['name']
   command  = "ldm add-domain #{values['name']}"

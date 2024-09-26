@@ -23,23 +23,23 @@ end
 def deploy_vcsa_vm(values)
   populate_vcsa_questions(values)
   process_questions(values)
-  values['server']         = values['q_struct']['esx.hostname'].value
-  values['datastore']      = values['q_struct']['esx.datastore'].value
-  values['serveradmin']    = values['q_struct']['esx.username'].value
-  values['serverpassword'] = values['q_struct']['esx.password'].value
-  values['size']           = values['q_struct']['deployment.option'].value
-  values['servernetmask']  = values['q_struct']['deployment.network'].value
-  values['name']           = values['q_struct']['appliance.name'].value
-  values['rootpassword']   = values['q_struct']['root.password'].value
-  values['timeserver']     = values['q_struct']['ntp.servers'].value
-  values['adminpassword']  = values['q_struct']['password'].value
-  values['domainname']     = values['q_struct']['domain-name'].value
-  values['sitename']       = values['q_struct']['site-name'].value
-  values['ipfamil']        = values['q_struct']['ip.family'].value
-  values['ip']             = values['q_struct']['ip'].value
-  values['netmask']        = values['q_struct']['prefix'].value
-  values['vmgateway']      = values['q_struct']['gateway'].value
-  values['nameserver']     = values['q_struct']['dns.servers'].value
+  values['server']         = values['answers']['esx.hostname'].value
+  values['datastore']      = values['answers']['esx.datastore'].value
+  values['serveradmin']    = values['answers']['esx.username'].value
+  values['serverpassword'] = values['answers']['esx.password'].value
+  values['size']           = values['answers']['deployment.option'].value
+  values['servernetmask']  = values['answers']['deployment.network'].value
+  values['name']           = values['answers']['appliance.name'].value
+  values['rootpassword']   = values['answers']['root.password'].value
+  values['timeserver']     = values['answers']['ntp.servers'].value
+  values['adminpassword']  = values['answers']['password'].value
+  values['domainname']     = values['answers']['domain-name'].value
+  values['sitename']       = values['answers']['site-name'].value
+  values['ipfamil']        = values['answers']['ip.family'].value
+  values['ip']             = values['answers']['ip'].value
+  values['netmask']        = values['answers']['prefix'].value
+  values['vmgateway']      = values['answers']['gateway'].value
+  values['nameserver']     = values['answers']['dns.servers'].value
   vcsa_json_file = create_vcsa_json(values)
   #create_vcsa_deploy_script(values)
   values['repodir'] = values['baserepodir']+"/"+values['service']

@@ -68,12 +68,12 @@ end
 # Create AWS CF Stack
 
 def create_aws_cf_stack(values)
-  stack_name      = values['q_struct']['stack_name'].value
-  instance_type   = values['q_struct']['instance_type'].value
-  key_name        = values['q_struct']['key_name'].value
-  ssh_location    = values['q_struct']['ssh_location'].value
-  template_url    = values['q_struct']['template_url'].value
-  security_groups = values['q_struct']['security_groups'].value
+  stack_name      = values['answers']['stack_name'].value
+  instance_type   = values['answers']['instance_type'].value
+  key_name        = values['answers']['key_name'].value
+  ssh_location    = values['answers']['ssh_location'].value
+  template_url    = values['answers']['template_url'].value
+  security_groups = values['answers']['security_groups'].value
   cf = initiate_aws_cf_client(values)
   verbose_output(values, "Information:\tCreating AWS CloudFormation Stack '#{stack_name}'")
   begin

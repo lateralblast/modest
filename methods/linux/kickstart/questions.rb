@@ -4,34 +4,34 @@
 # Construct ks language line
 
 def get_ks_language(values)
-  result = "--default="+values['q_struct']['install_language'].value+" "+values['q_struct']['install_language'].value
+  result = "--default="+values['answers']['install_language'].value+" "+values['answers']['install_language'].value
   return result
 end
 
 # Construct ks xconfig line
 
 def get_ks_xconfig(values)
-  result = "--card "+values['q_struct']['videocard'].value+" --videoram "+values['q_struct']['videoram'].value+" --hsync "+values['q_struct']['hsync'].value+" --vsync "+values['q_struct']['vsync'].value+" --resolution "+values['q_struct']['resolution'].value+" --depth "+values['q_struct']['depth'].value
+  result = "--card "+values['answers']['videocard'].value+" --videoram "+values['answers']['videoram'].value+" --hsync "+values['answers']['hsync'].value+" --vsync "+values['answers']['vsync'].value+" --resolution "+values['answers']['resolution'].value+" --depth "+values['answers']['depth'].value
   return result
 end
 
 # Construct ks network line
 
 def get_ks_network(values)
-  if values['q_struct']['bootproto'].value == "dhcp"
-    result = "--device="+values['q_struct']['nic'].value+" --bootproto="+values['q_struct']['bootproto'].value
+  if values['answers']['bootproto'].value == "dhcp"
+    result = "--device="+values['answers']['nic'].value+" --bootproto="+values['answers']['bootproto'].value
   else
     if values['service'].to_s.match(/fedora_20/)
-      result = "--bootproto="+values['q_struct']['bootproto'].value+" --ip="+values['q_struct']['ip'].value+" --netmask="+values['q_struct']['netmask'].value+" --gateway "+values['q_struct']['gateway'].value+" --nameserver="+values['q_struct']['nameserver'].value+" --hostname="+values['q_struct']['hostname'].value
+      result = "--bootproto="+values['answers']['bootproto'].value+" --ip="+values['answers']['ip'].value+" --netmask="+values['answers']['netmask'].value+" --gateway "+values['answers']['gateway'].value+" --nameserver="+values['answers']['nameserver'].value+" --hostname="+values['answers']['hostname'].value
     else
       if values['service'].to_s.match(/rhel_5/)
-        result = "--device "+values['q_struct']['nic'].value+" --bootproto "+values['q_struct']['bootproto'].value+" --ip "+values['q_struct']['ip'].value
+        result = "--device "+values['answers']['nic'].value+" --bootproto "+values['answers']['bootproto'].value+" --ip "+values['answers']['ip'].value
       else
-        result = "--device="+values['q_struct']['nic'].value+" --bootproto="+values['q_struct']['bootproto'].value+" --ip="+values['q_struct']['ip'].value+" --netmask="+values['q_struct']['netmask'].value+" --gateway="+values['q_struct']['gateway'].value+" --nameserver="+values['q_struct']['nameserver'].value+" --hostname="+values['q_struct']['hostname'].value
+        result = "--device="+values['answers']['nic'].value+" --bootproto="+values['answers']['bootproto'].value+" --ip="+values['answers']['ip'].value+" --netmask="+values['answers']['netmask'].value+" --gateway="+values['answers']['gateway'].value+" --nameserver="+values['answers']['nameserver'].value+" --hostname="+values['answers']['hostname'].value
       end
     end
   end
-  if values['q_struct']['install_service'].value.match(/oel/)
+  if values['answers']['install_service'].value.match(/oel/)
     result = result+" --onboot=on"
   end
   return result
@@ -40,11 +40,11 @@ end
 # Set network
 
 def set_ks_network(values)
-  if values['q_struct']['bootproto'].value == "dhcp6"
-    values['q_struct']['ip'].ask = "no"
-    values['q_struct']['ip'].type = ""
-    values['q_struct']['hostname'].ask = "no"
-    values['q_struct']['hostname'].type = ""
+  if values['answers']['bootproto'].value == "dhcp6"
+    values['answers']['ip'].ask = "no"
+    values['answers']['ip'].type = ""
+    values['answers']['hostname'].ask = "no"
+    values['answers']['hostname'].type = ""
   end
   return values
 end
@@ -52,84 +52,84 @@ end
 # Construct ks password line
 
 def get_ks_root_password(values)
-  result = "--iscrypted "+values['q_struct']['root_crypt'].value.to_s
+  result = "--iscrypted "+values['answers']['root_crypt'].value.to_s
   return result
 end
 
 # Construct admin ks password line
 
 def get_ks_admin_password(values)
-  result = "--name = "+values['q_struct']['admin_username'].value+" --groups="+values['q_struct']['admin_group'].value+" --homedir="+values['q_struct']['admin_home'].value+" --password="+values['q_struct']['admin_crypt'].value.to_s+" --iscrypted --shell="+values['q_struct']['admin_shell'].value+" --uid="+values['q_struct']['admin_uid'].value
+  result = "--name = "+values['answers']['admin_username'].value+" --groups="+values['answers']['admin_group'].value+" --homedir="+values['answers']['admin_home'].value+" --password="+values['answers']['admin_crypt'].value.to_s+" --iscrypted --shell="+values['answers']['admin_shell'].value+" --uid="+values['answers']['admin_uid'].value
   return result
 end
 
 # Construct ks bootloader line
 
 def get_ks_bootloader(values)
-  result = "--location="+values['q_struct']['bootstrap'].value
+  result = "--location="+values['answers']['bootstrap'].value
   return result
 end
 
 # Construct ks clear partition line
 
 def get_ks_clearpart(values)
-  result = "--all --drives="+values['q_struct']['bootdevice'].value+" --initlabel"
+  result = "--all --drives="+values['answers']['bootdevice'].value+" --initlabel"
   return result
 end
 
 # Construct ks services line
 
 def get_ks_services(values)
-  result = "--enabled="+values['q_struct']['enabled_services'].value+" --disabled="+values['q_struct']['disabled_services'].value
+  result = "--enabled="+values['answers']['enabled_services'].value+" --disabled="+values['answers']['disabled_services'].value
   return result
 end
 
 # Construct ks boot partition line
 
 def get_ks_bootpart(values)
-  result = "/boot --fstype "+values['q_struct']['bootfs'].value+" --size="+values['q_struct']['bootsize'].value+" --ondisk="+values['q_struct']['bootdevice'].value
+  result = "/boot --fstype "+values['answers']['bootfs'].value+" --size="+values['answers']['bootsize'].value+" --ondisk="+values['answers']['bootdevice'].value
   return result
 end
 
 # Construct ks root partition line
 
 def get_ks_swappart(values)
-  result = "swap --size="+values['q_struct']['swapmax'].value
+  result = "swap --size="+values['answers']['swapmax'].value
   return result
 end
 
 # Construct ks root partition line
 
 def get_ks_rootpart(values)
-  result = "/ --fstype "+values['q_struct']['rootfs'].value+" --size=1 --grow --asprimary"
+  result = "/ --fstype "+values['answers']['rootfs'].value+" --size=1 --grow --asprimary"
   return result
 end
 
 # Construct ks volume partition line
 
 def get_ks_volpart(values)
-  result = values['q_struct']['volname'].value+" --size="+values['q_struct']['volsize'].value+" --grow --ondisk="+values['q_struct']['bootdevice'].value
+  result = values['answers']['volname'].value+" --size="+values['answers']['volsize'].value+" --grow --ondisk="+values['answers']['bootdevice'].value
   return result
 end
 
 # Construct ks volume group line
 
 def get_ks_volgroup(values)
-  result = values['q_struct']['volgroupname'].value+" --pesize="+values['q_struct']['pesize'].value+" "+values['q_struct']['volname'].value
+  result = values['answers']['volgroupname'].value+" --pesize="+values['answers']['pesize'].value+" "+values['answers']['volname'].value
   return result
 end
 
 # Construct ks log swap line
 
 def get_ks_logswap(values)
-  result = "swap --fstype swap --name="+values['q_struct']['swapvol'].value+" --vgname="+values['q_struct']['volgroupname'].value+" --size="+values['q_struct']['swapmin'].value+" --grow --maxsize="+values['q_struct']['swapmax'].value
+  result = "swap --fstype swap --name="+values['answers']['swapvol'].value+" --vgname="+values['answers']['volgroupname'].value+" --size="+values['answers']['swapmin'].value+" --grow --maxsize="+values['answers']['swapmax'].value
   return result
 end
 
 # Construct ks log root line
 
 def get_ks_logroot(values)
-  result = "/ --fstype "+values['q_struct']['rootfs'].value+" --name="+values['q_struct']['rootvol'].value+" --vgname="+values['q_struct']['volgroupname'].value+" --size="+values['q_struct']['rootsize'].value+" --grow"
+  result = "/ --fstype "+values['answers']['rootfs'].value+" --name="+values['answers']['rootvol'].value+" --vgname="+values['answers']['volgroupname'].value+" --size="+values['answers']['rootsize'].value+" --grow"
   return result
 end
 
@@ -167,8 +167,8 @@ def populate_ks_questions(values)
     disk_dev = values['rootdisk'].split(/\//)[2] 
   end
 
-  name = "headless_mode"
-  config = qs.new(
+  name   = "headless_mode"
+  config = qs.new (
     type      = "",
     question  = "Headless mode",
     ask       = "yes",
@@ -176,12 +176,12 @@ def populate_ks_questions(values)
     value     = values['headless'].to_s.downcase,
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "install_service"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Service Name",
     ask       = "yes",
@@ -189,13 +189,14 @@ def populate_ks_questions(values)
     value     = values['service'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   if values['service'].to_s.match(/rhel_5/)
+
     name   = "values['key']"
-    config = qs.new(
+    config = qs.new (
       type      = "",
       question  = "Installation Key",
       ask       = "no",
@@ -203,13 +204,14 @@ def populate_ks_questions(values)
       value     = "--skip",
       valid     = "",
       eval      = "no"
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
+
   end
 
   name   = "ks_header"
-  config = qs.new(
+  config = qs.new (
     type      = "output",
     question  = "Kickstart file header comment",
     ask       = "yes",
@@ -217,13 +219,15 @@ def populate_ks_questions(values)
     value     = get_ks_header(values),
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name = "firewall"
+
   if values['service'].to_s.match(/rhel_5/)
-    config = qs.new(
+
+    config = qs.new (
       type      = "output",
       question  = "Firewall",
       ask       = "yes",
@@ -231,9 +235,11 @@ def populate_ks_questions(values)
       value     = "--enabled --ssh --service=ssh",
       valid     = "",
       eval      = "no"
-      )
+    )
+
   else
-    config = qs.new(
+
+    config = qs.new (
       type      = "output",
       question  = "Firewall",
       ask       = "yes",
@@ -241,13 +247,15 @@ def populate_ks_questions(values)
       value     = "--enabled --ssh",
       valid     = "",
       eval      = "no"
-      )
+    )
+
   end
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "console"
-  config = qs.new(
+  config = qs.new (
     type      = "output",
     question  = "Console type",
     ask       = "yes",
@@ -255,13 +263,14 @@ def populate_ks_questions(values)
     value     = "text",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   if not values['service'].to_s.match(/[el,centos,rocky,alma]_9/)
+
     name   = "values['type']"
-    config = qs.new(
+    config = qs.new (
       type      = "output",
       question  = "Install type",
       ask       = "yes",
@@ -269,13 +278,14 @@ def populate_ks_questions(values)
       value     = "install",
       valid     = "",
       eval      = "no"
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
+
   end
 
   name   = "values['method']"
-  config = qs.new(
+  config = qs.new (
     type      = "output",
     question  = "Install Medium",
     ask       = "yes",
@@ -283,9 +293,9 @@ def populate_ks_questions(values)
     value     = "cdrom",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   if not values['type'].to_s.match(/packer/)
     name   = "url"
@@ -298,8 +308,8 @@ def populate_ks_questions(values)
       valid     = "",
       eval      = "no"
       )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    values['answers'][name] = config
+    values['order'].push(name)
   end
 
   name   = "install_language"
@@ -312,12 +322,13 @@ def populate_ks_questions(values)
     valid     = "",
     eval      = "no"
     )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  values['answers'][name] = config
+  values['order'].push(name)
 
   if not values['service'].to_s.match(/fedora|[centos,sl,el,rocky,alma]_[6,7,8,9]/)
+
     name   = "support_language"
-    config = qs.new(
+    config = qs.new (
       type      = "output",
       question  = "Support Language",
       ask       = "yes",
@@ -325,13 +336,14 @@ def populate_ks_questions(values)
       value     = get_ks_language(values),
       valid     = "",
       eval      = "get_ks_language(values)"
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
+
   end
 
   name   = "keyboard"
-  config = qs.new(
+  config = qs.new (
     type      = "output",
     question  = "Keyboard",
     ask       = "yes",
@@ -339,12 +351,12 @@ def populate_ks_questions(values)
     value     = "us",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "videocard"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Video Card",
     ask       = "yes",
@@ -352,12 +364,12 @@ def populate_ks_questions(values)
     value     = "VMWare",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "videoram"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Video RAM",
     ask       = "yes",
@@ -365,12 +377,12 @@ def populate_ks_questions(values)
     value     = "16384",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "hsync"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Horizontal Sync",
     ask       = "yes",
@@ -378,11 +390,12 @@ def populate_ks_questions(values)
     value     = "31.5-37.9",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "vsync"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Vertical Sync",
     ask       = "yes",
@@ -390,12 +403,12 @@ def populate_ks_questions(values)
     value     = "50-70",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "resolution"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Resolution",
     ask       = "yes",
@@ -403,12 +416,12 @@ def populate_ks_questions(values)
     value     = "800x600",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "depth"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Bit Depth",
     ask       = "yes",
@@ -416,12 +429,12 @@ def populate_ks_questions(values)
     value     = "16",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "xconfig"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Xconfig",
     ask       = "yes",
@@ -429,14 +442,14 @@ def populate_ks_questions(values)
     value     = get_ks_xconfig(values),
     valid     = "",
     eval      = "get_ks_xconfig(values)"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   nic_name = get_nic_name_from_install_service(values)
 
   name   = "nic"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Primary Network Interface",
     ask       = "yes",
@@ -444,12 +457,12 @@ def populate_ks_questions(values)
     value     = nic_name,
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "bootproto"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Boot Protocol",
     ask       = "yes",
@@ -457,12 +470,12 @@ def populate_ks_questions(values)
     value     = "static",
     valid     = "static,dhcp",
     eval      = "values = set_ks_network(values)"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "hostname"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Hostname",
     ask       = "yes",
@@ -470,12 +483,12 @@ def populate_ks_questions(values)
     value     = values['name'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "ip"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "IP",
     ask       = "yes",
@@ -483,12 +496,12 @@ def populate_ks_questions(values)
     value     = values['ip'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "netmask"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Netmask",
     ask       = "yes",
@@ -496,12 +509,12 @@ def populate_ks_questions(values)
     value     = values['netmask'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "nameserver"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Nameserver(s)",
     ask       = "yes",
@@ -509,9 +522,9 @@ def populate_ks_questions(values)
     value     = values['nameserver'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   if values['gateway'].to_s.match(/[0-9]/) and values['vm'].to_s == values['empty'].to_s
     gateway = values['gateway']
@@ -544,7 +557,7 @@ def populate_ks_questions(values)
   end
 
   name   = "gateway"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Gateway",
     ask       = "yes",
@@ -552,14 +565,14 @@ def populate_ks_questions(values)
     value     = gateway,
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   broadcast = values['ip'].split(/\./)[0..2].join(".")+".255"
 
   name   = "broadcast"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Broadcast",
     ask       = "yes",
@@ -567,14 +580,14 @@ def populate_ks_questions(values)
     value     = broadcast,
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   network_address = values['ip'].split(/\./)[0..2].join(".")+".0"
 
   name   = "network_address"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Network Address",
     ask       = "yes",
@@ -582,12 +595,12 @@ def populate_ks_questions(values)
     value     = network_address,
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "network"
-  config = qs.new(
+  config = qs.new (
     type      = "output",
     question  = "Network Configuration",
     ask       = "yes",
@@ -595,12 +608,12 @@ def populate_ks_questions(values)
     value     = "get_ks_network(values)",
     valid     = "",
     eval      = "get_ks_network(values)"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "root_password"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Root Password",
     ask       = "yes",
@@ -608,12 +621,12 @@ def populate_ks_questions(values)
     value     = values['rootpassword'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "root_crypt"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Root Password Crypt",
     ask       = "yes",
@@ -621,12 +634,12 @@ def populate_ks_questions(values)
     value     = "get_root_password_crypt(values)",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "rootpw"
-  config = qs.new(
+  config = qs.new (
     type      = "output",
     question  = "Root Password Configuration",
     ask       = "yes",
@@ -634,9 +647,22 @@ def populate_ks_questions(values)
     value     = "get_ks_root_password(values)",
     valid     = "",
     eval      = "get_ks_root_password(values)"
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
+
+  name   = "sudoers"
+  config = qs.new(
+    type      = "",
+    question  = "Admin sudoers",
+    ask       = "yes",
+    parameter = "",
+    value     = values['sudoers'],
+    valid     = "",
+    eval      = "no"
     )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  values['answers'][name] = config
+  values['order'].push(name)
 
   if values['service'].to_s.match(/[centos,el,rocky,alma]_[8,9]/)
     enabled_services = ""
@@ -645,7 +671,7 @@ def populate_ks_questions(values)
   end 
 
   name   = "enabled_services"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Enabled Services",
     ask       = "yes",
@@ -653,12 +679,12 @@ def populate_ks_questions(values)
     value     = enabled_services,
     valid     = "",
     eval      = ""
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "disabled_services"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Disabled Services",
     ask       = "yes",
@@ -666,14 +692,14 @@ def populate_ks_questions(values)
     value     = "",
     valid     = "",
     eval      = ""
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   if not values['service'].to_s.match(/fedora|[centos,el,rocky,alma]_[8,9]/)
 
     name   = "services"
-    config = qs.new(
+    config = qs.new (
       type      = "output",
       question  = "Services",
       ask       = "yes",
@@ -681,14 +707,14 @@ def populate_ks_questions(values)
       value     = "get_ks_services(values)",
       valid     = "",
       eval      = ""
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
 
   end
 
   name   = "admin_username"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Admin Username",
     ask       = "yes",
@@ -696,12 +722,12 @@ def populate_ks_questions(values)
     value     = values['adminuser'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "admin_uid"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Admin User ID",
     ask       = "yes",
@@ -709,24 +735,24 @@ def populate_ks_questions(values)
     value     = values['adminuid'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "admin_shell"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Admin User Shell",
     parameter = "",
     value     = values['adminshell'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "admin_home"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Admin User Home Directory",
     ask       = "yes",
@@ -734,12 +760,12 @@ def populate_ks_questions(values)
     value     = "/home/"+values['adminuser'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "admin_group"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Admin User Group",
     ask       = "yes",
@@ -747,12 +773,12 @@ def populate_ks_questions(values)
     value     = values['admingroup'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "admin_gid"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Admin Group ID",
     ask       = "yes",
@@ -760,12 +786,12 @@ def populate_ks_questions(values)
     value     = values['admingid'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "admin_password"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Admin User Password",
     ask       = "yes",
@@ -773,12 +799,12 @@ def populate_ks_questions(values)
     value     = values['adminpassword'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "admin_crypt"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Admin User Password Crypt",
     ask       = "yes",
@@ -786,12 +812,12 @@ def populate_ks_questions(values)
     value     = "get_admin_password_crypt(values)",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "selinux"
-  config = qs.new(
+  config = qs.new (
     type      = "output",
     question  = "SELinux Configuration",
     ask       = "yes",
@@ -799,13 +825,13 @@ def populate_ks_questions(values)
     value     = "--disabled",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   if values['service'].to_s.match(/[centos,rhel,rocky,alma]_9/)
     name   = "authselect"
-    config = qs.new(
+    config = qs.new (
       type      = "output",
       question  = "Authentication Configuration",
       ask       = "yes",
@@ -813,10 +839,10 @@ def populate_ks_questions(values)
       value     = "select minimal",
       valid     = "",
       eval      = "no"
-      )
+    )
   else
     name   = "authconfig"
-    config = qs.new(
+    config = qs.new (
       type      = "output",
       question  = "Authentication Configuration",
       ask       = "yes",
@@ -824,13 +850,13 @@ def populate_ks_questions(values)
       value     = "--enableshadow --enablemd5",
       valid     = "",
       eval      = "no"
-      )
+    )
   end
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "timezone"
-  config = qs.new(
+  config = qs.new (
     type      = "output",
     question  = "Timezone",
     ask       = "yes",
@@ -838,12 +864,12 @@ def populate_ks_questions(values)
     value     = values['timezone'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "bootstrap"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Bootstrap",
     ask       = "yes",
@@ -851,12 +877,12 @@ def populate_ks_questions(values)
     value     = "mbr",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "bootloader"
-  config = qs.new(
+  config = qs.new (
     type      = "output",
     question  = "Bootloader",
     ask       = "yes",
@@ -864,13 +890,15 @@ def populate_ks_questions(values)
     value     = get_ks_bootloader(values),
     valid     = "",
     eval      = "get_ks_bootloader(values)"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name = "zerombr"
+
   if values['service'].to_s.match(/fedora|[centos,el,sl,rocky,alma]_[7,8,9]/)
-    config = qs.new(
+
+    config = qs.new (
       type      = "output",
       question  = "Zero MBR",
       ask       = "no",
@@ -878,9 +906,11 @@ def populate_ks_questions(values)
       value     = "",
       valid     = "",
       eval      = ""
-      )
+    )
+
   else
-    config = qs.new(
+
+    config = qs.new (
       type      = "output",
       question  = "Zero MBR",
       ask       = "no",
@@ -888,13 +918,15 @@ def populate_ks_questions(values)
       value     = "yes",
       valid     = "",
       eval      = ""
-      )
+    )
+
   end
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "bootdevice"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Boot Device",
     ask       = "yes",
@@ -902,12 +934,12 @@ def populate_ks_questions(values)
     value     = disk_dev,
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "clearpart"
-  config = qs.new(
+  config = qs.new (
     type      = "output",
     question  = "Clear Parition",
     ask       = "yes",
@@ -915,12 +947,12 @@ def populate_ks_questions(values)
     value     = get_ks_clearpart(values),
     valid     = "",
     eval      = "get_ks_clearpart(values)"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "bootfs"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Boot Filesystem",
     ask       = "no",
@@ -928,12 +960,12 @@ def populate_ks_questions(values)
     value     = "ext3",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "bootsize"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Boot Size",
     ask       = "yes",
@@ -941,12 +973,12 @@ def populate_ks_questions(values)
     value     = values['bootsize'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "bootpart"
-  config = qs.new(
+  config = qs.new (
     type      = "output",
     question  = "Boot Parition",
     ask       = "yes",
@@ -954,12 +986,12 @@ def populate_ks_questions(values)
     value     = get_ks_bootpart(values),
     valid     = "",
     eval      = "get_ks_bootpart(values)"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "volname"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Physical Volume Name",
     ask       = "yes",
@@ -967,12 +999,12 @@ def populate_ks_questions(values)
     value     = "pv.2",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "volsize"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Physical Volume Size",
     ask       = "yes",
@@ -980,12 +1012,12 @@ def populate_ks_questions(values)
     value     = "1",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "volpart"
-  config = qs.new(
+  config = qs.new (
     type      = "output",
     question  = "Physical Volume Configuration",
     ask       = "yes",
@@ -993,12 +1025,12 @@ def populate_ks_questions(values)
     value     = get_ks_volpart(values),
     valid     = "",
     eval      = "get_ks_volpart(values)"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "volgroupname"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Volume Group Name",
     ask       = "yes",
@@ -1006,12 +1038,12 @@ def populate_ks_questions(values)
     value     = "VolGroup00",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "pesize"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Physical Extent Size",
     ask       = "yes",
@@ -1019,12 +1051,12 @@ def populate_ks_questions(values)
     value     = "32768",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "volgroup"
-  config = qs.new(
+  config = qs.new (
     type      = "output",
     question  = "Volume Group Configuration",
     ask       = "yes",
@@ -1032,12 +1064,12 @@ def populate_ks_questions(values)
     value     = get_ks_volgroup(values),
     valid     = "",
     eval      = "get_ks_volgroup(values)"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "swapmin"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Minimum Swap Size",
     ask       = "yes",
@@ -1045,12 +1077,12 @@ def populate_ks_questions(values)
     value     = "512",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "swapmax"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Maximum Swap Size",
     ask       = "yes",
@@ -1058,12 +1090,12 @@ def populate_ks_questions(values)
     value     = "1024",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "swapvol"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Swap Volume Name",
     ask       = "yes",
@@ -1071,12 +1103,12 @@ def populate_ks_questions(values)
     value     = "LogVol01",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "logswap"
-  config = qs.new(
+  config = qs.new (
     type      = "output",
     question  = "Swap Logical Volume Configuration",
     ask       = "yes",
@@ -1084,12 +1116,12 @@ def populate_ks_questions(values)
     value     = get_ks_logswap(values),
     valid     = "",
     eval      = "get_ks_logswap(values)"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "rootfs"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Root Filesystem",
     ask       = "yes",
@@ -1097,12 +1129,12 @@ def populate_ks_questions(values)
     value     = "ext3",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "rootvol"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Root Volume Name",
     ask       = "yes",
@@ -1110,12 +1142,12 @@ def populate_ks_questions(values)
     value     = "LogVol00",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "rootsize"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Root Size",
     ask       = "yes",
@@ -1123,12 +1155,12 @@ def populate_ks_questions(values)
     value     = values['rootsize'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "logroot"
-  config = qs.new(
+  config = qs.new (
     type      = "output",
     question  = "Root Logical Volume Configuration",
     ask       = "yes",
@@ -1136,9 +1168,9 @@ def populate_ks_questions(values)
     value     = get_ks_logroot(values),
     valid     = "",
     eval      = "get_ks_logroot(values)"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   if values['reboot'] == true
     reboot_line = "reboot"
@@ -1147,7 +1179,7 @@ def populate_ks_questions(values)
   end
 
   name   = "finish"
-  config = qs.new(
+  config = qs.new (
     type      = "output",
     question  = "Finish Command",
     ask       = "yes",
@@ -1155,9 +1187,9 @@ def populate_ks_questions(values)
     value     = reboot_line,
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   return values
 end

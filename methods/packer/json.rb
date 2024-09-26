@@ -78,10 +78,10 @@ def create_packer_json(values)
       disk_adapter_type = "nvme"
     end
   end
-  if values['q_struct']['admin_password']
-    install_password = values['q_struct']['admin_password'].value
+  if values['answers']['admin_password']
+    install_password = values['answers']['admin_password'].value
   else
-    install_password = values['q_struct']['root_password'].value
+    install_password = values['answers']['root_password'].value
   end
   if values['vm'].to_s.match(/parallels/)
     case values['service'].to_s
@@ -117,17 +117,17 @@ def create_packer_json(values)
   json_file = packer_dir+"/"+values['vm']+"/"+values['name']+"/"+values['name']+".json"
   check_dir_exists(values, values['clientdir'])
   if !values['service'].to_s.match(/purity/)
-    headless_mode = values['q_struct']['headless_mode'].value
+    headless_mode = values['answers']['headless_mode'].value
   end
   if values['method'].to_s.match(/vs/)
-    admin_crypt = values['q_struct']['root_crypt'].value
+    admin_crypt = values['answers']['root_crypt'].value
   else
     if not values['service'].to_s.match(/win|sol_[9,10]/)
-      admin_crypt = values['q_struct']['admin_crypt'].value
+      admin_crypt = values['answers']['admin_crypt'].value
     end
   end
-  if values['q_struct']['guest_additions_mode']
-    guest_additions_mode = values['q_struct']['guest_additions_mode'].value
+  if values['answers']['guest_additions_mode']
+    guest_additions_mode = values['answers']['guest_additions_mode'].value
   else
     guest_additions_mode = values['vmtools']
   end
@@ -254,16 +254,16 @@ def create_packer_json(values)
   else
     if values['method'].to_s.match(/vs/)
       ssh_username = "root"
-      ssh_password = values['q_struct']['root_password'].value
+      ssh_password = values['answers']['root_password'].value
     else
-      ssh_username   = values['q_struct']['admin_username'].value
-      ssh_password   = values['q_struct']['admin_password'].value
-      admin_username = values['q_struct']['admin_username'].value
-      admin_password = values['q_struct']['admin_password'].value
+      ssh_username   = values['answers']['admin_username'].value
+      ssh_password   = values['answers']['admin_password'].value
+      admin_username = values['answers']['admin_username'].value
+      admin_password = values['answers']['admin_password'].value
     end
   end
   if not values['service'].to_s.match(/win|purity/)
-    root_password = values['q_struct']['root_password'].value
+    root_password = values['answers']['root_password'].value
   end
   shutdown_command = ""
   if not mac_address.to_s.match(/[0-9]/)
@@ -275,7 +275,7 @@ def create_packer_json(values)
   if values['service'].to_s.match(/sol/)
     if values['copykeys'] == true && File.exist?(values['sshkeyfile'].to_s)
       ssh_key = %x[cat #{values['sshkeyfile'].to_s}].chomp
-      ssh_dir = "/export/home/#{values['q_struct']['admin_username'].value}/.ssh"
+      ssh_dir = "/export/home/#{values['answers']['admin_username'].value}/.ssh"
       ssh_com = "<wait>mkdir -p #{ssh_dir}<enter>"+
                 "<wait>chmod 700 #{ssh_dir}<enter>"+
                 "<wait>echo '#{ssh_key}' > #{ssh_dir}/authorized_keys<enter>"+
@@ -330,7 +330,7 @@ def create_packer_json(values)
     ssh_host_port_max   = "22"
     ssh_host_port_min   = "22"
     #tools_upload_flavor = "solaris"
-    #tools_upload_path   = "/export/home/"+values['q_struct']['admin_username'].value
+    #tools_upload_path   = "/export/home/"+values['answers']['admin_username'].value
     tools_upload_flavor = ""
     tools_upload_path   = ""
     boot_command = wait_time1+
@@ -356,12 +356,12 @@ def create_packer_json(values)
                    "<wait><f2><wait10>"+
                    "<wait><f2><wait10>"+
                    "<wait><f2><wait10>"+
-                   values['q_struct']['root_password'].value+"<wait><tab><wait>"+
-                   values['q_struct']['root_password'].value+"<wait><tab><wait>"+
-                   values['q_struct']['admin_username'].value+"<wait><tab><wait>"+
-                   values['q_struct']['admin_username'].value+"<wait><tab><wait>"+
-                   values['q_struct']['admin_password'].value+"<wait><tab><wait>"+
-                   values['q_struct']['admin_password'].value+"<wait><f2><wait>"+
+                   values['answers']['root_password'].value+"<wait><tab><wait>"+
+                   values['answers']['root_password'].value+"<wait><tab><wait>"+
+                   values['answers']['admin_username'].value+"<wait><tab><wait>"+
+                   values['answers']['admin_username'].value+"<wait><tab><wait>"+
+                   values['answers']['admin_password'].value+"<wait><tab><wait>"+
+                   values['answers']['admin_password'].value+"<wait><f2><wait>"+
                    "<wait><f2><wait10>"+
                    "<wait><f2><wait10>"+
                    "<wait><f2><wait10>"+
@@ -372,11 +372,11 @@ def create_packer_json(values)
                    "<enter><wait10>"+
                    wait_time1+
                    "<enter><wait10>"+
-                   values['q_struct']['admin_username'].value+"<enter><wait>"+
-                   values['q_struct']['admin_password'].value+"<enter><wait>"+
+                   values['answers']['admin_username'].value+"<enter><wait>"+
+                   values['answers']['admin_password'].value+"<enter><wait>"+
                    ssh_com+
-                   "echo '"+values['q_struct']['admin_password'].value+"' |sudo -Sv<enter><wait>"+
-                   "sudo sh -c \"echo '"+values['q_struct']['admin_username'].value+" ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers\"<enter><wait>"+
+                   "echo '"+values['answers']['admin_password'].value+"' |sudo -Sv<enter><wait>"+
+                   "sudo sh -c \"echo '"+values['answers']['admin_username'].value+" ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers\"<enter><wait>"+
                    "sudo sh -c \"/usr/gnu/bin/sed -i 's/^.*requiretty/#Defaults requiretty/' /etc/sudoers\"<enter><wait>"+
                    "sudo sh -c \"/usr/sbin/svcadm disable sendmail\"<enter><wait>"+
                    "sudo sh -c \"/usr/sbin/svcadm disable sendmail-client\"<enter><wait>"+
@@ -398,7 +398,7 @@ def create_packer_json(values)
     ssh_host_port_max   = "22"
     ssh_host_port_min   = "22"
     #tools_upload_flavor = "solaris"
-    #tools_upload_path   = "/export/home/"+values['q_struct']['admin_username'].value
+    #tools_upload_path   = "/export/home/"+values['answers']['admin_username'].value
     tools_upload_flavor = ""
     tools_upload_path   = ""
     boot_command = "<wait180>"+
@@ -425,12 +425,12 @@ def create_packer_json(values)
                    "<wait><f2><wait10>"+
                    "<wait><f2><wait10>"+
                    "<wait><f2><wait10>"+
-                   values['q_struct']['root_password'].value+"<wait><tab><wait>"+
-                   values['q_struct']['root_password'].value+"<wait><tab><wait>"+
-                   values['q_struct']['admin_username'].value+"<wait><tab><wait>"+
-                   values['q_struct']['admin_username'].value+"<wait><tab><wait>"+
-                   values['q_struct']['admin_password'].value+"<wait><tab><wait>"+
-                   values['q_struct']['admin_password'].value+"<wait><f2><wait>"+
+                   values['answers']['root_password'].value+"<wait><tab><wait>"+
+                   values['answers']['root_password'].value+"<wait><tab><wait>"+
+                   values['answers']['admin_username'].value+"<wait><tab><wait>"+
+                   values['answers']['admin_username'].value+"<wait><tab><wait>"+
+                   values['answers']['admin_password'].value+"<wait><tab><wait>"+
+                   values['answers']['admin_password'].value+"<wait><f2><wait>"+
                    "<wait><f2><wait10>"+
                    "<wait><f2><wait10>"+
                    "<wait><f2><wait10>"+
@@ -440,11 +440,11 @@ def create_packer_json(values)
                    "<wait><f8><wait10><wait10>"+
                    "<enter><wait10>"+
                    wait_time1+
-                   values['q_struct']['admin_username'].value+"<enter><wait>"+
-                   values['q_struct']['admin_password'].value+"<enter><wait>"+
+                   values['answers']['admin_username'].value+"<enter><wait>"+
+                   values['answers']['admin_password'].value+"<enter><wait>"+
                    ssh_com+
-                   "echo '"+values['q_struct']['admin_password'].value+"' |sudo -Sv<enter><wait>"+
-                   "sudo sh -c \"echo '"+values['q_struct']['admin_username'].value+" ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers\"<enter><wait>"+
+                   "echo '"+values['answers']['admin_password'].value+"' |sudo -Sv<enter><wait>"+
+                   "sudo sh -c \"echo '"+values['answers']['admin_username'].value+" ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers\"<enter><wait>"+
                    "sudo sh -c \"/usr/gnu/bin/sed -i 's/^.*requiretty/#Defaults requiretty/' /etc/sudoers\"<enter><wait>"+
                    "sudo sh -c \"/usr/sbin/svcadm disable sendmail\"<enter><wait>"+
                    "sudo sh -c \"/usr/sbin/svcadm stop sendmail\"<enter><wait>"+
@@ -463,7 +463,7 @@ def create_packer_json(values)
     ssh_host_port_max   = "22"
     ssh_host_port_min   = "22"
     #tools_upload_flavor = "solaris"
-    #tools_upload_path   = "/export/home/"+values['q_struct']['admin_username'].value
+    #tools_upload_path   = "/export/home/"+values['answers']['admin_username'].value
     tools_upload_flavor = ""
     tools_upload_path   = ""
     boot_command = wait2+
@@ -485,12 +485,12 @@ def create_packer_json(values)
                    "<f2><wait10>"+
                    "<f2><wait10>"+
                    "<f2><wait10>"+
-                   values['q_struct']['root_password'].value+"<wait><tab><wait>"+
-                   values['q_struct']['root_password'].value+"<wait><tab><wait>"+
-                   values['q_struct']['admin_username'].value+"<wait><tab><wait>"+
-                   values['q_struct']['admin_username'].value+"<wait><tab><wait>"+
-                   values['q_struct']['admin_password'].value+"<wait><tab><wait>"+
-                   values['q_struct']['admin_password'].value+"<wait><f2><wait>"+
+                   values['answers']['root_password'].value+"<wait><tab><wait>"+
+                   values['answers']['root_password'].value+"<wait><tab><wait>"+
+                   values['answers']['admin_username'].value+"<wait><tab><wait>"+
+                   values['answers']['admin_username'].value+"<wait><tab><wait>"+
+                   values['answers']['admin_password'].value+"<wait><tab><wait>"+
+                   values['answers']['admin_password'].value+"<wait><f2><wait>"+
                    "<f2><wait10>"+
                    "<f2><wait10>"+
                    "<f2><wait10>"+
@@ -500,18 +500,18 @@ def create_packer_json(values)
                    "<f8><wait10><wait10>"+
                    "<enter><wait10>"+
                    wait1+
-                   values['q_struct']['admin_username'].value+"<enter><wait>"+
-                   values['q_struct']['admin_password'].value+"<enter><wait>"+
+                   values['answers']['admin_username'].value+"<enter><wait>"+
+                   values['answers']['admin_password'].value+"<enter><wait>"+
                    ssh_com+
-                   "echo '"+values['q_struct']['admin_password'].value+"' |sudo -Sv<enter><wait>"+
-                   "sudo sh -c \"echo '"+values['q_struct']['admin_username'].value+" ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers\"<enter><wait>"+
+                   "echo '"+values['answers']['admin_password'].value+"' |sudo -Sv<enter><wait>"+
+                   "sudo sh -c \"echo '"+values['answers']['admin_username'].value+" ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers\"<enter><wait>"+
                    "sudo sh -c \"/usr/gnu/bin/sed -i 's/^.*requiretty/#Defaults requiretty/' /etc/sudoers\"<enter><wait>"+
                    "sudo sh -c \"/usr/sbin/svcadm disable sendmail\"<enter><wait>"+
                    "sudo sh -c \"/usr/sbin/svcadm disable asr-notify\"<enter><wait>"+
                    "exit<enter><wait>"
   when /sol_10/
 #    tools_upload_flavor = "solaris"
-#    tools_upload_path   = "/export/home/"+values['q_struct']['admin_username'].value
+#    tools_upload_path   = "/export/home/"+values['answers']['admin_username'].value
     sysidcfg = values['clientdir']+"/packer/"+values['vm']+"/"+values['name']+"/sysidcfg"
     rules    = values['clientdir']+"/packer/"+values['vm']+"/"+values['name']+"/rules"
     rules_ok = values['clientdir']+"/packer/"+values['vm']+"/"+values['name']+"/rules.ok"
@@ -531,15 +531,15 @@ def create_packer_json(values)
     install_domain     = values['domainname']
     ks_file            = values['vm']+"/"+values['name']+"/"+values['name']+".xml"
     ks_url             = "http://#{ks_ip}:#{values['httpport']}/"+ks_file
-    install_nic        = values['q_struct']['nic'].value
-    values['netmask'] = values['q_struct']['netmask'].value
-    values['vmgateway']  = values['q_struct']['gateway'].value
-    values['nameserver'] = values['q_struct']['nameserver'].value
+    install_nic        = values['answers']['nic'].value
+    values['netmask'] = values['answers']['netmask'].value
+    values['vmgateway']  = values['answers']['gateway'].value
+    values['nameserver'] = values['answers']['nameserver'].value
     net_config            = install_nic+"="+values['ip']+"/24,"+values['vmgateway']+","+values['nameserver']+","+install_domain
     if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
       if values['vmnetwork'].to_s.match(/hostonly|bridged/)
         boot_command = "<esc><enter><wait> linux<wait>"+
-                       " netdevice="+values['q_struct']['nic'].value+
+                       " netdevice="+values['answers']['nic'].value+
                        " ifcfg=\"{{ user `net_config`}}\""+
                        " autoyast="+ ks_url+
                        " lang="+values['language']+
@@ -558,7 +558,7 @@ def create_packer_json(values)
       ks_file      = values['vm']+"/"+values['name']+"/"+values['name']+".xml"
       ks_url       = "http://#{ks_ip}:#{values['httpport']}/"+ks_file
       boot_command = "<esc><enter><wait> linux text install=cd:/ textmode=1 insecure=1"+
-                     " netdevice="+values['q_struct']['nic'].value+
+                     " netdevice="+values['answers']['nic'].value+
                      " autoyast="+ ks_url+
                      " language="+values['language']+
                      " netsetup=-dhcp,+hostip,+netmask,+gateway,+nameserver1,+domain"+
@@ -570,16 +570,16 @@ def create_packer_json(values)
                      "<enter><wait>"
     end
   when /purity/
-    install_netmask    = values['q_struct']['netmask'].value
-    install_vmgateway  = values['q_struct']['gateway'].value
-    install_nameserver = values['q_struct']['nameserver'].value
-    install_broadcast  = values['q_struct']['broadcast'].value
-    install_timezone   = values['q_struct']['timezone'].value
-    install_netaddr    = values['q_struct']['network_address'].value
-    install_nic        = values['q_struct']['nic'].value
+    install_netmask    = values['answers']['netmask'].value
+    install_vmgateway  = values['answers']['gateway'].value
+    install_nameserver = values['answers']['nameserver'].value
+    install_broadcast  = values['answers']['broadcast'].value
+    install_timezone   = values['answers']['timezone'].value
+    install_netaddr    = values['answers']['network_address'].value
+    install_nic        = values['answers']['nic'].value
     if install_nic.match(/^ct/)
-      purity_nic  = values['q_struct']['nic'].value
-      install_nic = values['q_struct']['nic'].value.split(".")[0]
+      purity_nic  = values['answers']['nic'].value
+      install_nic = values['answers']['nic'].value.split(".")[0]
     else
       purity_nic  = "ct0."+install_nic
     end
@@ -611,10 +611,10 @@ def create_packer_json(values)
     if values['ip'].to_s.match(/,/)
       values['ip'] = values['ip'].split(/,/)[0]
     end
-    if values['q_struct']['eth1_ip']
-      if values['q_struct']['eth1_ip'].value.match(/[0-9]/)
-        values['ip'] = values['q_struct']['eth1_ip'].value
-        c_service = values['q_struct']['eth1_service'].value
+    if values['answers']['eth1_ip']
+      if values['answers']['eth1_ip'].value.match(/[0-9]/)
+        values['ip'] = values['answers']['eth1_ip'].value
+        c_service = values['answers']['eth1_service'].value
         interface = "ct0.eth1"
         ethernet  = "eth1"
         other_ips = other_ips+"<wait3>purenetwork setattr "+interface+" --address "+values['ip']+" --netmask "+install_netmask+" --service "+c_service+"<enter>"+
@@ -628,10 +628,10 @@ def create_packer_json(values)
         "<wait3>echo 'broadcast #{install_broadcast}' >> #{net_config}<enter>"
       end
     end
-    if values['q_struct']['eth2_ip']
-      if values['q_struct']['eth2_ip'].value.match(/[0-9]/)
-        values['ip'] = values['q_struct']['eth2_ip'].value
-        c_service = values['q_struct']['eth2_service'].value
+    if values['answers']['eth2_ip']
+      if values['answers']['eth2_ip'].value.match(/[0-9]/)
+        values['ip'] = values['answers']['eth2_ip'].value
+        c_service = values['answers']['eth2_service'].value
         interface = "ct0.eth2"
         ethernet  = "eth2"
         other_ips = other_ips+"<wait3>purenetwork setattr "+interface+" --address "+values['ip']+" --netmask 255.255.255.0 --service "+c_service+"<enter>"+
@@ -645,10 +645,10 @@ def create_packer_json(values)
         "<wait3>echo 'broadcast #{install_broadcast}' >> #{net_config}<enter>"
       end
     end
-    if values['q_struct']['eth3_ip']
-      if values['q_struct']['eth3_ip'].value.match(/[0-9]/)
-        values['ip'] = values['q_struct']['eth3_ip'].value
-        c_service = values['q_struct']['eth3_service'].value
+    if values['answers']['eth3_ip']
+      if values['answers']['eth3_ip'].value.match(/[0-9]/)
+        values['ip'] = values['answers']['eth3_ip'].value
+        c_service = values['answers']['eth3_service'].value
         interface = "ct0.eth3"
         ethernet  = "eth3"
         other_ips = other_ips+"<wait3>purenetwork setattr "+interface+" --address "+values['ip']+" --netmask 255.255.255.0 --service "+c_service+"<enter>"+
@@ -662,10 +662,10 @@ def create_packer_json(values)
         "<wait3>echo 'broadcast #{install_broadcast}' >> #{net_config}<enter>"
       end
     end
-    if values['q_struct']['eth4_ip']
-      if values['q_struct']['eth4_ip'].value.match(/[0-9]/)
-        values['ip'] = values['q_struct']['eth4_ip'].value
-        c_service = values['q_struct']['eth4_service'].value
+    if values['answers']['eth4_ip']
+      if values['answers']['eth4_ip'].value.match(/[0-9]/)
+        values['ip'] = values['answers']['eth4_ip'].value
+        c_service = values['answers']['eth4_service'].value
         interface = "ct0.eth4"
         ethernet  = "eth4"
         other_ips = other_ips+"<wait3>purenetwork setattr "+interface+" --address "+values['ip']+" --netmask 255.255.255.0 --service "+c_service+"<enter>"+
@@ -679,10 +679,10 @@ def create_packer_json(values)
         "<wait3>echo 'broadcast #{install_broadcast}' >> #{net_config}<enter>"
       end
     end
-    if values['q_struct']['eth5_ip']
-      if values['q_struct']['eth5_ip'].value.match(/[0-9]/)
-        values['ip'] = values['q_struct']['eth5_ip'].value
-        c_service = values['q_struct']['eth5_service'].value
+    if values['answers']['eth5_ip']
+      if values['answers']['eth5_ip'].value.match(/[0-9]/)
+        values['ip'] = values['answers']['eth5_ip'].value
+        c_service = values['answers']['eth5_service'].value
         interface = "ct0.eth5"
         ethernet  = "eth5"
         other_ips = other_ips+"<wait3>purenetwork setattr "+interface+" --address "+values['ip']+" --netmask 255.255.255.0 --service "+c_service+"<enter>"+
@@ -815,18 +815,18 @@ def create_packer_json(values)
       if values['vmnetwork'].to_s.match(/hostonly|bridged/)
         ks_url = "http://#{ks_ip}:#{values['httpport']}/"+ks_file
         boot_command = boot_header+
-                       "<wait>/install/vmlinuz<wait> debian-installer/language="+values['q_struct']['language'].value+
-                       " debian-installer/country="+values['q_struct']['country'].value+
-                       " keyboard-configuration/layoutcode="+values['q_struct']['layout'].value+
-                       " <wait>interface="+values['q_struct']['nic'].value+
-                       " netcfg/disable_autoconfig="+values['q_struct']['disable_autoconfig'].value+
-                       " netcfg/disable_dhcp="+values['q_struct']['disable_dhcp'].value+
+                       "<wait>/install/vmlinuz<wait> debian-installer/language="+values['answers']['language'].value+
+                       " debian-installer/country="+values['answers']['country'].value+
+                       " keyboard-configuration/layoutcode="+values['answers']['layout'].value+
+                       " <wait>interface="+values['answers']['nic'].value+
+                       " netcfg/disable_autoconfig="+values['answers']['disable_autoconfig'].value+
+                       " netcfg/disable_dhcp="+values['answers']['disable_dhcp'].value+
                        " hostname="+values['name']+
                        " <wait>netcfg/get_ipaddress="+values['ip']+
-                       " netcfg/get_netmask="+values['q_struct']['netmask'].value+
-                       " netcfg/get_gateway="+values['q_struct']['gateway'].value+
-                       " netcfg/get_nameservers="+values['q_struct']['nameserver'].value+
-                       " netcfg/get_domain="+values['q_struct']['domain'].value+
+                       " netcfg/get_netmask="+values['answers']['netmask'].value+
+                       " netcfg/get_gateway="+values['answers']['gateway'].value+
+                       " netcfg/get_nameservers="+values['answers']['nameserver'].value+
+                       " netcfg/get_domain="+values['answers']['domain'].value+
                        " <wait>preseed/url="+ks_url+
                        " initrd=/install/initrd.gz "+kernel_string+"-- "+
                        boot_footer
@@ -902,7 +902,7 @@ def create_packer_json(values)
     if values['guest'].class == Array
       values['guest'] = values['guest'].join
     end
-    #shutdown_command = "echo '#{values['q_struct']['admin_password'].value}' |sudo -S /sbin/halt -h -p"
+    #shutdown_command = "echo '#{values['answers']['admin_password'].value}' |sudo -S /sbin/halt -h -p"
     shutdown_command = "sudo /usr/sbin/shutdown -P now"
   end
   controller = controller.gsub(/sas/, "scsi")
@@ -2740,18 +2740,18 @@ end
 # Create Packer JSON file for AWS
 
 def create_packer_aws_json(values)
-  values['service'] = values['q_struct']['type'].value
-  values['access']  = values['q_struct']['access_key'].value
-  values['secret']  = values['q_struct']['secret_key'].value
-  values['ami']     = values['q_struct']['source_ami'].value
-  values['region']  = values['q_struct']['region'].value
-  values['size']    = values['q_struct']['instance_type'].value
-  values['keyfile'] = File.basename(values['q_struct']['keyfile'].value,".pem")+".key.pub"
-  values['name']    = values['q_struct']['ami_name'].value
-  values['adminuser'] = values['q_struct']['ssh_username'].value
+  values['service'] = values['answers']['type'].value
+  values['access']  = values['answers']['access_key'].value
+  values['secret']  = values['answers']['secret_key'].value
+  values['ami']     = values['answers']['source_ami'].value
+  values['region']  = values['answers']['region'].value
+  values['size']    = values['answers']['instance_type'].value
+  values['keyfile'] = File.basename(values['answers']['keyfile'].value,".pem")+".key.pub"
+  values['name']    = values['answers']['ami_name'].value
+  values['adminuser'] = values['answers']['ssh_username'].value
   values['clientdir'] = packer_dir+"/aws/"+values['name']
   tmp_keyfile    = "/tmp/"+values['keyfile']
-  user_data_file = values['q_struct']['user_data_file'].value
+  user_data_file = values['answers']['user_data_file'].value
   packer_dir     = values['clientdir']+"/packer"
   json_file      = values['clientdir']+"/"+values['name']+".json"
   check_dir_exists(values,values['clientdir'])

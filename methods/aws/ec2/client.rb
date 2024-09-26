@@ -246,13 +246,13 @@ end
 # Create AWS instance string
 
 def create_aws_instance(values)
-  image_id        = values['q_struct']['source_ami'].value
-  min_count       = values['q_struct']['min_count'].value
-  max_count       = values['q_struct']['max_count'].value
-  dry_run         = values['q_struct']['dry_run'].value
-  instance_type   = values['q_struct']['instance_type'].value
-  key_name        = values['q_struct']['key_name'].value
-  security_groups = values['q_struct']['security_group'].value
+  image_id        = values['answers']['source_ami'].value
+  min_count       = values['answers']['min_count'].value
+  max_count       = values['answers']['max_count'].value
+  dry_run         = values['answers']['dry_run'].value
+  instance_type   = values['answers']['instance_type'].value
+  key_name        = values['answers']['key_name'].value
+  security_groups = values['answers']['security_group'].value
   if security_groups.match(/,/)
     security_groups = security_groups.split(/,/)
   else

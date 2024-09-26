@@ -85,11 +85,11 @@ def create_ubuntu_lxc_config(values)
   execute_command(values, message, command)
   print_contents_of_file(values, "", config_file)
   file = File.open(tmp_file, "w")
-  gateway    = values['q_struct']['gateway'].value
-  broadcast  = values['q_struct']['broadcast'].value
-  netmask    = values['q_struct']['netmask'].value
-  network    = values['q_struct']['network_address'].value
-  nameserver = values['q_struct']['nameserver'].value
+  gateway    = values['answers']['gateway'].value
+  broadcast  = values['answers']['broadcast'].value
+  netmask    = values['answers']['netmask'].value
+  network    = values['answers']['network_address'].value
+  nameserver = values['answers']['nameserver'].value
   file.write("# The loopback network interface\n")
   file.write("auto lo\n")
   file.write("iface lo inet loopback\n")
@@ -110,14 +110,14 @@ def create_ubuntu_lxc_config(values)
   message  = "Information:\tCreating network interface file "+net_file
   command  = "cp #{tmp_file} #{net_file} ; rm #{tmp_file}"
   execute_command(values, message, command)
-  user_username = values['q_struct']['user_username'].value
-  user_uid      = values['q_struct']['user_uid'].value
-  user_gid      = values['q_struct']['user_gid'].value
-  user_crypt    = values['q_struct']['user_crypt'].value
-  root_crypt    = values['q_struct']['root_crypt'].value
-  user_fullname = values['q_struct']['user_fullname'].value
-  user_home     = values['q_struct']['user_home'].value
-  user_shell    = values['q_struct']['user_shell'].value
+  user_username = values['answers']['user_username'].value
+  user_uid      = values['answers']['user_uid'].value
+  user_gid      = values['answers']['user_gid'].value
+  user_crypt    = values['answers']['user_crypt'].value
+  root_crypt    = values['answers']['root_crypt'].value
+  user_fullname = values['answers']['user_fullname'].value
+  user_home     = values['answers']['user_home'].value
+  user_shell    = values['answers']['user_shell'].value
   passwd_file   = values['clientdir']+"/etc/passwd"
   shadow_file   = values['clientdir']+"/etc/shadow"
   info          = IO.readlines(passwd_file)

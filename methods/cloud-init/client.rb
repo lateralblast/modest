@@ -4,7 +4,7 @@
 # Populate Cloud Config/Init User data file
 
 def populate_cc_user_data(values)
-  install_locale = values['q_struct']['locale'].value
+  install_locale = values['answers']['locale'].value
   if install_locale.match(/\./)
     install_locale = install_locale.split(".")[0]
   end
@@ -13,31 +13,31 @@ def populate_cc_user_data(values)
   else
     install_target = ""
   end
-  install_nameserver = values['q_struct']['nameserver'].value
+  install_nameserver = values['answers']['nameserver'].value
   install_base_url   = "http://"+values['hostip']+"/"+values['name']
   if values['service'].to_s.match(/ubuntu_2[2-4]/)
-    install_layout = values['q_struct']['locale'].value.split(".")[0]
+    install_layout = values['answers']['locale'].value.split(".")[0]
   else
     install_layout = install_locale.split("_")[0]
   end
   install_variant = install_locale.split("_")[1].downcase
   install_country = install_variant
-  install_gateway = values['q_struct']['gateway'].value
-  admin_shell   = values['q_struct']['admin_shell'].value
-  admin_sudo    = values['q_struct']['admin_sudo'].value
-  disable_dhcp  = values['q_struct']['disable_dhcp'].value
-  install_name  = values['q_struct']['hostname'].value
+  install_gateway = values['answers']['gateway'].value
+  admin_shell   = values['answers']['admin_shell'].value
+  admin_sudo    = values['answers']['admin_sudo'].value
+  disable_dhcp  = values['answers']['disable_dhcp'].value
+  install_name  = values['answers']['hostname'].value
   resolved_conf = "/etc/systemd/resolved.conf"
-  admin_user    = values['q_struct']['admin_username'].value
-  admin_group   = values['q_struct']['admin_username'].value
-  admin_home    = "/home/"+values['q_struct']['admin_username'].value
-  admin_crypt   = values['q_struct']['admin_crypt'].value
-  install_nic   = values['q_struct']['interface'].value
+  admin_user    = values['answers']['admin_username'].value
+  admin_group   = values['answers']['admin_username'].value
+  admin_home    = "/home/"+values['answers']['admin_username'].value
+  admin_crypt   = values['answers']['admin_crypt'].value
+  install_nic   = values['answers']['interface'].value
   if disable_dhcp.match(/true/)
-    install_ip  = values['q_struct']['ip'].value
+    install_ip  = values['answers']['ip'].value
   end
-  install_cidr  = values['q_struct']['cidr'].value
-  install_disk  = values['q_struct']['partition_disk'].value
+  install_cidr  = values['answers']['cidr'].value
+  install_disk  = values['answers']['partition_disk'].value
   if install_disk.match(/\//)
     install_disk = install_disk.split(/\//)[-1]
   end
@@ -196,13 +196,13 @@ def populate_cc_user_data(values)
     early_exec_data.push("/usr/bin/systemctl disable systemd-resolved")
     early_exec_data.push("/usr/bin/systemctl stop systemd-resolved")
     early_exec_data.push("rm /etc/resolv.conf")
-    if values['q_struct']['nameserver'].value.to_s.match(/\,/)
-      nameservers = values['q_struct']['nameserver'].value.to_s.split("\,")
+    if values['answers']['nameserver'].value.to_s.match(/\,/)
+      nameservers = values['answers']['nameserver'].value.to_s.split("\,")
       nameservers.each do |nameserver|
         early_exec_data.push("echo 'nameserver #{nameserver}' >> /etc/resolv.conf")
       end
     else
-      nameserver = values['q_struct']['nameserver'].value.to_s
+      nameserver = values['answers']['nameserver'].value.to_s
       early_exec_data.push("  - echo 'nameserver #{nameserver}' >> /etc/resolv.conf")
     end
   else  
@@ -293,7 +293,7 @@ def output_cc_user_data(values, user_data, early_exec_data, late_exec_data, outp
       output = line+end_char
       file.write(output)
     end
-    pkg_list = values['q_struct']['additional_packages'].value
+    pkg_list = values['answers']['additional_packages'].value
     if values['vm'].to_s.match(/mp|multipass/)
       file.write("packages:\n")
       pkg_list.split(" ").each do |line|

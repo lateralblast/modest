@@ -14,8 +14,8 @@ def handle_values(values)
     quit(values)
   end
   # Set up question associative array
-  values['q_struct'] = {}
-  values['q_order']  = []
+  values['answers'] = {}
+  values['order']  = []
   values['i_struct'] = {}
   values['i_order']  = []
   values['u_struct'] = {}

@@ -551,74 +551,90 @@ def configure_kvm_import_client(values)
     verbose_output(values, "Information:\tChecking KVM output directory")
     check_dir_exists(values, config_path)
     check_dir_owner(values, config_path, values['uid'])
-    case values['os-variant'].to_s
-    when /ubuntu/
-      values = populate_ps_questions(values)
-    when /rhel|esx|vmware/
-      values = populate_ks_questions(values)
-    when /vs/
-      values = populate_vs_questions(values)
-    when /win/
-      values = populate_pe_questions(values)
+    if values['method'].to_s.match(/ci/)
+      populate_ci_questions(values)
     else
-      verbose_output(values, "Warning:\tNo OS Variant specified")
-      quit(values)
+      case values['os-variant'].to_s
+      when /ubuntu/
+        values = populate_ps_questions(values)
+      when /rhel|esx|vmware/
+        values = populate_ks_questions(values)
+      when /vs/
+        values = populate_vs_questions(values)
+      when /win/
+        values = populate_pe_questions(values)
+      else
+        verbose_output(values, "Warning:\tNo OS Variant specified")
+        quit(values)
+      end
     end
     file = File.open(config_file, 'w')
     file.write("#cloud-config\n")
-    file.write("hostname: #{values['q_struct']['hostname'].value}\n")
+    file.write("hostname: #{values['answers']['hostname'].value}\n")
     file.write("groups:\n")
-    file.write("  - #{values['q_struct']['admin_username'].value}: #{values['q_struct']['admin_username'].value}\n")
+    file.write("  - #{values['answers']['admin_username'].value}: #{values['answers']['admin_username'].value}\n")
     file.write("users:\n")
     file.write("  - default\n")
-    file.write("  - name: #{values['q_struct']['admin_username'].value}\n")
-    file.write("    gecos: #{values['q_struct']['admin_fullname'].value}\n")
-    file.write("    primary_group: #{values['q_struct']['admin_username'].value}\n")
-    file.write("    groups: users\n")
-    file.write("    shell: /bin/bash\n")
-    file.write("    passwd: #{values['q_struct']['admin_crypt'].value}\n")
-    file.write("    sudo: ALL=(ALL) NOPASSWD:ALL\n")
-    file.write("    lock_passwd: false\n")
+    file.write("  - name: #{values['answers']['admin_username'].value}\n")
+    file.write("    gecos: #{values['answers']['admin_fullname'].value}\n")
+    file.write("    primary_group: #{values['answers']['admin_username'].value}\n")
+    if values['method'].to_s.match(/ci/)
+      file.write("    groups: #{values['answers']['admin_groupname']}\n")
+      file.write("    shell: #{values['answers']['admin_shell']}\n")
+    else
+      file.write("    groups: users\n")
+      file.write("    shell: /bin/bash\n")
+    end
+    file.write("    passwd: #{values['answers']['admin_crypt'].value}\n")
+    if values['method'].to_s.match(/ci/)
+      file.write("    sudo: #{values['answers']['sudoers']}\n")
+      file.write("    lock_passwd: #{values['lock_passwd'].value}\n")
+      file.write("    ssh-authorized-keys:\n")
+      file.write("      - #{values['answers']['ssh-authorized-keys'].value}\n")
+    else
+      file.write("    lock_passwd: false\n")
+    end
     file.write("packages:\n")
-    packages = values['q_struct']['additional_packages'].value.split(" ")
+    packages = values['answers']['additional_packages'].value.split(" ")
     packages.each do |package|
       file.write("  - #{package}\n")
     end
     file.write("growpart:\n")
-    file.write("  mode: auto\n")
-    file.write("  devices: ['/']\n")
+    file.write("  mode: #{values['answers']['growpartmode'].value}\n")
+    growpart_device = values['answers']['growpartdevice'].value
+    file.write("  devices: ['#{growpart_device}']\n")
     if values['reboot'] == true
       file.write("power_state:\n")
-      file.write("  mode: reboot\n")
+      file.write("  mode: #{values['answers']['powerstate'].value}\n")
     end
     if values['dnsmasq'] == true
       file.write("runcmd:\n")
       file.write("  - systemctl disable systemd-resolved\n")
       file.write("  - systemctl stop systemd-resolved\n")
       file.write("  - rm /etc/resolv.conf\n")
-      if values['q_struct']['nameserver'].value.to_s.match(/\,/)
-        nameservers = values['q_struct']['nameserver'].value.to_s.split("\,")
+      if values['answers']['nameserver'].value.to_s.match(/\,/)
+        nameservers = values['answers']['nameserver'].value.to_s.split("\,")
         nameservers.each do |nameserver|
           file.write("  - echo 'nameserver #{nameserver}' >> /etc/resolv.conf\n")
         end
       else
-        nameserver = values['q_struct']['nameserver'].value.to_s
+        nameserver = values['answers']['nameserver'].value.to_s
         file.write("  - echo 'nameserver #{nameserver}' >> /etc/resolv.conf\n")
       end
     end
     file.close
     print_contents_of_file(values, "", config_file)
     check_file_owner(values, config_file, values['uid'])
-    if values['q_struct']['static'].value == "true"
+    if values['answers']['static'].value == "true"
       file = File.open(network_file, 'w')
         file.write("version: 2\n")
         file.write("ethernets:\n")
-        file.write("  #{values['q_struct']['interface'].value}:\n")
+        file.write("  #{values['answers']['interface'].value}:\n")
         file.write("    dhcp4: false\n")
-        file.write("    addresses: [ #{values['q_struct']['ip'].value}/#{values['cidr']} ]\n")
-        file.write("    gateway4: #{values['q_struct']['gateway'].value}\n")
+        file.write("    addresses: [ #{values['answers']['ip'].value}/#{values['cidr']} ]\n")
+        file.write("    gateway4: #{values['answers']['gateway'].value}\n")
         file.write("    nameservers:\n")
-        file.write("      addresses: [ #{values['q_struct']['nameserver'].value} ]\n")
+        file.write("      addresses: [ #{values['answers']['nameserver'].value} ]\n")
         file.write("\n")
       file.close
       print_contents_of_file(values, "", network_file)
@@ -632,7 +648,7 @@ def configure_kvm_import_client(values)
     message = "Information:\tConfiguring image file #{values['inputfile'].to_s}"
     output  = execute_command(values, message, command)
     if !File.exist?(values['cloudfile'].to_s)
-      if values['q_struct']['static'].value == "true"
+      if values['answers']['static'].value == "true"
         verbose_output(values, "Warning:\tFile #{values['cloudfile'].to_s} does not exist")
         quit(values)
       end

@@ -151,14 +151,14 @@ def standard_zone_post_install(values)
   if File.directory?(values['zonedir'])
     values['clientdir'] = values['zonedir']+"/root"
     tmp_file       = "/tmp/zone_"+values['name']
-    admin_username = values['q_struct']['admin_username'].value
-    admin_uid      = values['q_struct']['admin_uid'].value
-    admin_gid      = values['q_struct']['admin_gid'].value
-    admin_crypt    = values['q_struct']['admin_crypt'].value
-    root_crypt     = values['q_struct']['root_crypt'].value
-    admin_fullname = values['q_struct']['admin_description'].value
-    admin_home     = values['q_struct']['admin_home'].value
-    admin_shell    = values['q_struct']['admin_shell'].value
+    admin_username = values['answers']['admin_username'].value
+    admin_uid      = values['answers']['admin_uid'].value
+    admin_gid      = values['answers']['admin_gid'].value
+    admin_crypt    = values['answers']['admin_crypt'].value
+    root_crypt     = values['answers']['root_crypt'].value
+    admin_fullname = values['answers']['admin_description'].value
+    admin_home     = values['answers']['admin_home'].value
+    admin_shell    = values['answers']['admin_shell'].value
     passwd_file    = values['clientdir']+"/etc/passwd"
     shadow_file    = values['clientdir']+"/etc/shadow"
     message = "Checking:\tUser "+admin_username+" doesn't exist"
@@ -315,9 +315,9 @@ end
 
 def create_zone_config(values)
   values['ip']    = single_install_ip(values)
-  values['vmnic'] = values['q_struct']['ipv4_interface_name'].value
+  values['vmnic'] = values['answers']['ipv4_interface_name'].value
   virtual = false
-  gateway = values['q_struct']['ipv4_default_route'].value
+  gateway = values['answers']['ipv4_default_route'].value
   values['vmnic'] = values['vmnic'].split(/\//)[0]
   zone_status = check_zone_doesnt_exist(values)
   if not zone_status.match(/#{values['name']}/)

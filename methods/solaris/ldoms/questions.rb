@@ -7,51 +7,51 @@ def populate_cdom_questions(values)
 
   if values['host-os-unamea'].match(/T5[0-9]|T3/)
 
-    name = "cdom_mau"
-    config = ld.new(
+    name   = "cdom_mau"
+    config = ld.new (
       question  = "Control Domain Cryptographic Units",
       ask       = "yes",
       value     = values['mau'],
       valid     = "",
       eval      = "no"
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
 
   end
 
-  name = "cdom_vcpu"
-  config = ld.new(
+  name   = "cdom_vcpu"
+  config = ld.new (
     question  = "Control Domain Virtual CPUs",
     ask       = "yes",
     value     = values['vcpus'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "cdom_memory"
-  config = ld.new(
+  name   = "cdom_memory"
+  config = ld.new (
     question  = "Control Domain Memory",
     ask       = "yes",
     value     = values['vcpus'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "cdom_name"
-  config = ld.new(
+  name   = "cdom_name"
+  config = ld.new (
     question  = "Control Domain Configuration Name",
     ask       = "yes",
     value     = values['name'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   return values
 end
@@ -64,62 +64,62 @@ def populate_gdom_questions(values)
 
   if values['host-os-unamea'].match(/T5[0-9]|T3/)
 
-    name = "gdom_mau"
-    config = ld.new(
+    name   = "gdom_mau"
+    config = ld.new (
       question  = "Domain Cryptographic Units",
       ask       = "yes",
       value     = values['mau'],
       valid     = "",
       eval      = "no"
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
 
   end
 
-  name = "gdom_vcpu"
-  config = ld.new(
+  name   = "gdom_vcpu"
+  config = ld.new (
     question  = "Guest Domain Virtual CPUs",
     ask       = "yes",
     value     = values['vcpus'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "gdom_memory"
-  config = ld.new(
+  name   = "gdom_memory"
+  config = ld.new (
     question  = "Guest Domain Memory",
     ask       = "yes",
     value     = values['memory'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "gdom_disk"
-  config = ld.new(
+  name   = "gdom_disk"
+  config = ld.new (
     question  = "Guest Domain Disk",
     ask       = "yes",
     value     = client_disk,
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "gdom_size"
-  config = ld.new(
+  name   = "gdom_size"
+  config = ld.new (
     question  = "Guest Domain Disk Size",
     ask       = "yes",
     value     = values['size'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   return values
 end

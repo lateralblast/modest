@@ -59,7 +59,7 @@ def multipass_post_install(values)
       return values
     end
   end
-  install_locale = values['q_struct']['locale'].value
+  install_locale = values['answers']['locale'].value
   if install_locale.match(/\./)
     install_locale = install_locale.split(".")[0]
   end
@@ -68,26 +68,26 @@ def multipass_post_install(values)
   else
     install_target  = ""
   end
-  install_nameserver = values['q_struct']['nameserver'].value
+  install_nameserver = values['answers']['nameserver'].value
   install_base_url   = "http://"+values['hostip']+"/"+values['name']
   install_layout  = install_locale.split("_")[0]
   install_variant = install_locale.split("_")[1].downcase
-  install_gateway = values['q_struct']['gateway'].value
-  admin_shell   = values['q_struct']['admin_shell'].value
-  admin_sudo    = values['q_struct']['admin_sudo'].value
-  disable_dhcp  = values['q_struct']['disable_dhcp'].value
-  install_name  = values['q_struct']['hostname'].value
+  install_gateway = values['answers']['gateway'].value
+  admin_shell   = values['answers']['admin_shell'].value
+  admin_sudo    = values['answers']['admin_sudo'].value
+  disable_dhcp  = values['answers']['disable_dhcp'].value
+  install_name  = values['answers']['hostname'].value
   resolved_conf = "/etc/systemd/resolved.conf"
-  admin_user    = values['q_struct']['admin_username'].value
-  admin_group   = values['q_struct']['admin_username'].value
-  admin_home    = "/home/"+values['q_struct']['admin_username'].value
-  admin_crypt   = values['q_struct']['admin_crypt'].value
-  install_nic   = values['q_struct']['interface'].value
+  admin_user    = values['answers']['admin_username'].value
+  admin_group   = values['answers']['admin_username'].value
+  admin_home    = "/home/"+values['answers']['admin_username'].value
+  admin_crypt   = values['answers']['admin_crypt'].value
+  install_nic   = values['answers']['interface'].value
   if disable_dhcp.match(/true/)
-    install_ip  = values['q_struct']['ip'].value
+    install_ip  = values['answers']['ip'].value
   end
-  install_cidr  = values['q_struct']['cidr'].value
-  install_disk  = values['q_struct']['partition_disk'].value
+  install_cidr  = values['answers']['cidr'].value
+  install_disk  = values['answers']['partition_disk'].value
   #netplan_file  = "#{install_target}/etc/netplan/01-netcfg.yaml"
   netplan_file  = "#{install_target}/etc/netplan/50-cloud-init.yaml"
   locale_file   = "#{install_target}/etc/default/locales"
@@ -101,13 +101,13 @@ def multipass_post_install(values)
     exec_data.push("/usr/bin/systemctl disable systemd-resolved")
     exec_data.push("/usr/bin/systemctl stop systemd-resolved")
     exec_data.push("rm /etc/resolv.conf")
-    if values['q_struct']['nameserver'].value.to_s.match(/\,/)
-      nameservers = values['q_struct']['nameserver'].value.to_s.split("\,")
+    if values['answers']['nameserver'].value.to_s.match(/\,/)
+      nameservers = values['answers']['nameserver'].value.to_s.split("\,")
       nameservers.each do |nameserver|
         exec_data.push("echo 'nameserver #{nameserver}' >> /etc/resolv.conf")
       end
     else
-      nameserver = values['q_struct']['nameserver'].value.to_s
+      nameserver = values['answers']['nameserver'].value.to_s
       exec_data.push("  - echo 'nameserver #{nameserver}' >> /etc/resolv.conf")
     end
   end
@@ -121,7 +121,7 @@ def multipass_post_install(values)
     exec_data.push("echo '    #{install_nic}:' >> #{netplan_file}")
     exec_data.push("echo '      addresses: [#{install_ip}/#{install_cidr}]' >> #{netplan_file}")
     exec_data.push("echo '      gateway4: #{install_gateway}' >> #{netplan_file}")
-    nameservers = values['q_struct']['nameserver'].value
+    nameservers = values['answers']['nameserver'].value
     exec_data.push("echo '      nameservers:' >> #{netplan_file}")
     exec_data.push("echo '        addresses: [#{nameservers}]' >> #{netplan_file}")
   end 

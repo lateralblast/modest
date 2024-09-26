@@ -6,12 +6,12 @@
 def create_js_sysid_file(values)
   tmp_file = "/tmp/sysid_"+values['name']
   file=File.open(tmp_file, "w")
-  values['q_order'].each do |key|
-    if values['q_struct'][key].type == "output"
-      if values['q_struct'][key].parameter == ""
-        output = values['q_struct'][key].value+"\n"
+  values['order'].each do |key|
+    if values['answers'][key].type == "output"
+      if values['answers'][key].parameter == ""
+        output = values['answers'][key].value+"\n"
       else
-        output = values['q_struct'][key].parameter+"="+values['q_struct'][key].value+"\n"
+        output = values['answers'][key].parameter+"="+values['answers'][key].value+"\n"
       end
     end
     file.write(output)
@@ -29,13 +29,13 @@ end
 def create_js_machine_file(values)
   tmp_file = "/tmp/machine_"+values['name']
   file=File.open(tmp_file, "w")
-  values['q_order'].each do |key|
-    if values['q_struct'][key].parameter.to_s.match(/install_type|system_type|cluster|partitioning|pool|bootenv/)
-      if values['q_struct'][key].type == "output" 
-        if values['q_struct'][key].parameter == ""
-          output = values['q_struct'][key].value+"\n"
+  values['order'].each do |key|
+    if values['answers'][key].parameter.to_s.match(/install_type|system_type|cluster|partitioning|pool|bootenv/)
+      if values['answers'][key].type == "output" 
+        if values['answers'][key].parameter == ""
+          output = values['answers'][key].value+"\n"
         else
-          output = values['q_struct'][key].parameter+" "+values['q_struct'][key].value+"\n"
+          output = values['answers'][key].parameter+" "+values['answers'][key].value+"\n"
         end
       end
     end
@@ -332,7 +332,7 @@ def configure_js_client(values)
   if values['arch'].to_s.match(/i386/)
     values['karch'] = values['arch']
   else
-    values['karch'] = values['q_struct']['system_karch'].value
+    values['karch'] = values['answers']['system_karch'].value
   end
   # Create sysid file
   values['sysid'] = values['clientdir']+"/sysidcfg"

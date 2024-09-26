@@ -59,8 +59,8 @@ def populate_ps_questions(values)
 
   if values['service'].to_s != "purity"
 
-    name = "headless_mode"
-    config = qs.new( 
+    name   = "headless_mode"
+    config = qs.new ( 
       type      = "",
       question  = "Headless mode",
       ask       = "yes",
@@ -68,10 +68,10 @@ def populate_ps_questions(values)
       value     = values['headless'].to_s.downcase,
       valid     = "",
       eval      = "no"
-      )
+    )
 
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    values['answers'][name] = config
+    values['order'].push(name)
 
     if values['service'].match(/ubuntu_20/)
       language = values['language']
@@ -82,8 +82,8 @@ def populate_ps_questions(values)
       language = values['language']
     end
 
-    name = "language"
-    config = qs.new(
+    name   = "language"
+    config = qs.new (
       type      = "string",
       question  = "Language",
       ask       = "yes",
@@ -91,12 +91,12 @@ def populate_ps_questions(values)
       value     = language,
       valid     = "",
       eval      = "no"
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
 
-    name = "country"
-    config = qs.new(
+    name   = "country"
+    config = qs.new (
       type      = "string",
       question  = "Country",
       ask       = "yes",
@@ -104,12 +104,12 @@ def populate_ps_questions(values)
       value     = values['country'],
       valid     = "",
       eval      = "no"
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
 
-    name = "locale"
-    config = qs.new(
+    name   = "locale"
+    config = qs.new (
       type      = "string",
       question  = "Locale",
       ask       = "yes",
@@ -117,12 +117,12 @@ def populate_ps_questions(values)
       value     = values['locale'],
       valid     = "",
       eval      = "no"
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
 
-    name = "console"
-    config = qs.new(
+    name   = "console"
+    config = qs.new (
       type      = "boolean",
       question  = "Enable keymap detection",
       ask       = "no",
@@ -130,12 +130,12 @@ def populate_ps_questions(values)
       value     = "false",
       valid     = "",
       eval      = "no"
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
   
-    name = "layout"
-    config = qs.new(
+    name   = "layout"
+    config = qs.new (
       type      = "string",
       question  = "Keyboard layout",
       ask       = "no",
@@ -143,12 +143,12 @@ def populate_ps_questions(values)
       value     = values['keyboard'].downcase,
       valid     = "",
       eval      = "no"
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
 
-    name = "disable_autoconfig"
-    config = qs.new(
+    name   = "disable_autoconfig"
+    config = qs.new (
       type      = "boolean",
       question  = "Disable network autoconfig",
       ask       = "yes",
@@ -156,9 +156,9 @@ def populate_ps_questions(values)
       value     = values['disableautoconf'],
       valid     = "",
       eval      = "no"
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
   
     if values['vm'].to_s.match(/vbox/) && values['type'].to_s.match(/packer/)
       disable_dhcp = "false"
@@ -174,8 +174,8 @@ def populate_ps_questions(values)
       end
     end
 
-    name = "disable_dhcp"
-    config = qs.new(
+    name   = "disable_dhcp"
+    config = qs.new (
       type      = "boolean",
       question  = "Disable DHCP",
       ask       = "yes",
@@ -183,14 +183,14 @@ def populate_ps_questions(values)
       value     = disable_dhcp,
       valid     = "",
       eval      = "no"
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
 
   end
 
-  name = "admin_fullname"
-  config = qs.new(
+  name   = "admin_fullname"
+  config = qs.new (
     type      = "string",
     question  = "User full name",
     ask       = "yes",
@@ -198,12 +198,12 @@ def populate_ps_questions(values)
     value     = values['adminname'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "admin_username"
-  config = qs.new(
+  name   = "admin_username"
+  config = qs.new (
     type      = "string",
     question  = "Username",
     ask       = "yes",
@@ -211,12 +211,12 @@ def populate_ps_questions(values)
     value     = values['adminuser'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "admin_shell"
-  config = qs.new(
+  name   = "admin_shell"
+  config = qs.new (
     type      = "string",
     question  = "Shell",
     ask       = "yes",
@@ -224,12 +224,12 @@ def populate_ps_questions(values)
     value     = values['adminshell'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "admin_sudo"
-  config = qs.new(
+  name   = "admin_sudo"
+  config = qs.new (
     type      = "string",
     question  = "Sudo",
     ask       = "yes",
@@ -237,12 +237,25 @@ def populate_ps_questions(values)
     value     = values['adminsudo'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "admin_password"
+  name   = "sudoers"
   config = qs.new(
+    type      = "",
+    question  = "Admin sudoers",
+    ask       = "yes",
+    parameter = "",
+    value     = values['sudoers'],
+    valid     = "",
+    eval      = "no"
+    )
+  values['answers'][name] = config
+  values['order'].push(name)
+
+  name   = "admin_password"
+  config = qs.new (
     type      = "",
     question  = "User password",
     ask       = "yes",
@@ -250,12 +263,12 @@ def populate_ps_questions(values)
     value     = values['adminpassword'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "admin_crypt"
-  config = qs.new(
+  name   = "admin_crypt"
+  config = qs.new (
     type      = "password",
     question  = "User Password Crypt",
     ask       = "yes",
@@ -263,12 +276,12 @@ def populate_ps_questions(values)
     value     = get_password_crypt(values['adminpassword']),
     valid     = "",
     eval      = "get_password_crypt(answer)"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "admin_groups"
-  config = qs.new(
+  name   = "admin_groups"
+  config = qs.new (
     type      = "string",
     question  = "User groups",
     ask       = "yes",
@@ -276,14 +289,14 @@ def populate_ps_questions(values)
     value     = "wheel",
     valid     = "",
     eval      = ""
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   if !values['method'] == "ci"
 
-    name = "admin_home_encrypt"
-    config = qs.new(
+    name   = "admin_home_encrypt"
+    config = qs.new (
       type      = "boolean",
       question  = "Encrypt user home directory",
       ask       = "yes",
@@ -291,14 +304,14 @@ def populate_ps_questions(values)
       value     = "false",
       valid     = "",
       eval      = ""
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
   
   end
 
-  name = "locale"
-  config = qs.new(
+  name   = "locale"
+  config = qs.new (
     type      = "string",
     question  = "Locale",
     ask       = "yes",
@@ -306,9 +319,9 @@ def populate_ps_questions(values)
     value     = values['locale'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   if values['vmnic'] == values['empty']
     if values['nic'] != values['empty']
@@ -328,8 +341,8 @@ def populate_ps_questions(values)
     end
   end
 
-  name = "interface"
-  config = qs.new(
+  name   = "interface"
+  config = qs.new (
     type      = "select",
     question  = "Network interface",
     ask       = "yes",
@@ -337,12 +350,12 @@ def populate_ps_questions(values)
     value     = nic_name,
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  values['q_struct']['nic'] = values['q_struct']['interface']
-  values['q_order'].push(name)
+  values['answers']['nic'] = values['answers']['interface']
+  values['order'].push(name)
 
 
   if values['dnsmasq'] == true
@@ -351,8 +364,8 @@ def populate_ps_questions(values)
     nameserver = values['nameserver'].to_s
   end
 
-  name = "nameserver"
-  config = qs.new(
+  name   = "nameserver"
+  config = qs.new (
     type      = "string",
     question  = "Nameservers",
     ask       = "yes",
@@ -360,14 +373,14 @@ def populate_ps_questions(values)
     value     = nameserver,
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  if values['q_struct']['disable_dhcp'].value.match(/true/)
+  if values['answers']['disable_dhcp'].value.match(/true/)
 
-    name = "ip"
-    config = qs.new(
+    name   = "ip"
+    config = qs.new (
       type      = "string",
       question  = "IP address",
       ask       = "yes",
@@ -375,12 +388,12 @@ def populate_ps_questions(values)
       value     = values['ip'],
       valid     = "",
       eval      = "no"
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
 
-    name = "netmask"
-    config = qs.new(
+    name   = "netmask"
+    config = qs.new (
       type      = "string",
       question  = "Netmask",
       ask       = "yes",
@@ -388,16 +401,16 @@ def populate_ps_questions(values)
       value     = values['netmask'],
       valid     = "",
       eval      = "no"
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
 
   end
 
   if values['service'].to_s.match(/live/) || values['vm'].to_s.match(/mp|multipass/)
 
-    name = "cidr"
-    config = qs.new(
+    name   = "cidr"
+    config = qs.new (
       type      = "string",
       question  = "CIDR",
       ask       = "yes",
@@ -405,9 +418,9 @@ def populate_ps_questions(values)
       value     = values['cidr'],
       valid     = "",
       eval      = "no"
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
 
   end 
 
@@ -441,8 +454,8 @@ def populate_ps_questions(values)
     gateway = %x[netstat -rn |grep "^0" |awk '{print $2}'].chomp
   end
 
-  name = "gateway"
-  config = qs.new(
+  name   = "gateway"
+  config = qs.new (
     type      = "string",
     question  = "Gateway",
     ask       = "yes",
@@ -450,16 +463,16 @@ def populate_ps_questions(values)
     value     = gateway,
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  if values['q_struct']['disable_dhcp'].value.match(/true/)
+  if values['answers']['disable_dhcp'].value.match(/true/)
 
     broadcast = values['ip'].split(/\./)[0..2].join(".")+".255"
 
-    name = "broadcast"
-    config = qs.new(
+    name   = "broadcast"
+    config = qs.new (
       type      = "",
       question  = "Broadcast",
       ask       = "yes",
@@ -467,14 +480,14 @@ def populate_ps_questions(values)
       value     = broadcast,
       valid     = "",
       eval      = "no"
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
   
     network_address = values['ip'].split(/\./)[0..2].join(".")+".0"
 
-    name = "network_address"
-    config = qs.new(
+    name   = "network_address"
+    config = qs.new (
       type      = "",
       question  = "Network Address",
       ask       = "yes",
@@ -482,9 +495,9 @@ def populate_ps_questions(values)
       value     = network_address,
       valid     = "",
       eval      = "no"
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
 
   end
 
@@ -494,8 +507,8 @@ def populate_ps_questions(values)
     static = "true"
   end
 
-  name = "static"
-  config = qs.new(
+  name   = "static"
+  config = qs.new (
     type      = "boolean",
     question  = "Confirm Static",
     ask       = "yes",
@@ -503,12 +516,12 @@ def populate_ps_questions(values)
     value     = static,
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "hostname"
-  config = qs.new(
+  name   = "hostname"
+  config = qs.new (
     type      = "string",
     question  = "Hostname",
     ask       = "yes",
@@ -516,9 +529,9 @@ def populate_ps_questions(values)
     value     = values['name'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   #if values['service'].to_s.match(/ubuntu/)
   #  if values['service'].to_s.match(/18_04/) and values['vm'].to_s.match(/vbox/)
@@ -548,13 +561,13 @@ def populate_ps_questions(values)
 #    valid     = "",
 #    eval      = "no"
 #    )
-#  values['q_struct'][name] = config
-#  values['q_order'].push(name)
+#  values['answers'][name] = config
+#  values['order'].push(name)
 
   client_domain = values['domainname'].to_s
 
-  name = "domain"
-  config = qs.new(
+  name   = "domain"
+  config = qs.new (
     type      = "string",
     question  = "Domainname",
     ask       = "yes",
@@ -562,12 +575,12 @@ def populate_ps_questions(values)
     value     = client_domain,
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "timezone"
-  config = qs.new(
+  name   = "timezone"
+  config = qs.new (
     type      = "string",
     question  = "Timezone",
     ask       = "yes",
@@ -575,12 +588,12 @@ def populate_ps_questions(values)
     value     = values['timezone'].to_s,
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "timeserver"
-  config = qs.new(
+  name   = "timeserver"
+  config = qs.new (
     type      = "string",
     question  = "Timeserer",
     ask       = "yes",
@@ -588,16 +601,16 @@ def populate_ps_questions(values)
     value     = values['timeserver'].to_s,
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   if values['service'].to_s.match(/purity/)
 
     if install_ip1.match(/[0-9]/)
 
-      name = "eth1_ip"
-      config = qs.new(
+      name   = "eth1_ip"
+      config = qs.new (
         type      = "string",
         question  = "IP address for eth1",
         ask       = "yes",
@@ -606,8 +619,8 @@ def populate_ps_questions(values)
         valid     = "",
         eval      = "no"
       )
-      values['q_struct'][name] = config
-      values['q_order'].push(name)
+      values['answers'][name] = config
+      values['order'].push(name)
 
       name = "eth1_service"
       config = qs.new(
@@ -619,15 +632,15 @@ def populate_ps_questions(values)
         valid     = "",
         eval      = "no"
       )
-      values['q_struct'][name] = config
-      values['q_order'].push(name)
+      values['answers'][name] = config
+      values['order'].push(name)
 
     end
     
     if install_ip2.match(/[0-9]/)
 
-      name = "eth2_ip"
-      config = qs.new(
+      name   = "eth2_ip"
+      config = qs.new (
         type      = "string",
         question  = "IP address for eth2",
         ask       = "yes",
@@ -636,11 +649,11 @@ def populate_ps_questions(values)
         valid     = "",
         eval      = "no"
       )
-      values['q_struct'][name] = config
-      values['q_order'].push(name)
+      values['answers'][name] = config
+      values['order'].push(name)
 
-      name = "eth2_service"
-      config = qs.new(
+      name   = "eth2_service"
+      config = qs.new (
         type      = "string",
         question  = "Service for eth2",
         ask       = "yes",
@@ -649,15 +662,15 @@ def populate_ps_questions(values)
         valid     = "",
         eval      = "no"
       )
-      values['q_struct'][name] = config
-      values['q_order'].push(name)
+      values['answers'][name] = config
+      values['order'].push(name)
 
     end
 
     if install_ip3.match(/[0-9]/)
 
-      name = "eth3_ip"
-      config = qs.new(
+      name   = "eth3_ip"
+      config = qs.new (
         type      = "string",
         question  = "IP address for eth3",
         ask       = "yes",
@@ -666,11 +679,11 @@ def populate_ps_questions(values)
         valid     = "",
         eval      = "no"
       )
-      values['q_struct'][name] = config
-      values['q_order'].push(name)
+      values['answers'][name] = config
+      values['order'].push(name)
 
-      name = "eth3_service"
-      config = qs.new(
+      name   = "eth3_service"
+      config = qs.new (
         type      = "string",
         question  = "Service for eth3",
         ask       = "yes",
@@ -679,15 +692,15 @@ def populate_ps_questions(values)
         valid     = "",
         eval      = "no"
       )
-      values['q_struct'][name] = config
-      values['q_order'].push(name)
+      values['answers'][name] = config
+      values['order'].push(name)
 
     end
 
     if install_ip4.match(/[0-9]/)
 
-      name = "eth4_ip"
-      config = qs.new(
+      name   = "eth4_ip"
+      config = qs.new (
         type      = "string",
         question  = "IP address for eth4",
         ask       = "yes",
@@ -696,11 +709,11 @@ def populate_ps_questions(values)
         valid     = "",
         eval      = "no"
       )
-      values['q_struct'][name] = config
-      values['q_order'].push(name) 
+      values['answers'][name] = config
+      values['order'].push(name) 
 
-      name = "eth4_service"
-      config = qs.new(
+      name   = "eth4_service"
+      config = qs.new (
         type      = "string",
         question  = "Service for eth4",
         ask       = "yes",
@@ -709,15 +722,15 @@ def populate_ps_questions(values)
         valid     = "",
         eval      = "no"
       )
-      values['q_struct'][name] = config
-      values['q_order'].push(name)
+      values['answers'][name] = config
+      values['order'].push(name)
 
     end
     
     if install_ip5.match(/[0-9]/)
 
-      name = "eth5_ip"
-      config = qs.new(
+      name   = "eth5_ip"
+      config = qs.new (
         type      = "string",
         question  = "IP address for eth5",
         ask       = "yes",
@@ -726,11 +739,11 @@ def populate_ps_questions(values)
         valid     = "",
         eval      = "no"
       )
-      values['q_struct'][name] = config
-      values['q_order'].push(name) 
+      values['answers'][name] = config
+      values['order'].push(name) 
 
-      name = "eth5_service"
-      config = qs.new(
+      name   = "eth5_service"
+      config = qs.new (
         type      = "string",
         question  = "Service for eth5",
         ask       = "yes",
@@ -739,8 +752,8 @@ def populate_ps_questions(values)
         valid     = "",
         eval      = "no"
       )
-      values['q_struct'][name] = config
-      values['q_order'].push(name)
+      values['answers'][name] = config
+      values['order'].push(name)
 
     end
 
@@ -749,8 +762,8 @@ def populate_ps_questions(values)
 
   if !values['method'].to_s.match(/ci/)
 
-    name = "firmware"
-    config = qs.new(
+    name   = "firmware"
+    config = qs.new (
       type      = "boolean",
       question  = "Prompt for firmware",
       ask       = "no",
@@ -758,12 +771,12 @@ def populate_ps_questions(values)
       value     = "false",
       valid     = "",
       eval      = "no"
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
 
-    name = "clock"
-    config = qs.new(
+    name   = "clock"
+    config = qs.new (
       type      = "string",
       question  = "Hardware clock set to UTC",
       ask       = "yes",
@@ -771,9 +784,9 @@ def populate_ps_questions(values)
       value     = "false",
       valid     = "false,true",
       eval      = "no"
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
   
   end
 
@@ -787,11 +800,11 @@ def populate_ps_questions(values)
 #    valid     = "",
 #    eval      = "no"
 #    )
-#  values['q_struct'][name] = config
-#  values['q_order'].push(name)
+#  values['answers'][name] = config
+#  values['order'].push(name)
 
-  name = "mirror_country"
-  config = qs.new(
+  name   = "mirror_country"
+  config = qs.new (
     type      = "string",
     question  = "Mirror country",
     ask       = "no",
@@ -799,12 +812,12 @@ def populate_ps_questions(values)
     value     = "manual",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "mirror_hostname"
-  config = qs.new(
+  name   = "mirror_hostname"
+  config = qs.new (
     type      = "string",
     question  = "Mirror hostname",
     ask       = "no",
@@ -813,12 +826,12 @@ def populate_ps_questions(values)
     value     = values['mirror'].to_s,
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "mirror_directory"
-  config = qs.new(
+  name   = "mirror_directory"
+  config = qs.new (
     type      = "string",
     question  = "Mirror directory",
     ask       = "no",
@@ -827,9 +840,9 @@ def populate_ps_questions(values)
     value     = values['mirrordir'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   #name = "mirror_url"
   #config = qs.new(
@@ -842,13 +855,13 @@ def populate_ps_questions(values)
   #  valid     = "",
   #  eval      = "no"
   #  )
-  #values['q_struct'][name] = config
-  #values['q_order'].push(name)
+  #values['answers'][name] = config
+  #values['order'].push(name)
 
   if !values['method'].to_s.match(/ci/)
 
-    name = "mirror_proxy"
-    config = qs.new(
+    name   = "mirror_proxy"
+    config = qs.new (
       type      = "string",
       question  = "Mirror country",
       ask       = "no",
@@ -856,12 +869,12 @@ def populate_ps_questions(values)
       value     = "",
       valid     = "",
       eval      = "no"
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
 
-    name = "updates"
-    config = qs.new(
+    name   = "updates"
+    config = qs.new (
       type      = "select",
       question  = "Update policy",
       ask       = "yes",
@@ -869,9 +882,9 @@ def populate_ps_questions(values)
       value     = "none",
       valid     = "",
       eval      = "no"
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
 
   end
 
@@ -881,8 +894,8 @@ def populate_ps_questions(values)
     software = "openssh-server"
   end
 
-  name = "software"
-  config = qs.new(
+  name   = "software"
+  config = qs.new (
     type      = "multiselect",
     question  = "Software",
     ask       = "yes",
@@ -890,14 +903,14 @@ def populate_ps_questions(values)
     value     = software,
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   if !values['method'].to_s.match(/ci/)
 
-    name = "additional_packages"
-    config = qs.new(
+    name   = "additional_packages"
+    config = qs.new (
       type      = "string",
       question  = "Additional packages",
       ask       = "yes",
@@ -905,14 +918,14 @@ def populate_ps_questions(values)
       vaalue     = pkg_list.join(" "),
       valid     = "",
       eval      = "no"
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
 
   end
 
-  name = "exit"
-  config = qs.new(
+  name   = "exit"
+  config = qs.new (
     type      = "boolean",
     question  = "Exit installer",
     ask       = "yes",
@@ -920,12 +933,12 @@ def populate_ps_questions(values)
     value     = "false",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "basicfilesystem_choose_label"
-  config = qs.new(
+  name   = "basicfilesystem_choose_label"
+  config = qs.new (
     type      = "string",
     question  = "Basic Filesystem Chose Label",
     ask       = "no",
@@ -933,12 +946,12 @@ def populate_ps_questions(values)
     value     = "gpt",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "basicfilesystem_default_label"
-  config = qs.new(
+  name   = "basicfilesystem_default_label"
+  config = qs.new (
     type      = "string",
     question  = "Basic Filesystem Default Label",
     ask       = "no",
@@ -946,12 +959,12 @@ def populate_ps_questions(values)
     value     = "gpt",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "partition_choose_label"
-  config = qs.new(
+  name   = "partition_choose_label"
+  config = qs.new (
     type      = "string",
     question  = "Partition Chose Label",
     ask       = "no",
@@ -959,12 +972,12 @@ def populate_ps_questions(values)
     value     = "gpt",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "partition_default_label"
-  config = qs.new(
+  name   = "partition_default_label"
+  config = qs.new (
     type      = "string",
     question  = "Partition Default Label",
     ask       = "no",
@@ -972,12 +985,12 @@ def populate_ps_questions(values)
     value     = "gpt",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "choose_label"
-  config = qs.new(
+  name   = "choose_label"
+  config = qs.new (
     type      = "string",
     question  = "Partition Chose Label",
     ask       = "no",
@@ -985,12 +998,12 @@ def populate_ps_questions(values)
     value     = "gpt",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "default_label"
-  config = qs.new(
+  name   = "default_label"
+  config = qs.new (
     type      = "string",
     question  = "Partition Default Label",
     ask       = "no",
@@ -998,12 +1011,12 @@ def populate_ps_questions(values)
     value     = "gpt",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "partition_disk"
-  config = qs.new(
+  name   = "partition_disk"
+  config = qs.new (
     type      = "string",
     question  = "Parition disk",
     ask       = "yes",
@@ -1011,12 +1024,12 @@ def populate_ps_questions(values)
     value     = values['rootdisk'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "partition_method"
-  config = qs.new(
+  name   = "partition_method"
+  config = qs.new (
     type      = "string",
     question  = "Parition method",
     ask       = "yes",
@@ -1024,12 +1037,12 @@ def populate_ps_questions(values)
     value     = "lvm",
     valid     = "regular,lvm,crypto",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "remove_existing_lvm"
-  config = qs.new(
+  name   = "remove_existing_lvm"
+  config = qs.new (
     type      = "boolean",
     question  = "Remove existing LVM devices",
     ask       = "yes",
@@ -1037,12 +1050,12 @@ def populate_ps_questions(values)
     value     = "true",
     valid     = "true,false",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "remove_existing_md"
-  config = qs.new(
+  name   = "remove_existing_md"
+  config = qs.new (
     type      = "boolean",
     question  = "Remove existing MD devices",
     ask       = "yes",
@@ -1050,12 +1063,12 @@ def populate_ps_questions(values)
     value     = "true",
     valid     = "true,false",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "partition_write"
-  config = qs.new(
+  name   = "partition_write"
+  config = qs.new (
     type      = "boolean",
     question  = "Write parition",
     ask       = "yes",
@@ -1063,12 +1076,12 @@ def populate_ps_questions(values)
     value     = "true",
     valid     = "true,false",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "partition_overwrite"
-  config = qs.new(
+  name   = "partition_overwrite"
+  config = qs.new (
     type      = "boolean",
     question  = "Overwrite existing parition",
     ask       = "yes",
@@ -1076,12 +1089,12 @@ def populate_ps_questions(values)
     value     = "true",
     valid     = "true,false",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name) 
+  )
+  values['answers'][name] = config
+  values['order'].push(name) 
 
-  name = "partition_size"
-  config = qs.new(
+  name   = "partition_size"
+  config = qs.new (
     type      = "string",
     question  = "Partition size",
     ask       = "yes",
@@ -1089,12 +1102,12 @@ def populate_ps_questions(values)
     value     = "max",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name) 
+  )
+  values['answers'][name] = config
+  values['order'].push(name) 
 
-  name = "filesystem_type"
-  config = qs.new(
+  name   = "filesystem_type"
+  config = qs.new (
     type      = "string",
     question  = "Write partition label",
     ask       = "yes",
@@ -1102,12 +1115,12 @@ def populate_ps_questions(values)
     value     = "ext4",
     valid     = "ext3,ext4,xfs",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "volume_name"
-  config = qs.new(
+  name   = "volume_name"
+  config = qs.new (
     type      = "string",
     question  = "Volume name",
     ask       = "yes",
@@ -1115,14 +1128,14 @@ def populate_ps_questions(values)
     value     = values['vgname'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   if values['splitvols'] == true
 
-    name = "filesystem_layout"
-    config = qs.new(
+    name   = "filesystem_layout"
+    config = qs.new (
       type      = "select",
       question  = "Filesystem recipe",
       ask       = "yes",
@@ -1130,12 +1143,12 @@ def populate_ps_questions(values)
       value     = "boot-root",
       valid     = "",
       eval      = "no"
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
 
-    name = "filesystem_recipe"
-    config = qs.new(
+    name   = "filesystem_recipe"
+    config = qs.new (
       type      = "string",
       question  = "Filesystem layout",
       ask       = "yes",
@@ -1250,14 +1263,14 @@ def populate_ps_questions(values)
                   ".",
       valid     = "",
       eval      = "no"
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
   
   else
 
-    name = "filesystem_layout"
-    config = qs.new(
+    name   = "filesystem_layout"
+    config = qs.new (
       type      = "select",
       question  = "Filesystem layout",
       ask       = "yes",
@@ -1265,14 +1278,14 @@ def populate_ps_questions(values)
       value     = "atomic",
       valid     = "string,atomic,home,multi",
       eval      = "no"
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
 
   end
 
-  name = "partition_label"
-  config = qs.new(
+  name   = "partition_label"
+  config = qs.new (
     type      = "boolean",
     question  = "Write partition label",
     ask       = "no",
@@ -1280,12 +1293,12 @@ def populate_ps_questions(values)
     value     = "true",
     valid     = "true,false",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "partition_finish"
-  config = qs.new(
+  name   = "partition_finish"
+  config = qs.new (
     type      = "select",
     question  = "Finish partition",
     ask       = "no",
@@ -1293,12 +1306,12 @@ def populate_ps_questions(values)
     value     = "finish",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "partition_confirm"
-  config = qs.new(
+  name   = "partition_confirm"
+  config = qs.new (
     type      = "boolean",
     question  = "Confirm partition",
     ask       = "no",
@@ -1306,12 +1319,12 @@ def populate_ps_questions(values)
     value     = "true",
     valid     = "true,faule",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "partition_nooverwrite"
-  config = qs.new(
+  name   = "partition_nooverwrite"
+  config = qs.new (
     type      = "boolean",
     question  = "Don't overwrite partition",
     ask       = "no",
@@ -1319,12 +1332,12 @@ def populate_ps_questions(values)
     value     = "true",
     valid     = "true,false",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "kernel_image"
-  config = qs.new(
+  name   = "kernel_image"
+  config = qs.new (
     type      = "string",
     question  = "Kernel image",
     ask       = "yes",
@@ -1332,12 +1345,12 @@ def populate_ps_questions(values)
     value     = "linux-generic",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "additional_packages"
-  config = qs.new(
+  name   = "additional_packages"
+  config = qs.new (
     type      = "string",
     question  = "Additional packages",
     ask       = "yes",
@@ -1345,12 +1358,12 @@ def populate_ps_questions(values)
     value     = pkg_list.join(" "),
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "root_login"
-  config = qs.new(
+  name   = "root_login"
+  config = qs.new (
     type      = "boolean",
     question  = "Root login",
     ask       = "yes",
@@ -1358,12 +1371,12 @@ def populate_ps_questions(values)
     value     = "false",
     valid     = "true,false",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "make_user"
-  config = qs.new(
+  name   = "make_user"
+  config = qs.new (
     type      = "boolean",
     question  = "Create user",
     ask       = "yes",
@@ -1371,12 +1384,12 @@ def populate_ps_questions(values)
     value     = "true",
     valid     = "true,false",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "root_password"
-  config = qs.new(
+  name   = "root_password"
+  config = qs.new (
     type      = "",
     question  = "Root password",
     ask       = "yes",
@@ -1384,12 +1397,12 @@ def populate_ps_questions(values)
     value     = values['rootpassword'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "root_crypt"
-  config = qs.new(
+  name   = "root_crypt"
+  config = qs.new (
     type      = "password",
     question  = "Root Password Crypt",
     ask       = "yes",
@@ -1397,12 +1410,12 @@ def populate_ps_questions(values)
     value     = get_password_crypt(values['rootpassword']),
     valid     = "",
     eval      = "get_password_crypt(answer)"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "install_grub_mbr"
-  config = qs.new(
+  name   = "install_grub_mbr"
+  config = qs.new (
     type      = "boolean",
     question  = "Install grub",
     ask       = "yes",
@@ -1410,12 +1423,12 @@ def populate_ps_questions(values)
     value     = "true",
     valid     = "",
     eval      = ""
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "install_grub_bootdev"
-  config = qs.new(
+  name   = "install_grub_bootdev"
+  config = qs.new (
     type      = "string",
     question  = "Install grub to device",
     ask       = "yes",
@@ -1423,12 +1436,12 @@ def populate_ps_questions(values)
     value     = values['rootdisk'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "reboot_note"
-  config = qs.new(
+  name   = "reboot_note"
+  config = qs.new (
     type      = "note",
     question  = "Install grub",
     ask       = "no",
@@ -1436,9 +1449,9 @@ def populate_ps_questions(values)
     value     = "",
     valid     = "",
     eval      = ""
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   if values['type'].to_s.match(/packer/)
     if values['vmnetwork'].to_s.match(/hostonly|bridged/)
@@ -1464,8 +1477,8 @@ def populate_ps_questions(values)
 
 #  if not values['type'].to_s.match(/packer/)
 
-    name = "late_command"
-    config = qs.new(
+    name   = "late_command"
+    config = qs.new (
       type      = "string",
       question  = "Post install commands",
       ask       = "yes",
@@ -1473,9 +1486,9 @@ def populate_ps_questions(values)
       value     = "in-target wget -O /tmp/post_install.sh #{script_url} ; in-target chmod 700 /tmp/post_install.sh ; in-target sh /tmp/post_install.sh",
       valid     = "",
       eval      = ""
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
 
 #  end
   

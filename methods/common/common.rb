@@ -2679,7 +2679,7 @@ end
 # Get root password crypt
 
 def get_root_password_crypt(values)
-  password = values['q_struct']['root_password'].value
+  password = values['answers']['root_password'].value
   result   = get_password_crypt(password)
   return result
 end
@@ -2687,7 +2687,7 @@ end
 # Get account password crypt
 
 def get_admin_password_crypt(values)
-  password = values['q_struct']['admin_password'].value
+  password = values['answers']['admin_password'].value
   result   = get_password_crypt(password)
   return result
 end

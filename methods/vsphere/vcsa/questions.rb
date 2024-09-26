@@ -5,13 +5,13 @@
 
 def populate_vcsa_questions(values)
 
-  # values['q_struct'] = {}
-  # values['q_order']  = []
+  # values['answers'] = {}
+  # values['order']  = []
 
   values['ip'] = single_install_ip(values)
 
-  name = "headless_mode"
-  config = Js.new(
+  name   = "headless_mode"
+  config = Js.new (
     type      = "",
     question  = "Headless mode",
     ask       = "yes",
@@ -19,12 +19,12 @@ def populate_vcsa_questions(values)
     value     = values['headless'].to_s.downcase,
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "esx.hostname"
-  config = Ks.new(
+  name   = "esx.hostname"
+  config = Ks.new (
     type      = "string",
     question  = "ESX Server Hostname",
     ask       = "yes",
@@ -32,12 +32,12 @@ def populate_vcsa_questions(values)
     value     = values['server'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "esx.datastore"
-  config = Ks.new(
+  name   = "esx.datastore"
+  config = Ks.new (
     type      = "string",
     question  = "Datastore",
     ask       = "yes",
@@ -45,12 +45,12 @@ def populate_vcsa_questions(values)
     value     = values['datastore'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "esx.username"
-  config = Ks.new(
+  name   = "esx.username"
+  config = Ks.new (
     type      = "string",
     question  = "ESX Username",
     ask       = "yes",
@@ -58,12 +58,12 @@ def populate_vcsa_questions(values)
     value     = values['serveradmin'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "esx.password"
-  config = Ks.new(
+  name   = "esx.password"
+  config = Ks.new (
     type      = "string",
     question  = "ESX Password",
     ask       = "no",
@@ -71,11 +71,11 @@ def populate_vcsa_questions(values)
     value     = values['serverpassword'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "deployment.option"
+  name   = "deployment.option"
   config = Ks.new(
     type      = "string",
     question  = "Deployment Option",
@@ -85,11 +85,11 @@ def populate_vcsa_questions(values)
     valid     = "",
     eval      = "no"
     )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "deployment.network"
-  config = Ks.new(
+  name   = "deployment.network"
+  config = Ks.new (
     type      = "string",
     question  = "Deployment Network",
     ask       = "yes",
@@ -97,12 +97,12 @@ def populate_vcsa_questions(values)
     value     = values['servernetmask'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "appliance.name"
-  config = Ks.new(
+  name   = "appliance.name"
+  config = Ks.new (
     type      = "string",
     question  = "Appliance Name",
     ask       = "yes",
@@ -110,12 +110,12 @@ def populate_vcsa_questions(values)
     value     = values['name'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "appliance.thin.disk.mode"
-  config = Ks.new(
+  name   = "appliance.thin.disk.mode"
+  config = Ks.new (
     type      = "boolean",
     question  = "Appliance Disk Mode",
     ask       = "yes",
@@ -123,12 +123,12 @@ def populate_vcsa_questions(values)
     value     = "true",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "root.password"
-  config = Ks.new(
+  name   = "root.password"
+  config = Ks.new (
     type      = "string",
     question  = "Root Password",
     ask       = "yes",
@@ -136,12 +136,12 @@ def populate_vcsa_questions(values)
     value     = values['rootpassword'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "ssh.enable"
-  config = Ks.new(
+  name   = "ssh.enable"
+  config = Ks.new (
     type      = "boolean",
     question  = "SSH Enable",
     ask       = "yes",
@@ -149,12 +149,12 @@ def populate_vcsa_questions(values)
     value     = values['sshenadble'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "ntp.servers"
-  config = Ks.new(
+  name   = "ntp.servers"
+  config = Ks.new (
     type      = "string",
     question  = "NTP Servers",
     ask       = "yes",
@@ -162,12 +162,12 @@ def populate_vcsa_questions(values)
     value     = values['timeserver'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "password"
-  config = Ks.new(
+  name   = "password"
+  config = Ks.new (
     type      = "string",
     question  = "SSO password",
     ask       = "yes",
@@ -175,12 +175,12 @@ def populate_vcsa_questions(values)
     value     = values['adminpassword'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "domain-name"
-  config = Ks.new(
+  name   = "domain-name"
+  config = Ks.new (
     type      = "string",
     question  = "NTP Servers",
     ask       = "yes",
@@ -188,12 +188,12 @@ def populate_vcsa_questions(values)
     value     = values['domainname'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "site-name"
-  config = Ks.new(
+  name   = "site-name"
+  config = Ks.new (
     type      = "string",
     question  = "Site Name",
     ask       = "yes",
@@ -201,12 +201,12 @@ def populate_vcsa_questions(values)
     value     = values['domainname'].split(/\./)[0],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "ip.family"
-  config = Ks.new(
+  name   = "ip.family"
+  config = Ks.new (
     type      = "string",
     question  = "IP Family",
     ask       = "yes",
@@ -214,12 +214,12 @@ def populate_vcsa_questions(values)
     value     = values['ipfamily'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "mode"
-  config = Ks.new(
+  name   = "mode"
+  config = Ks.new (
     type      = "string",
     question  = "IP Configuration",
     ask       = "yes",
@@ -227,12 +227,12 @@ def populate_vcsa_questions(values)
     value     = "static",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "ip"
-  config = Ks.new(
+  name   = "ip"
+  config = Ks.new (
     type      = "string",
     question  = "IP Address",
     ask       = "yes",
@@ -240,12 +240,12 @@ def populate_vcsa_questions(values)
     value     = values['ip'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "prefix"
-  config = Ks.new(
+  name   = "prefix"
+  config = Ks.new (
     type      = "string",
     question  = "Subnet Mask",
     ask       = "yes",
@@ -253,14 +253,14 @@ def populate_vcsa_questions(values)
     value     = values['netmask'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   gateway = values['ip'].split(/\./)[0..2].join(".")+"."+values['gatewaynode']
 
-  name = "gateway"
-  config = Ks.new(
+  name   = "gateway"
+  config = Ks.new (
     type      = "string",
     question  = "Gateway",
     ask       = "yes",
@@ -268,12 +268,12 @@ def populate_vcsa_questions(values)
     value     = gateway,
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "dns.servers"
-  config = Ks.new(
+  name   = "dns.servers"
+  config = Ks.new (
     type      = "string",
     question  = "Nameserver(s)",
     ask       = "yes",
@@ -281,12 +281,12 @@ def populate_vcsa_questions(values)
     value     = values['nameserver'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "system.name"
-  config = Ks.new(
+  name   = "system.name"
+  config = Ks.new (
     type      = "string",
     question  = "Hostname",
     ask       = "yes",
@@ -294,9 +294,9 @@ def populate_vcsa_questions(values)
     value     = values['ip'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   return
 end

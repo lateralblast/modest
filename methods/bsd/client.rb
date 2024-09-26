@@ -114,15 +114,15 @@ def output_coreos_client_profile(values)
   values['clientdir'] = values['clientdir']+"/"+values['service']+"/"+values['name']
   check_dir_exists(values, values['clientdir'])
   output_file   = values['clientdir']+"/"+values['name']+".yml"
-  root_crypt    = values['q_struct']['root_crypt'].value
-  admin_group   = values['q_struct']['admin_group'].value
-  admin_user    = values['q_struct']['admin_user'].value
-  admin_crypt   = values['q_struct']['admin_crypt'].value
-  admin_home    = values['q_struct']['admin_home'].value
-  admin_uid     = values['q_struct']['admin_uid'].value
-  admin_gid     = values['q_struct']['admin_gid'].value
-  values['ip'] = values['q_struct']['ip'].value
-  client_nic    = values['q_struct']['nic'].value
+  root_crypt    = values['answers']['root_crypt'].value
+  admin_group   = values['answers']['admin_group'].value
+  admin_user    = values['answers']['admin_user'].value
+  admin_crypt   = values['answers']['admin_crypt'].value
+  admin_home    = values['answers']['admin_home'].value
+  admin_uid     = values['answers']['admin_uid'].value
+  admin_gid     = values['answers']['admin_gid'].value
+  values['ip'] = values['answers']['ip'].value
+  client_nic    = values['answers']['nic'].value
   network_ip    = values['ip'].split(".")[0..2].join(".")+".0"
   broadcast_ip  = values['ip'].split(".")[0..2].join(".")+".255"
   gateway_ip    = values['ip'].split(".")[0..2].join(".")+"."+values['gatewaynode']

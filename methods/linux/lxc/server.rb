@@ -74,10 +74,10 @@ def configure_ubuntu_lxc_server(values, server_type)
     if not output.match(/bridge_ports/)
       tmp_file   = "/tmp/interfaces"
       server_ip  = values['hostip']
-      gateway    = values['q_struct']['gateway'].value
-      broadcast  = values['q_struct']['broadcast'].value
-      network    = values['q_struct']['network_address'].value
-      nameserver = values['q_struct']['nameserver'].value
+      gateway    = values['answers']['gateway'].value
+      broadcast  = values['answers']['broadcast'].value
+      network    = values['answers']['network_address'].value
+      nameserver = values['answers']['nameserver'].value
       file = File.open(tmp_file, "w")
       file.write("# The loopback network interface\n")
       file.write("auto lo\n")

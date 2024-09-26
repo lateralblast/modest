@@ -3,18 +3,18 @@
 # Create Ansible YAML file
 
 def create_ansible_aws_yaml(values)
-  values['access']    = values['q_struct']['access_key'].value
-  values['secret']    = values['q_struct']['secret_key'].value
-  values['ami']       = values['q_struct']['source_ami'].value
-  values['region']    = values['q_struct']['region'].value
-  values['size']      = values['q_struct']['instance_type'].value
-  values['adminuser'] = values['q_struct']['ssh_username'].value
-  values['key']       = values['q_struct']['key_name'].value
-  values['ports']     = values['q_struct']['open_ports'].value
-  values['group']     = values['q_struct']['security_group'].value
-  values['keyfile']   = File.basename(values['q_struct']['keyfile'].value,".pem")+".key.pub"
-  values['name']      = values['q_struct']['ami_name'].value
-  values['cidr']      = values['q_struct']['default_cidr'].value
+  values['access']    = values['answers']['access_key'].value
+  values['secret']    = values['answers']['secret_key'].value
+  values['ami']       = values['answers']['source_ami'].value
+  values['region']    = values['answers']['region'].value
+  values['size']      = values['answers']['instance_type'].value
+  values['adminuser'] = values['answers']['ssh_username'].value
+  values['key']       = values['answers']['key_name'].value
+  values['ports']     = values['answers']['open_ports'].value
+  values['group']     = values['answers']['security_group'].value
+  values['keyfile']   = File.basename(values['answers']['keyfile'].value,".pem")+".key.pub"
+  values['name']      = values['answers']['ami_name'].value
+  values['cidr']      = values['answers']['default_cidr'].value
   tmp_keyfile = "/tmp/"+values['keyfile']
   ansible_dir = values['clientdir']+"/ansible"
   values['clientdir']  = ansible_dir+"/aws/"+values['name']

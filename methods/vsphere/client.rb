@@ -297,10 +297,10 @@ end
 
 def populate_vs_firstboot_list(values)
   post_list = []
-  vm_network_name    = values['q_struct']['vm_network_name'].value 
-  vm_network_vswitch = values['q_struct']['vm_network_vswitch'].value
-  vm_network_vlanid  = values['q_struct']['vm_network_vlanid'].value
-  datastore_name     = values['q_struct']['datastore'].value
+  vm_network_name    = values['answers']['vm_network_name'].value 
+  vm_network_vswitch = values['answers']['vm_network_vswitch'].value
+  vm_network_vlanid  = values['answers']['vm_network_vlanid'].value
+  datastore_name     = values['answers']['datastore'].value
   #post_list.push("%pre --interpreter=busybox")
   #post_list.push("echo '127.0.0.1 localhost' >> /etc/resolv.conf")
   #post_list.push("")
@@ -438,12 +438,12 @@ def output_vs_header(values, output_file)
   check_dir_exists(values, dir_name)
   check_dir_owner(values, dir_name, values['uid'])
   file = File.open(output_file, 'w')
-  values['q_order'].each do |key|
-    if values['q_struct'][key].type.match(/output/)
-      if not values['q_struct'][key].parameter.match(/[a-z,A-Z]/)
-        output=values['q_struct'][key].value+"\n"
+  values['order'].each do |key|
+    if values['answers'][key].type.match(/output/)
+      if not values['answers'][key].parameter.match(/[a-z,A-Z]/)
+        output=values['answers'][key].value+"\n"
       else
-        output=values['q_struct'][key].parameter+" "+values['q_struct'][key].value+"\n"
+        output=values['answers'][key].parameter+" "+values['answers'][key].value+"\n"
         if values['verbose'] == true
           verbose_output(values, output)
         end

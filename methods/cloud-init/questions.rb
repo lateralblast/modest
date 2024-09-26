@@ -10,7 +10,7 @@ def populate_ci_questions(values)
   values['ip'] = single_install_ip(values)
 
   name   = "hostname"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Hostname",
     ask       = "yes",
@@ -18,12 +18,12 @@ def populate_ci_questions(values)
     value     = values['hostname'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "groups"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Admin Group",
     ask       = "yes",
@@ -31,12 +31,12 @@ def populate_ci_questions(values)
     value     = values['admingroup'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "adminuser"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Admin User",
     ask       = "yes",
@@ -44,12 +44,12 @@ def populate_ci_questions(values)
     value     = values['adminuser'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "shell"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Admin Shell",
     ask       = "yes",
@@ -57,12 +57,12 @@ def populate_ci_questions(values)
     value     = values['adminshell'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "password"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Admin Password",
     ask       = "yes",
@@ -70,16 +70,16 @@ def populate_ci_questions(values)
     value     = values['adminpassword'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   if values['admincrypt'] == values['empty']
     values['admincrypt'] = get_password_crypt(values['adminpassword'])
   end
 
   name   = "passwd"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Admin Password Crypt",
     ask       = "yes",
@@ -87,12 +87,12 @@ def populate_ci_questions(values)
     value     = values['admincrypt'],
     valid     = "",
     eval      = "get_password_crypt(values['adminpassword'])"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "ssh-authorized-keys"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Admin SSH key",
     ask       = "yes",
@@ -100,11 +100,11 @@ def populate_ci_questions(values)
     value     = values['sshkey'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name   = "sudo"
+  name   = "sudoers"
   config = qs.new(
     type      = "",
     question  = "Admin sudoers",
@@ -114,11 +114,11 @@ def populate_ci_questions(values)
     valid     = "",
     eval      = "no"
     )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "lock_passwd"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Lock Password",
     ask       = "yes",
@@ -126,14 +126,14 @@ def populate_ci_questions(values)
     value     = values['lockpassword'].to_s,
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   if values['growpart'] == true
 
     name   = "growpartdevice"
-    config = qs.new(
+    config = qs.new (
       type      = "",
       question  = "Grow partition on device",
       ask       = "yes",
@@ -141,12 +141,12 @@ def populate_ci_questions(values)
       value     = values['growpartdevice'],
       valid     = "",
       eval      = "no"
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
 
-    name   = "growpartdevice"
-    config = qs.new(
+    name   = "growpartmode"
+    config = qs.new (
       type      = "",
       question  = "Grow partition mode",
       ask       = "yes",
@@ -154,14 +154,14 @@ def populate_ci_questions(values)
       value     = values['growpartmode'],
       valid     = "",
       eval      = "no"
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
 
   end
 
-  name = "powerstate"
-  config = qs.new(
+  name   = "powerstate"
+  config = qs.new (
     type      = "",
     question  = "Power state",
     ask       = "yes",
@@ -169,12 +169,12 @@ def populate_ci_questions(values)
     value     = values['powerstate'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "vmnic"
-  config = qs.new(
+  name   = "vmnic"
+  config = qs.new (
     type      = "",
     question  = "Ethernet",
     ask       = "yes",
@@ -182,14 +182,14 @@ def populate_ci_questions(values)
     value     = values['vmnic'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   if values['dhcp'] == false
 
-    name = "ip"
-    config = qs.new(
+    name   = "ip"
+    config = qs.new (
       type      = "",
       question  = "IP Address",
       ask       = "yes",
@@ -197,12 +197,12 @@ def populate_ci_questions(values)
       value     = values['ip'],
       valid     = "",
       eval      = "no"
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
 
-    name = "cidr"
-    config = qs.new(
+    name   = "cidr"
+    config = qs.new (
       type      = "",
       question  = "CIDR",
       ask       = "yes",
@@ -210,12 +210,12 @@ def populate_ci_questions(values)
       value     = values['cidr'],
       valid     = "",
       eval      = "no"
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
 
-    name = "nameserver"
-    config = qs.new(
+    name   = "nameserver"
+    config = qs.new (
       type      = "",
       question  = "Nameserver",
       ask       = "yes",
@@ -223,13 +223,13 @@ def populate_ci_questions(values)
       value     = values['nameserver'],
       valid     = "",
       eval      = "no"
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
 
 
-    name = "vmgateway"
-    config = qs.new(
+    name   = "vmgateway"
+    config = qs.new (
       type      = "",
       question  = "Gatewayr",
       ask       = "yes",
@@ -237,14 +237,14 @@ def populate_ci_questions(values)
       value     = values['vmgateway'],
       valid     = "",
       eval      = "no"
-      )
-    values['q_struct'][name] = config
-    values['q_order'].push(name)
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
 
   end
 
-  name = "graphics"
-  config = qs.new(
+  name   = "graphics"
+  config = qs.new (
     type      = "",
     question  = "Graphics mode",
     ask       = "yes",
@@ -252,12 +252,12 @@ def populate_ci_questions(values)
     value     = values['headless'].to_s,
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "memory"
-  config = qs.new(
+  config = qs.new (
     type      = "",
     question  = "Memory",
     ask       = "yes",
@@ -265,12 +265,12 @@ def populate_ci_questions(values)
     value     = values['memory'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "vcpu"
-  config = qs.new(
+  config = qs.new (
     type      = "output",
     question  = "Number of vCPUs",
     ask       = "yes",
@@ -278,12 +278,12 @@ def populate_ci_questions(values)
     value     = values['vcpu'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "cpu"
-  config = qs.new(
+  name   = "cpu"
+  config = qs.new (
     type      = "",
     question  = "CPU family",
     ask       = "yes",
@@ -291,12 +291,12 @@ def populate_ci_questions(values)
     value     = values['cputype'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name = "diskformat"
-  config = qs.new(
+  name   = "diskformat"
+  config = qs.new (
     type      = "",
     question  = "Disk format",
     ask       = "yes",
@@ -304,9 +304,9 @@ def populate_ci_questions(values)
     value     = values['diskformat'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   return values
 end

@@ -4,13 +4,13 @@
 # Construct ks network line
 
 def get_vs_network(values)
-  if values['q_struct']['bootproto'].value.match(/dhcp/)
-    result = "--netdevice "+values['q_struct']['nic'].value+" --bootproto "+values['q_struct']['bootproto'].value
+  if values['answers']['bootproto'].value.match(/dhcp/)
+    result = "--netdevice "+values['answers']['nic'].value+" --bootproto "+values['answers']['bootproto'].value
   else
-    values['ip'] = values['q_struct']['ip'].value
-    values['name'] = values['q_struct']['hostname'].value
+    values['ip'] = values['answers']['ip'].value
+    values['name'] = values['answers']['hostname'].value
     gateway = get_ipv4_default_route(values)
-    result = "--device="+values['q_struct']['nic'].value+" --bootproto="+values['q_struct']['bootproto'].value+" --ip="+values['ip']+" --netmask="+values['netmask']+" --gateway="+gateway+" --nameserver="+values['nameserver']+" --hostname="+values['name']+" --addvmportgroup=0"
+    result = "--device="+values['answers']['nic'].value+" --bootproto="+values['answers']['bootproto'].value+" --ip="+values['ip']+" --netmask="+values['netmask']+" --gateway="+gateway+" --nameserver="+values['nameserver']+" --hostname="+values['name']+" --addvmportgroup=0"
   end
   return result
 end
@@ -18,11 +18,11 @@ end
 # Set network
 
 def set_vs_network(values)
-  if values['q_struct']['bootproto'].value.match(/dhcp/)
-    values['q_struct']['ip'].ask = "no"
-    values['q_struct']['ip'].type = ""
-    values['q_struct']['hostname'].ask = "no"
-    values['q_struct']['hostname'].type = ""
+  if values['answers']['bootproto'].value.match(/dhcp/)
+    values['answers']['ip'].ask = "no"
+    values['answers']['ip'].type = ""
+    values['answers']['hostname'].ask = "no"
+    values['answers']['hostname'].type = ""
   end
   return values
 end
@@ -30,7 +30,7 @@ end
 # Construct ks password line
 
 def get_vs_password(values)
-  result = "--iscrypted "+values['q_struct']['root_crypt'].value.to_s
+  result = "--iscrypted "+values['answers']['root_crypt'].value.to_s
   return result
 end
 
@@ -57,8 +57,8 @@ def populate_vs_questions(values)
 
   values['ip'] = single_install_ip(values)
 
-  name = "headless_mode"
-  config = vs.new(
+  name   = "headless_mode"
+  config = vs.new (
     type      = "",
     question  = "Headless mode",
     ask       = "yes",
@@ -66,12 +66,12 @@ def populate_vs_questions(values)
     value     = values['headless'].to_s.downcase,
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "ks_header"
-  config = vs.new(
+  config = vs.new (
     type      = "output",
     question  = "VSphere file header comment",
     ask       = "yes",
@@ -79,12 +79,12 @@ def populate_vs_questions(values)
     value     = get_vs_header(values),
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "vmaccepteula"
-  config = vs.new(
+  config = vs.new (
     type      = "output",
     question  = "Accept EULA",
     ask       = "yes",
@@ -92,12 +92,12 @@ def populate_vs_questions(values)
     value     = "vmaccepteula",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "install"
-  config = vs.new(
+  config = vs.new (
     type      = "output",
     question  = "Install type",
     ask       = "yes",
@@ -105,12 +105,12 @@ def populate_vs_questions(values)
     value     = "--firstdisk --overwritevmfs",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "nic"
-  config = vs.new(
+  config = vs.new (
     type      = "",
     question  = "Primary Network Interface",
     ask       = "yes",
@@ -118,12 +118,12 @@ def populate_vs_questions(values)
     value     = "vmnic0",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "bootproto"
-  config = vs.new(
+  config = vs.new (
     type      = "",
     question  = "Boot Protocol",
     ask       = "yes",
@@ -131,12 +131,12 @@ def populate_vs_questions(values)
     value     = "static",
     valid     = "static,dhcp",
     eval      = "values = set_vs_network(values)"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "hostname"
-  config = vs.new(
+  config = vs.new (
     type      = "",
     question  = "Hostname",
     ask       = "yes",
@@ -144,12 +144,12 @@ def populate_vs_questions(values)
     value     = values['name'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "ip"
-  config = vs.new(
+  config = vs.new (
     type      = "",
     question  = "IP",
     ask       = "yes",
@@ -157,12 +157,12 @@ def populate_vs_questions(values)
     value     = values['ip'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "network"
-  config = vs.new(
+  config = vs.new (
     type      = "output",
     question  = "Network Configuration",
     ask       = "yes",
@@ -170,12 +170,12 @@ def populate_vs_questions(values)
     value     = "get_vs_network(values)",
     valid     = "",
     eval      = "get_vs_network(values)"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "datastore"
-  config = vs.new(
+  config = vs.new (
     type      = "",
     question  = "Local datastore name",
     ask       = "yes",
@@ -183,12 +183,12 @@ def populate_vs_questions(values)
     value     = values['datastore'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "vm_network_name"
-  config = vs.new(
+  config = vs.new (
     type      = "",
     question  = "VM network name",
     ask       = "yes",
@@ -196,12 +196,12 @@ def populate_vs_questions(values)
     value     = values['servernetwork'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "vm_network_vlanid"
-  config = vs.new(
+  config = vs.new (
     type      = "",
     question  = "VM network VLAN ID",
     ask       = "yes",
@@ -209,12 +209,12 @@ def populate_vs_questions(values)
     value     = values['vlanid'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "vm_network_vswitch"
-  config = vs.new(
+  config = vs.new (
     type      = "",
     question  = "VM network vSwitch",
     ask       = "yes",
@@ -222,12 +222,12 @@ def populate_vs_questions(values)
     value     = values['vswitch'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "root_password"
-  config = vs.new(
+  config = vs.new (
     type      = "",
     question  = "Root Password",
     ask       = "yes",
@@ -235,12 +235,12 @@ def populate_vs_questions(values)
     value     = values['rootpassword'],
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "root_crypt"
-  config = vs.new(
+  config = vs.new (
     type      = "",
     question  = "Root Password Crypt",
     ask       = "yes",
@@ -248,12 +248,12 @@ def populate_vs_questions(values)
     value     = "get_root_password_crypt(values)",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "rootpw"
-  config = vs.new(
+  config = vs.new (
     type      = "output",
     question  = "Root Password Configuration",
     ask       = "yes",
@@ -261,12 +261,12 @@ def populate_vs_questions(values)
     value     = "get_vs_password(values)",
     valid     = "",
     eval      = "get_vs_password(values)"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "finish"
-  config = vs.new(
+  config = vs.new (
     type      = "output",
     question  = "Finish Command",
     ask       = "yes",
@@ -274,8 +274,8 @@ def populate_vs_questions(values)
     value     = "reboot",
     valid     = "",
     eval      = "no"
-    )
-  values['q_struct'][name] = config
-  values['q_order'].push(name)
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
   return values
 end

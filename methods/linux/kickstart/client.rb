@@ -157,13 +157,13 @@ def configure_ks_pxe_client(values)
     end
   end
   if values['service'].to_s.match(/ubuntu/)
-    values['ip']        = values['q_struct']['ip'].value
-    install_domain       = values['q_struct']['domain'].value
-    install_nic          = values['q_struct']['nic'].value
-    values['vmgateway'] = values['q_struct']['gateway'].value
-    values['netmask']   = values['q_struct']['netmask'].value
-    values['vmnetwork'] = values['q_struct']['network_address'].value
-    disable_dhcp         = values['q_struct']['disable_dhcp'].value
+    values['ip']        = values['answers']['ip'].value
+    install_domain       = values['answers']['domain'].value
+    install_nic          = values['answers']['nic'].value
+    values['vmgateway'] = values['answers']['gateway'].value
+    values['netmask']   = values['answers']['netmask'].value
+    values['vmnetwork'] = values['answers']['network_address'].value
+    disable_dhcp         = values['answers']['disable_dhcp'].value
     if disable_dhcp.match(/true/)
       if values['biostype'].to_s.match(/efi/)
         if values['service'].to_s.match(/live/)
@@ -483,13 +483,13 @@ end
 def populate_ks_post_list(values)
   gateway_ip  = values['vmgateway']
   post_list   = []
-  admin_group = values['q_struct']['admin_group'].value
-  admin_user  = values['q_struct']['admin_username'].value
-  admin_crypt = values['q_struct']['admin_crypt'].value
-  admin_home  = values['q_struct']['admin_home'].value
-  admin_uid   = values['q_struct']['admin_uid'].value
-  admin_gid   = values['q_struct']['admin_gid'].value
-  nic_name    = values['q_struct']['nic'].value
+  admin_group = values['answers']['admin_group'].value
+  admin_user  = values['answers']['admin_username'].value
+  admin_crypt = values['answers']['admin_crypt'].value
+  admin_home  = values['answers']['admin_home'].value
+  admin_uid   = values['answers']['admin_uid'].value
+  admin_gid   = values['answers']['admin_gid'].value
+  nic_name    = values['answers']['nic'].value
   epel_file   = "/etc/yum.repos.d/epel.repo"
   beta_file   = "/etc/yum.repos.d/public-yum-ol6-beta.repo"
   post_list.push("")
@@ -844,12 +844,12 @@ end
 def output_ks_header(values,output_file)
   tmp_file = "/tmp/ks_"+values['name']
   file=File.open(tmp_file, 'w')
-  values['q_order'].each do |key|
-    if values['q_struct'][key].type.match(/output/)
-      if not values['q_struct'][key].parameter.match(/[a-z,A-Z]/)
-        output = values['q_struct'][key].value+"\n"
+  values['order'].each do |key|
+    if values['answers'][key].type.match(/output/)
+      if not values['answers'][key].parameter.match(/[a-z,A-Z]/)
+        output = values['answers'][key].value+"\n"
       else
-        output = values['q_struct'][key].parameter+" "+values['q_struct'][key].value+"\n"
+        output = values['answers'][key].parameter+" "+values['answers'][key].value+"\n"
       end
       file.write(output)
     end

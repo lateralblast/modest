@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      8.0.8
+# Version:      8.0.9
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -33,9 +33,9 @@ require 'etc'
 # Declare array for text output (used for webserver)
 
 values = {}
-values['stdout']   = []
-values['q_struct'] = {}
-values['q_order']  = []
+values['stdout']  = []
+values['answers'] = {}
+values['order']   = []
 
 # Handle output
 
@@ -513,6 +513,8 @@ begin
     ['--splitvols', BOOLEAN],           # Split volumes, e.g. seperate /, /var, etc
     ['--nosplitvols', BOOLEAN],         # Don't split volumes, e.g. seperate /, /var, etc
     ['--sshkey', REQUIRED],             # SSH Key
+    ['--usesshkey', BOOLEAN],           # Use SSH key
+    ['--dontusesshkey', BOOLEAN],       # Don't use SSH key
     ['--sshkeyfile', REQUIRED],         # SSH Keyfile
     ['--sshpassword', REQUIRED],        # Packer SSH Port min
     ['--sshport', REQUIRED],            # SSH Port

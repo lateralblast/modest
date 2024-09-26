@@ -476,6 +476,7 @@ def set_defaults(values, defaults)
   defaults['sshconfig']       = defaults['home'].to_s+"/.ssh/config"
   defaults['sshenadble']      = "true"
   defaults['sshkeydir']       = defaults['home'].to_s+"/.ssh"
+  defaults['usesshkey']       = true
   [ 'dsa', 'rsa', 'ed25519' ].each do |ssh_key_type|
     ssh_key_file = defaults['sshkeydir']+"/id_"+ssh_key_type+".pub"
     if File.exist?(ssh_key_file)

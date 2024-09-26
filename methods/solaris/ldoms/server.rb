@@ -108,7 +108,7 @@ def check_cdom_config(values)
   command = "ldm list-config |grep 'current'"
   output  = execute_command(values, message, command)
   if output.match(/factory\-default/)
-    config  = values['q_struct']['cdom_name'].value
+    config  = values['answers']['cdom_name'].value
     message = "Information:\tChecking LDom configuration "+config+" doesn't exist"
     command = "ldm list-config |grep #{config}"
     output  = execute_command(values, message, command)
@@ -117,19 +117,19 @@ def check_cdom_config(values)
       quit(values)
     end
     if values['host-os-unamea'].match(/T5[0-9]|T3/)
-      mau     = values['q_struct']['cdom_mau'].value
+      mau     = values['answers']['cdom_mau'].value
       message = "Information:\tAllocating "+mau+"Crypto unit(s) to primary domain"
       command = "ldm set-mau #{mau} primary"
       execute_command(values, message, command)
     end
-    vcpu    = values['q_struct']['cdom_vcpu'].value
+    vcpu    = values['answers']['cdom_vcpu'].value
     message = "Information:\tAllocating "+vcpu+"vCPU unit(s) to primary domain"
     command = "ldm set-vcpu #{vcpu} primary"
     execute_command(values, message, command)
     message = "Information:\tStarting reconfiguration of primary domain"
     command = "ldm start-reconf primary"
     execute_command(values, message, command)
-    memory  = values['q_struct']['cdom_memory'].value
+    memory  = values['answers']['cdom_memory'].value
     message = "Information:\tAllocating "+memory+"to primary domain"
     command = "ldm set-memory #{memory} primary"
     execute_command(values, message, command)

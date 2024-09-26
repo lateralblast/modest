@@ -64,23 +64,23 @@ def output_pe_client_profile(values,output_file)
   userinput       = ""
   counter         = 1
   number          = ""
-  locale          = values['q_struct']['locale'].value
-  timezone        = values['q_struct']['timezone'].value
-  boot_disk_size  = values['q_struct']['boot_disk_size'].value
-  admin_fullname  = values['q_struct']['admin_fullname'].value
-  admin_username  = values['q_struct']['admin_username'].value
-  admin_password  = values['q_struct']['admin_password'].value
-  organisation    = values['q_struct']['organisation'].value
-  cpu_arch        = values['q_struct']['cpu_arch'].value
-  values['license']   = values['q_struct']['license_key'].value
-  values['vmnetwork'] = values['q_struct']['network_type'].value
+  locale          = values['answers']['locale'].value
+  timezone        = values['answers']['timezone'].value
+  boot_disk_size  = values['answers']['boot_disk_size'].value
+  admin_fullname  = values['answers']['admin_fullname'].value
+  admin_username  = values['answers']['admin_username'].value
+  admin_password  = values['answers']['admin_password'].value
+  organisation    = values['answers']['organisation'].value
+  cpu_arch        = values['answers']['cpu_arch'].value
+  values['license']   = values['answers']['license_key'].value
+  values['vmnetwork'] = values['answers']['network_type'].value
   if values['vmnetwork'].to_s.match(/hostonly|bridged/)
-    network_name  = values['q_struct']['network_name'].value
-    network_cidr  = values['q_struct']['network_cidr'].value
-    network_ip    = values['q_struct']['ip_address'].value
-    gateway_ip    = values['q_struct']['gateway_address'].value
-    nameserver_ip = values['q_struct']['nameserver_ip'].value
-    search_domain = values['q_struct']['search_domain'].value
+    network_name  = values['answers']['network_name'].value
+    network_cidr  = values['answers']['network_cidr'].value
+    network_ip    = values['answers']['ip_address'].value
+    gateway_ip    = values['answers']['gateway_address'].value
+    nameserver_ip = values['answers']['nameserver_ip'].value
+    search_domain = values['answers']['search_domain'].value
   end
   # Put in some Microsoft Eval Keys if no license specified
   if not values['license'].to_s.match(/[0-9]/)

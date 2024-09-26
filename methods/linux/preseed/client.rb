@@ -34,9 +34,9 @@ def output_ps_header(values, output_file)
   else
     tmp_file = "/tmp/preseed_"+values['name'].to_s
     file = File.open(tmp_file, 'w')
-    values['q_order'].each do |key|
-      if values['q_struct'][key].parameter.match(/[a-z,A-Z]/)
-        output = "d-i "+values['q_struct'][key].parameter+" "+values['q_struct'][key].type+" "+values['q_struct'][key].value+"\n"
+    values['order'].each do |key|
+      if values['answers'][key].parameter.match(/[a-z,A-Z]/)
+        output = "d-i "+values['answers'][key].parameter+" "+values['answers'][key].type+" "+values['answers'][key].value+"\n"
         file.write(output)
       end
     end
@@ -59,8 +59,8 @@ def populate_ps_first_boot_list(values)
     install_target = ""
   end
   post_list  = []
-  admin_user = values['q_struct']['admin_username'].value
-  values['ip'] = values['q_struct']['ip'].value
+  admin_user = values['answers']['admin_username'].value
+  values['ip'] = values['answers']['ip'].value
   if values['copykeys'] == true
     ssh_keyfile = values['sshkeyfile']
     if File.exist?(ssh_keyfile)
@@ -72,18 +72,18 @@ def populate_ps_first_boot_list(values)
     if values['service'].to_s.match(/16_10|18_|19_|20_/)
       client_nic = "eth0"
     else
-      client_nic = values['q_struct']['nic'].value
+      client_nic = values['answers']['nic'].value
     end
   else
-    client_nic = values['q_struct']['nic'].value
+    client_nic = values['answers']['nic'].value
   end
-  client_gateway    = values['q_struct']['gateway'].value
-  client_netmask    = values['q_struct']['netmask'].value
-  client_network    = values['q_struct']['network_address'].value
-  client_broadcast  = values['q_struct']['broadcast'].value
-  client_nameserver = values['q_struct']['nameserver'].value
-  client_domain     = values['q_struct']['domain'].value
-  client_mirrorurl  = values['q_struct']['mirror_hostname'].value+values['q_struct']['mirror_directory'].value
+  client_gateway    = values['answers']['gateway'].value
+  client_netmask    = values['answers']['netmask'].value
+  client_network    = values['answers']['network_address'].value
+  client_broadcast  = values['answers']['broadcast'].value
+  client_nameserver = values['answers']['nameserver'].value
+  client_domain     = values['answers']['domain'].value
+  client_mirrorurl  = values['answers']['mirror_hostname'].value+values['answers']['mirror_directory'].value
   post_list.push("")
   post_list.push("export TERM=vt100")
   post_list.push("export LANGUAGE=en_US.UTF-8")
@@ -201,8 +201,8 @@ def populate_ps_first_boot_list(values)
     post_list.push("echo 'dns-search #{client_domain}' >> #{net_config}")
     post_list.push("echo 'dns-nameservers #{client_nameserver}' >> #{net_config}")
     if values['service'].to_s.match(/purity/)
-      if values['q_struct']['eth1_ip'].value.match(/0-9/)
-        values['ip'] = values['q_struct']['eth1_ip'].value
+      if values['answers']['eth1_ip'].value.match(/0-9/)
+        values['ip'] = values['answers']['eth1_ip'].value
         post_list.push("echo 'auto #{client_nic}' >> #{net_config}")
         post_list.push("echo 'iface #{client_nic} inet static' >> #{net_config}")
         post_list.push("echo 'address #{values['ip']}' >> #{net_config}")
@@ -211,8 +211,8 @@ def populate_ps_first_boot_list(values)
         post_list.push("echo 'network #{client_network}' >> #{net_config}")
         post_list.push("echo 'broadcast #{client_broadcast}' >> #{net_config}") 
       end
-      if values['q_struct']['eth2_ip'].value.match(/0-9/)
-        values['ip'] = values['q_struct']['eth2_ip'].value
+      if values['answers']['eth2_ip'].value.match(/0-9/)
+        values['ip'] = values['answers']['eth2_ip'].value
         post_list.push("echo 'auto #{client_nic}' >> #{net_config}")
         post_list.push("echo 'iface #{client_nic} inet static' >> #{net_config}")
         post_list.push("echo 'address #{values['ip']}' >> #{net_config}")
@@ -221,8 +221,8 @@ def populate_ps_first_boot_list(values)
         post_list.push("echo 'network #{client_network}' >> #{net_config}")
         post_list.push("echo 'broadcast #{client_broadcast}' >> #{net_config}") 
       end
-      if values['q_struct']['eth3_ip'].value.match(/0-9/)
-        values['ip'] = values['q_struct']['eth3_ip'].value
+      if values['answers']['eth3_ip'].value.match(/0-9/)
+        values['ip'] = values['answers']['eth3_ip'].value
         post_list.push("echo 'auto #{client_nic}' >> #{net_config}")
         post_list.push("echo 'iface #{client_nic} inet static' >> #{net_config}")
         post_list.push("echo 'address #{values['ip']}' >> #{net_config}")
@@ -231,8 +231,8 @@ def populate_ps_first_boot_list(values)
         post_list.push("echo 'network #{client_network}' >> #{net_config}")
         post_list.push("echo 'broadcast #{client_broadcast}' >> #{net_config}") 
       end
-      if values['q_struct']['eth4_ip'].value.match(/0-9/)
-        values['ip'] = values['q_struct']['eth4_ip'].value
+      if values['answers']['eth4_ip'].value.match(/0-9/)
+        values['ip'] = values['answers']['eth4_ip'].value
         post_list.push("echo 'auto #{client_nic}' >> #{net_config}")
         post_list.push("echo 'iface #{client_nic} inet static' >> #{net_config}")
         post_list.push("echo 'address #{values['ip']}' >> #{net_config}")
@@ -241,8 +241,8 @@ def populate_ps_first_boot_list(values)
         post_list.push("echo 'network #{client_network}' >> #{net_config}")
         post_list.push("echo 'broadcast #{client_broadcast}' >> #{net_config}") 
       end
-      if values['q_struct']['eth5_ip'].value.match(/0-9/)
-        values['ip'] = values['q_struct']['eth5_ip'].value
+      if values['answers']['eth5_ip'].value.match(/0-9/)
+        values['ip'] = values['answers']['eth5_ip'].value
         post_list.push("echo 'auto #{client_nic}' >> #{net_config}")
         post_list.push("echo 'iface #{client_nic} inet static' >> #{net_config}")
         post_list.push("echo 'address #{values['ip']}' >> #{net_config}")
@@ -321,7 +321,7 @@ end
 
 def populate_ps_post_list(values)
   post_list = []
-  gateway   = values['q_struct']['gateway'].value
+  gateway   = values['answers']['gateway'].value
   if values['type'].to_s.match(/packer/)
     if values['vmnetwork'].to_s.match(/hostonly|bridged/)
       if values['host-os-uname'].to_s.match(/Darwin/) && values['host-os-version'].to_i > 10 
