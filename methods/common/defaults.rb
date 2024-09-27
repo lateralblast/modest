@@ -343,6 +343,7 @@ def set_defaults(values, defaults)
   defaults['growpartmode']    = "auto"
   defaults['hardwareversion'] = "8"
   defaults['headless']        = false
+  defaults['help']            = false
   defaults['hostname']        = %x['hostname'].chomp
   defaults['hostnet']         = "192.168.1.0"
   defaults['hosts']           = "files dns"
@@ -462,6 +463,7 @@ def set_defaults(values, defaults)
   defaults['sshpassword']     = defaults['serverpassword']
   defaults['serversize']      = "small"
   defaults['serial']          = false
+  defaults['silent']          = false
   defaults['sitename']        = defaults['domainname'].to_s.split(".")[0]
   defaults['size']            = "100G"
   defaults['slice']           = "8192"
@@ -524,7 +526,8 @@ def set_defaults(values, defaults)
   defaults['vboxmanage']      = "/usr/local/bin/VBoxManage"
   defaults['vcpu']            = "1"
   defaults['vgname']          = "vg01"
-  defaults['verbose']         = "false"
+  defaults['verbose']         = false
+  defaults['version']         = false
   defaults['virtiofile']      = ""
   defaults['virtualdevice']   = "lsilogic"
   defaults['vmntools']        = false

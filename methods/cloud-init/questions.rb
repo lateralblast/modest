@@ -75,7 +75,7 @@ def populate_ci_questions(values)
   values['order'].push(name)
 
   if values['admincrypt'] == values['empty']
-    values['admincrypt'] = get_password_crypt(values['adminpassword'])
+    values['admincrypt']  = get_password_crypt(values['adminpassword'])
   end
 
   name   = "passwd"
@@ -199,62 +199,57 @@ def populate_ci_questions(values)
   values['answers'][name] = config
   values['order'].push(name)
 
-  if values['dhcp'] == false
+  name   = "ip"
+  config = qs.new(
+    type      = "",
+    question  = "IP Address",
+    ask       = "yes",
+    parameter = "",
+    value     = values['ip'],
+    valid     = "",
+    eval      = "no"
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-    name   = "ip"
-    config = qs.new(
-      type      = "",
-      question  = "IP Address",
-      ask       = "yes",
-      parameter = "",
-      value     = values['ip'],
-      valid     = "",
-      eval      = "no"
-    )
-    values['answers'][name] = config
-    values['order'].push(name)
+  name   = "cidr"
+  config = qs.new(
+    type      = "",
+    question  = "CIDR",
+    ask       = "yes",
+    parameter = "",
+    value     = values['cidr'],
+    valid     = "",
+    eval      = "no"
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-    name   = "cidr"
-    config = qs.new(
-      type      = "",
-      question  = "CIDR",
-      ask       = "yes",
-      parameter = "",
-      value     = values['cidr'],
-      valid     = "",
-      eval      = "no"
-    )
-    values['answers'][name] = config
-    values['order'].push(name)
+  name   = "nameserver"
+  config = qs.new(
+    type      = "",
+    question  = "Nameserver",
+    ask       = "yes",
+    parameter = "",
+    value     = values['nameserver'],
+    valid     = "",
+    eval      = "no"
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
-    name   = "nameserver"
-    config = qs.new(
-      type      = "",
-      question  = "Nameserver",
-      ask       = "yes",
-      parameter = "",
-      value     = values['nameserver'],
-      valid     = "",
-      eval      = "no"
-    )
-    values['answers'][name] = config
-    values['order'].push(name)
-
-
-    name   = "vmgateway"
-    config = qs.new(
-      type      = "",
-      question  = "Gatewayr",
-      ask       = "yes",
-      parameter = "",
-      value     = values['vmgateway'],
-      valid     = "",
-      eval      = "no"
-    )
-    values['answers'][name] = config
-    values['order'].push(name)
-
-  end
+  name   = "vmgateway"
+  config = qs.new(
+    type      = "",
+    question  = "Gatewayr",
+    ask       = "yes",
+    parameter = "",
+    value     = values['vmgateway'],
+    valid     = "",
+    eval      = "no"
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
 
   name   = "graphics"
   config = qs.new(

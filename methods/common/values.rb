@@ -1,6 +1,6 @@
-# Hdle values
+# Post process values after handling defaults
 
-def handle_values(values)
+def post_process_values(values)
   # Print help before anything if required
   if values['help']
     values['output'] = 'text'
@@ -12,6 +12,17 @@ def handle_values(values)
     values['output'] = 'text'
     print_version(values)
     quit(values)
+  end
+  # Handle when running in defaults (non interactive mode)
+  if values['defaults'] == true
+    if values['dhcp'] == false
+      [ 'cidr', 'ip', 'nameserver', 'gateway' ].each do |item|
+        if not values[item].to_s.match(/[0-9]/)
+          warning_message(values, "No value for #{item} given")
+          quit(values)
+        end
+      end
+    end
   end
   # Set up question associative array
   values['answers'] = {}
@@ -40,7 +51,7 @@ def handle_values(values)
   # Handle groups
   if values['group']
     if not values['groups']
-      value['groups'] = value['group']
+      values['groups'] = value['group']
     end
   end
   # Handle password/crypt
@@ -179,21 +190,13 @@ def process_values(values, defaults)
   # Process parameters
   raw_params = IO.readlines(defaults['scriptfile']).grep(/REQUIRED|BOOLEAN/).join.split(/\n/)
   raw_params.each do |raw_param|
-    if raw_param.match(/\[/) && !raw_param.match(/stdout|^raw_params/)
+    if raw_param.match(/\[/) and !raw_param.match(/stdout|^raw_params/)
       raw_param = raw_param.split(/--/)[1].split(/'/)[0]
-      if !values[raw_param]
+      if values[raw_param].nil?
         if defaults[raw_param].to_s.match(/[A-Z]|[a-z]|[0-9]|^\//)
           values[raw_param] = defaults[raw_param]
         else
           values[raw_param] = defaults['empty']
-        end
-      else
-        if values[raw_param] == nil
-          if defaults[raw_param].to_s.match(/[A-Z]|[a-z]|[0-9]|^\//)
-            values[raw_param] = defaults[raw_param]
-          else
-            values[raw_param] = defaults['empty']
-          end
         end
       end
       values['output'] = "text"
@@ -202,24 +205,19 @@ def process_values(values, defaults)
   end
   # Do a final check through defaults
   defaults.each do |param, value|
-    if !values[param]
+    if values[param].nil?
       values[param] = defaults[param]
       values['output'] = "text"
       verbose_output(values, "Information:\tSetting value for #{param} to #{values[param]}")
-    else
-      if values[param] == nil
-        values[param] = defaults[param]
-        values['output'] = "text"
-        verbose_output(values, "Information:\tSetting value for #{param} to #{values[param]}")
-      end
     end
-    if values['action'] == "info"
-      if values['info'].match(/os/)
-        if param.match(/^os/)
-          values['verbose'] = true
-          verbose_output(values, "Information:\tParameter #{param} is #{values[param]}")
-          values['verbose'] = false
-        end
+  end
+  if values['action'] == "info"
+    if values['info'].match(/os/)
+      if param.match(/^os/)
+        values['output'] = "text"
+        values['verbose'] = true
+        verbose_output(values, "Information:\tParameter #{param} is #{values[param]}")
+        values['verbose'] = false
       end
     end
   end

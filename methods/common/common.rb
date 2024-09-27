@@ -269,6 +269,7 @@ end
 
 def print_version(values)
   (version, packager, name) = get_version()
+  values['verbose'] = true
   verbose_output(values, "#{name} v. #{version} #{packager}")
   return
 end

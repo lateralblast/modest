@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      8.1.2
+# Version:      8.1.3
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -57,6 +57,15 @@ end
 def verbose_output(values, text)
   if values['verbose'] == true or values['notice'] == true
     handle_output(values, text)
+  end
+  return
+end
+
+# Warning message
+
+def warning_message(values, text)
+  if values['silent'] == false
+    puts "Warning:\t#{text}" 
   end
   return
 end
@@ -515,6 +524,7 @@ begin
     ['--share', REQUIRED],              # Shared folder
     ['--shutdowncommand', REQUIRED],    # Packer Shutdown command
     ['--shutdowntimeout', REQUIRED],    # Packer Shutdown timeout
+    ['--silent', BOOLEAN],              # Run in silent mode (don't print warning messages)
     ['--sitename', REQUIRED],           # Sitename for VCSA
     ['--smartcard', REQUIRED],          # Smartcard (KVM)
     ['--snapshot', REQUIRED],           # AWS snapshot
@@ -626,10 +636,6 @@ if values['usage']
   end
 end
 
-# Handle values
-
-values = handle_values(values)
-
 # Set up some initital defaults
 
 values['stdout']  = []
@@ -692,7 +698,7 @@ if values['options']
         verbose_output(values, "Information:\tOption #{option} is set to true")
         temp_option = option.gsub(/^no|^dont|^un/,"")
         temp_option = temp_option.gsub(/disable/,"enable")
-        verbose_output(values, "Information:\tSetting option #{temp_option} to false")
+        verbose_output(values, "Information:\tSetting value #{temp_option} to false")
         values[temp_option] = false
       else
         verbose_output(values, "Information:\tOption #{option} is set to true")
@@ -716,7 +722,13 @@ defaults = reset_defaults(values, defaults)
 
 # Process values based on defaults
 
+puts values['dhcp']
+
 values = process_values(values, defaults)
+
+# Post process values after handling defaults
+
+values = post_process_values(values)
 
 # Set some local configuration values like DHCP files etc
 
