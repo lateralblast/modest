@@ -182,25 +182,35 @@ def process_values(values, defaults)
     if raw_param.match(/\[/) && !raw_param.match(/stdout|^raw_params/)
       raw_param = raw_param.split(/--/)[1].split(/'/)[0]
       if !values[raw_param]
-        if defaults[raw_param].to_s.match(/[A-Z]|[a-z]|[0-9]/)
+        if defaults[raw_param].to_s.match(/[A-Z]|[a-z]|[0-9]|^\//)
           values[raw_param] = defaults[raw_param]
         else
           values[raw_param] = defaults['empty']
         end
+      else
+        if values[raw_param] == nil
+          if defaults[raw_param].to_s.match(/[A-Z]|[a-z]|[0-9]|^\//)
+            values[raw_param] = defaults[raw_param]
+          else
+            values[raw_param] = defaults['empty']
+          end
+        end
       end
-      if values['verbose'] == true
-        values['output'] = "text"
-        verbose_output(values, "Information:\tSetting option #{raw_param} to #{values[raw_param]}")
-      end
+      values['output'] = "text"
+      verbose_output(values, "Information:\tSetting value for #{raw_param} to #{values[raw_param]}")
     end
   end
   # Do a final check through defaults
   defaults.each do |param, value|
     if !values[param]
       values[param] = defaults[param]
-      if values['verbose'] == true
+      values['output'] = "text"
+      verbose_output(values, "Information:\tSetting value for #{param} to #{values[param]}")
+    else
+      if values[param] == nil
+        values[param] = defaults[param]
         values['output'] = "text"
-        verbose_output(values, "Information:\tSetting option #{param} to #{values[param]}")
+        verbose_output(values, "Information:\tSetting value for #{param} to #{values[param]}")
       end
     end
     if values['action'] == "info"

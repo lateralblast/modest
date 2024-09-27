@@ -482,7 +482,7 @@ def set_defaults(values, defaults)
     if File.exist?(ssh_key_file)
       defaults['sshkeyfile'] = ssh_key_file
       defaults['sshkeytype'] = ssh_key_type
-      defaults['sshkey']     = File.read(ssh_key_file)
+      defaults['sshkey']     = File.read(ssh_key_file).chomp
     end
   end
   defaults['sshkeybits']      = "2048"
@@ -591,6 +591,14 @@ def reset_defaults(values, defaults)
     defaults['cputype'] = "cortex-a57"
   else
     defaults['cputype'] = "host"
+  end
+  if values['name'].to_s.match(/[a-z]/)
+    if !values['hostname']
+      defaults['hostname'] = values['name']
+    end
+  end
+  if values['vm'].to_s.match(/kvm/) and values['method'].to_s.match(/ci/) or values['file'].to_s.match(/cloudimg/)
+    defaults['vmnic'] = "enp1s0"
   end
   if values['file'].to_s.match(/[a-z]/)
     defaults['arch'] = get_install_arch_from_file(values)

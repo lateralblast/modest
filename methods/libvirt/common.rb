@@ -534,9 +534,11 @@ def configure_kvm_import_client(values)
       config_path = Pathname.new(values['outputfile'].to_s)
       config_path = config_path.dirname.to_s
       if values['dryrun'] == true
-        config_file = "#{values['tmpdir']}/#{values['name'].to_s}.cfg"
+        config_file  = "#{values['tmpdir']}/#{values['name'].to_s}_cloud.cfg"
+        network_file = "#{values['tmpdir']}/#{values['name'].to_s}_network.cfg"
       else
-        config_file = "#{config_path}/#{values['name'].to_s}.cfg"
+        config_file  = "#{config_path}/#{values['name'].to_s}_cloud.cfg"
+        network_file = "#{config_path}/#{values['name'].to_s}_network.cfg"
       end
     end
     if values['networkfile'] == values['empty']
@@ -568,6 +570,22 @@ def configure_kvm_import_client(values)
         quit(values)
       end
     end
+#    if values['method'].to_s.match(/ci/)
+#      file = File.open(network_file, 'w')
+#      file.write("ethernets:\n")
+#      file.write("  #{values['answers']['vmnic'].value}\n")
+#      file.write("    dhcp4: #{values['answers']['dhcp'].value}\n")
+#      if values['answers']['dhcp'].value.to_s.match(/true/)
+#        file.write("    addresses: [#{values['answers']['ip'].value}/#{values['answers']['cidr'].value}]\n")
+#        file.write("      nameservers: #{values['answers']['nameserver'].value}\n")
+#        file.write("    routes:\n")
+#        file.write("    - to: default\n")
+#        file.write("      via: #{values['answers']['vmgateway'].value}\n")
+#      end
+#      file.write("version: 2\n")
+#      file.close
+#
+#    end    
     file = File.open(config_file, 'w')
     file.write("#cloud-config\n")
     file.write("hostname: #{values['answers']['hostname'].value}\n")
@@ -579,16 +597,16 @@ def configure_kvm_import_client(values)
     file.write("    gecos: #{values['answers']['admin_fullname'].value}\n")
     file.write("    primary_group: #{values['answers']['admin_username'].value}\n")
     if values['method'].to_s.match(/ci/)
-      file.write("    groups: #{values['answers']['admin_groupname']}\n")
-      file.write("    shell: #{values['answers']['admin_shell']}\n")
+      file.write("    groups: #{values['answers']['groups'].value}\n")
+      file.write("    shell: #{values['answers']['shell'].value}\n")
     else
       file.write("    groups: users\n")
       file.write("    shell: /bin/bash\n")
     end
-    file.write("    passwd: #{values['answers']['admin_crypt'].value}\n")
+    file.write("    passwd: \"#{values['answers']['admin_crypt'].value}\"\n")
     if values['method'].to_s.match(/ci/)
       file.write("    ssh-authorized-keys:\n")
-      file.write("      - #{values['answers']['ssh-authorized-keys'].value}\n")
+      file.write("      - \"#{values['answers']['ssh-authorized-keys'].value}\"\n")
       file.write("    sudo: #{values['answers']['sudoers'].value}\n")
       file.write("    lock_passwd: #{values['answers']['lock_passwd'].value}\n")
     else
@@ -634,7 +652,7 @@ def configure_kvm_import_client(values)
     file.close
     print_contents_of_file(values, "", config_file)
     check_file_owner(values, config_file, values['uid'])
-    if values['answers']['static'].value == "true"
+    if values['answers']['static'].value.to_s.match(/true/) or values['answers']['dhcp'].value.to_s.match(/false/)
       file = File.open(network_file, 'w')
         file.write("version: 2\n")
         file.write("ethernets:\n")

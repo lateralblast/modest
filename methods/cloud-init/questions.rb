@@ -186,6 +186,19 @@ def populate_ci_questions(values)
   values['answers'][name] = config
   values['order'].push(name)
 
+  name   = "dhcp"
+  config = qs.new(
+    type      = "",
+    question  = "DHCP",
+    ask       = "yes",
+    parameter = "",
+    value     = values['dhcp'].to_s,
+    valid     = "",
+    eval      = "no"
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
+
   if values['dhcp'] == false
 
     name   = "ip"

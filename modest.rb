@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      8.1.1
+# Version:      8.1.2
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -61,12 +61,20 @@ def verbose_output(values, text)
   return
 end
 
-# If given --verbose switch enable verbose mode early
+# If given verbose switch/option enable verbose mode early
 
 if ARGV.to_s.match(/verbose/)
   values['verbose'] = true
-  values['output'] = "text"
+  values['output']  = "text"
 end
+
+# If given dryrun switch/option enable dryrun mode early
+
+if ARGV.to_s.match(/dryrun/)
+  values['dryrun'] = true
+end
+
+# String class overrides
 
 class String
   def strip_control_characters
@@ -86,6 +94,8 @@ class String
     self.to_i(from).to_s(to)
   end
 end
+
+# Function to install gems
 
 def install_gem(load_name)
   case load_name
@@ -152,7 +162,7 @@ end
 # Print help if specified none
 
 if !ARGV[0]
-  values['output'] = 'text'
+  values['output'] = "text"
   print_help(values)
 end
 
@@ -601,7 +611,7 @@ begin
     ['--zpool', REQUIRED]               # Boot zpool name
   )
 rescue
-  values['output'] = 'text'
+  values['output'] = "text"
   values['stdout'] = []
   print_help(values)
   quit(values)
@@ -653,9 +663,23 @@ raw_params.each do |raw_param|
   end
 end
 
+# If given verbose switch/option enable verbose mode early
+
+if values['options'].to_s.match(/verbose/)
+  values['verbose'] = true
+  values['output']  = "text"
+end
+
+# If given dryrun switch/option enable dryrun mode early
+
+if values['options'].to_s.match(/dryrun/)
+  values['dryrun'] = true
+end
+
 # Handle options
 
 if values['options']
+  verbose_output(values, "Information:\tProcessing options")
   if values['options'].to_s.match(/[a-z]/)
     options = []
     if values['options'].to_s.match(/\,/)
@@ -665,10 +689,13 @@ if values['options']
     end
     options.each do |option|
       if option.match(/^no|^disable|^dont|^un/)
+        verbose_output(values, "Information:\tOption #{option} is set to true")
         temp_option = option.gsub(/^no|^dont|^un/,"")
-        temp_option = option.gsub(/dsable/,"enable")
+        temp_option = temp_option.gsub(/disable/,"enable")
+        verbose_output(values, "Information:\tSetting option #{temp_option} to false")
         values[temp_option] = false
       else
+        verbose_output(values, "Information:\tOption #{option} is set to true")
         values[option] = true
       end
     end
