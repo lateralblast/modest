@@ -51,7 +51,7 @@ def post_process_values(values)
   # Handle groups
   if values['group']
     if not values['groups']
-      values['groups'] = value['group']
+      values['groups'] = values['group']
     end
   end
   # Handle password/crypt
@@ -226,23 +226,6 @@ def process_values(values, defaults)
     if values['action'] == values['empty']
       if values[action] != values['empty']
         values['action'] = action
-      end
-    end
-  end
-  # Do some more checks
-  if values['vm'] != values['empty']
-    if values['action'].to_s.match(/create/)
-      if values['dhcp'] == false
-        if values['file'] != values['empty']
-          if values['type'] != "service"
-            if values['ip'] == values['empty']
-              if !values['vmnetwork'].to_s.match(/nat/)
-                verbose_output(values, "Warning:\tNo IP specified and DHCP not specified")
-                quit(values)
-              end
-            end
-          end
-        end
       end
     end
   end
