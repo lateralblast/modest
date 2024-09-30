@@ -231,7 +231,7 @@ def create_packer_json(values)
     end
   end
   if values['vmnetwork'].to_s.match(/bridged/) and values['vm'].to_s.match(/vbox/)
-    nic_name = get_bridged_vbox_nic()
+    nic_name = get_bridged_vbox_nic(values)
     nic_command1 = "--nic1"
     nic_config1  = "bridged"
     nic_command2 = "--nictype1"
@@ -597,7 +597,7 @@ def create_packer_json(values)
     script_url        = "http://"+values['vmgateway']+":8888/"+values['vm']+"/"+values['name']+"/setup.sh"
     script_file       = packer_dir+"/"+values['vm']+"/"+values['name']+"/setup.sh"
     if !File.exist?(values['setup'])
-      verbose_output(values, "Warning:\tSetup script '#{values['setup']}' not found")
+      warning_message(values, "Setup script '#{values['setup']}' not found")
       quit(values)
     else
       message = "Information:\tCopying '#{values['setup']}' to '#{script_file}'"
@@ -940,8 +940,8 @@ def create_packer_json(values)
   end
   bridge_nic = get_vm_if_name(values)
   if values['service'].to_s.match(/windows/) and values['vm'].to_s.match(/vbox/) and values['vmnetwork'].to_s.match(/hostonly|bridged/)
-    verbose_output(values, "Warning:\tPacker with Windows and VirtualBox only works on a NAT network (Packer issue)")
-    verbose_output(values, "Information:\tUse the --network=nat option")
+    warning_message(values, "Packer with Windows and VirtualBox only works on a NAT network (Packer issue)")
+    information_message(values, "Use the --network=nat option")
     quit(values)
   end
   if !values['guest'] || values['guest'] = values['empty']

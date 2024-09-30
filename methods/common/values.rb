@@ -200,7 +200,7 @@ def process_values(values, defaults)
         end
       end
       values['output'] = "text"
-      verbose_output(values, "Information:\tSetting value for #{raw_param} to #{values[raw_param]}")
+      information_message(values, "Setting value for #{raw_param} to #{values[raw_param]}")
     end
   end
   # Do a final check through defaults
@@ -208,7 +208,7 @@ def process_values(values, defaults)
     if values[param].nil?
       values[param] = defaults[param]
       values['output'] = "text"
-      verbose_output(values, "Information:\tSetting value for #{param} to #{values[param]}")
+      information_message(values, "Setting value for #{param} to #{values[param]}")
     end
   end
   if values['action'] == "info"
@@ -216,7 +216,7 @@ def process_values(values, defaults)
       if param.match(/^os/)
         values['output'] = "text"
         values['verbose'] = true
-        verbose_output(values, "Information:\tParameter #{param} is #{values[param]}")
+        information_message(values, "Parameter #{param} is #{values[param]}")
         values['verbose'] = false
       end
     end
@@ -278,7 +278,7 @@ def handle_os_values(values)
   # Check we have a setup file for purity
   if values['os-type'] == "purity"
     if values['setup'] == values['empty']
-      verbose_output(values, "Warning:\tNo setup file specified")
+      warning_message(values, "No setup file specified")
       quit(values)
     end
   end
@@ -359,19 +359,17 @@ def handle_vm_values(values)
             values['vm'] = "cdom"
           end
         else
-          verbose_output(values, "Warning:\tLDoms require Solaris 10 or 11")
+          warning_message(values, "LDoms require Solaris 10 or 11")
         end
       else
-        verbose_output(values, "Warning:\tLDoms require Solaris on SPARC")
+        warning_message(values, "LDoms require Solaris on SPARC")
         quit(values)
       end
     end
     if !values['valid-vm'].to_s.downcase.match(/#{values['vm'].to_s}/) && !values['action'].to_s.match(/list/)
       print_valid_list(values, "Warning:\tInvalid VM type", values['valid-vm'])
     end
-    if values['verbose'] == true
-      verbose_output(values, "Information:\tSetting VM type to #{values['vm']}")
-    end
+    information_message(values, "Setting VM type to #{values['vm']}")
   else
     values['vm'] = "none"
   end
@@ -386,7 +384,7 @@ def handle_vm_values(values)
       end
     end
     if values['verbose'] == true && values['model']
-      verbose_output(values, "Information:\tSetting model to #{values['model']}")
+      information_message(values, "Setting model to #{values['model']}")
     end
   end
   # Handle gateway if not empty
@@ -409,9 +407,7 @@ def handle_vm_values(values)
       values['vm'] = "none"
     end
     values['mac'] = check_install_mac(values)
-    if values['verbose'] == true
-       verbose_output(values, "Information:\tSetting client MAC address to #{values['mac']}")
-    end
+     information_message(values, "Setting client MAC address to #{values['mac']}")
   else
     values['mac'] = ""
   end
@@ -424,7 +420,7 @@ def handle_ssh_key_values(values)
   # Handle keyfile switch
   if values['keyfile'] != values['empty']
     if !File.exist?(values['keyfile'])
-      verbose_output(values, "Warning:\tKey file #{values['keyfile']} does not exist")
+      warning_message(values, "Key file #{values['keyfile']} does not exist")
       if values['action'].to_s.match(/create/) and !option['type'].to_s.match(/key/)
         quit(values)
       end
@@ -433,7 +429,7 @@ def handle_ssh_key_values(values)
   # Handle sshkeyfile switch
   if values['sshkeyfile'] != values['empty']
     if !File.exist?(values['sshkeyfile'])
-      verbose_output(values, "Warning:\tSSH Key file #{values['sshkeyfile']} does not exist")
+      warning_message(values, "SSH Key file #{values['sshkeyfile']} does not exist")
       if values['action'].to_s.match(/create/)
         check_ssh_keys(values)
       end
@@ -474,7 +470,7 @@ def handle_os_values(values)
       if values['action'].to_s.match(/add|create/)
         if values['method'] == values['empty']
           if !values['vm'].to_s.match(/ldom|cdom|gdom|aws|mp|multipass/) && !values['type'].to_s.match(/network/)
-            verbose_output(values, "Warning:\tNo OS or install method specified when creating VM")
+            warning_message(values, "No OS or install method specified when creating VM")
             quit(values)
           end
         end
@@ -495,7 +491,7 @@ def handle_release_values(values)
         values['vm'] = "none"
       end
       if values['vm'].to_s.match(/zone/) && values['host-os-unamer'].match(/10|11/) && !values['release'].to_s.match(/10|11/)
-        verbose_output(values, "Warning:\tInvalid release number: #{values['release']}")
+        warning_message(values, "Invalid release number: #{values['release']}")
         quit(values)
       end
     end
@@ -507,7 +503,7 @@ def handle_release_values(values)
     end
   end
   if values['verbose'] == true && values['release']
-    verbose_output(values, "Information:\tSetting Operating System version to #{values['release']}")
+    information_message(values, "Setting Operating System version to #{values['release']}")
   end
   return values
 end
@@ -539,22 +535,22 @@ end
 def handle_import_build_action(values)
   if values['action'].to_s.match(/build|import/)
     if values['type'] == values['empty']
-      verbose_output(values, "Information:\tSetting Install Service to Packer")
+      information_message(values, "Setting Install Service to Packer")
       values['type'] = "packer"
     end
     if values['vm'] == values['empty']
       if values['name'] == values['empty']
-        verbose_output(values, "Warning:\tNo client name specified")
+        warning_message(values, "No client name specified")
         quit(values)
       end
       values['vm'] = get_client_vm_type_from_packer(values)
     end
     if values['vm'] == values['empty']
-      verbose_output(values, "Warning:\tVM type not specified")
+      warning_message(values, "VM type not specified")
       quit(values)
     else
       if !values['vm'].to_s.match(/vbox|fusion|aws|kvm|parallels|qemu/)
-        verbose_output(values, "Warning:\tInvalid VM type specified")
+        warning_message(values, "Invalid VM type specified")
         quit(values)
       end
     end
@@ -571,7 +567,7 @@ def handle_file_values(values)
     end
     if !values['action'].to_s.match(/download/)
       if !File.exist?(values['file']) && !values['file'].to_s.match(/^http/)
-        verbose_output(values, "Warning:\tFile #{values['file']} does not exist")
+        warning_message(values, "File #{values['file']} does not exist")
         if !values['test'] == true
           quit(values)
         end
@@ -586,15 +582,13 @@ def handle_file_values(values)
       if values['method'] == values['empty']
         values['method'] = get_install_method_from_iso(values)
         if values['method'] == nil
-          verbose_output(values, "Could not determine install method")
+          verbose_message(values, "Could not determine install method")
           quit(values)
         end
       end
       if values['type'] == values['empty']
         values['type'] = get_install_type_from_file(values)
-        if values['verbose'] == true
-          verbose_output(values, "Information:\tSetting install type to #{values['type']}")
-        end
+        information_message(values, "Setting install type to #{values['type']}")
       end
     end
   end
@@ -684,16 +678,14 @@ end
 def handle_share_values(values)
   if values['share'] != values['empty']
     if !File.directory?(values['share'])
-      verbose_output(values, "Warning:\tShare point #{values['share']} doesn't exist")
+      warning_message(values, "Share point #{values['share']} doesn't exist")
       quit(values)
     end
     if values['mount'] == values['empty']
       values['mount'] = File.basename(values['share'])
     end
-    if values['verbose'] == true
-      verbose_output(values, "Information:\tSharing #{values['share']}")
-      verbose_output(values, "Information:\tSetting mount point to #{values['mount']}")
-    end
+    information_message(values, "Sharing #{values['share']}")
+    information_message(values, "Setting mount point to #{values['mount']}")
   end
   return values
 end
@@ -722,7 +714,7 @@ def handle_clone_values(values)
       values['clone'] = values['name'] + "-" + clone_date
     end
     if values['verbose'] == true && values['clone']
-      verbose_output(values, "Information:\tSetting clone name to #{values['clone']}")
+      information_message(values, "Setting clone name to #{values['clone']}")
     end
   end
   return values

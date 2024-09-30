@@ -3,11 +3,9 @@
 
 def process_questions(values)
   values['order'].each do |key|
-    if values['verbose'] == true
-      verbose_output(values, "Information:\tProcessing value for #{key}")
-    end
+    information_message(values, "Processing value for #{key}")
     if values['answers'][key].value == nil 
-      verbose_output(values, "Warning:\tValue for #{key} is NULL")
+      warning_message(values, "Value for #{key} is NULL")
       quit(values)
     end
     correct = false
@@ -90,8 +88,6 @@ def evaluate_answer(key, answer, values)
     correct = true
   end
   answer = answer.to_s
-  if values['verbose'] == true
-    verbose_output(values, "Information:\tSetting parameter #{key} to #{answer}")
-  end
+  information_message(values, "Setting parameter #{key} to #{answer}")
   return correct
 end

@@ -21,9 +21,7 @@ def create_ansible_aws_yaml(values)
   hosts_file  = values['clientdir']+"/hosts"
   prov_file   = values['clientdir']+"/"+values['name']+".yaml"
   hosts_file  = values['clientdir']+"/hosts"
-  if values['verbose'] == true
-    verbose_output(values,"Information:\tChecking Client directory")
-  end
+  verbose_message(values,"Information:\tChecking Client directory")
   check_dir_exists(values,values['clientdir'])
   uid = values['uid']
   check_dir_owner(values,values['clientdir'],uid)

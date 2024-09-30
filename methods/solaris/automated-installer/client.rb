@@ -10,16 +10,16 @@ def list_ai_clients(values)
   client_info = output.split(/\n/)
   if client_info.length > 0
     if values['output'].to_s.match(/html/)
-      verbose_output(values, "<h1>Available AI clients:</h1>")
-      verbose_output(values, "<table border=\"1\">")
-      verbose_output(values, "<tr>")
-      verbose_output(values, "<th>Client</th>")
-      verbose_output(values, "<th>Service</th>")
-      verbose_output(values, "</tr>")
+      verbose_message(values, "<h1>Available AI clients:</h1>")
+      verbose_message(values, "<table border=\"1\">")
+      verbose_message(values, "<tr>")
+      verbose_message(values, "<th>Client</th>")
+      verbose_message(values, "<th>Service</th>")
+      verbose_message(values, "</tr>")
     else
-      verbose_output(values, "")
-      verbose_output(values, "Available AI clients:")
-      verbose_output(values, "")
+      verbose_message(values, "")
+      verbose_message(values, "Available AI clients:")
+      verbose_message(values, "")
     end
     service = ""
     client  = ""
@@ -31,26 +31,26 @@ def list_ai_clients(values)
         client = client.gsub(/^\s+/, "")
         client = client.gsub(/\s+/, " ")
         if values['output'].to_s.match(/html/)
-          verbose_output(values, "<tr>")
-          verbose_output(values, "<td>#{client}</td>")
-          verbose_output(values, "<td>#{service}</td>")
-          verbose_output(values, "</tr>")
+          verbose_message(values, "<tr>")
+          verbose_message(values, "<td>#{client}</td>")
+          verbose_message(values, "<td>#{service}</td>")
+          verbose_message(values, "</tr>")
         else
-          verbose_output(values, "#{client} [ service = #{service} ]")
+          verbose_message(values, "#{client} [ service = #{service} ]")
         end
       end
     end
     if values['output'].to_s.match(/html/)
-      verbose_output(values, "</table>")
+      verbose_message(values, "</table>")
     end
   end
-  verbose_output(values, "")
+  verbose_message(values, "")
   return
 end
 
 # Get a list of valid shells
 
-def get_valid_shells()
+def get_valid_shells(values)
   vaild_shells = %x[ls /usr/bin |grep 'sh$' |awk '{print "/usr/bin/" $1 }']
   vaild_shells = vaild_shells.split("\n").join(",")
   return vaild_shells
@@ -65,7 +65,7 @@ def check_valid_uid(values, answer)
   else
     if Integer(answer) < 100
       correct = 0
-      verbose_output(values, "UID must be greater than 100")
+      verbose_message(values, "UID must be greater than 100")
     end
   end
   return correct
@@ -80,7 +80,7 @@ def check_valid_gid(values, answer)
   else
     if Integer(answer) < 10
       correct = 0
-      verbose_output(values, "GID must be greater than 10")
+      verbose_message(values, "GID must be greater than 10")
     end
   end
   return correct
@@ -88,14 +88,14 @@ end
 
 # Get the user home directory ZFS dataset name
 
-def get_account_home_zfs_dataset()
+def get_account_home_zfs_dataset(values)
   account_home_zfs_dataset = "/export/home/"+values['answers']['account_login'].value
   return account_home_zfs_dataset
 end
 
 # Get the user home directory mount point
 
-def get_account_home_mountpoint()
+def get_account_home_mountpoint(values)
   account_home_mountpoint = "/export/home/"+values['answers']['account_login'].value
   return account_home_mountpoint
 end
@@ -130,8 +130,8 @@ def import_ai_manifest(output_file, values)
     command = "AIM_MANIFEST=#{output_file} ; export AIM_MANIFEST ; aimanifest validate"
     output  = execute_command(values, message, command)
     if output.match(/[a-z,A-Z,0-9]/)
-      verbose_output(values, "AI manifest file #{output_file} does not contain a valid XML manifest")
-      verbose_output(values, output)
+      verbose_message(values, "AI manifest file #{output_file} does not contain a valid XML manifest")
+      verbose_message(values, output)
     else
       message = "Information:\tImporting "+output_file+" to service "+values['service'].to_s+" as manifest named "+values['manifest'].to_s
       command = "installadm create-manifest -n #{base_name}_#{lc_arch} -m #{values['manifest'].to_s} -f #{output_file}"
@@ -162,7 +162,7 @@ def update_ai_client_grub_cfg(values)
   netboot_mac = netboot_mac.upcase
   grub_file   = values['tftpdir']+"/grub.cfg."+netboot_mac
   if values['verbose'] == true
-    verbose_output(values, "Updating:\tGrub config file #{grub_file}")
+    verbose_message(values, "Updating:\tGrub config file #{grub_file}")
   end
   if File.exist?(grub_file)
     text=File.read(grub_file)
@@ -183,10 +183,10 @@ end
 # Called from main code
 
 def configure_ai_client_services(values, service_base_name)
-  verbose_output(values, "")
-  verbose_output(values, "You will be presented with a set of questions followed by the default output")
-  verbose_output(values, "If you are happy with the default output simply hit enter")
-  verbose_output(values, "")
+  verbose_message(values, "")
+  verbose_message(values, "You will be presented with a set of questions followed by the default output")
+  verbose_message(values, "If you are happy with the default output simply hit enter")
+  verbose_message(values, "")
   service_list = []
   # Populate questions for AI manifest
   populate_ai_manifest_questions(values)
@@ -258,9 +258,9 @@ def check_ai_client_doesnt_exist(values)
   command = "installadm list -p |grep '#{values['mac']}'"
   output  = execute_command(values, message, command)
   if output.match(/#{values['name']}/)
-    verbose_output(values, "Warning:\tProfile already exists for #{values['name']}")
+    warning_message(values, "Profile already exists for #{values['name']}")
     if values['yes'] == true
-      verbose_output(values, "Deleting:\rtClient #{values['name']}")
+      verbose_message(values, "Deleting:\rtClient #{values['name']}")
       unconfigure_ai_client(values)
     else
       quit(values)
@@ -286,7 +286,7 @@ def configure_ai_client(values)
   end
   output_file = values['workdir']+"/"+values['name']+"_ai_profile.xml"
   create_ai_client_profile(values, output_file)
-  verbose_output(values, "Configuring:\tClient #{values['name']} with MAC address #{values['mac']}")
+  verbose_message(values, "Configuring:\tClient #{values['name']} with MAC address #{values['mac']}")
   import_ai_client_profile(values, output_file)
   print_contents_of_file(values, "", output_file)
   create_ai_client(values)
@@ -340,7 +340,7 @@ def unconfigure_ai_client(values)
       end
     end
   else
-    verbose_output(values, "Warning:\tService name not given for #{values['name']}")
+    warning_message(values, "Service name not given for #{values['name']}")
     quit(values)
   end
   return

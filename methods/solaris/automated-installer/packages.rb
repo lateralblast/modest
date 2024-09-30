@@ -3,8 +3,8 @@
 
 # Populate package information
 
-def populate_ai_pkg_info()
-  p_struct = {}
+def populate_ai_pkg_info(values)
+  values['pkgs'] = {}
 
   #   name = "facter"
   #   config = Pkg.new(
@@ -16,15 +16,15 @@ def populate_ai_pkg_info()
   #     )
   #   p_struct[name]=config
 
-  return p_struct
+  return values
 end
 
 # Create mog file
 
-def create_ai_mog_file(p_struct, pkg_name, spool_dir)
-  pkg_info    = p_struct[pkg_name].info
-  pkg_depend  = p_struct[pkg_name].depend
-  pkg_version = p_struct[pkg_name].version
+def create_ai_mog_file(values, pkg_name, spool_dir)
+  pkg_info    = values['pkgs'][pkg_name].info
+  pkg_depend  = values['pkgs'][pkg_name].depend
+  pkg_version = values['pkgs'][pkg_name].version
   pkg_arch    = %x[uname -p]
   pkg_arch    = pkg_arch.chomp
   mog_file    = spool_dir+"/"+pkg_name+".mog"
@@ -78,16 +78,16 @@ end
 
 # Build package
 
-def build_ai_pkg(values, p_struct, pkg_name, build_type, pkg_repo_dir)
-  pkg_version      = p_struct[pkg_name].version
-  repo_pkg_version = check_pkg_repo(p_struct, pkg_name, pkg_repo_dir)
+def build_ai_pkg(values, pkg_name, build_type, pkg_repo_dir)
+  pkg_version      = values['pkgs'][pkg_name].version
+  repo_pkg_version = check_pkg_repo(values, pkg_name, pkg_repo_dir)
   if not repo_pkg_version.match(/#{pkg_version}/)
     source_dir = values['baserepodir']+"/source"
     check_fs_exists(values, source_dir)
-    pkg_version = p_struct[pkg_name].version
+    pkg_version = values['pkgs'][pkg_name].version
     source_name = pkg_name+"-"+pkg_version+".tar.gz"
     source_file = source_dir+"/"+source_name
-    source_base_url = p_struct[pkg_name].base_url
+    source_base_url = values['pkgs'][pkg_name].base_url
     source_url = source_base_url+"/"+source_name
     if not File.exist?(source_file)
       get_pkg_source(source_url, source_file)
@@ -110,13 +110,13 @@ def build_ai_pkg(values, p_struct, pkg_name, build_type, pkg_repo_dir)
     command = "cd #{extract_dir} ; gcat #{source_file} |tar -xpf -"
     execute_command(values, message, command)
     compile_dir = extract_dir+"/"+pkg_name+"-"+pkg_version
-    if p_struct[pkg_name].type.match(/ruby/)
+    if values['pkgs'][pkg_name].type.match(/ruby/)
       message = "Compling:\t"+pkg_name
       command = "cd #{compile_dir} ; ./install.rb --destdir=#{install_dir} --full"
       execute_command(values, message, command)
     end
     if build_type.match(/ips/)
-      mog_file = create_mog_file(p_struct, pkg_name, spool_dir)
+      mog_file = create_mog_file(values, pkg_name, spool_dir)
       values['arch'] = %x[uname -p].chomp
       create_ai_ips_pkg(values, pkg_name, spool_dir, install_dir, mog_file)
       publish_ai_ips_pkg(values, pkg_name, spool_dir, install_dir, pkg_repo_dir)
@@ -127,8 +127,8 @@ end
 
 # Check a package is in the repository
 
-def check_ai_pkg_repo(values, p_struct, pkg_name, pkg_repo_dir)
-  pkg_version=p_struct[pkg_name].version
+def check_ai_pkg_repo(values, pkg_name, pkg_repo_dir)
+  pkg_version = values['pkgs'][pkg_name].version
   message = "Information:\tChecking if repository contains "+pkg_name+" "+pkg_version
   command = "pkg info -g #{pkg_repo_dir} -r #{pkg_name} |grep Version |awk \"{print \\\$2}\""
   output  = execute_command(values, message, command)

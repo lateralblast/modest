@@ -8,15 +8,15 @@ def handle_ldom_values(values)
         values['vm']   = "cdom"
         if values['verbose'] == true
           varbose_output(values, "Information:\tSetting mode to server")
-          verbose_output(values, "Information:\tSetting vm to cdrom")
+          information_message(values, "Setting vm to cdrom")
         end
       else
         if values['method'].to_s.match(/gdom/)
           values['mode'] = "client"
           values['vm']   = "gdom"
           if values['verbose'] == true
-            verbose_output(values, "Information:\tSetting mode to client")
-            verbose_output(values, "Information:\tSetting vm to gdom")
+            information_message(values, "Setting mode to client")
+            information_message(values, "Setting vm to gdom")
           end
         else
           if values['method'].to_s.match(/ldom/)
@@ -25,12 +25,12 @@ def handle_ldom_values(values)
               values['vm']     = "gdom"
               values['mode']   = "client"
               if values['verbose'] == true
-                verbose_output(values, "Information:\tSetting mode to client")
-                verbose_output(values, "Information:\tSetting method to gdom")
-                verbose_output(values, "Information:\tSetting vm to gdom")
+                information_message(values, "Setting mode to client")
+                information_message(values, "Setting method to gdom")
+                information_message(values, "Setting vm to gdom")
               end
             else
-              verbose_output(values, "Warning:\tCould not determine whether to run in server of client mode")
+              warning_message(values, "Could not determine whether to run in server of client mode")
               quit(values)
             end
           end
@@ -60,16 +60,16 @@ def handle_ldom_values(values)
           values['vm']     = "gdom"
           values['method'] = "gdom"
           if values['verbose'] == true
-            verbose_output(values, "Information:\tSetting method to gdom")
-            verbose_output(values, "Information:\tSetting vm to gdom")
+            information_message(values, "Setting method to gdom")
+            information_message(values, "Setting vm to gdom")
           end
         end
         if values['mode'].to_s.match(/server/)
           values['vm']     = "cdom"
           values['method'] = "cdom"
           if values['verbose'] == true
-            verbose_output(values, "Information:\tSetting method to cdom")
-            verbose_output(values, "Information:\tSetting vm to cdom")
+            information_message(values, "Setting method to cdom")
+            information_message(values, "Setting vm to cdom")
           end
         end
       end

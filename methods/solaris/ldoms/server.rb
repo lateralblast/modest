@@ -11,23 +11,23 @@ def list_cdom_services(values)
         list_doms(ldom_type, ldom_command)
       else
         if values['verbose'] == true
-          verbose_output(values, "") 
-          verbose_output(values, "Warning:\tThis service is only available on the Sun4v platform")
-          verbose_output(values, "") 
+          verbose_message(values, "") 
+          warning_message(values, "This service is only available on the Sun4v platform")
+          verbose_message(values, "") 
         end
       end
     else
       if values['verbose'] == true
-        verbose_output(values, "") 
-        verbose_output(values, "Warning:\tThis service is only available on Solaris 10 or later")
-        verbose_output(values, "") 
+        verbose_message(values, "") 
+        warning_message(values, "This service is only available on Solaris 10 or later")
+        verbose_message(values, "") 
       end
     end
   else
     if values['verbose'] == true
-      verbose_output(values, "") 
-      verbose_output(values, "Warning:\tThis service is only available on Solaris")
-      verbose_output(values, "") 
+      verbose_message(values, "") 
+      warning_message(values, "This service is only available on Solaris")
+      verbose_message(values, "") 
     end
   end
   return
@@ -55,13 +55,13 @@ def check_cdom_install(values)
     end
   end
   smf_service = "ldmd"
-  enable_smf_service(smf_service)
+  enable_smf_service(values, smf_service)
   return
 end
 
 # Check LDom VCC
 
-def check_cdom_vcc()
+def check_cdom_vcc(values)
   message = "Information:\tChecking LDom VCC"
   command = "ldm list-services |grep 'primary-vcc'"
   output  = execute_command(values, message, command)
@@ -75,7 +75,7 @@ end
 
 # Check LDom VDS
 
-def check_cdom_vds()
+def check_cdom_vds(values)
   message = "Information:\tChecking LDom VDS"
   command = "ldm list-services |grep 'primary-vds'"
   output  = execute_command(values, message, command)
@@ -89,7 +89,7 @@ end
 
 # Check LDom vSwitch
 
-def check_cdom_vsw()
+def check_cdom_vsw(values)
   message = "Information:\tChecking LDom vSwitch"
   command = "ldm list-services |grep 'primary-vsw'"
   output  = execute_command(values, message, command)
@@ -113,7 +113,7 @@ def check_cdom_config(values)
     command = "ldm list-config |grep #{config}"
     output  = execute_command(values, message, command)
     if output.match(/#{config}/)
-      verbose_output(values, "Warning:\tLDom configuration #{config} already exists")
+      warning_message(values, "LDom configuration #{config} already exists")
       quit(values)
     end
     if values['host-os-unamea'].match(/T5[0-9]|T3/)
@@ -141,8 +141,8 @@ def check_cdom_config(values)
       message = "Warning:\tRebooting primary domain to enable settings"
       execute_command(values, message, command)
     else
-      verbose_output(values, "Warning:\tReboot required for settings to take effect")
-      verbose_output(values, "Infromation:\tExecute #{command}")
+      warning_message(values, "Reboot required for settings to take effect")
+      verbose_message(values, "Infromation:\tExecute #{command}")
       quit(values)
     end
   end
@@ -151,9 +151,9 @@ end
 
 # Configure LDom vntsd
 
-def check_cdom_vntsd()
+def check_cdom_vntsd(values)
   smf_service = "vntsd"
-  enable_smf_service(smf_service)
+  enable_smf_service(values, smf_service)
   return
 end
 
@@ -162,14 +162,14 @@ end
 def configure_cdom(values)
   values['service'] = ""
   check_dhcpd_config(values)
-  values = populate_cdom_questions()
+  values = populate_cdom_questions(values)
   process_questions(values)
-  check_cdom_install()
-  check_cdom_vcc()
-  check_cdom_vds()
-  check_cdom_vsw()
+  check_cdom_install(values)
+  check_cdom_vcc(values)
+  check_cdom_vds(values)
+  check_cdom_vsw(values)
   check_cdom_config(values)
-  check_cdom_vntsd()
+  check_cdom_vntsd(values)
   return
 end
 
@@ -187,32 +187,32 @@ end
 
 # Unconfigure LDom Server
 
-def unconfigure_cdom()
-  verbose_output(values, "Warning:\tCurrently unconfiguring the Control Domain must be done manually")
+def unconfigure_cdom(values)
+  warning_message(values, "Currently unconfiguring the Control Domain must be done manually")
   quit(values)
   return
 end
 
 def unconfigure_ldom_server(values)
-  unconfigure_cdom()
+  unconfigure_cdom(values)
   return
 end
 
 def unconfigure_gdom_server(values)
-  unconfigure_cdom()
+  unconfigure_cdom(values)
   return
 end
 
 # List LDom ISOs
 
-def list_ldom_isos()
+def list_ldom_isos(values)
   return
 end
 
-def list_cdom_isos()
+def list_cdom_isos(values)
   return
 end
 
-def list_gdom_isos()
+def list_gdom_isos(values)
   return
 end

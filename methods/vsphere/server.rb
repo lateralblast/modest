@@ -59,9 +59,7 @@ def configure_vs_repo(values)
     check_fs_exists(values, values['repodir'])
     values['netbootdir'] = values['tftpdir']+"/"+values['service']
     if not File.symlink?(values['repodir'])
-      if values['verbose'] == true
-        verbose_output(values, "Information:\tChecking vSphere net boot directory")
-      end
+      information_message(values, "Checking vSphere net boot directory")
       check_dir_owner(values, values['netbootdir'], values['uid'])
       File.symlink(values['repodir'], values['netbootdir'])
     end
@@ -70,17 +68,13 @@ def configure_vs_repo(values)
     values['netbootdir'] = values['tftpdir']+"/"+values['service']
     check_fs_exists(values, values['netbootdir'])
     if !File.exist?(values['repodir'])
-      if values['verbose'] == true
-        verbose_output(values, "Information:\tChecking vSphere net boot directory")
-      end
+      information_message(values, "Checking vSphere net boot directory")
       check_dir_owner(values, values['netbootdir'], values['uid'])
       File.symlink(values['netbootdir'], values['repodir'])
     end
   end
   check_dir = values['repodir']+"/upgrade"
-  if values['verbose'] == true
-    verbose_output(values, "Information:\tChecking directory #{check_dir} exists")
-  end
+  information_message(values, "Checking directory #{check_dir} exists")
   if not File.directory?(check_dir)
     mount_iso(values)
     values['repodir'] = values['tftpdir']+"/"+values['service']
@@ -132,7 +126,7 @@ def configure_vs_pxe_boot(values)
       command = "cd #{values['pxebootdir']} ; #{values['rpm2cpiobin'] } #{rpm_file} | cpio -iud"
       output  = execute_command(values, message, command)
     else
-      verbose_output(values, "Warning:\tSource directory #{rpm_dir} does not exist")
+      warning_message(values, "Source directory #{rpm_dir} does not exist")
       quit(values)
     end
   end
@@ -164,13 +158,13 @@ def configure_vs_server(values)
   if values['file'].to_s.match(/[a-z,A-Z]/)
     if File.exist?(values['file'])
       if not values['file'].to_s.match(/VM/)
-        verbose_output(values, "Warning:\tISO #{values['file']} does not appear to be VMware distribution")
+        warning_message(values, "ISO #{values['file']} does not appear to be VMware distribution")
         quit(values)
       else
         iso_list[0] = values['file']
       end
     else
-      verbose_output(values, "Warning:\tISO file #{values['file']} does not exist")
+      warning_message(values, "ISO file #{values['file']} does not exist")
     end
   else
     iso_list = get_base_dir_list(values)
@@ -205,10 +199,10 @@ def list_vs_services(values)
   values['method'] = "vs"
   dir_list = get_dir_item_list(values)
   message  = "vSphere Services:"
-  verbose_output(values, message)
+  verbose_message(values, message)
   dir_list.each do |service|
-    verbose_output(values, service)
+    verbose_message(values, service)
   end
-  verbose_output(values, "")
+  verbose_message(values, "")
   return
 end

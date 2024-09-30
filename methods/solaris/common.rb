@@ -3,15 +3,15 @@
 # List all solaris ISOs
 
 def list_sol_isos(search_string)
-  verbose_output(values, "") 
-  list_js_isos()
-  list_ai_isos()
+  verbose_message(values, "") 
+  list_js_isos(values)
+  list_ai_isos(values)
   return
 end
 
 # Install required packages
 
-def check_solaris_install()
+def check_solaris_install(values)
   pkgutil_bin  = "/opt/csw/bin/pkgutil"
   pkgutil_conf = "/opt/csw/etc/pkgutil.conf"
   ['git", "autoconf", "automake", "libtool'].each do |pkg_name|
@@ -84,11 +84,11 @@ def check_local_publisher(values)
   command = "pkg publisher | grep online"
   output  = execute_command(values, message, command)
   if not output.match(/online/)
-    verbose_output(values, "Warning:\tNo local publisher online")
+    warning_message(values, "No local publisher online")
     values['repodir'] = values['baserepodir']+"/sol_"+values['update'].gsub(/\./, "_")
     publisher_dir      = values['repodir']+"/publisher"
     if not File.directory?(publisher_dir)
-      verbose_output(values, "Warning:\tNo local repository")
+      warning_message(values, "No local repository")
       values['file'] = values['isodir']+"/sol-"+values['update'].gsub(/\./, "_")+"-repo-full.iso"
       if File.exist?(values['file'])
         mount_iso(values)
@@ -101,11 +101,11 @@ def check_local_publisher(values)
           command = "pkg set-publisher -G '*' -g #{values['repodir']} solaris"
           execute_command(values, message, command)
         else
-          verbose_output(values, "Warning:\tNo local publisher directory found at: #{publisher_dir}")
+          warning_message(values, "No local publisher directory found at: #{publisher_dir}")
           quit(values)
         end
       else
-        verbose_output(values, "Warning:\tNo local repository ISO file #{values['file']}")
+        warning_message(values, "No local repository ISO file #{values['file']}")
         quit(values)
       end
     end
@@ -226,7 +226,7 @@ def check_sol11_ntp(values)
       execute_command(values, message, command)
     end
   end
-  enable_smf_service(smf_service)
+  enable_smf_service(values, smf_service)
   return
 end
 

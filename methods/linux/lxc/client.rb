@@ -2,10 +2,10 @@
 
 # List availabel clients
 
-def list_lxcs()
+def list_lxcs(values)
   dom_type = "LXC"
   dom_command = "lxc-ls"
-  list_doms(dom_type, dom_command)
+  list_doms(values, dom_type, dom_command)
   return
 end
 
@@ -252,7 +252,7 @@ def check_lxc_exists(values)
   command = "lxc-ls |grep '#{values['name']}'"
   output  = execute_command(values, message, command)
   if not output.match(/#{values['name']}/)
-    verbose_output(values, "Warning:\tClient #{values['name']} doesn't exist")
+    warning_message(values, "Client #{values['name']} doesn't exist")
     quit(values)
   end
   return
@@ -265,7 +265,7 @@ def check_lxc_doesnt_exist(values)
   command = "lxc-ls |grep '#{values['name']}'"
   output  = execute_command(values, message, command)
   if output.match(/#{values['name']}/)
-    verbose_output(values, "Warning:\tClient #{values['name']} already exists")
+    warning_message(values, "Client #{values['name']} already exists")
     quit(values)
   end
   return
@@ -329,7 +329,7 @@ def execute_lxc_post(values)
   values['clientdir'] = values['lxcdir']+"/"+values['name']
   post_file = values['clientdir']+"/root/post_install.sh"
   if not File.exist?(post_file)
-    post_list = populate_lxc_post()
+    post_list = populate_lxc_post(values)
     create_lxc_post(values['name'], post_list)
   end
   boot_lxc(values)
@@ -345,9 +345,9 @@ end
 def configure_lxc(values)
   check_lxc_doesnt_exist(values)
   if not values['service'].to_s.match(/[a-z,A-Z]/) and not values['image'].to_s.match(/[a-z,A-Z]/)
-    verbose_output(values, "Warning:\tImage file or Service name not specified")
-    verbose_output(values, "Warning:\tIf this is the first time you have run this command it may take a while")
-    verbose_output(values, "Information:\tCreating standard container")
+    warning_message(values, "Image file or Service name not specified")
+    warning_message(values, "If this is the first time you have run this command it may take a while")
+    information_message(values, "Creating standard container")
     values['ip'] = single_install_ip(values)
     values = populate_lxc_client_questions(values)
     process_questions(values)
@@ -364,14 +364,14 @@ def configure_lxc(values)
     end
     if values['image'].to_s.match(/[a-z,A-Z]/)
       if not File.exist?(values['image'])
-        verbose_output(values, "Warning:\tImage file #{values['image']} does not exist")
+        warning_message(values, "Image file #{values['image']} does not exist")
         quit(values)
       end
     end
   end
   add_hosts_entry(values)
   boot_lxc(values)
-  post_list = populate_lxc_post()
+  post_list = populate_lxc_post(values)
   create_lxc_post(values, post_list)
   return
 end

@@ -27,6 +27,6 @@ end
 
 # List LXC images - Needs code
 
-def list_lxc_isos()
+def list_lxc_isos(values)
   return
 end

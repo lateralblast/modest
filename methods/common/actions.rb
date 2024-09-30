@@ -218,7 +218,7 @@ def handle_action(values)
       end
     when /delete|remove|terminate/
       if values['name'] == values['empty'] && values['service'] == values['empty']
-        verbose_output(values, "Warning:\tNo service of client name specified")
+        warning_message(values, "No service of client name specified")
         quit(values)
       end
       if values['type'].to_s.match(/network|snapshot/) && values['vm'] != values['empty']
@@ -245,8 +245,8 @@ def handle_action(values)
               values['sudo'] = false
               delete_vm(values)
             else
-              verbose_output(values, "Warning:\tNo VM, client or service specified")
-              verbose_output(values, "Available services")
+              warning_message(values, "No VM, client or service specified")
+              verbose_message(values, "Available services")
               list_all_services(values)
             end
           end
@@ -259,7 +259,7 @@ def handle_action(values)
                 if values['name'] != values['empty'] && values['snapshot'] != values['empty']
                   delete_vm_snapshot(values)
                 else
-                  verbose_output(values, "Warning:\tClient name or snapshot not specified")
+                  warning_message(values, "Client name or snapshot not specified")
                 end
               else
                 delete_vm(values)
@@ -298,16 +298,16 @@ def handle_action(values)
               delete_aws_snapshot(values)
             else
               if values['snapshot'] == values['empty']
-                verbose_output(values, "Warning:\tNo snapshot name specified")
+                warning_message(values, "No snapshot name specified")
                 if values['name'] == values['empty']
-                  verbose_output(values, "Warning:\tNo client name specified")
+                  warning_message(values, "No client name specified")
                   list_all_vm_snapshots(values)
                 else
                   list_vm_snapshots(values)
                 end
               else
                 if values['name'] == values['empty'] && values['snapshot'] == values['empty']
-                  verbose_output(values, "Warning:\tNo client or snapshot name specified")
+                  warning_message(values, "No client or snapshot name specified")
                   return values
                 else
                   delete_vm_snapshot(values)
@@ -344,7 +344,7 @@ def handle_action(values)
             if values['ami'] != values['empty']
               delete_aws_image(values)
             else
-              verbose_output(values, "Warning:\tNo #{values['vm']} type, instance or image specified")
+              warning_message(values, "No #{values['vm']} type, instance or image specified")
             end
           end
           return values
@@ -386,11 +386,11 @@ def handle_action(values)
         return values
       end
       if values['type'] == values['empty'] && values['vm'] == values['empty'] && values['service'] == values['empty']
-        verbose_output(values, "Warning:\tNo service type or VM specified")
+        warning_message(values, "No service type or VM specified")
         return values
       end
     if values['type'].to_s.match(/service/) && !values['service'].to_s.match(/[a-z]/) && !values['service'] == values['empty']
-        verbose_output(values, "Warning:\tNo service name specified")
+        warning_message(values, "No service name specified")
         return values
       end
       if values['file'] == values['empty']
@@ -441,7 +441,7 @@ def handle_action(values)
           configure_ansible_aws_client(values)
         else
           if values['key'] == values['empty'] && values['group'] == values['empty']
-            verbose_output(values, "Warning:\tNo Key Pair or Security Group specified")
+            warning_message(values, "No Key Pair or Security Group specified")
             return values
           else
             values = configure_aws_client(values)
@@ -458,7 +458,7 @@ def handle_action(values)
         return values
       end
       if values['vm'] == values['empty'] && values['method'] == values['empty'] && values['type'] == values['empty'] && !values['mode'].to_s.match(/server/)
-        verbose_output(values, "Warning:\tNo VM, Method or specified")
+        warning_message(values, "No VM, Method or specified")
       end
       if values['mode'].to_s.match(/server/) || values['type'].to_s.match(/service/) && values['file'] != values['empty'] && values['vm'] == values['empty'] && !values['type'].to_s.match(/packer/) && !values['service'].to_s.match(/packer/)
         values['mode'] = "server"
@@ -569,10 +569,10 @@ def handle_action(values)
             if values['method'].to_s.match(/ai/)
               configure_ai_server(values)
             else
-              verbose_output(values, "Warning:\tNo install method specified")
+              warning_message(values, "No install method specified")
             end
           else
-            verbose_output(values, "Warning:\tClient or service name not specified")
+            warning_message(values, "Client or service name not specified")
           end
         end
       end
@@ -608,7 +608,7 @@ def handle_action(values)
             end
           else
             if values['name'] == values['empty']
-              verbose_output(values, "Warning:\tClient name not specified")
+              warning_message(values, "Client name not specified")
             end
           end
         end
@@ -629,7 +629,7 @@ def handle_action(values)
             stop_vm(values)
             boot_vm(values)
           else
-            verbose_output(values, "Warning:\tClient name not specified")
+            warning_message(values, "Client name not specified")
           end
         else
           if values['name'] != values['empty']
@@ -643,7 +643,7 @@ def handle_action(values)
               end
             end
           else
-            verbose_output(values, "Warning:\tInstall service or VM type not specified")
+            warning_message(values, "Install service or VM type not specified")
           end
         end
       end
@@ -677,7 +677,7 @@ def handle_action(values)
       if values['clone'] != values['empty'] && values['name'] != values['empty']
         eval"[clone_#{values['vm']}_vm(values)]"
       else
-        verbose_output(values, "Warning:\tClient name or clone name not specified")
+        warning_message(values, "Client name or clone name not specified")
       end
     when /running|stopped|suspended|paused/
       if values['vm'] != values['empty'] && values['vm'] != values['empty']
@@ -694,7 +694,7 @@ def handle_action(values)
           eval"[change_#{values['vm']}_vm_mac(values)]"
         end
       else
-        verbose_output(values, "Warning:\tClient name not specified")
+        warning_message(values, "Client name not specified")
       end
     when /attach/
       if values['vm'] != values['empty'] && values['vm'] != values['empty']
@@ -704,7 +704,7 @@ def handle_action(values)
       if values['vm'] != values['empty'] && values['name'] != values['empty'] && values['vm'] != values['empty']
         eval"[detach_file_from_#{values['vm']}_vm(values)]"
       else
-        verbose_output(values, "Warning:\tClient name or virtualisation platform not specified")
+        warning_message(values, "Client name or virtualisation platform not specified")
       end
     when /share/
       if values['vm'] != values['empty'] && values['vm'] != values['empty']
@@ -715,7 +715,7 @@ def handle_action(values)
         if values['name'] != values['empty']
           eval"[snapshot_#{values['vm']}_vm(values)]"
         else
-          verbose_output(values, "Warning:\tClient name not specified")
+          warning_message(values, "Client name not specified")
         end
       end
     when /migrate/
@@ -733,7 +733,7 @@ def handle_action(values)
         if values['name'] != values['empty']
           eval"[restore_#{values['vm']}_vm_snapshot(values)]"
         else
-          verbose_output(values, "Warning:\tClient name not specified")
+          warning_message(values, "Client name not specified")
         end
       end
     when /set/
@@ -763,11 +763,11 @@ def handle_action(values)
         if values['name'] != values['empty']
           connect_to_virtual_serial(values)
         else
-          verbose_output(values, "Warning:\tClient name not specified")
+          warning_message(values, "Client name not specified")
         end
       end
     else
-      verbose_output(values, "Warning:\tAction #{values['method']}")
+      warning_message(values, "Action #{values['method']}")
     end
   end
   return values
@@ -802,11 +802,11 @@ def handle_vm_action(values)
         end
       end
      if values['vm'] == values['empty']
-        verbose_output(values, "Information:\tVirtualisation method not specified, setting virtualisation method to VMware")
+        information_message(values, "Virtualisation method not specified, setting virtualisation method to VMware")
         values['vm'] = "vm"
       end
       if values['server'] == values['empty'] || values['ip'] == values['empty']
-        verbose_output(values, "Warning:\tRemote server hostname or IP not specified")
+        warning_message(values, "Remote server hostname or IP not specified")
         quit(values)
       end
     end
@@ -832,7 +832,7 @@ def handle_packer_import_action(values)
         end
       end
       if !vm_exists.match(/yes/)
-        verbose_output(values, "Warning:\tNo install file, type or service specified")
+        warning_message(values, "No install file, type or service specified")
         quit(values)
       end
     end
@@ -849,7 +849,7 @@ def handle_list_action(values)
       quit(values)
     else
       if values['vm'] == values['empty'] && values['service'] == values['empty'] && values['method'] == values['empty'] && values['type'] == values['empty'] && values['mode'] == values['empty']
-        verbose_output(values, "Warning:\tNo type or service specified")
+        warning_message(values, "No type or service specified")
       end
     end
   end
@@ -867,10 +867,10 @@ def handle_deploy_action(values)
       if values['serverpassword'] == values['empty']
         values['serverpassword'] = values['rootpassword']
       end
-      check_ovftool_exists
+      check_ovftool_exists(values)
       if values['type'].to_s.match(/vcsa/)
         if values['file'] == values['empty']
-          verbose_output(values, "Warning:\tNo deployment image file specified")
+          warning_message(values, "No deployment image file specified")
           quit(values)
         end
         check_password(values)

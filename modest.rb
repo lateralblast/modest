@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      8.1.4
+# Version:      8.1.5
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -36,6 +36,7 @@ values = {}
 values['stdout']  = []
 values['answers'] = {}
 values['order']   = []
+values['pkgs']    = {}
 
 # Handle output
 
@@ -54,7 +55,7 @@ end
 
 # Verbose output
 
-def verbose_output(values, text)
+def verbose_message(values, text)
   if values['verbose'] == true or values['notice'] == true
     handle_output(values, text)
   end
@@ -67,6 +68,14 @@ def warning_message(values, text)
   if values['silent'] == false
     puts "Warning:\t#{text}" 
   end
+  return
+end
+
+# Information message
+
+def information_message(values, text)
+  text = "Information:\t#{text}"
+  handle_output(values, text)
   return
 end
 
@@ -147,7 +156,7 @@ end
 #
 
 [ "getopt/long", "builder", "parseconfig", "unix_crypt", "netaddr", "json",
-  "fileutils", "ssh-config", "yaml", "net/ssh", "net/scp" ].each do |load_name|
+  "fileutils", "ssh-config", "yaml", "net/ssh", "net/scp", "ipaddress" ].each do |load_name|
   begin
     require "#{load_name}"
   rescue LoadError
@@ -161,7 +170,7 @@ if File.directory?("./methods")
   file_list = Dir.glob("./methods/**/*")
   for file in file_list
     if file =~ /rb$/
-      verbose_output(values, "Information:\tLoading module #{file}")
+      information_message(values, "Loading module #{file}")
       require "#{file}"
     end
   end
@@ -186,11 +195,11 @@ end
 
 # Try to make sure we have valid long switches
 
-valid_values = get_valid_values
+valid_values = get_valid_values(values)
 
 ARGV[0..-1].each do |switch|
   if !valid_values.grep(/--#{switch}/) || switch.match(/^-[a-z,A-Z][a-z,A-Z]/)
-    verbose_output(values, "Invalid command line option: #{switch}")
+    verbose_message(values, "Invalid command line option: #{switch}")
     values['output'] = 'text'
     quit(values)
   end
@@ -660,8 +669,8 @@ raw_params.each do |raw_param|
           test_value = test_value.split(",")[0]
         end
         if !defaults[valid_param].to_s.downcase.match(/#{test_value.downcase}/)
-          verbose_output(defaults, "Warning:\tOption --#{raw_param} has an invalid value: #{values[raw_param]}")
-          verbose_output(defaults, "Information:\tValid values for --#{raw_param} are: \n #{defaults[valid_param].to_s}")
+          verbose_message(defaults, "Warning:\tOption --#{raw_param} has an invalid value: #{values[raw_param]}")
+          verbose_message(defaults, "Information:\tValid values for --#{raw_param} are: \n #{defaults[valid_param].to_s}")
           quit(defaults)
         end
       end
@@ -685,7 +694,7 @@ end
 # Handle options
 
 if values['options']
-  verbose_output(values, "Information:\tProcessing options")
+  information_message(values, "Processing options")
   if values['options'].to_s.match(/[a-z]/)
     options = []
     if values['options'].to_s.match(/\,/)
@@ -695,13 +704,13 @@ if values['options']
     end
     options.each do |option|
       if option.match(/^no|^disable|^dont|^un/)
-        verbose_output(values, "Information:\tOption #{option} is set to true")
+        information_message(values, "Option #{option} is set to true")
         temp_option = option.gsub(/^no|^dont|^un/,"")
         temp_option = temp_option.gsub(/disable/,"enable")
-        verbose_output(values, "Information:\tSetting value #{temp_option} to false")
+        information_message(values, "Setting value #{temp_option} to false")
         values[temp_option] = false
       else
-        verbose_output(values, "Information:\tOption #{option} is set to true")
+        information_message(values, "Option #{option} is set to true")
         values[option] = true
       end
     end
@@ -761,7 +770,7 @@ end
 
 if values['setup'] != values['empty']
   if !File.exist?(values['setup'])
-    verbose_output(values, "Warning:\tSetup script '#{values['setup']}' not found")
+    warning_message(values, "Setup script '#{values['setup']}' not found")
     quit(values)
   end
 end
@@ -778,7 +787,7 @@ end
 
 if values['action'].to_s.match(/delete/)
   if values['name'] == values['empty'] && values['service'] == values['empty']
-    verbose_output(values, "Warning:\tNo service of client name specified")
+    warning_message(values, "No service of client name specified")
     quit(values)
   end
 end
@@ -813,7 +822,7 @@ end
 
 if values['type'].to_s.match(/ansible|packer/)
   if values['vm'] == values['empty']
-    verbose_output(values, "Warning:\tNo VM type specified")
+    warning_message(values, "No VM type specified")
     quit(values)
   end
 end
@@ -847,7 +856,7 @@ values = handle_aws_vm_values(values)
 if values['name'] != values['empty']
   check_hostname(values)
   if values['verbose'] == true
-    verbose_output(values, "Information:\tSetting client name to #{values['name']}")
+    information_message(values, "Setting client name to #{values['name']}")
   end
 end
 
@@ -888,11 +897,11 @@ values = handle_file_values(values)
 if values['param'] != values['empty']
   if !values['action'].to_s.match(/get/)
     if !values['value']
-      verbose_output(values, "Warning:\tSetting a parameter requires a value")
+      warning_message(values, "Setting a parameter requires a value")
       quit(values)
     else
       if !values['value']
-        verbose_output(values, "Warning:\tSetting a parameter requires a value")
+        warning_message(values, "Setting a parameter requires a value")
         quit(values)
       end
     end
@@ -901,7 +910,7 @@ end
 
 if values['value'] != values['empty']
   if values['param'] == values['empty']
-    verbose_output(values, "Warning:\tSetting a value requires a parameter")
+    warning_message(values, "Setting a value requires a parameter")
     quit(values)
   end
 end
@@ -915,8 +924,8 @@ values = handle_ldom_values(values)
 if !values['vmnetwork'].to_s.match(/nat/)
   if values['vm'].to_s.match(/virtualbox|vbox/)
     if values['type'].to_s.match(/packer/) || values['method'].to_s.match(/packer/) && !values['action'].to_s.match(/delete|import/)
-      verbose_output(values, "Warning:\tPacker has a bug that causes issues with Hostonly and Bridged network on VirtualBox")
-      verbose_output(values, "Warning:\tTo deal with this an addition port may be added to the SSH daemon config file")
+      warning_message(values, "Packer has a bug that causes issues with Hostonly and Bridged network on VirtualBox")
+      warning_message(values, "To deal with this an addition port may be added to the SSH daemon config file")
     end
   end
 end
@@ -970,7 +979,7 @@ values = handle_packer_type(values)
 
 if values['service'] != values['empty']
   if values['verbose'] == true
-    verbose_output(values, "Information:\tSetting install service to #{values['service']}")
+    information_message(values, "Setting install service to #{values['service']}")
   end
 end
 
@@ -1020,8 +1029,8 @@ values = handle_install_method(values)
 
 if values['type'].to_s.match(/packer/) && values['os-type'].to_s.match(/win/)
   if !values['vmnetwork'].to_s.match(/nat/)
-    verbose_output(values, "Warning:\tPacker only supports installing Windows with a NAT network")
-    verbose_output(values, "Information:\tSetting network to NAT mode")
+    warning_message(values, "Packer only supports installing Windows with a NAT network")
+    information_message(values, "Setting network to NAT mode")
     values['vmnetwork'] = "nat"
   end
   values['shell'] = "winrm"
@@ -1030,7 +1039,7 @@ end
 # Handle VM named none
 
 if values['action'].to_s.match(/create/) && values['name'] == "none" && values['mode'] != "server" and values['type'] != "service"
-  verbose_output(values, "Warning:\tInvalid client name")
+  warning_message(values, "Invalid client name")
   quit(values)
 end
 

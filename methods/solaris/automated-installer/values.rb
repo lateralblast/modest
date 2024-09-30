@@ -9,8 +9,8 @@ def handle_publisher_values(values)
       if values['publisherhost'].to_s.match(/:/)
         (values['publisherhost'], values['publisherport']) = values['publisherhost'].split(/:/)
       end
-      verbose_output(values, "Information:\tSetting publisher host to #{values['publisherhost']}")
-      verbose_output(values, "Information:\tSetting publisher port to #{values['publisherport']}")
+      information_message(values, "Setting publisher host to #{values['publisherhost']}")
+      information_message(values, "Setting publisher port to #{values['publisherport']}")
     else
       if values['mode'] == "server" || values['file'].to_s.match(/repo/)
         if values['host-os-uname'] == "SunOS"
@@ -19,8 +19,8 @@ def handle_publisher_values(values)
           values['publisherhost'] = values['hostip']
           values['publisherport'] = $default_ai_port
           if values['verbose'] == true
-            verbose_output(values, "Information:\tSetting publisher host to #{values['publisherhost']}")
-            verbose_output(values, "Information:\tSetting publisher port to #{values['publisherport']}")
+            information_message(values, "Setting publisher host to #{values['publisherhost']}")
+            information_message(values, "Setting publisher port to #{values['publisherport']}")
           end
         end
       else

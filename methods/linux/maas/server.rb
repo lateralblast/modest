@@ -27,12 +27,12 @@ def configure_maas_server(values)
       message = "Information:\tCreating MAAS Admin"
       command = "maas createadmin --username = #{values['maasadmin']} --email=#{values['maasemail']} --password=#{values['maaspassword']}"
       execute_command(values, message, command)
-      verbose_output(values, "") 
-      verbose_output(values, "Information:\tLog into #{maas_url} and continue configuration")
-      verbose_output(values, "") 
+      verbose_message(values, "") 
+      information_message(values, "Log into #{maas_url} and continue configuration")
+      verbose_message(values, "") 
     end
   else
-    verbose_output(values, "Warning:\tMAAS is only supported on Ubuntu LTS")
+    warning_message(values, "MAAS is only supported on Ubuntu LTS")
     quit(values)
   end
   return

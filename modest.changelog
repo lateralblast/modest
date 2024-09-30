@@ -1629,3 +1629,5 @@
 # Improved defaults handling
 # 8.1.4: Fri 27 Sep 2024 19:46:54 AEST
 # Improved values processing
+# 8.1.5: Mon 30 Sep 2024 18:45:40 AEST
+# Bug fixes and code cleanup

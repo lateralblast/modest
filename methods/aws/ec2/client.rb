@@ -2,7 +2,7 @@
 
 # Populate AWS User Data YAML
 
-def populate_aws_user_data_yaml()
+def populate_aws_user_data_yaml(values)
   yaml = []
   yaml.push("#cloud-config")
   yaml.push("write_files:")
@@ -16,7 +16,7 @@ end
 # Create Userdata yaml file
 
 def create_aws_user_data_file(values, output_file)
-  yaml = populate_aws_user_data_yaml()
+  yaml = populate_aws_user_data_yaml(values)
   file = File.open(output_file, "w")
   yaml.each do |item|
     line = item+"\n"
@@ -32,7 +32,7 @@ end
 def build_aws_config(values)
   exists = check_aws_image_exists(values)
   if exists == true
-    verbose_output(values, "Warning:\tAWS image already exists for '#{values['name']}'")
+    warning_message(values, "AWS image already exists for '#{values['name']}'")
     quit(values)
   end
   client_dir = values['clientdir']+"/packer/aws/"+values['name']
@@ -58,19 +58,19 @@ def connect_to_aws_vm(values)
     ssh_command = "ssh -o StrictHostKeyChecking=no"
   end 
   if not values['ip'].to_s.match(/[0-9]/) and not values['id'].to_s.match(/[0-9]/)
-    verbose_output(values, "Warning:\tNo IP or Instance ID specified")
+    warning_message(values, "No IP or Instance ID specified")
     quit(values)
   end
   if values['adminuser']== values['empty']
-    verbose_output(values, "Warning:\tNo user specified")
+    warning_message(values, "No user specified")
     quit(values)
   end
   if values['key']== values['empty'] and values['keyfile']== values['empty']
     if values['id'].to_s.match(/[0-9]/)
       values['key'] = get_aws_instance_key_name(values['access'], values['secret'], values['region'], values['id'])
-      verbose_output(values, "Information:\tFound key '#{values['key']}' from Instance ID '#{values['id']}'")
+      information_message(values, "Found key '#{values['key']}' from Instance ID '#{values['id']}'")
     else
-      verbose_output(values, "Warning:\tNo key specified")
+      warning_message(values, "No key specified")
       quit(values)
     end
   end
@@ -81,13 +81,13 @@ def connect_to_aws_vm(values)
     values['keyfile'] = values['keydir']+"/"+values['key']+".pem"
   end
   if not File.exist?(values['keyfile'])
-    verbose_output(values, "Warning:\tCould not find AWS SSH Key file '#{values['keyfile']}'")
+    warning_message(values, "Could not find AWS SSH Key file '#{values['keyfile']}'")
     quit(values)
   end
   command = "#{ssh_command} -i #{values['keyfile']} #{values['adminuser']}@#{values['ip']}" 
   update_user_ssh_config(values)
   if values['verbose'] == true
-    verbose_output(values, "Information:\tExecuting '#{command}'")
+    information_message(values, "Executing '#{command}'")
   end
   exec "#{command}"
   return
@@ -103,7 +103,7 @@ def stop_aws_vm(values)
         values['id'] = instance.instance_id
         status        = instance.state.name
         if status.match(/running/)
-          verbose_output(values, "Information:\tStopping Instance ID #{values['id']}")
+          information_message(values, "Stopping Instance ID #{values['id']}")
           ec2 = initiate_aws_ec2_client(values['access'], values['secret'], values['region'])
           ec2.stop_instances(instance_ids:[values['id']])
         end
@@ -117,7 +117,7 @@ def stop_aws_vm(values)
         values['ids'][0] = values['id']
       end
       values['ids'].each do |id|
-        verbose_output(values, "Information:\tStopping Instance ID #{id}")
+        information_message(values, "Stopping Instance ID #{id}")
         ec2 = initiate_aws_ec2_client(values)
         ec2.stop_instances(instance_ids:[id])
       end
@@ -136,7 +136,7 @@ def boot_aws_vm(values)
         values['id'] = instance.instance_id
         status = instance.state.name
         if not status.match(/running|terminated/)
-          verbose_output(values, "Information:\tStarting Instance ID #{values['id']}")
+          information_message(values, "Starting Instance ID #{values['id']}")
           ec2 = initiate_aws_ec2_client(values)
           ec2.start_instances(instance_ids:[values['id']])
         end
@@ -150,7 +150,7 @@ def boot_aws_vm(values)
         values['ids'][0] = values['id']
       end
       values['ids'].each do |id|
-        verbose_output(values, "Information:\tStarting Instance ID #{id}")
+        information_message(values, "Starting Instance ID #{id}")
         ec2 = initiate_aws_ec2_client(values)
         ec2.start_instances(instance_ids:[id])
       end
@@ -174,11 +174,11 @@ def delete_aws_vm(values)
     end
     values['ids'].each do |id|
       if not values['id'].to_s.match(/^i/)
-        verbose_output(values, "Warning:\tInvalid Instance ID '#{id}'")
+        warning_message(values, "Invalid Instance ID '#{id}'")
         quit(values)
       end
       ec2 = initiate_aws_ec2_client(values)
-      verbose_output(values, "Information:\tTerminating Instance ID #{id}")
+      information_message(values, "Terminating Instance ID #{id}")
       ec2.terminate_instances(instance_ids:[id])
     end
   else
@@ -189,10 +189,10 @@ def delete_aws_vm(values)
           values['id'] = instance.instance_id
           status        = instance.state.name
           if not status.match(/terminated/)
-            verbose_output(values, "Information:\tTerminating Instance ID #{values['id']}")
+            information_message(values, "Terminating Instance ID #{values['id']}")
             ec2.terminate_instances(instance_ids:[values['id']])
           else
-            verbose_output(values, "Information:\tInstance ID #{values['id']} already terminated")
+            information_message(values, "Instance ID #{values['id']} already terminated")
           end
         end
       end
@@ -211,7 +211,7 @@ def reboot_aws_vm(values)
       values['ids'][0] = values['id']
     end
     values['ids'].each do |id|
-      verbose_output(values, "Information\tRebooting Instance ID #{id}")
+      verbose_message(values, "Information\tRebooting Instance ID #{id}")
       ec2 = initiate_aws_ec2_client(values)
       ec2.reboot_instances(instance_ids:[id])
     end
@@ -223,7 +223,7 @@ end
 
 def create_aws_image(values)
   if not values['id'].to_s.match(/[0-9]/)
-    verbose_output(values, "Warning:\tNo Instance ID specified")
+    warning_message(values, "No Instance ID specified")
     quit(values)
   end
   if values['name']== values['empty']
@@ -231,7 +231,7 @@ def create_aws_image(values)
     images.each do |image|
       image_name = image.name
       if image_name.match(/^#{values['name']}$/)
-        verbose_output(values,"Warning:\tImage with name '#{values['name']}' already exists")
+        verbose_message(values,"Warning:\tImage with name '#{values['name']}' already exists")
         quit(values)
       end
     end
@@ -239,7 +239,7 @@ def create_aws_image(values)
   ec2      = initiate_aws_ec2_client(values)
   image    = ec2.create_image({ dry_run: false, instance_id: values['id'], name: values['name'] })
   image_id = image.image_id
-  verbose_output(values, "Information:\tCreated image #{image_id} with name '#{values['name']}' from instance #{values['id']}")
+  information_message(values, "Created image #{image_id} with name '#{values['name']}' from instance #{values['id']}")
   return
 end
 
@@ -259,20 +259,20 @@ def create_aws_instance(values)
     security_groups = [ security_groups ]
   end
   if key_name == values['empty']
-    verbose_output(values, "Warning:\tNo key specified")
+    warning_message(values, "No key specified")
     quit(values)
   end
   if not image_id.match(/^ami/)
     old_image_id = image_id
     ec2, image_id = get_aws_image(image_id, values)
-    verbose_output(values, "Information:\tFound Image ID #{image_id} for #{old_image_id}")
+    information_message(values, "Found Image ID #{image_id} for #{old_image_id}")
   end
   ec2       = initiate_aws_ec2_client(values)
   instances = []
   begin
     reservations = ec2.run_instances(image_id: image_id, min_count: min_count, max_count: max_count, instance_type: instance_type, dry_run: dry_run, key_name: key_name, security_groups: security_groups,)
   rescue Aws::EC2::Errors::AccessDenied
-    verbose_output(values, "Warning:\tUser needs to be specified appropriate rights in AWS IAM")
+    warning_message(values, "User needs to be specified appropriate rights in AWS IAM")
     quit(values)
   end
   reservations['instances'].each do |instance|
@@ -297,7 +297,7 @@ def export_aws_image(values)
   begin
     ec2.create_instance_export_task({ description: values['comment'],  instance_id: values['id'],  target_environment: values['target'],  export_to_s3_task: { disk_image_format: values['format'],  container_format: values['containertype'],  s3_bucket: values['bucket'],  s3_prefix: values['prefix'], }, })
   rescue Aws::EC2::Errors::NotExportable
-    verbose_output(values, "Warning:\tOnly imported instances can be exported")
+    warning_message(values, "Only imported instances can be exported")
   end
   return
 end
@@ -306,7 +306,7 @@ end
 
 def configure_aws_client(values)
   if not values['number'].to_s.match(/[0,9]/)
-    verbose_output(values, "Warning:\tIncorrect number of instances specified: '#{values['number']}'")
+    warning_message(values, "Incorrect number of instances specified: '#{values['number']}'")
     quit(values)
   end
   values = handle_aws_values(values)
@@ -331,7 +331,7 @@ def create_aws_install_files(values)
   else
     exists = check_aws_ssh_key_file_exists(values)
     if exists == false
-      verbose_output(values, "Warning:\tSSH Key file '#{aws_ssh_key_file}' for AWS Key Pair '#{values['key']}' does not exist")
+      warning_message(values, "SSH Key file '#{aws_ssh_key_file}' for AWS Key Pair '#{values['key']}' does not exist")
       quit(values)
     end
   end
@@ -365,7 +365,7 @@ def list_aws_instances(values)
         else
           string = "id="+instance_id+" image="+image_id+" status="+status
         end
-        verbose_output(values, string)
+        verbose_message(values, string)
       end
     end
   end

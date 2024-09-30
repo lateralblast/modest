@@ -18,9 +18,9 @@ def populate_lxc_client_questions(values)
   config = lx.new(
     question  = "Root Password Crypt",
     ask       = "yes",
-    value     = "get_root_password_crypt()",
+    value     = "get_root_password_crypt(values)",
     valid     = "",
-    eval      = "get_root_password_crypt()"
+    eval      = "get_root_password_crypt(values)"
   )
   values['answers'][name] = config
   values['order'].push(name)
@@ -117,9 +117,9 @@ def populate_lxc_client_questions(values)
   config = lx.new(
     question  = "User Password Crypt",
     ask       = "yes",
-    value     = "get_admin_password_crypt()",
+    value     = "get_admin_password_crypt(values)",
     valid     = "",
-    eval      = "get_admin_password_crypt()"
+    eval      = "get_admin_password_crypt(values)"
   )
   values['answers'][name] = config
   values['order'].push(name)

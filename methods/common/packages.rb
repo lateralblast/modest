@@ -7,7 +7,7 @@
 
 # Code to fetch a source file
 
-def get_pkg_source(source_url, source_file)
+def get_pkg_source(values, source_url, source_file)
   if not File.exist?("/usr/bin/wget")
     message = "Information:\tInstalling package wget"
     command = "pkg install pkg:/web/wget"
@@ -21,7 +21,7 @@ end
 
 # Check installed packages
 
-def check_installed_pkg(p_struct, pkg_name)
+def check_installed_pkg(values, pkg_name)
   message = "Information:\tChecking if package "+pkg_name+" is installed"
   command = "pkg info #{pkg_name} |grep Version |awk \"{print \\\$2}\""
   ins_ver = execute_command(values, message, command)
@@ -31,9 +31,9 @@ end
 
 # Install a package
 
-def install_pkg(p_struct, pkg_name, pkg_repo_dir)
-  pkg_ver = p_struct[pkg_name].version
-  ins_ver = check_installed_pkg(p_struct, pkg_name)
+def install_pkg(values, pkg_name, pkg_repo_dir)
+  pkg_ver = values['pkgs'][pkg_name].version
+  ins_ver = check_installed_pkg(values, pkg_name)
   if not ins_ver.match(/#{pkg_ver}/)
     message = "Information:\tInstalling Package "+pkg_name
     command = "pkg install -g #{pkg_repo_dir} #{pkg_name}"
@@ -70,13 +70,11 @@ end
 
 # Handle a package
 
-def handle_pkg(p_struct, pkg_name, build_type, pkg_repo_dir)
-  if values['verbose'] == true
-    verbose_output(values, "Information:\tHandling Package #{pkg_name}")
-  end
+def handle_pkg(values, pkg_name, build_type, pkg_repo_dir)
+  information_message(values, "Handling Package #{pkg_name}")
   depend_list   = []
-  pkg_version   = p_struct[pkg_name].version
-  temp_pkg_name = p_struct[pkg_name].depend
+  pkg_version   = values['pkgs'][pkg_name].version
+  temp_pkg_name = values['pkgs'][pkg_name].depend
   if tempt_pkg_name.match(/[a-z,A-Z]/)
     if temp_pkg_name.match(/,/)
       depend_list = temp_pkg_name.split(/,/)
@@ -91,23 +89,21 @@ def handle_pkg(p_struct, pkg_name, build_type, pkg_repo_dir)
         end
       end
       if not depend_pkg_name.match(/#{pkg_name}/)
-        if values['verbose'] == true
-          verbose_output(values, "Information:\tHandling dependency #{depend_pkg_name}")
-        end
-        build_pkg(p_struct, depend_pkg_name, build_type, pkg_repo_dir)
-        install_pkg(p_struct, depend_pkg_name, pkg_repo_dir)
+        information_message(values, "Handling dependency #{depend_pkg_name}")
+        build_pkg(values, depend_pkg_name, build_type, pkg_repo_dir)
+        install_pkg(values, depend_pkg_name, pkg_repo_dir)
       end
     end
-    repo_pkg_version = check_pkg_repo(p_struct, pkg_name, pkg_repo_dir)
+    repo_pkg_version = check_pkg_repo(values, pkg_name, pkg_repo_dir)
     if not repo_pkg_version.match(/#{pkg_version}/)
-      build_pkg(p_struct, pkg_name, build_type, pkg_repo_dir)
-      install_pkg(p_struct, pkg_name, pkg_repo_dir)
+      build_pkg(values, pkg_name, build_type, pkg_repo_dir)
+      install_pkg(values, pkg_name, pkg_repo_dir)
     end
   else
-    repo_pkg_version = check_pkg_repo(p_struct, pkg_name, pkg_repo_dir)
+    repo_pkg_version = check_pkg_repo(values, pkg_name, pkg_repo_dir)
     if not repo_pkg_version.match(/#{pkg_version}/)
-      build_pkg(p_struct, pkg_name, build_type, pkg_repo_dir)
-      install_pkg(p_struct, pkg_name, pkg_repo_dir)
+      build_pkg(values, pkg_name, build_type, pkg_repo_dir)
+      install_pkg(values, pkg_name, pkg_repo_dir)
     end
   end
   return
@@ -115,9 +111,9 @@ end
 
 # Process package list
 
-def process_pkgs(p_struct, pkg_repo_dir, build_type)
-  p_struct.each do |pkg_name, value|
-    handle_pkg(p_struct, pkg_name, build_type, pkg_repo_dir)
+def process_pkgs(values, pkg_repo_dir, build_type)
+  values['pkgs'].each do |pkg_name, value|
+    handle_pkg(values, pkg_name, build_type, pkg_repo_dir)
   end
   return
 end

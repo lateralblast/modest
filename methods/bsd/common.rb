@@ -5,33 +5,33 @@
 def list_other_isos(values, search_string)
   iso_list = get_base_dir_list(values)
   if iso_list.length > 0
-    verbose_output(values, "Other available ISOs:")
-    verbose_output(values, "")
+    verbose_message(values, "Other available ISOs:")
+    verbose_message(values, "")
   end
   iso_list.each do |file_name|
     file_name = file_name.chomp
     (iso_distro, iso_version, iso_arch) = get_other_version_info(file_name)
-    verbose_output(values, "ISO file:\t#{file_name}")
-    verbose_output(values, "Distribution:\t#{iso_distro}")
-    verbose_output(values, "Version:\t#{iso_version}")
-    verbose_output(values, "Architecture:\t#{iso_arch}")
+    verbose_message(values, "ISO file:\t#{file_name}")
+    verbose_message(values, "Distribution:\t#{iso_distro}")
+    verbose_message(values, "Version:\t#{iso_version}")
+    verbose_message(values, "Architecture:\t#{iso_arch}")
     values['service'] = iso_distro.downcase+"_"+iso_version.gsub(/\./, "_")+"_"+iso_arch
     values['repodir'] = values['baserepodir']+"/"+values['service']
     if File.directory?(values['repodir'])
-      verbose_output(values, "Service Name:\t#{values['service']} (exists)")
+      verbose_message(values, "Service Name:\t#{values['service']} (exists)")
     else
-      verbose_output(values, "Service Name:\t#{values['service']}")
+      verbose_message(values, "Service Name:\t#{values['service']}")
     end
-    verbose_output(values, "")
+    verbose_message(values, "")
   end
   return
 end
 
 # List available *BSD ISOs
 
-def list_xb_isos()
+def list_xb_isos(values)
   search_string = "install|FreeBSD|coreos"
-  list_other_isos(search_string)
+  list_other_isos(values, search_string)
   return
 end
 

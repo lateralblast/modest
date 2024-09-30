@@ -2,7 +2,7 @@
 
 # List AutoYest clients
 
-def list_ay_clients()
+def list_ay_clients(values)
   service_type = "AutoYast"
   list_clients(values)
   return

@@ -4,7 +4,7 @@
 
 def handle_vm_install_status(values)
   if values['status'].to_s.match(/no/)
-    verbose_output(values, "Warning:\tVirtualisation application does not exist for #{values['vm']}")
+    warning_message(values, "Virtualisation application does not exist for #{values['vm']}")
     quit(values)
   end
   return
@@ -13,7 +13,7 @@ end
 # AWS check
 
 def check_aws_is_installed(values)
-  check_if_aws_cli_is_installed()
+  check_if_aws_cli_is_installed(values)
   return
 end
 
@@ -66,9 +66,7 @@ end
 def get_client_vm_type(values)
   values['vm'] = ""
   values['valid-vm'].each do |test_vm|
-    if values['verbose'] == true
-      verbose_output(values, "Information:\tChecking if '#{values['name']}' is a '#{test_vm}' VM")
-    end
+    information_message(values, "Checking if '#{values['name']}' is a '#{test_vm}' VM")
     exists = eval"[check_#{test_vm}_is_installed(values)]"
     if exists.to_s.match(/yes/)
       exists = eval"[check_#{test_vm}_vm_exists(values)]"
@@ -161,15 +159,15 @@ def vnc_to_vm(values)
             message = "Information:\tStarting noVNC web proxy on port "+local_vnc_port+" and redirecting to "+remote_vnc_port
             command = "cd '#{novnc_dir}' ; ./utils/launch.sh --listen #{local_vnc_port} --vnc #{values['ip']}:#{remote_vnc_port} &"
             execute_command(values, message, command)
-            verbose_output(values, "Information:\tNoVNC started on port #{local_vnc_port}")
+            information_message(values, "NoVNC started on port #{local_vnc_port}")
           else
-            verbose_output(values, "Information:\tnoVNC already running")
+            information_message(values, "noVNC already running")
           end
         else
-          verbose_output(values, "Warning:\tUnable to determine VNC port for #{values['vmapp']} VM #{values['name']}")
+          warning_message(values, "Unable to determine VNC port for #{values['vmapp']} VM #{values['name']}")
         end
       else
-        verbose_output(values, "Warning:\tUnable to determine IP for #{values['vmapp']} VM #{values['name']}")
+        warning_message(values, "Unable to determine IP for #{values['vmapp']} VM #{values['name']}")
       end
     end
   end
@@ -459,10 +457,8 @@ def create_vm(values)
     values['mac'] = check_fusion_vm_mac(values)
   end
   if not values['method'].to_s.match(/[a-z]/) and not values['os-type'].to_s.match(/[a-z]/)
-    if values['verbose'] == true
-      verbose_output(values, "Warning:\tInstall method or OS not specified")
-      verbose_output(values, "Information:\tSetting OS to other")
-    end
+    warning_message(values, "Install method or OS not specified")
+    information_message(values, "Setting OS to other")
     values['method'] = "other"
   end
   if values['file'].to_s.match(/ova$/)
@@ -509,7 +505,7 @@ def list_vms(values)
   when /libvirt|qemu/
     list_kvm_vms(values)
   else
-    verbose_output(values,"Warning:\tInvalid VM type")
+    verbose_message(values,"Warning:\tInvalid VM type")
     exit
   end
   return
@@ -519,13 +515,13 @@ end
 
 def list_vm(values)
   if not values['os-type'].to_s.match(/[a-z]/) and not values['method'].to_s.match(/[a-z]/)
-    eval"[list_all_#{values['vm']}_vms()]"
+    eval"[list_all_#{values['vm']}_vms(values)]"
   else
     if values['method'].to_s.match(/[a-z]/)
-      eval"[list_#{values['method']}_#{values['vm']}_vms()]"
+      eval"[list_#{values['method']}_#{values['vm']}_vms(values)]"
     else
       [ "ks", "js", "ps", "ay", "ai" ].each do |method|
-        eval"[list_#{method}_#{values['vm']}_vms()]"
+        eval"[list_#{method}_#{values['vm']}_vms(values)]"
       end
     end
   end
@@ -539,7 +535,7 @@ def list_vm_snapshots(values)
     eval"[list_#{values['vm']}_vm_snapshots(values)]"
   else
     if not values['os-type'].to_s.match(/[a-z]/) and not values['method'].to_s.match(/[a-z]/)
-      eval"[list_all_#{values['vm']}_vm_snapshots()]"
+      eval"[list_all_#{values['vm']}_vm_snapshots(values)]"
     end
   end
   return

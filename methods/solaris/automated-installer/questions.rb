@@ -184,7 +184,7 @@ def populate_ai_client_profile_questions(values)
   values['order'].push(name)
 
   name   = "admin_shell"
-  vaild_shells=get_valid_shells()
+  vaild_shells = get_valid_shells(values)
   config = qs.new(
     question  = "Account Shell",
     ask       = "yes",

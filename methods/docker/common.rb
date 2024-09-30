@@ -5,8 +5,8 @@
 def install_docker(values)
 	if values['host-os-uname'].to_s.match(/Darwin/)
 		if not Dir.exist?("/Applications/Docker.app")
-			verbose_output(values, "Information:\tDocker no installed")
-			verbose_output(values, "Download:\thttps://docs.docker.com/docker-for-mac/")
+			information_message(values, "Docker no installed")
+			verbose_message(values, "Download:\thttps://docs.docker.com/docker-for-mac/")
 			quit(values)
 		end
 	end
@@ -56,13 +56,13 @@ def delete_docker_image(values)
     values['id'] = get_docker_image_id_from_name(values)
   end
   if values['id']== values['empty']
-    verbose_output(values, "Information:\tNo image found")
+    information_message(values, "No image found")
     quit(values)
   end
   message   = "Information:\tListing docker images"
   command   = "docker image rm #{values['id']}"
   output    = execute_command(values, message, command)
-  verbose_output(values, output)
+  verbose_message(values, output)
   return
 end
 
@@ -81,9 +81,9 @@ def check_docker_is_installed(values)
 		end
 	end
 	if installed == "no"
-    verbose_output(values,"Information:\tDocker #{docker_file} not installed")
+    verbose_message(values,"Information:\tDocker #{docker_file} not installed")
     if values['host-os-uname'].to_s.match(/Darwin/)
-      values = install_package(docker_file)
+      values = install_package(values,docker_file)
     else
       quit(values)
     end
@@ -94,11 +94,11 @@ end
 # List docker instances
 
 def list_docker_instances(values)
-  instances = get_docker_instance_list()
+  instances = get_docker_instance_list(values)
 	instances.each do |instance|
     if instance.match(/#{values['name']}/) or values['name'].to_s.match(/^#{values['empty']}$|^all$/)
       if instance.match(/#{values['id']}/) or values['id'].to_s.match(/^#{values['empty']}$|^all$/)
-        verbose_output(instance)
+        verbose_message(instance)
       end
     end
 	end
@@ -112,7 +112,7 @@ def list_docker_images(values)
   images.each do |image|
     if image.match(/#{values['name']}/) or values['name'].to_s.match(/^#{values['empty']}$|^all$/)
       if image.match(/#{values['id']}/) or values['id'].to_s.match(/^#{values['empty']}$|^all$/)
-        verbose_output(image)
+        verbose_message(image)
       end
     end
   end

@@ -17,7 +17,7 @@ def handle_aws_vm_values(values)
         end
       end
       if values['access'] == values['empty'] || values['secret'] == values['empty']
-        verbose_output(values, "Warning:\tAWS Access and Secret Keys not found")
+        warning_message(values, "AWS Access and Secret Keys not found")
         quit(values)
       else
         if !File.exist?(values['creds'])

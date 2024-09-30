@@ -27,8 +27,8 @@ def check_ai_publisherport(values)
   in_use  = execute_command(values, message, command)
   if in_use.match(/#{values['publisherport']}/)
     if values['verbose'] == true
-      verbose_output(values, "Warning:\tPublisher port #{values['publisherport']} is in use")
-      verbose_output(values, "Information:\tFinding free publisher port")
+      warning_message(values, "Publisher port #{values['publisherport']} is in use")
+      information_message(values, "Finding free publisher port")
     end
   end
   while in_use.match(/#{values['publisherport']}/)
@@ -36,7 +36,7 @@ def check_ai_publisherport(values)
     values['publisherport'] = values['publisherport'].to_s
   end
   if values['verbose'] == true
-    verbose_output(values, "Information: Setting publisher port to #{values['publisherport']}")
+    verbose_message(values, "Information: Setting publisher port to #{values['publisherport']}")
   end
   return values
 end
@@ -153,19 +153,19 @@ def list_ai_isos(values)
   iso_list = get_base_dir_list(values)
   if iso_list.length > 0
     if values['output'].to_s.match(/html/)
-      verbose_output(values, "<h1>Available AI ISOs:</h1>")
-      verbose_output(values, "<table border=\"1\">")
-      verbose_output(values, "<tr>")
-      verbose_output(values, "<th>ISO file</th>")
-      verbose_output(values, "<th>Distribution</th>")
-      verbose_output(values, "<th>Version</th>")
-      verbose_output(values, "<th>Architecture</th>")
-      verbose_output(values, "<th>Service Name</th>")
-      verbose_output(values, "</tr>")
+      verbose_message(values, "<h1>Available AI ISOs:</h1>")
+      verbose_message(values, "<table border=\"1\">")
+      verbose_message(values, "<tr>")
+      verbose_message(values, "<th>ISO file</th>")
+      verbose_message(values, "<th>Distribution</th>")
+      verbose_message(values, "<th>Version</th>")
+      verbose_message(values, "<th>Architecture</th>")
+      verbose_message(values, "<th>Service Name</th>")
+      verbose_message(values, "</tr>")
     else
-      verbose_output(values, "Available AI ISOs:")
+      verbose_message(values, "Available AI ISOs:")
     end
-    verbose_output(values, "")
+    verbose_message(values, "")
     iso_list.each do |file_name|
       file_name = file_namechomp
       iso_info = File.basename(file_name, ".iso")
@@ -179,40 +179,40 @@ def list_ai_isos(values)
       service = "sol_"+iso_version
       repodir = values['baserepodir']+"/"+service
       if values['output'].to_s.match(/html/)
-        verbose_output(values, "<tr>")
-        verbose_output(values, "<td>#{file_name}</td>")
-        verbose_output(values, "<td>Solaris 11</td>")
-        verbose_output(values, "<td>#{iso_version.gsub(/_/,'.')}</td>")
+        verbose_message(values, "<tr>")
+        verbose_message(values, "<td>#{file_name}</td>")
+        verbose_message(values, "<td>Solaris 11</td>")
+        verbose_message(values, "<td>#{iso_version.gsub(/_/,'.')}</td>")
         if values['file'].to_s.match(/repo/)
-          verbose_output(values, "<td>sparc and x86</td>")
+          verbose_message(values, "<td>sparc and x86</td>")
         else
-          verbose_output(values, "<td>#{iso_arch}</td>")
+          verbose_message(values, "<td>#{iso_arch}</td>")
         end
         if File.directory?(repodir)
-          verbose_output(values, "<td>#{service} (exists)</td>")
+          verbose_message(values, "<td>#{service} (exists)</td>")
         else
-          verbose_output(values, "<td>#{service}</td>")
+          verbose_message(values, "<td>#{service}</td>")
         end
-        verbose_output(values, "</tr>")
+        verbose_message(values, "</tr>")
       else
-        verbose_output(values, "ISO file:\t#{values['file']}")
-        verbose_output(values, "Distribution:\tSolaris 11")
-        verbose_output(values, "Version:\t#{iso_version.gsub(/_/,'.')}")
+        verbose_message(values, "ISO file:\t#{values['file']}")
+        verbose_message(values, "Distribution:\tSolaris 11")
+        verbose_message(values, "Version:\t#{iso_version.gsub(/_/,'.')}")
         if values['file'].to_s.match(/repo/)
-          verbose_output(values, "Architecture:\tsparc and x86")
+          verbose_message(values, "Architecture:\tsparc and x86")
         else
-          verbose_output(values, "Architecture:\t#{iso_arch}")
+          verbose_message(values, "Architecture:\t#{iso_arch}")
         end
         if File.directory?(values['repodir'])
-          verbose_output(values, "Service Name:\t#{service} (exists)")
+          verbose_message(values, "Service Name:\t#{service} (exists)")
         else
-          verbose_output(values, "Service Name:\t#{service}")
+          verbose_message(values, "Service Name:\t#{service}")
         end
-        verbose_output(values, "")
+        verbose_message(values, "")
       end
     end
     if values['output'].to_s.match(/html/)
-      verbose_output(values, "</table>")
+      verbose_message(values, "</table>")
     end
   end
   return

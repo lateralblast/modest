@@ -5,8 +5,8 @@
 
 def check_linux_distro(linux_distro)
   if not linux_distro.match(/redhat|centos/)
-    verbose_output(values, "Warning:\tNo Linux distribution given")
-    verbose_output(values, "Use redhat or centos")
+    warning_message(values, "No Linux distribution given")
+    verbose_message(values, "Use redhat or centos")
     quit(values)
   end
   return
@@ -25,7 +25,7 @@ end
 
 # List ISOs
 
-def list_ks_isos()
+def list_ks_isos(values)
   if not values['search'].to_s.match(/[a-z]|[A-Z]|all/)
     values['search'] = "CentOS|rhel|SL|OracleLinux|Fedora"
   end

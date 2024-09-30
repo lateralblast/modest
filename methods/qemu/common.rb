@@ -7,9 +7,7 @@ def check_qemu_vm_exists(values)
   command   = "virsh list --all"
   host_list = execute_command(values, message, command)
   if not host_list.match(/#{values['name']}/)
-    if values['verbose'] == true
-      verbose_output(values, "Information:\tKVM VM #{values['name']} does not exist")
-    end
+    information_message(values, "KVM VM #{values['name']} does not exist")
     exists = false
   else
     exists = true

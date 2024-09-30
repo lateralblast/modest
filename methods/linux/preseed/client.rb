@@ -2,7 +2,7 @@
 
 # List Preseed clients
 
-def list_ps_clients()
+def list_ps_clients(values)
   service_type = "Preseed"
   list_clients(values)
 end

@@ -15,11 +15,11 @@ def list_ps_services(values)
   values['method'] = "ps"
   dir_list = get_dir_item_list(values)
   message  = "Preseed Services:"
-  verbose_output(values, message)
+  verbose_message(values, message)
   dir_list.each do |service|
-    verbose_output(values, service)
+    verbose_message(values, service)
   end
-  verbose_output(values, "")
+  verbose_message(values, "")
   return
 end
 

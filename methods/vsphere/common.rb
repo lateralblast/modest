@@ -3,7 +3,7 @@
 
 # List available ISOs
 
-def list_vs_isos()
+def list_vs_isos(values)
   if not values['search'].to_s.match(/[a-z]|[A-Z]|all/)
     values['search'] = "VMvisor"
   end

@@ -138,7 +138,7 @@ def populate_coreos_questions(values)
     question  = "Root Password Crypt",
     ask       = "yes",
     parameter = "",
-    value     = "get_root_password_crypt()",
+    value     = "get_root_password_crypt(values)",
     valid     = "",
     eval      = "no"
   )
@@ -151,9 +151,9 @@ def populate_coreos_questions(values)
     question  = "Root Password Configuration",
     ask       = "yes",
     parameter = "rootpw",
-    value     = "get_ks_root_password()",
+    value     = "get_ks_root_password(values)",
     valid     = "",
-    eval      = "get_ks_root_password()"
+    eval      = "get_ks_root_password(values)"
   )
   values['answers'][name] = config
   values['order'].push(name)
@@ -254,14 +254,11 @@ def populate_coreos_questions(values)
     question  = "Admin User Password Crypt",
     ask       = "yes",
     parameter = "",
-    value     = "get_admin_password_crypt()",
+    value     = "get_admin_password_crypt(values)",
     valid     = "",
     eval      = "no"
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-end
-
-def create_coreos_client_config()
 end

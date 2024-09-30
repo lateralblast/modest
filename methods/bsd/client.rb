@@ -2,7 +2,7 @@
 
 # List BSD clients
 
-def list_xb_clients()
+def list_xb_clients(values)
   return
 end
 
@@ -92,7 +92,7 @@ end
 def unconfigure_xb_pxe_client(values)
   values['mac'] = get_install_mac(values)
   if not values['mac']
-    verbose_output(values, "Warning:\tNo MAC Address entry found for #{values['name']}")
+    warning_message(values, "No MAC Address entry found for #{values['name']}")
     quit(values)
   end
   tftp_pxe_file = values['mac'].gsub(/:/, "")
@@ -154,8 +154,8 @@ def configure_xb_client(values)
   values['ip'] = single_install_ip(values)
   values['repodir'] = values['baserepodir']+"/"+values['service']
   if not File.directory?(values['repodir'])
-    verbose_output(values, "Warning:\tService #{values['service']} does not exist")
-    verbose_output(values, "")
+    warning_message(values, "Service #{values['service']} does not exist")
+    verbose_message(values, "")
     list_xb_services(values)
     quit(values)
   end

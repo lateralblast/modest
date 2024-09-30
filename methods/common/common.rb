@@ -81,22 +81,22 @@ def set_hostonly_info(values)
   end
   if hostonly_subnet == host_subnet
     output = "Warning:\tHost and Hostonly network are the same"
-    verbose_output(values, output)
+    verbose_message(values, output)
     hostonly_subnet = host_subnet.to_i+10
     hostonly_subnet = hostonly_subnet.to_s
     output = "Information:\tChanging hostonly network to "+hostonly_base+"."+hostonly_subnet+".0"
-    verbose_output(values, output)
+    verbose_message(values, output)
     values['force'] = true
   end
   if install_subnet == host_subnet
     if values['dhcp'] == false
       output = "Warning:\tHost and client network are the same"
-      verbose_output(values, output)
+      verbose_message(values, output)
       install_subnet = host_subnet.to_i+10
       install_subnet = install_subnet.to_s
       values['ip']  = values['ip'].split(".")[0]+"."+values['ip'].split(".")[1]+"."+install_subnet+"."+values['ip'].split(".")[3]
       output = "Information:\tChanging Client IP to "+hostonly_base+"."+hostonly_subnet+".0"
-      verbose_output(values, output)
+      verbose_message(values, output)
       values['force'] = true
     end
   end
@@ -183,7 +183,7 @@ end
 
 # Get valid switches and put in an array
 
-def get_valid_values()
+def get_valid_values(values)
   file_array  = IO.readlines $0
   option_list = file_array.grep(/\['--/)
   return option_list
@@ -208,10 +208,10 @@ def print_help(values)
   long_switch  = ""
   short_switch = ""
   help_info    = ""
-  verbose_output(values, "")
-  verbose_output(values, "Usage: #{values['script']}")
-  verbose_output(values, "")
-  option_list = get_valid_values()
+  verbose_message(values, "")
+  verbose_message(values, "Usage: #{values['script']}")
+  verbose_message(values, "")
+  option_list = get_valid_values(values)
   option_list.each do |line|
     if not line.match(/file_array/)
       help_info    = line.split(/# /)[1]
@@ -222,17 +222,17 @@ def print_help(values)
         short_switch = ""
       end
       if long_switch.gsub(/\s+/, "").length < 7
-        verbose_output(values, "#{long_switch},\t\t\t#{short_switch}\t#{help_info}")
+        verbose_message(values, "#{long_switch},\t\t\t#{short_switch}\t#{help_info}")
       else
         if long_switch.gsub(/\s+/, "").length < 15
-          verbose_output(values, "#{long_switch},\t\t#{short_switch}\t#{help_info}")
+          verbose_message(values, "#{long_switch},\t\t#{short_switch}\t#{help_info}")
         else
-          verbose_output(values, "#{long_switch},\t#{short_switch}\t#{help_info}")
+          verbose_message(values, "#{long_switch},\t#{short_switch}\t#{help_info}")
         end
       end
     end
   end
-  verbose_output(values, "")
+  verbose_message(values, "")
   return
 end
 
@@ -257,7 +257,7 @@ end
 
 # Get version
 
-def get_version()
+def get_version(values)
   file_array = IO.readlines $0
   version    = file_array.grep(/^# Version/)[0].split(":")[1].gsub(/^\s+/, '').chomp
   packager   = file_array.grep(/^# Packager/)[0].split(":")[1].gsub(/^\s+/, '').chomp
@@ -268,9 +268,9 @@ end
 # Print script version information
 
 def print_version(values)
-  (version, packager, name) = get_version()
+  (version, packager, name) = get_version(values)
   values['verbose'] = true
-  verbose_output(values, "#{name} v. #{version} #{packager}")
+  verbose_message(values, "#{name} v. #{version} #{packager}")
   return
 end
 
@@ -338,7 +338,7 @@ end
 def list_user_ssh_config(values)
   host_list = get_user_ssh_config(values)
   if not host_list == values['empty']
-    verbose_output(host_list)
+    verbose_message(host_list)
   end
   return
 end
@@ -382,7 +382,7 @@ def delete_user_ssh_config(values)
   host_list   = get_user_ssh_config(values)
   if not host_list == values['empty']
     host_info  = host_list.split(/\n/)[0].chomp
-    verbose_output(values, "Warning:\tRemoving entries for '#{host_info}'")
+    warning_message(values, "Removing entries for '#{host_info}'")
     ssh_config = values['sshconfig']
     ssh_data   = File.readlines(ssh_config)
     new_data   = []
@@ -627,9 +627,7 @@ def check_local_config(values)
     values = set_fusion_dir(values)
   end
   # Check base dirs exist
-  if values['verbose'] == true
-    verbose_output(values, "Information:\tChecking base repository directory")
-  end
+  information_message(values, "Checking base repository directory")
   check_dir_exists(values, values['baserepodir'])
   check_dir_owner(values, values['baserepodir'], values['uid'])
   if values['vm'].to_s.match(/vbox/)
@@ -638,9 +636,7 @@ def check_local_config(values)
   if values['copykeys'] == true
     check_ssh_keys(values)
   end
-  if values['verbose'] == true
-    verbose_output(values, "Information:\tHome directory #{values['home']}")
-  end
+  information_message(values, "Home directory #{values['home']}")
   if not values['workdir'].to_s.match(/[a-z,A-Z,0-9]/)
     dir_name = File.basename(values['script'], ".*")
     if values['uid'] == false
@@ -649,19 +645,13 @@ def check_local_config(values)
       values['workdir'] = values['home']+"/."+dir_name
     end
   end
-  if values['verbose'] == true
-    verbose_output(values, "Information:\tSetting work directory to #{values['workdir']}")
-  end
+  information_message(values, "Setting work directory to #{values['workdir']}")
   if not values['tmpdir'].match(/[a-z,A-Z,0-9]/)
     values['tmpdir'] = values['workdir']+"/tmp"
   end
-  if values['verbose'] == true
-    verbose_output(values, "Information:\tSetting temporary directory to #{values['workdir']}")
-  end
+  information_message(values, "Setting temporary directory to #{values['workdir']}")
   # Get OS name and set system settings appropriately
-  if values['verbose'] == true
-    verbose_output(values, "Information:\tChecking work directory")
-  end
+  information_message(values, "Checking work directory")
   check_dir_exists(values, values['workdir'])
   check_dir_owner(values, values['workdir'], values['uid'])
   check_dir_exists(values, values['tmpdir'])
@@ -700,9 +690,7 @@ def check_local_config(values)
     if values['host-os-uname'].to_s.match(/SunOS/) and not values['host-os-unamer'].match(/11/)
       check_dir_exists(values, "/tftpboot")
     end
-    if values['verbose'] == true
-      verbose_output(values, "Information:\tSetting apache allow range to #{values['apacheallow']}")
-    end
+    information_message(values, "Setting apache allow range to #{values['apacheallow']}")
     if values['host-os-uname'].to_s.match(/SunOS/)
       if values['host-os-uname'].to_s.match(/SunOS/) and values['host-os-unamer'].match(/11/)
         check_dpool(values)
@@ -765,9 +753,7 @@ def check_local_config(values)
       execute_command(values, message, command)
     end
   end
-  if values['verbose'] == true
-    verbose_output(values, "Information:\tChecking work bin directory")
-  end
+  information_message(values, "Checking work bin directory")
   work_bin_dir = values['workdir']+"/bin"
 #  [ "rpm2cpio", "rpm" ].each do |pkg_name|
   [ "rpm2cpio" ].each do |pkg_name|
@@ -793,9 +779,7 @@ def check_local_config(values)
     end
   end
   [ values['workdir'], values['bindir'], values['rpmdir'], values['backupdir'] ].each do |test_dir|
-    if values['verbose'] == true
-      verbose_output(values, "Information:\tChecking #{test_dir} directory")
-    end
+    information_message(values, "Checking #{test_dir} directory")
     check_dir_exists(values, test_dir)
     check_dir_owner(values, test_dir, values['uid'])
   end
@@ -818,31 +802,31 @@ end
 # Print valid list
 
 def print_valid_list(values, message, valid_list)
-  verbose_output(values, "")
-  verbose_output(values, message)
-  verbose_output(values, "")
-  verbose_output(values, "Available values:")
-  verbose_output(values, "")
+  verbose_message(values, "")
+  verbose_message(values, message)
+  verbose_message(values, "")
+  verbose_message(values, "Available values:")
+  verbose_message(values, "")
   valid_list.each do |item|
-    verbose_output(values, item)
+    verbose_message(values, item)
   end
-  verbose_output(values, "")
+  verbose_message(values, "")
   return
 end
 
 # Print change log
 
-def print_changelog()
+def print_changelog(values)
   if File.exist?("changelog")
     changelog = File.readlines("changelog")
     changelog = changelog.reverse
     changelog.each_with_index do |line, index|
       line = line.gsub(/^# /, "")
       if line.match(/^[0-9]/)
-        verbose_output(line)
+        verbose_message(line)
         text = changelog[index-1].gsub(/^# /, "")
-        verbose_output(values, text)
-        verbose_output(values, "")
+        verbose_message(values, text)
+        verbose_message(values, "")
       end
     end
   end
@@ -889,11 +873,11 @@ end
 
 def check_password(install_password)
   if not install_password.match(/[A-Z]/)
-    verbose_output(values, "Warning:\tPassword does not contain and upper case character")
+    warning_message(values, "Password does not contain and upper case character")
     quit(values)
   end
   if not install_password.match(/[0-9]/)
-    verbose_output(values, "Warning:\tPassword does not contain a number")
+    warning_message(values, "Password does not contain a number")
     quit(values)
   end
   return
@@ -901,9 +885,9 @@ end
 
 # Check ovftool is installed
 
-def check_ovftool_exists()
+def check_ovftool_exists(values)
   if values['host-os-uname'].to_s.match(/Darwin/)
-    check_osx_ovftool()
+    check_osx_ovftool(values)
   end
   return
 end
@@ -923,22 +907,20 @@ def attach_dmg(pkg_file, app_name)
     tmp_dir = %x[ls -rt /Volumes |grep "#{app_name}" |tail -1].chomp
     tmp_dir = "/Volumes/"+tmp_dir
   end
-  if $werbose_mode == true
-    verbose_output(values, "Information:\tDMG mounted on #{tmp_dir}")
-  end
+  information_message(values, "DMG mounted on #{tmp_dir}")
   return tmp_dir
 end
 
 # Check OSX ovftool
 
-def check_osx_ovftool()
+def check_osx_ovftool(values)
   values['ovfbin'] = "/Applications/VMware OVF Tool/ovftool"
   if not File.exist?(values['ovfbin'])
-    verbose_output(values, "Warning:\tOVF Tool not installed")
+    warning_message(values, "OVF Tool not installed")
     ovftool_dmg = values['ovfdmgurl'].split(/\?/)[0]
     ovftool_dmg = File.basename(ovftool_dmg)
     wget_file(values, values['ovfdmgurl'], ovftool_dmg)
-    verbose_output(values, "Information:\tInstalling OVF Tool")
+    information_message(values, "Installing OVF Tool")
     app_name = "VMware OVF Tool"
     tmp_dir  = attach_dmg(ovftool_dmg, app_name)
     pkg_file = tmp_dir+"/VMware OVF Tool.pkg"
@@ -954,7 +936,7 @@ end
 
 def scp_file(values, local_file, remote_file)
   if values['verbose'] == true
-    verbose_output(values, "Information:\tCopying file \""+local_file+"\" to \""+values['server']+":"+remote_file+"\"")
+    information_message(values, "Copying file \""+local_file+"\" to \""+values['server']+":"+remote_file+"\"")
   end
   Net::SCP.start(values['server'], values['serveradmin'], :password => values['serverpassword'], :paranoid => false) do |scp|
     scp.upload! local_file, remote_file
@@ -965,9 +947,7 @@ end
 # Execute SSH command
 
 def execute_ssh_command(values, command)
-  if values['verbose'] == true
-    verbose_output(values, "Information:\tExecuting command \""+command+"\" on server "+values['server'])
-  end
+  information_message(values, "Executing command \""+command+"\" on server "+values['server'])
   Net::SSH.start(values['server'], values['serveradmin'], :password => values['serverpassword'], :paranoid => false) do |ssh|
     ssh.exec!(command)
   end
@@ -1048,12 +1028,10 @@ def get_install_method(values)
   end
   service_dir = values['baserepodir'].to_s+"/"+values['service'].to_s
   if File.directory?(service_dir) or File.symlink?(service_dir)
-    if values['verbose'] == true
-      verbose_output(values, "Information:\tFound directory #{service_dir}")
-      verbose_output(values, "Information:\tDetermining service type")
-    end
+    information_message(values, "Found directory #{service_dir}")
+    information_message(values, "Determining service type")
   else
-    verbose_output(values, "Warning:\tService #{values['service']} does not exist")
+    warning_message(values, "Service #{values['service']} does not exist")
   end
   values['method'] = ""
   test_file = service_dir+"/vmware-esx-base-osl.txt"
@@ -1101,7 +1079,7 @@ def unconfigure_server(values)
       unconfigure_xb_server(values)
     end
   else
-    verbose_output(values, "Warning:\tCould not determine service type for #{values['service']}")
+    warning_message(values, "Could not determine service type for #{values['service']}")
   end
   return
 end
@@ -1159,14 +1137,14 @@ end
 
 def describe_file(values)
   values = get_install_service_from_file(values)
-  verbose_output(values, "")
-  verbose_output(values, "Install File:\t\t#{values['file']}")
-  verbose_output(values, "Install Service:\t#{values['service']}")
-  verbose_output(values, "Install OS:\t\t#{values['os-type']}")
-  verbose_output(values, "Install Method:\t\t#{values['method']}")
-  verbose_output(values, "Install Release:\t#{values['release']}")
-  verbose_output(values, "Install Architecture:\t#{values['arch']}")
-  verbose_output(values, "Install Label:\t#{values['label']}")
+  verbose_message(values, "")
+  verbose_message(values, "Install File:\t\t#{values['file']}")
+  verbose_message(values, "Install Service:\t#{values['service']}")
+  verbose_message(values, "Install OS:\t\t#{values['os-type']}")
+  verbose_message(values, "Install Method:\t\t#{values['method']}")
+  verbose_message(values, "Install Release:\t#{values['release']}")
+  verbose_message(values, "Install Architecture:\t#{values['arch']}")
+  verbose_message(values, "Install Label:\t#{values['label']}")
   return
 end
 
@@ -1363,7 +1341,7 @@ def get_install_service_from_file(values)
       values = install_package("cdrtools")
       isofile_bin = %x[which isofile].chomp
       if isofile_bin.match(/not found/)
-        verbose_output(values, "Warning:\tUtility isofile not found")
+        warning_message(values, "Utility isofile not found")
         quit(values)
       end
     end
@@ -1393,7 +1371,7 @@ def get_install_service_from_file(values)
         end
         wiminfo_bin = %x[which wiminfo]
         if not wiminfo_bin.match(/wiminfo/)
-          verbose_output(values, "Warning:\tCannnot find wiminfo (required to determine version of windows from ISO)")
+          warning_message(values, "Cannnot find wiminfo (required to determine version of windows from ISO)")
           quit(values)
         end
       end
@@ -1434,10 +1412,8 @@ def get_install_service_from_file(values)
     end
     values['service'] = values['service'].gsub(/\./, "_")
   end
-  if values['verbose'] == true
-    verbose_output(values, "Information:\tSetting service name to #{values['service']}")
-    verbose_output(values, "Information:\tSetting OS name to #{values['os-type']}")
-  end
+  information_message(values, "Setting service name to #{values['service']}")
+  information_message(values, "Setting OS name to #{values['os-type']}")
   return(values)
 end
 
@@ -1491,12 +1467,12 @@ end
 
 def configure_server(values)
   if values['host-os-uname'].to_s.match(/Darwin/)
-    check_osx_dhcpd_installed()
-    create_osx_dhcpd_plist()
+    check_osx_dhcpd_installed(values)
+    create_osx_dhcpd_plist(values)
   end
   if not values['method'].to_s.match(/[a-z,A-Z]/)
     if not values['file'].to_s.match(/[a-z,A-Z]/)
-      verbose_output(values, "Warning:\tCould not determine service name")
+      warning_message(values, "Could not determine service name")
       quit(values)
     else
       values['method'] = get_install_method_from_iso(values)
@@ -1554,7 +1530,7 @@ end
 # List all services
 
 def list_all_services(values)
-  verbose_output(values, "")
+  verbose_message(values, "")
   list_ai_services(values)
   list_ay_services(values)
   list_image_services(values)
@@ -1578,7 +1554,7 @@ def check_hostname(values)
   host_chars = values['name'].split()
   host_chars.each do |char|
     if not char.match(/[a-z,A-Z,0-9]|-/)
-      verbose_output(values, "Invalid hostname: #{values['name'].join()}")
+      verbose_message(values, "Invalid hostname: #{values['name'].join()}")
       quit(values)
     end
   end
@@ -1824,7 +1800,7 @@ end
 def list_items(values)
   if !values['output'].to_s.match(/html/) && !values['vm'].to_s.match(/mp|multipass/)
     string = "Information:\tDirectory #{values['isodir']}"
-    verbose_output(values, string)
+    verbose_message(values, string)
   end
   if values['file'] == values['empty']
     iso_list = get_base_dir_list(values)
@@ -1834,18 +1810,18 @@ def list_items(values)
   end
   if iso_list.length > 0
     if values['output'].to_s.match(/html/)
-      verbose_output(values, "<h1>Available ISO(s)/Image(s):</h1>")
-      verbose_output(values, "<table border=\"1\">")
-      verbose_output(values, "<tr>")
-      verbose_output(values, "<th>ISO/Image File</th>")
-      verbose_output(values, "<th>Distribution</th>")
-      verbose_output(values, "<th>Version</th>")
-      verbose_output(values, "<th>Architecture</th>")
-      verbose_output(values, "<th>Service Name</th>")
-      verbose_output(values, "</tr>")
+      verbose_message(values, "<h1>Available ISO(s)/Image(s):</h1>")
+      verbose_message(values, "<table border=\"1\">")
+      verbose_message(values, "<tr>")
+      verbose_message(values, "<th>ISO/Image File</th>")
+      verbose_message(values, "<th>Distribution</th>")
+      verbose_message(values, "<th>Version</th>")
+      verbose_message(values, "<th>Architecture</th>")
+      verbose_message(values, "<th>Service Name</th>")
+      verbose_message(values, "</tr>")
     else
-      verbose_output(values, "Available ISO(s)/Images(s):")
-      verbose_output(values, "")
+      verbose_message(values, "Available ISO(s)/Images(s):")
+      verbose_message(values, "")
     end
     iso_list.each do |file_name|
       file_name = file_name.chomp
@@ -1858,41 +1834,41 @@ def list_items(values)
         (linux_distro, iso_version, iso_arch) = get_linux_version_info(file_name)
       end
       if values['output'].to_s.match(/html/)
-        verbose_output(values, "<tr>")
-        verbose_output(values, "<td>#{file_name}</td>")
-        verbose_output(values, "<td>#{linux_distro}</td>")
-        verbose_output(values, "<td>#{iso_version}</td>")
-        verbose_output(values, "<td>#{iso_arch}</td>")
+        verbose_message(values, "<tr>")
+        verbose_message(values, "<td>#{file_name}</td>")
+        verbose_message(values, "<td>#{linux_distro}</td>")
+        verbose_message(values, "<td>#{iso_version}</td>")
+        verbose_message(values, "<td>#{iso_arch}</td>")
       else
-        verbose_output(values, "ISO/Image file:\t#{file_name}")
-        verbose_output(values, "Distribution:\t#{linux_distro}")
-        verbose_output(values, "Version:\t#{iso_version}")
-        verbose_output(values, "Architecture:\t#{iso_arch}")
+        verbose_message(values, "ISO/Image file:\t#{file_name}")
+        verbose_message(values, "Distribution:\t#{linux_distro}")
+        verbose_message(values, "Version:\t#{iso_version}")
+        verbose_message(values, "Architecture:\t#{iso_arch}")
       end
       iso_version = iso_version.gsub(/\./, "_")
       values['service'] = linux_distro.downcase.gsub(/\s+|\.|-/, "_").gsub(/_lts_/, "")+"_"+iso_version+"_"+iso_arch
       values['repodir'] = values['baserepodir']+"/"+values['service']
       if File.directory?(values['repodir'])
         if values['output'].to_s.match(/html/)
-          verbose_output(values, "<td>#{values['service']} (exists)</td>")
+          verbose_message(values, "<td>#{values['service']} (exists)</td>")
         else
-          verbose_output(values, "Service Name:\t#{values['service']} (exists)")
+          verbose_message(values, "Service Name:\t#{values['service']} (exists)")
         end
       else
         if values['output'].to_s.match(/html/)
-          verbose_output(values, "<td>#{values['service']}</td>")
+          verbose_message(values, "<td>#{values['service']}</td>")
         else
-          verbose_output(values, "Service Name:\t#{values['service']}")
+          verbose_message(values, "Service Name:\t#{values['service']}")
         end
       end
       if values['output'].to_s.match(/html/)
-        verbose_output(values, "</tr>")
+        verbose_message(values, "</tr>")
       else
-        verbose_output(values, "")
+        verbose_message(values, "")
       end
     end
     if values['output'].to_s.match(/html/)
-      verbose_output(values, "</table>")
+      verbose_message(values, "</table>")
     end
   end
   return
@@ -1904,21 +1880,21 @@ def connect_to_virtual_serial(values)
   if values['vm'].to_s.match(/ldom|gdom/)
     connect_to_gdom_console(values)
   else
-    verbose_output(values, "")
-    verbose_output(values, "Connecting to serial port of #{values['name']}")
-    verbose_output(values, "")
-    verbose_output(values, "To disconnect from this session use CTRL-Q")
-    verbose_output(values, "")
-    verbose_output(values, "If you wish to re-connect to the serial console of this machine,")
-    verbose_output(values, "run the following command:")
-    verbose_output(values, "")
-    verbose_output(values, "#{values['script']} --action=console --vm=#{values['vm']} --name = #{values['name']}")
-    verbose_output(values, "")
-    verbose_output(values, "or:")
-    verbose_output(values, "")
-    verbose_output(values, "socat UNIX-CONNECT:/tmp/#{values['name']} STDIO,raw,echo=0,escape=0x11,icanon=0")
-    verbose_output(values, "")
-    verbose_output(values, "")
+    verbose_message(values, "")
+    verbose_message(values, "Connecting to serial port of #{values['name']}")
+    verbose_message(values, "")
+    verbose_message(values, "To disconnect from this session use CTRL-Q")
+    verbose_message(values, "")
+    verbose_message(values, "If you wish to re-connect to the serial console of this machine,")
+    verbose_message(values, "run the following command:")
+    verbose_message(values, "")
+    verbose_message(values, "#{values['script']} --action=console --vm=#{values['vm']} --name = #{values['name']}")
+    verbose_message(values, "")
+    verbose_message(values, "or:")
+    verbose_message(values, "")
+    verbose_message(values, "socat UNIX-CONNECT:/tmp/#{values['name']} STDIO,raw,echo=0,escape=0x11,icanon=0")
+    verbose_message(values, "")
+    verbose_message(values, "")
     system("socat UNIX-CONNECT:/tmp/#{values['name']} STDIO,raw,echo=0,escape=0x11,icanon=0")
   end
   return
@@ -1926,7 +1902,7 @@ end
 
 # Set some VMware ESXi VM defaults
 
-def configure_vmware_esxi_defaults()
+def configure_vmware_esxi_defaults(values)
   values['memory']     = "4096"
   values['vcpus']      = "4"
   values['os-type']    = "ESXi"
@@ -1937,7 +1913,7 @@ end
 
 # Set some VMware vCenter defaults
 
-def configure_vmware_vcenter_defaults()
+def configure_vmware_vcenter_defaults(values)
   values['memory']     = "4096"
   values['vcpus']      = "4"
   values['os-type']    = "ESXi"
@@ -1954,14 +1930,12 @@ def get_install_service_from_client_name(values)
   command = "find #{values['clientdir']} -name #{values['name']} |grep '#{values['name']}$'"
   values['clientdir'] = execute_command(values, message, command)
   values['clientdir'] = values['clientdir'].chomp
-  if values['verbose'] == true
-    if File.directory?(values['clientdir'])
-      verbose_output(values, "Information:\tNo client directory found for #{values['name']}")
-    else
-      verbose_output(values, "Information:\tClient directory found #{values['clientdir']}")
-      if values['clientdir'].to_s.match(/packer/)
-        verbose_output = "Information:\tInstall method is Packer"
-      end
+  if File.directory?(values['clientdir'])
+    information_message(values, "No client directory found for #{values['name']}")
+  else
+    information_message(values, "Client directory found #{values['clientdir']}")
+    if values['clientdir'].to_s.match(/packer/)
+      information_message(values, "Install method is packer")
     end
   end
   return values['service']
@@ -1974,12 +1948,10 @@ def get_client_dir(values)
   message = "Information:\tFinding client configuration directory for #{values['name']}"
   command = "find #{values['clientdir']} -name #{values['name']} |grep '#{values['name']}$'"
   values['clientdir'] = execute_command(values, message, command).chomp
-  if values['verbose'] == true
-    if File.directory?(values['clientdir'])
-      verbose_output(values, "Information:\tNo client directory found for #{values['name']}")
-    else
-      verbose_output(values, "Information:\tClient directory found #{values['clientdir']}")
-    end
+  if File.directory?(values['clientdir'])
+    information_message(values, "No client directory found for #{values['name']}")
+  else
+    information_message(values, "Client directory found #{values['clientdir']}")
   end
   return values['clientdir']
 end
@@ -2106,7 +2078,7 @@ end
 def list_clients(values)
   case values['method'].downcase
   when /ai/
-    list_ai_clients()
+    list_ai_clients(values)
     return
   when /js|jumpstart/
     search_string = "sol_6|sol_7|sol_8|sol_9|sol_10"
@@ -2128,25 +2100,25 @@ def list_clients(values)
   if service_list.length > 0
     if values['output'].to_s.match(/html/)
       if values['service'].to_s.match(/[a-z,A-Z]/)
-        verbose_output(values, "<h1>Available #{values['service']} clients:</h1>")
+        verbose_message(values, "<h1>Available #{values['service']} clients:</h1>")
       else
-        verbose_output(values, "<h1>Available clients:</h1>")
+        verbose_message(values, "<h1>Available clients:</h1>")
       end
-      verbose_output(values, "<table border=\"1\">")
-      verbose_output(values, "<tr>")
-      verbose_output(values, "<th>Client</th>")
-      verbose_output(values, "<th>Service</th>")
-      verbose_output(values, "<th>IP</th>")
-      verbose_output(values, "<th>MAC</th>")
-      verbose_output(values, "</tr>")
+      verbose_message(values, "<table border=\"1\">")
+      verbose_message(values, "<tr>")
+      verbose_message(values, "<th>Client</th>")
+      verbose_message(values, "<th>Service</th>")
+      verbose_message(values, "<th>IP</th>")
+      verbose_message(values, "<th>MAC</th>")
+      verbose_message(values, "</tr>")
     else
-      verbose_output(values, "")
+      verbose_message(values, "")
       if values['service'].to_s.match(/[a-z,A-Z]/)
-        verbose_output(values, "Available #{values['service']} clients:")
+        verbose_message(values, "Available #{values['service']} clients:")
       else
-        verbose_output(values, "Available clients:")
+        verbose_message(values, "Available clients:")
       end
-      verbose_output(values, "")
+      verbose_message(values, "")
     end
     service_list.each do |service_name|
       if service_name.match(/#{search_string}|#{service_name}/) and service_name.match(/[a-z,A-Z]/)
@@ -2160,14 +2132,14 @@ def list_clients(values)
               values['mac'] = get_install_mac(values)
               if File.directory?(values['clientdir'])
                 if values['output'].to_s.match(/html/)
-                  verbose_output(values, "<tr>")
-                  verbose_output(values, "<td>#{client_name}</td>")
-                  verbose_output(values, "<td>#{service_name}</td>")
-                  verbose_output(values, "<td>#{client_ip}</td>")
-                  verbose_output(values, "<td>#{client_mac}</td>")
-                  verbose_output(values, "</tr>")
+                  verbose_message(values, "<tr>")
+                  verbose_message(values, "<td>#{client_name}</td>")
+                  verbose_message(values, "<td>#{service_name}</td>")
+                  verbose_message(values, "<td>#{client_ip}</td>")
+                  verbose_message(values, "<td>#{client_mac}</td>")
+                  verbose_message(values, "</tr>")
                 else
-                  verbose_output(values, "#{client_name}\t[ service = #{service_name}, ip = #{client_ip}, mac = #{client_mac} ] ")
+                  verbose_message(values, "#{client_name}\t[ service = #{service_name}, ip = #{client_ip}, mac = #{client_mac} ] ")
                 end
               end
             end
@@ -2176,40 +2148,40 @@ def list_clients(values)
       end
     end
     if values['output'].to_s.match(/html/)
-      verbose_output(values,"</table>")
+      verbose_message(values,"</table>")
     end
   end
-  verbose_output(values,"")
+  verbose_message(values,"")
   return
 end
 
 # List appliances
 
-def list_ovas()
+def list_ovas(values)
   file_list = Dir.entries(values['isodir'])
-  verbose_output(values, "")
-  verbose_output(values, "Virtual Appliances:")
-  verbose_output(values, "")
+  verbose_message(values, "")
+  verbose_message(values, "Virtual Appliances:")
+  verbose_message(values, "")
   file_list.each do |file_name|
     if file_name.match(/ova$/)
-      verbose_output(file_name)
+      verbose_message(file_name)
     end
   end
-  verbose_output(values, "")
+  verbose_message(values, "")
 end
 
 # Check directory user ownership
 
 def check_dir_owner(values, dir_name, dir_uid)
   message = "Information:\tChecking directory #{dir_name} is owned by user #{dir_uid}"
-  verbose_output(values, message)
+  verbose_message(values, message)
   if dir_name.match(/^\/$/) or dir_name == ""
-    verbose_output(values, "Warning:\tDirectory name not set")
+    warning_message(values, "Directory name not set")
     quit(values)
   end
   if values['dryrun'] == true and not Dir.exist?(dir_name)
     message = "Warning:\tDirectory #{dir_name} does not exist"
-    verbose_output(values, message)
+    verbose_message(values, message)
   else
     test_uid = File.stat(dir_name).uid
     if test_uid.to_i != dir_uid.to_i
@@ -2236,7 +2208,7 @@ end
 
 def check_dir_group(values, dir_name, dir_gid, dir_mode)
   if dir_name.match(/^\/$/) or dir_name == ""
-    verbose_output(values, "Warning:\tDirectory name not set")
+    warning_message(values, "Directory name not set")
     quit(values)
   end
   if File.directory?(dir_name)
@@ -2259,7 +2231,7 @@ def check_dir_group(values, dir_name, dir_gid, dir_mode)
     end
   else
     message = "Warning:\tDirectory #{dir_name} does not exist"
-    verbose_output(values, message)
+    verbose_message(values, message)
   end
   return
 end
@@ -2300,7 +2272,7 @@ def check_file_perms(values, file_name, file_perms)
     end
   else
     message = "Warning:\tFile #{file_name} does not exist"
-    verbose_output(values, message)
+    verbose_message(values, message)
   end
   return
 end
@@ -2314,7 +2286,7 @@ end
 
 def check_file_owner(values, file_name, file_uid)
   message = "Information:\tChecking file #{file_name} is owned by user #{file_uid}"
-  verbose_output(values, message)
+  verbose_message(values, message)
   if file_uid.to_s.match(/[a-z]/)
     file_uid = %x[id -u #{file_uid}]
   end
@@ -2331,7 +2303,7 @@ def check_file_owner(values, file_name, file_uid)
     end
   else
     message = "Warning:\tFile #{file_name} does not exist"
-    verbose_output(values, message)
+    verbose_message(values, message)
   end
   return
 end
@@ -2350,7 +2322,7 @@ end
 
 def check_file_group(values, file_name, file_gid)
   message ="Information:\tChecking file #{file_name} is owned by group #{file_gid}"
-  verbose_output(values, message)
+  verbose_message(values, message)
   if file_gid.to_s.match(/[a-z]/)
     file_gid = get_group_gid(values, file_gid)
   end
@@ -2363,7 +2335,7 @@ def check_file_group(values, file_name, file_gid)
     end
   else
     message = "Warning:\tFile #{file_name} does not exist"
-    verbose_output(values, message)
+    verbose_message(values, message)
   end
   return
 end
@@ -2413,40 +2385,40 @@ def print_contents_of_file(values, message, file_name)
         output = File.readlines(file_name)
       end
       if values['output'].to_s.match(/html/)
-        verbose_output(values, "<table border=\"1\">")
-        verbose_output(values, "<tr>")
+        verbose_message(values, "<table border=\"1\">")
+        verbose_message(values, "<tr>")
         if message.length > 1
-          verbose_output(values, "<th>#{message}</th>")
+          verbose_message(values, "<th>#{message}</th>")
         else
-          verbose_output(values, "<th>#{file_name}</th>")
+          verbose_message(values, "<th>#{file_name}</th>")
         end
-        verbose_output(values, "<tr>")
-        verbose_output(values, "<td>")
-        verbose_output(values, "<pre>")
+        verbose_message(values, "<tr>")
+        verbose_message(values, "<td>")
+        verbose_message(values, "<pre>")
         output.each do |line|
-          verbose_output(values, "#{line}")
+          verbose_message(values, "#{line}")
         end
-        verbose_output(values, "</pre>")
-        verbose_output(values, "</td>")
-        verbose_output(values, "</tr>")
-        verbose_output(values, "</table>")
+        verbose_message(values, "</pre>")
+        verbose_message(values, "</td>")
+        verbose_message(values, "</tr>")
+        verbose_message(values, "</table>")
       else
         if values['verbose'] == true
-          verbose_output(values, "")
+          verbose_message(values, "")
           if message.length > 1
-            verbose_output(values, "Information:\t#{message}")
+            information_message(values, "#{message}")
           else
-            verbose_output(values, "Information:\tContents of file #{file_name}")
+            information_message(values, "Contents of file #{file_name}")
           end
-          verbose_output(values, "")
+          verbose_message(values, "")
           output.each do |line|
-            verbose_output(values, line)
+            verbose_message(values, line)
           end
-          verbose_output(values, "")
+          verbose_message(values, "")
         end
       end
     else
-      verbose_output(values, "Warning:\tFile #{file_name} does not exist")
+      warning_message(values, "File #{file_name} does not exist")
     end
   end
   return
@@ -2456,24 +2428,24 @@ end
 
 def show_output_of_command(message, output)
   if values['output'].to_s.match(/html/)
-    verbose_output(values, "<table border=\"1\">")
-    verbose_output(values, "<tr>")
-    verbose_output(values, "<th>#{message}</th>")
-    verbose_output(values, "<tr>")
-    verbose_output(values, "<td>")
-    verbose_output(values, "<pre>")
-    verbose_output(values, "#{output}")
-    verbose_output(values, "</pre>")
-    verbose_output(values, "</td>")
-    verbose_output(values, "</tr>")
-    verbose_output(values, "</table>")
+    verbose_message(values, "<table border=\"1\">")
+    verbose_message(values, "<tr>")
+    verbose_message(values, "<th>#{message}</th>")
+    verbose_message(values, "<tr>")
+    verbose_message(values, "<td>")
+    verbose_message(values, "<pre>")
+    verbose_message(values, "#{output}")
+    verbose_message(values, "</pre>")
+    verbose_message(values, "</td>")
+    verbose_message(values, "</tr>")
+    verbose_message(values, "</table>")
   else
     if values['verbose'] == true
-      verbose_output(values, "")
-      verbose_output(values, "Information:\t#{message}:")
-      verbose_output(values, "")
-      verbose_output(values, output)
-      verbose_output(values, "")
+      verbose_message(values, "")
+      information_message(values, "#{message}:")
+      verbose_message(values, "")
+      verbose_message(values, output)
+      verbose_message(values, "")
     end
   end
   return
@@ -2628,9 +2600,7 @@ def remove_nfs_export(export_dir)
       command = "zfs set sharenfs=off #{values['zpoolname']}#{export_dir}"
       execute_command(values, message, command)
     else
-      if values['verbose'] == true
-        verbose_output(values, "Information:\tZFS filesystem #{values['zpoolname']}#{export_dir} does not exist")
-      end
+      information_message(values, "ZFS filesystem #{values['zpoolname']}#{export_dir} does not exist")
     end
   else
     dfs_file = "/etc/exports"
@@ -2661,7 +2631,7 @@ end
 
 def check_same_arch(values)
   if not values['host-os-unamep'].to_s.match(/#{values['arch']}/)
-    verbose_output(values, "Warning:\tSystem and Zone Architecture do not match")
+    warning_message(values, "System and Zone Architecture do not match")
     quit(values)
   end
   return
@@ -2700,9 +2670,7 @@ def check_ssh_keys(values)
   ssh_key_type = values['sshkeytype'].to_s
   ssh_key_bits = values['sshkeybits'].to_s
   if not File.exist?(ssh_key_file)
-    if values['verbose'] == true
-      verbose_output(values, "Generating:\tPublic SSH key file #{ssh_key_file}")
-    end
+    verbose_message(values, "Generating:\tPublic SSH key file #{ssh_key_file}")
     command = "ssh-keygen -t #{ssh_key_type} -b #{ssh_key_bits} -f #{ssh_key_file}"
     system(command)
   end
@@ -2796,9 +2764,6 @@ def check_dhcpd_config(values)
     file.write("\n")
     if values['host-os-uname'].to_s.match(/SunOS|Linux/)
       file.write("subnet #{network_address} netmask #{values['netmask']} {\n")
-      if values['verbose'] == true
-
-      end
       if values['dhcpdrange'] == values['empty']
         values['dhcpdrange'] = network_address.split(".")[0..-2].join(".")+".200"+" "+network_address.split(".")[0..-2].join(".")+".250"
       end
@@ -2918,7 +2883,7 @@ end
 
 # Check httpd enabled on Centos / Redhat
 
-def check_yum_httpd()
+def check_yum_httpd(values)
   check_rhel_package(values, "httpd")
   check_rhel_firewall(values, "http", "80/tcp")
   check_rhel_service(values, "httpd")
@@ -3039,9 +3004,7 @@ def check_tftpd_config(values)
     pxelinux_dir  = values['tftpdir']
     pxelinux_tftp = pxelinux_dir+"/pxelinux.0"
     syslinux_tftp = pxelinux_dir+"/ldlinux.c32"
-    if values['verbose'] == true
-      verbose_output(values, "Information:\tChecking PXE directory")
-    end
+    information_message(values, "Checking PXE directory")
     check_dir_exists(values, pxelinux_dir)
     check_dir_owner(values, pxelinux_dir, values['uid'])
     if !File.exist?(pxelinux_tftp)
@@ -3053,7 +3016,7 @@ def check_tftpd_config(values)
         command = "cp #{pxelinux_file} #{pxelinux_tftp}"
         execute_command(values, message, command)
       else
-        verbose_output(values, "Warning:\tTFTP boot file pxelinux.0 does not exist")
+        warning_message(values, "TFTP boot file pxelinux.0 does not exist")
       end
     end
     if !File.exist?(syslinux_tftp)
@@ -3065,7 +3028,7 @@ def check_tftpd_config(values)
         command = "cp #{syslinux_file} #{syslinux_tftp}"
         execute_command(values, message, command)
       else
-        verbose_output(values, "Warning:\tTFTP boot file ldlinux.c32 does not exist")
+        warning_message(values, "TFTP boot file ldlinux.c32 does not exist")
       end
     end
     if values['host-os-unamea'].match(/Ubuntu|Debian/)
@@ -3097,9 +3060,7 @@ end
 def check_tftpd_dir(values)
   if values['host-os-uname'].to_s.match(/SunOS/)
     old_tftp_dir = "/tftpboot"
-    if values['verbose'] == true
-      verbose_output(values, "Information:\tChecking TFTP directory")
-    end
+    information_message(values, "Checking TFTP directory")
     check_dir_exists(values, values['tftpdir'])
     check_dir_owner(values, values['tftpdir'], values['uid'])
     if not File.symlink?(old_tftp_dir)
@@ -3172,7 +3133,7 @@ def check_tftpd(values)
     enable_service(values, "svc:/network/tftp/udp:default")
   end
   if values['host-os-uname'].to_s.match(/Darwin/)
-    check_osx_tftpd()
+    check_osx_tftpd(values)
   end
   return
 end
@@ -3398,9 +3359,7 @@ def remove_dhcp_client(values)
   found     = 0
   copy      = []
   if !File.exist?(values['dhcpdfile'])
-    if values['verbose'] == true
-      verbose_output(values, "Warning:\tFile #{values['dhcpdfile']} does not exist")
-    end
+    warning_message(values, "File #{values['dhcpdfile']} does not exist")
   else
     check_file_owner(values, values['dhcpdfile'], values['uid'])
     file_info = IO.readlines(values['dhcpdfile'])
@@ -3630,7 +3589,7 @@ end
 
 def execute_command(values, message, command)
   if !command
-    verbose_output(values, "Warning:\tEmpty command")
+    warning_message(values, "Empty command")
     return
   end
   if command.match(/prlctl/) and !values['host-os-uname'].to_s.match(/Darwin/)
@@ -3647,7 +3606,7 @@ def execute_command(values, message, command)
   execute = false
   if values['verbose'] == true
     if message.match(/[a-z,A-Z,0-9]/)
-      verbose_output(values, message)
+      verbose_message(values, message)
     end
   end
   if values['dryrun'] == true
@@ -3702,7 +3661,7 @@ def execute_command(values, message, command)
       if values['host-os-uname'].to_s.match(/NT/) && command.match(/netsh/)
         batch_file = "/tmp/script.bat"
         File.write(batch_file, command)
-        verbose_output(values, "Information:\tCreating batch file '#{batch_file}' to run command '#{command}"'')
+        information_message(values, "Creating batch file '#{batch_file}' to run command '#{command}"'')
         command = "cygstart --action=runas "+batch_file
       end
     end
@@ -3715,14 +3674,12 @@ def execute_command(values, message, command)
           sudo_check = %x[getent group #{values['sudogroup']}].chomp
         end
         if !sudo_check.match(/#{values['user']}/)
-          verbose_output(values, "Warning:\tUser #{values['user']} is not in sudoers group #{values['sudogroup']}")
+          warning_message(values, "User #{values['user']} is not in sudoers group #{values['sudogroup']}")
           quit(values)
         end
       end
     end
-    if values['verbose'] == true
-      verbose_output(values, "Executing:\t#{command}")
-    end
+    verbose_message(values, "Executing:\t#{command}")
     if values['executehost'].to_s.match(/localhost/)
       if values['dryrun'] == true and execute == true
         output = %x[#{command}]
@@ -3738,11 +3695,11 @@ def execute_command(values, message, command)
   if values['verbose'] == true
     if output.length > 1
       if not output.match(/\n/)
-        verbose_output(values, "Output:\t\t#{output}")
+        verbose_message(values, "Output:\t\t#{output}")
       else
         multi_line_output = output.split(/\n/)
         multi_line_output.each do |line|
-          verbose_output(values, "Output:\t\t#{line}")
+          verbose_message(values, "Output:\t\t#{line}")
         end
       end
     end
@@ -3759,9 +3716,7 @@ def get_date_string(values)
   date_string = date.to_s.gsub(/\s+/, "_")
   date_string = date_string.gsub(/:/, "_")
   date_string = date_string.gsub(/-/, "_")
-  if values['verbose'] == true
-    verbose_output(values, "Information:\tSetting date string to #{date_string}")
-  end
+  information_message(values, "Setting date string to #{date_string}")
   return date_string
 end
 
@@ -3817,7 +3772,7 @@ def check_dhcpd(values)
       service = "dhcp"
       refresh_service(values, service)
     end
-    check_osx_tftpd()
+    check_osx_tftpd(values)
   end
   return output
 end
@@ -3943,7 +3898,7 @@ def get_base_dir_list(values)
   end
   search_string = values['search']
   if values['isodir'] == nil or values['isodir'] == "none" and values['file'] == values['empty']
-    verbose_output(values, "Warning:\tNo valid ISO directory specified")
+    warning_message(values, "No valid ISO directory specified")
     quit(values)
   end
   iso_list = []
@@ -3965,7 +3920,7 @@ def get_base_dir_list(values)
     end
     if search_string.match(/sol_11/)
       if not iso_list.grep(/full/)
-        verbose_output(values, "Warning:\tNo full repository ISO images exist in #{values['isodir']}")
+        warning_message(values, "No full repository ISO images exist in #{values['isodir']}")
         if values['dryrun'] != true
           quit(values)
         end
@@ -3984,7 +3939,7 @@ def check_client_arch(values, opt)
   if not values['arch'].to_s.match(/i386|sparc|x86_64/)
     if opt['F'] or opt['O']
       if opt['A']
-        verbose_output(values, "Information:\tSetting architecture to x86_64")
+        information_message(values, "Setting architecture to x86_64")
         values['arch'] = "x86_64"
       end
     end
@@ -3997,8 +3952,8 @@ def check_client_arch(values, opt)
     end
   end
   if not values['arch'].to_s.match(/i386|sparc|x86_64/)
-    verbose_output(values, "Warning:\tInvalid architecture specified")
-    verbose_output(values, "Warning:\tUse --arch i386, --arch x86_64 or --arch sparc")
+    warning_message(values, "Invalid architecture specified")
+    warning_message(values, "Use --arch i386, --arch x86_64 or --arch sparc")
     quit(values)
   end
   return values['arch']
@@ -4009,9 +3964,9 @@ end
 def check_install_mac(values)
   if !values['mac'].to_s.match(/:/)
     if values['mac'].to_s.split(":").length != 6
-      verbose_output(values, "Warning:\tInvalid MAC address")
+      warning_message(values, "Invalid MAC address")
       values['mac'] = generate_mac_address(values['vm'])
-      verbose_output(values, "Information:\tGenerated new MAC address: #{values['mac']}")
+      information_message(values, "Generated new MAC address: #{values['mac']}")
     else
       charsi = values['mac'].split(//)
       values['mac'] = chars[0..1].join+":"+chars[2..3].join+":"+chars[4..5].join+":"+chars[6..7].join+":"+chars[8..9].join+":"+chars[10..11].join
@@ -4019,17 +3974,28 @@ def check_install_mac(values)
   end
   macs = values['mac'].split(":")
   if macs.length != 6
-    verbose_output(values, "Warning:\tInvalid MAC address")
+    warning_message(values, "Invalid MAC address")
     quit(values)
   end
   macs.each do |mac|
     if mac =~ /[G-Z]|[g-z]/
-      verbose_output(values, "Warning:\tInvalid MAC address")
+      warning_message(values, "Invalid MAC address")
       values['mac'] = generate_mac_address(values['vm'])
-      verbose_output(values, "Information:\tGenerated new MAC address: #{values['mac']}")
+      information_message(values, "Generated new MAC address: #{values['mac']}")
     end
   end
   return values['mac']
+end
+
+# Check valid IP
+
+def check_ip_is_valid(ip_address)
+  if IPAddress.valid?(ip_address)
+    information_message(values,"Valid IP Address: #{ip_address}")
+  else
+    warning_message(values,"Invalid IP Address: #{ip_address}")
+    quit(values)
+  end
 end
 
 # Check install IP
@@ -4044,11 +4010,11 @@ def check_install_ip(values)
   values['ips'].each do |test_ip|
     ips = test_ip.split(".")
     if ips.length != 4
-      verbose_output(values, "Warning:\tInvalid IP Address")
+      warning_message(values, "Invalid IP Address")
     end
     ips.each do |ip|
       if ip =~ /[a-z,A-Z]/ or ip.length > 3 or ip.to_i > 254
-        verbose_output(values, "Warning:\tInvalid IP Address")
+        warning_message(values, "Invalid IP Address")
       end
     end
   end
@@ -4167,9 +4133,7 @@ def add_apache_alias(values, service_base_name)
       message = "Information:\tArchiving Apache config file "+apache_config_file+" to "+apache_config_file+".no_"+service_base_name
       command = "cp #{apache_config_file} #{apache_config_file}.no_#{service_base_name}"
       execute_command(values, message, command)
-      if values['verbose'] == true
-        verbose_output(values, "Adding:\t\tDirectory and Alias entry to #{apache_config_file}")
-      end
+      verbose_message(values, "Adding:\t\tDirectory and Alias entry to #{apache_config_file}")
       message = "Copying:\tApache config file so it can be edited"
       command = "cp #{apache_config_file} #{tmp_file} ; chown #{values['uid']} #{tmp_file}"
       execute_command(values, message, command)
@@ -4242,7 +4206,7 @@ end
 # If there is something mounted there already it will unmount it
 
 def mount_iso(values)
-  verbose_output(values, "Information:\tProcessing: #{values['file']}")
+  information_message(values, "Processing: #{values['file']}")
   output  = check_dir_exists(values, values['mountdir'])
   message = "Checking:\tExisting mounts"
   command = "df |awk '{print $NF}' |grep '^#{values['mountdir']}$'"
@@ -4258,9 +4222,7 @@ def mount_iso(values)
   end
   if values['host-os-uname'].to_s.match(/Darwin/)
     command = "hdiutil attach -nomount \"#{values['file']}\" |head -1 |awk \"{print \\\$1}\""
-    if values['verbose'] == true
-      verbose_output(values, "Executing:\t#{command}")
-    end
+    verbose_message(values, "Executing:\t#{command}")
     disk_id = %x[#{command}]
     disk_id = disk_id.chomp
     file_du = %x[du "#{values['file'].to_s}" |awk '{print $1}']
@@ -4289,9 +4251,7 @@ def mount_iso(values)
       umount_iso(values)
       if values['host-os-uname'].to_s.match(/Darwin/)
         command = "hdiutil attach -nomount \"#{values['file']}\" |head -1 |awk \"{print \\\$1}\""
-        if values['verbose'] == true
-          verbose_output(values, "Executing:\t#{command}")
-        end
+        verbose_message(values, "Executing:\t#{command}")
         disk_id = %x[#{command}]
         disk_id = disk_id.chomp
         command = "sudo mount -t udf -o ro "+disk_id+" "+values['mountdir']
@@ -4340,8 +4300,8 @@ def mount_iso(values)
     end
   end
   if not File.directory?(iso_test_dir) and not File.exist?(iso_test_dir) and not values['file'].to_s.match(/DVD2\.iso|2of2\.iso|repo-full|VCSA/)
-    verbose_output(values, "Warning:\tISO did not mount, or this is not a repository ISO")
-    verbose_output(values, "Warning:\t#{iso_test_dir} does not exist")
+    warning_message(values, "ISO did not mount, or this is not a repository ISO")
+    warning_message(values, "#{iso_test_dir} does not exist")
     if values['dryrun'] != true
       umount_iso(values)
       quit(values)
@@ -4354,14 +4314,10 @@ end
 
 def check_my_dir_exists(values, dir_name)
   if not File.directory?(dir_name) and not File.symlink?(dir_name)
-    if values['verbose'] == true
-      verbose_output(values, "Information:\tCreating directory '#{dir_name}'")
-    end
+    information_message(values, "Creating directory '#{dir_name}'")
     system("mkdir #{dir_name}")
   else
-    if values['verbose'] == true
-      verbose_output(values, "Information:\tDirectory '#{dir_name}' already exists")
-    end
+    information_message(values, "Directory '#{dir_name}' already exists")
   end
   return
 end
@@ -4382,9 +4338,7 @@ end
 # Copy repository from ISO to local filesystem
 
 def copy_iso(values)
-  if values['verbose'] == true
-    verbose_output(values, "Checking:\tIf we can copy data from full repo ISO")
-  end
+  verbose_message(values, "Checking:\tIf we can copy data from full repo ISO")
   if values['file'].to_s.match(/sol/)
     iso_test_dir = values['mountdir']+"/repo"
     if File.directory?(iso_test_dir)
@@ -4394,7 +4348,7 @@ def copy_iso(values)
       if File.directory?(iso_test_dir)
         iso_repo_dir = values['mountdir']
       else
-        verbose_output(values, "Warning:\tRepository source directory does not exist")
+        warning_message(values, "Repository source directory does not exist")
         if values['dryrun'] != true
           quit(values)
         end
@@ -4421,7 +4375,7 @@ def copy_iso(values)
     end
   end
   if not File.directory?(values['repodir']) and not File.symlink?(values['repodir']) and not values['file'].to_s.match(/\.iso/)
-    verbose_output(values, "Warning:\tRepository directory #{values['repodir']} does not exist")
+    warning_message(values, "Repository directory #{values['repodir']} does not exist")
     if values['dryrun'] != true
       quit(values)
     end
@@ -4429,7 +4383,7 @@ def copy_iso(values)
   if not File.directory?(test_dir) or values['file'].to_s.match(/DVD2\.iso|2of2\.iso/)
     if values['file'].to_s.match(/sol/)
       if not File.directory?(iso_repo_dir)
-        verbose_output(values, "Warning:\tRepository source directory #{iso_repo_dir} does not exist")
+        warning_message(values, "Repository source directory #{iso_repo_dir} does not exist")
         if values['dryrun'] != true
           quit(values)
         end
@@ -4451,7 +4405,7 @@ def copy_iso(values)
           output  = execute_command(values, message, command)
         end
       else
-        verbose_output(values, message)
+        verbose_message(values, message)
         output  = execute_command(values, message, command)
       end
     end
@@ -4468,29 +4422,29 @@ def list_doms(values, dom_type, dom_command)
   output  = output.split("\n")
   if output.length > 0
     if values['output'].to_s.match(/html/)
-      verbose_output(values, "<h1>Available #{dom_type}(s)</h1>")
-      verbose_output(values, "<table border=\"1\">")
-      verbose_output(values, "<tr>")
-      verbose_output(values, "<th>Service</th>")
-      verbose_output(values, "</tr>")
+      verbose_message(values, "<h1>Available #{dom_type}(s)</h1>")
+      verbose_message(values, "<table border=\"1\">")
+      verbose_message(values, "<tr>")
+      verbose_message(values, "<th>Service</th>")
+      verbose_message(values, "</tr>")
     else
-      verbose_output(values, "")
-      verbose_output(values, "Available #{dom_type}(s):")
-      verbose_output(values, "")
+      verbose_message(values, "")
+      verbose_message(values, "Available #{dom_type}(s):")
+      verbose_message(values, "")
     end
     output.each do |line|
       line = line.chomp
       line = line.gsub(/\s+$/, "")
       if values['output'].to_s.match(/html/)
-        verbose_output(values, "<tr>")
-        verbose_output(values, "<td>#{line}</td>")
-        verbose_output(values, "</tr>")
+        verbose_message(values, "<tr>")
+        verbose_message(values, "<td>#{line}</td>")
+        verbose_message(values, "</tr>")
       else
-        verbose_output(values, line)
+        verbose_message(values, line)
       end
     end
     if values['output'].to_s.match(/html/)
-      verbose_output(values, "</table>")
+      verbose_message(values, "</table>")
     end
   end
   return
@@ -4552,9 +4506,7 @@ end
 def umount_iso(values)
   if values['host-os-uname'].to_s.match(/Darwin/)
     command = "df |grep \"#{values['mountdir']}$\" |head -1 |awk \"{print \\\$1}\""
-    if values['verbose'] == true
-      verbose_output(values, "Executing:\t#{command}")
-    end
+    verbose_message(values, "Executing:\t#{command}")
     disk_id = %x[#{command}]
     disk_id = disk_id.chomp
   end
@@ -4628,9 +4580,7 @@ def get_method_from_service(service)
 end
 
 def check_perms(values)
-  if values['verbose'] == true
-    verbose_output(values, "Information:\tChecking client directory")
-  end
+  information_message(values, "Checking client directory")
   check_dir_exists(values, values['clientdir'])
   check_dir_owner(values, values['clientdir'], values['uid'])
   return

@@ -79,7 +79,7 @@ def show_s3_bucket_url(values)
   else
     url = get_s3_bucket_private_url(values)
   end
-  verbose_output(url)
+  verbose_message(url)
   return
 end
 
@@ -91,7 +91,7 @@ def list_aws_buckets(values)
     bucket_name = bucket.name
     if values['bucket'].to_s.match(/^all$|#{bucket_name}|^none$/)
       bucket_date = bucket.creation_date
-      verbose_output(values, "#{bucket_name}\tcreated=#{bucket_date}")
+      verbose_message(values, "#{bucket_name}\tcreated=#{bucket_date}")
     end
   end
   return
@@ -104,13 +104,13 @@ def list_aws_bucket_objects(values)
   buckets.each do |bucket|
     bucket_name = bucket.name
     if values['bucket'].to_s.match(/^all$|#{bucket_name}/)
-      verbose_output(values, "")
-      verbose_output(values, "#{bucket_name}:")
+      verbose_message(values, "")
+      verbose_message(values, "#{bucket_name}:")
       s3 = initiate_aws_s3_client(values['access'], values['secret'], values['region'])
       objects = s3.list_objects_v2({ bucket: bucket_name })
       objects.contents.each do |object|
         object_key = object.key
-        verbose_output(object_key)
+        verbose_message(object_key)
       end
     end
   end

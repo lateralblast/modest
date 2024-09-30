@@ -5,9 +5,7 @@
 def configure_docker_server(values)
   check_dir_exists(values, values)
   values['tftpdir'] = values['exportdir']+"/tftpboot"
-  if values['verbose'] == true
-    verbose_output(values, "Information:\tChecking TFTP directory")
-  end
+  information_message(values, "Checking TFTP directory")
   check_dir_exists(values, values['tftpdir'])
   check_dir_owner(values, values['tftpdir'], values['uid'])
   service_dir = values['tftpdir']+"/"+values['service']
@@ -23,14 +21,14 @@ def configure_docker_server(values)
     create_docker_file(docker_file)
     build_docker_file(docker_file)
   else
-    verbose_output(values, "Docker image #{values['scriptname']} already exists")
+    verbose_message(values, "Docker image #{values['scriptname']} already exists")
   end
   return
 end
 
 # Configure Dockerfile
 
-def create_docker_file(docker_file)
+def create_docker_file(values, docker_file)
   if File.exist?(docker_file)
     File.delete(docker_file)
   end
@@ -45,7 +43,7 @@ end
 
 # Build Dockerfile
 
-def build_docker_file(docker_file)
+def build_docker_file(values, docker_file)
   message = "Building: #{docker_file}"
   command = "cd #{$docker_host_base_dir} ; docker build --tag #{values['scriptname']} #{values['scriptname']}"
   #execute_command(values, message, command)

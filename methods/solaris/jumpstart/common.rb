@@ -132,18 +132,18 @@ def list_js_isos(values)
   iso_list = get_base_dir_list(values)
   if iso_list.length > 0
     if values['output'].to_s.match(/html/)
-      verbose_output(values, "<h1>Available Jumpstart ISOs:</h1>")
-      verbose_output(values, "<table border=\"1\">")
-      verbose_output(values, "<tr>")
-      verbose_output(values, "<th>ISO File</th>")
-      verbose_output(values, "<th>Distribution</th>")
-      verbose_output(values, "<th>Version</th>")
-      verbose_output(values, "<th>Architecture</th>")
-      verbose_output(values, "<th>Service Name</th>")
-      verbose_output(values, "</tr>")
+      verbose_message(values, "<h1>Available Jumpstart ISOs:</h1>")
+      verbose_message(values, "<table border=\"1\">")
+      verbose_message(values, "<tr>")
+      verbose_message(values, "<th>ISO File</th>")
+      verbose_message(values, "<th>Distribution</th>")
+      verbose_message(values, "<th>Version</th>")
+      verbose_message(values, "<th>Architecture</th>")
+      verbose_message(values, "<th>Service Name</th>")
+      verbose_message(values, "</tr>")
     else
-      verbose_output(values, "Available Jumpstart ISOs:")
-      verbose_output(values, "") 
+      verbose_message(values, "Available Jumpstart ISOs:")
+      verbose_message(values, "") 
     end
     iso_list.each do |file_name|
       file_name   = file_name.chomp
@@ -152,40 +152,40 @@ def list_js_isos(values)
       iso_version = iso_info[1..2].join("_")
       iso_arch    = iso_info[4]
       if values['output'].to_s.match(/html/)
-        verbose_output(values, "<tr>")
-        verbose_output(values, "<td>#{file_name}</td>")
-        verbose_output(values, "<td>Solaris</td>")
-        verbose_output(values, "<td>#{iso_version}</td>")
-        verbose_output(values, "<td>#{iso_arch}</td>")
+        verbose_message(values, "<tr>")
+        verbose_message(values, "<td>#{file_name}</td>")
+        verbose_message(values, "<td>Solaris</td>")
+        verbose_message(values, "<td>#{iso_version}</td>")
+        verbose_message(values, "<td>#{iso_arch}</td>")
       else
-        verbose_output(values, "ISO file:\t#{file_name}")
-        verbose_output(values, "Distribution:\tSolaris")
-        verbose_output(values, "Version:\t#{iso_version}")
-        verbose_output(values, "Architecture:\t#{iso_arch}")
+        verbose_message(values, "ISO file:\t#{file_name}")
+        verbose_message(values, "Distribution:\tSolaris")
+        verbose_message(values, "Version:\t#{iso_version}")
+        verbose_message(values, "Architecture:\t#{iso_arch}")
       end
       values['service'] = "sol_"+iso_version+"_"+iso_arch
       values['repodir'] = values['baserepodir']+"/"+values['service']
       if File.directory?(values['repodir'])
         if values['output'].to_s.match(/html/)
-          verbose_output(values, "<td>#{values['service']} (exists)</td>")
+          verbose_message(values, "<td>#{values['service']} (exists)</td>")
         else
-          verbose_output(values, "Information:\tService Name #{values['service']} (exists)")
+          information_message(values, "Service Name #{values['service']} (exists)")
         end
       else
         if values['output'].to_s.match(/html/)
-          verbose_output(values, "<td>#{values['service']}</td>")
+          verbose_message(values, "<td>#{values['service']}</td>")
         else
-          verbose_output(values, "Information:\tService Name #{values['service']}")
+          information_message(values, "Service Name #{values['service']}")
         end
       end
       if values['output'].to_s.match(/html/)
-        verbose_output(values, "</tr>") 
+        verbose_message(values, "</tr>") 
       else
-        verbose_output(values, "") 
+        verbose_message(values, "") 
       end
     end
     if values['output'].to_s.match(/html/)
-      verbose_output(values, "</table>")
+      verbose_message(values, "</table>")
     end
   end
   return

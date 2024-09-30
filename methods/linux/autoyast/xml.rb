@@ -1935,7 +1935,7 @@ end
 
 # Populate disabled http modules
 
-def populate_ay_disabled_http_modules()
+def populate_ay_disabled_http_modules(values)
   disabled_http_modules = []
   disabled_http_modules.push("authz_host")
   disabled_http_modules.push("actions")
@@ -1961,14 +1961,14 @@ end
 
 # Populate enabled http modules
 
-def populate_ay_enabled_http_modules()
+def populate_ay_enabled_http_modules(values)
   enabled_http_modules = []
   return enabled_http_modules
 end
 
 # Populate services to disable
 
-def populate_ay_disabled_services()
+def populate_ay_disabled_services(values)
   disabled_services = []
   disabled_services.push("display_manager")
   return disabled_services
@@ -1976,7 +1976,7 @@ end
 
 # Populate services to enable
 
-def populate_ay_enabled_services()
+def populate_ay_enabled_services(values)
   enabled_services = []
   enabled_services.push("btrfsmaintenance-refresh")
   enabled_services.push("cron")
@@ -2019,10 +2019,10 @@ def output_ay_client_profile(values,output_file)
   add_packages    = populate_ay_add_packages(values)
   remove_packages = populate_ay_remove_packages(values)
   patterns        = populate_ay_patterns(values)
-  disabled_services = populate_ay_disabled_services()
-  enabled_services  = populate_ay_enabled_services()
-  disabled_http_modules = populate_ay_disabled_http_modules()
-  enabled_http_modules  = populate_ay_enabled_http_modules()
+  disabled_services = populate_ay_disabled_services(values)
+  enabled_services  = populate_ay_enabled_services(values)
+  disabled_http_modules = populate_ay_disabled_http_modules(values)
+  enabled_http_modules  = populate_ay_enabled_http_modules(values)
   xml = Builder::XmlMarkup.new(:target => xml_output, :indent => 2)
   xml.instruct! :xml, :version => "1.0", :encoding => "UTF-8"
   xml.declare! :DOCTYPE, :profile
@@ -3084,8 +3084,6 @@ def output_ay_client_profile(values,output_file)
   message = "Information:\tValidating AutoYast XML configuration for "+values['name']
   command = "xmllint #{output_file}"
   execute_command(values,message,command)
-  if values['verbose'] == true
-    print_contents_of_file(values,"",output_file)
-  end
+  print_contents_of_file(values,"",output_file)
   return
 end

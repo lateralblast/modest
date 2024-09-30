@@ -34,7 +34,7 @@ def check_kvm_network_bridge_exists(values)
     output  = execute_command(values, message, command)
     if output.match(/#{net_dev}/)
       if output.match(/inactive/)
-        verbose_output(values, "Warning:\tDefault KVM network #{net_dev}is not active")
+        warning_message(values, "Default KVM network #{net_dev}is not active")
         output  = execute_command(values,message, command)
         message = "Information:\tSetting KVM default network to autostart"
         command = "virsh net-autostart #{net_dev}"
@@ -55,10 +55,10 @@ def connect_to_kvm_vm(values)
   exists  = check_kvm_vm_exists(values)
   vm_name = values['name'].to_s
   if exists == true
-    verbose_output(values, "Information:\t Connecting to KVM VM #{vm_name}")
+    information_message(values, " Connecting to KVM VM #{vm_name}")
     exec("virsh console #{vm_name}")
   else
-    verbose_output(values, "Warning:\tKVM VM #{vm_name} doesn't exist")
+    warning_message(values, "KVM VM #{vm_name} doesn't exist")
     quit(values)
   end
 end
@@ -68,11 +68,11 @@ end
 def import_packer_kvm_vm(values)
   (exists, images_dir) = check_packer_vm_image_exists(values)
   if exists == false
-    verbose_output(values, "Warning:\tPacker KVM VM QCOW image for #{values['name']} does not exist")
+    warning_message(values, "Packer KVM VM QCOW image for #{values['name']} does not exist")
     quit(values)
   end
   if not values['os-variant'].to_s.match(/[a-z]/) or values['os-variant'].to_s.match(/none/)
-    verbose_output(values, "Warning:\tOS Variant (--os-variant) not specified")
+    warning_message(values, "OS Variant (--os-variant) not specified")
     quit(values)
   end
   qcow_file = images_dir+"/"+values['name']
@@ -85,7 +85,7 @@ def import_packer_kvm_vm(values)
     end
     execute_command(values, message, command)
   else
-    verbose_output(values, "Warning:\tQCOW file for Packer KVM VM #{values['name']} does not exist")
+    warning_message(values, "QCOW file for Packer KVM VM #{values['name']} does not exist")
     quit(values)
   end
   return
@@ -112,7 +112,7 @@ def check_kvm_permissions(values)
   file_perms = "660"
   if not File.exist?(file_name)
     message = "Information:\tCreating file #{file_name}"
-    verbose_output(values, message)
+    verbose_message(values, message)
     %x[sudo sh -c "echo 'KERNEL==\"kvm\", GROUP=\"kvm\", MODE=\"0660\"' > #{file_name}"]
   end
   check_file_owner(values, file_name, file_owner)
@@ -124,13 +124,13 @@ def check_kvm_permissions(values)
     param = "FirewallBackend"
     value = "iptables"
     message = "Information:\tChecking #{param} is set to #{value} in #{file_name}"
-    verbose_output(values, message)
+    verbose_message(values, message)
     check = %x[cat #{file_name} |grep ^FirewallBackend ].chomp
     if not check.match(/#{value}/)
       message = "Warning:\tParameter #{param} is no set to #{value} in #{file_name}"
-      verbose_output(values, message)
+      verbose_message(values, message)
       message = "Information:\tSetting parameter #{param} to #{value} in #{file_name}"
-      verbose_output(values, message)
+      verbose_message(values, message)
       %x[sudo cp #{file_name} #{file_name}.orig]
       %x[sudo sh -c 'cat #{file_name} | grep -v "^#{param}=nftables" >> #{temp_name}']
       %x[sudo sh -c 'echo "#{param}=#{value}" >> #{temp_name}']
@@ -140,9 +140,9 @@ def check_kvm_permissions(values)
   file_name = "/etc/modprobe.d/qemu-system-x86.conf"
   if not File.exist?(file_name)
     message = "Warning:\tFile #{file_name} does not exist"
-    verbose_output(values, message)
+    verbose_message(values, message)
     message = "Information:\tCreating #{file_name}"
-    verbose_output(values, message)
+    verbose_message(values, message)
     %x[sudo sh -c "echo \"values kvm ignore_msrs=1 report_ignored_msrs=0\" >> #{file_name}"]
     %x[sudo sh -c "echo \"values kvm_intel nested=1 enable_apicv=0 ept=1\" >> #{file_name}"]
   end
@@ -165,7 +165,7 @@ def check_kvm_is_installed(values)
   end
   if not File.exist?(virt_bin)
     message = "Information:\tInstalling KVM"
-    verbose_output(values, message)
+    verbose_message(values, message)
     if values['host-os-unamea'].to_s.match(/Ubuntu/)
       pkg_list= [ "qemu", "libvirt", "libvirt-glib", "libvirt-python", "virt-manager", "libosinfo" ]
     end
@@ -180,7 +180,7 @@ def check_kvm_is_installed(values)
     end
   end
   if not values['host-os-uname'].match(/Linux|Darwin/)
-    verbose_output(values, "Warning:\tPlatform does not support KVM")
+    warning_message(values, "Platform does not support KVM")
     quit(values)
   end
   if values['host-lsb-description'].to_s.match(/Endeavour|Arch/)
@@ -214,9 +214,7 @@ def check_kvm_is_installed(values)
       command = "usermod -a -G #{values['kvmgroup']} #{values['user']}"
       output  = execute_command(values, message, command)
     end
-    if values['verbose'] == true
-      verbose_output(values, "Information:\tChecking QEMU configuration directory")
-    end
+    information_message(values, "Checking QEMU configuration directory")
     dir_name   = "/etc/qemu"
     file_name  = "/etc/qemu/bridge.conf"
     file_array = []
@@ -264,7 +262,7 @@ def resize_kvm_image(values)
     size = size+"G"
   end
   if !File.exist?(file)
-    verbose_output(values, "Warning:\tFile #{file} does not exist")
+    warning_message(values, "File #{file} does not exist")
     quit(values)
   end
   message = "Information:\tResizing disk #{output} to #{size}"
@@ -276,26 +274,24 @@ end
 def convert_kvm_image(values)
   input_file = values['inputfile'].to_s
   if !File.exist?(input_file) or values['inputfile'] == values['empty']
-    verbose_output(values, "Warning:\tFile #{input_file} does not exist")
+    warning_message(values, "File #{input_file} does not exist")
     quit(values)
   end
   if values['outputfile'] == values['empty'] or not values['input_file'].to_s.match(/#{values['name'].to_s}/)
-    verbose_output(values, "Warning:\tNo output file specified")
+    warning_message(values, "No output file specified")
     if values['name'] == values['empty']
-      verbose_output(values, "Warning:\tNo client name specified")
+      warning_message(values, "No client name specified")
       quit(values)
     else
       file_name = values['imagedir'].to_s+"/"+values['name'].to_s+".qcow2"
       values['outputfile'] = file_name
       output_file = values['outputfile']
-      verbose_output(values, "Information:\tSetting output file to #{output_file}")
+      information_message(values, "Setting output file to #{output_file}")
     end
   end
   path_name = Pathname.new(values['outputfile'].to_s).dirname
   if !File.exist?(path_name)
-    if values['verbose'] == true
-      verbose_output(values, "Information:\tChecking KVM output directory")
-    end
+    information_message(values, "Checking KVM output directory")
     check_dir_exists(values, path_name)
     check_dir_owner(values, path_name, values['uid'])
   end
@@ -304,8 +300,8 @@ def convert_kvm_image(values)
     command = "qemu-img convert -O qcow2 -f qcow2 #{input_file} #{output_file}"
     output  = execute_command(values, message, command)
   else
-    verbose_output(values, "Warning:\tFile #{output_file} already exists")
-    verbose_output(values, "Information:\tUse --force option to delete file")
+    warning_message(values, "File #{output_file} already exists")
+    information_message(values, "Use --force option to delete file")
     quit(values)
   end
   size = values['size'].to_s
@@ -326,7 +322,7 @@ def check_kvm_default_network(values)
   command = "virsh net-list --all |grep default"
   output  = execute_command(values,message, command)
   if output.match(/inactive/)
-    verbose_output(values, "Warning:\tDefault KVM network is not active")
+    warning_message(values, "Default KVM network is not active")
     output  = execute_command(values,message, command)
     message = "Information:\tSetting KVM default network to autostart"
     command = "virsh net-autostart default"
@@ -344,11 +340,11 @@ def check_kvm_network_bridge(values)
   exists = check_kvm_network_bridge_exists(values)
   if exists == true
     message = "Information:\tKVM VM #{values['bridge']} already exists"
-    verbose_output(values, message)
+    verbose_message(values, message)
     exists = check_network_bridge_exists(values)
     if exists == false
       net_dev = values['bridge'].to_s
-      verbose_output(values, "Warning:\tNetwork bridge #{net_dev} does not exist")
+      warning_message(values, "Network bridge #{net_dev} does not exist")
       check_kvm_default_network(values)
     end
   else
@@ -392,20 +388,20 @@ def configure_kvm_client(values)
   exists = check_kvm_vm_exists(values)
   if exists == true
     message = "Warning:\t KVM VM #{values['name']} already exists"
-    verbose_output(values, message)
+    verbose_message(values, message)
     quit(values)
   end
   if !values['host-os-uname'].match(/Darwin/)
     exists = check_kvm_network_bridge_exists(values)
     if exists == false
       message = "Warning:\tKVM network bridge #{values['bridge']} does not exists"
-      verbose_output(values, message)
+      verbose_message(values, message)
       quit(values)
     end
     exists = check_network_bridge_exists(values)
     if exists == false
       net_dev = values['bridge'].to_s
-      verbose_output(values, "Warning:\tNetwork bridge #{net_dev} does not exist")
+      warning_message(values, "Network bridge #{net_dev} does not exist")
       quit(values)
     end
   end
@@ -415,7 +411,7 @@ def configure_kvm_client(values)
     if values['type'].to_s.match(/packer/)
       values = configure_packer_client(values)
     else
-      verbose_output(values, "Warning:\tNo KVM VM type specified")
+      warning_message(values, "No KVM VM type specified")
       quit(values)
     end
   end
@@ -442,7 +438,7 @@ end
 def configure_kvm_import_client(values)
   if values['file'] == values['empty'] || !File.exist?(values['file'].to_s)
     values['notice'] = true
-    verbose_output(values, "Warning:\tNo file specified")
+    warning_message(values, "No file specified")
     list_kvm_images(values)
     quit(values)
   end
@@ -481,7 +477,7 @@ def configure_kvm_import_client(values)
     end
   end
   if values['file'] == values['empty'] && values['pxe'] == false
-    verbose_output(values, "Warning:\tNo install file specified")
+    warning_message(values, "No install file specified")
     quit(values)
   end
   if values['import'] == true and values['method'] == "ci"
@@ -496,7 +492,7 @@ def configure_kvm_import_client(values)
         end
         values['cloudfile'] = cloud_file
       else
-        verbose_output(values, "Warning:\tNo cloud config image specified")
+        warning_message(values, "No cloud config image specified")
       end
     else
       if !values['cloudfile'].to_s.match(/#{values['name'].to_s}/)
@@ -550,7 +546,7 @@ def configure_kvm_import_client(values)
         network_file = "#{config_path}/#{values['name'].to_s}_network.cfg"
       end
     end
-    verbose_output(values, "Information:\tChecking KVM output directory")
+    information_message(values, "Checking KVM output directory")
     check_dir_exists(values, config_path)
     check_dir_owner(values, config_path, values['uid'])
     if values['method'].to_s.match(/ci/)
@@ -566,7 +562,7 @@ def configure_kvm_import_client(values)
       when /win/
         values = populate_pe_questions(values)
       else
-        verbose_output(values, "Warning:\tNo OS Variant specified")
+        warning_message(values, "No OS Variant specified")
         quit(values)
       end
     end
@@ -676,7 +672,7 @@ def configure_kvm_import_client(values)
     output  = execute_command(values, message, command)
     if !File.exist?(values['cloudfile'].to_s)
       if values['answers']['static'].value == "true"
-        verbose_output(values, "Warning:\tFile #{values['cloudfile'].to_s} does not exist")
+        warning_message(values, "File #{values['cloudfile'].to_s} does not exist")
         quit(values)
       end
     end
@@ -686,7 +682,7 @@ def configure_kvm_import_client(values)
   end
   if values['network'].to_s.match(/bridge/)
     if !values['network'].to_s.match(/br[0-9]/)
-      verbose_output(values, "Warning:\tBridge not set")
+      warning_message(values, "Bridge not set")
       quit(values)
     end
   end
@@ -709,7 +705,7 @@ def configure_kvm_import_client(values)
       if values[param] != true && values[param] != false
         command = command + " --"+param+" "+values[param].to_s
         if !values['param'].to_s.match(/[0-9]|[a-z]|[A-Z]/)
-          verbose_output(values, "Warning:\tOption #{param} not set")
+          warning_message(values, "Option #{param} not set")
           quit(values)
         end
       else
@@ -723,14 +719,16 @@ def configure_kvm_import_client(values)
       end
     end
   end
-  command = command + " --noreboot"
+  if values['reboot'] == false
+    command = command + " --noreboot"
+  end
   message = "Information:\tCreating VM #{values['name'].to_s}"
-  if values['nobuild'] == false
+  if values['build'] == true
     output  = execute_command(values, message, command)
   else
-    verbose_output(values, "Information:\tNot building VM #{values['name'].to_s}")
-    verbose_output(values, "Information:\tTo build VM execute comannd below")
-    verbose_output(values, "Command:\t#{command}")
+    information_message(values, "Not building VM #{values['name'].to_s}")
+    information_message(values, "To build VM execute comannd below")
+    verbose_message(values, "Command:\t#{command}")
   end
   return values
 end
@@ -752,18 +750,18 @@ def list_kvm_vms(values)
   end
   if file_list.length > 0
     if values['output'].to_s.match(/html/)
-      verbose_output(values, "<h1>Available #{type_string} VMs</h1>")
-      verbose_output(values, "<table border=\"1\">")
-      verbose_output(values, "<tr>")
-      verbose_output(values, "<th>VM</th>")
-      verbose_output(values, "<th>IP</th>")
-      verbose_output(values, "<th>MAC</th>")
-      verbose_output(values, "<th>Status</th>")
-      verbose_output(values, "</tr>")
+      verbose_message(values, "<h1>Available #{type_string} VMs</h1>")
+      verbose_message(values, "<table border=\"1\">")
+      verbose_message(values, "<tr>")
+      verbose_message(values, "<th>VM</th>")
+      verbose_message(values, "<th>IP</th>")
+      verbose_message(values, "<th>MAC</th>")
+      verbose_message(values, "<th>Status</th>")
+      verbose_message(values, "</tr>")
     else
-      verbose_output(values, "")
-      verbose_output(values, "Available #{type_string} clients:")
-      verbose_output(values, "")
+      verbose_message(values, "")
+      verbose_message(values, "Available #{type_string} clients:")
+      verbose_message(values, "")
     end
     file_list.each do |entry|
       if not entry.match(/^---|^ Id/)
@@ -779,23 +777,23 @@ def list_kvm_vms(values)
         end
         if values['search'] == "all" or values['search'] == "none" or entry.match(/#{values['search']}/)
           if values['output'].to_s.match(/html/)
-            verbose_output(values, "<tr>")
-            verbose_output(values, "<td>#{values['name'].to_s}</td>")
-            verbose_output(values, "<td>#{values['ip'].to_s}</td>")
-            verbose_output(values, "<td>#{values['mac'].to_s}</td>")
-            verbose_output(values, "<td>#{values['status'].to_s}</td>")
-            verbose_output(values, "</tr>")
+            verbose_message(values, "<tr>")
+            verbose_message(values, "<td>#{values['name'].to_s}</td>")
+            verbose_message(values, "<td>#{values['ip'].to_s}</td>")
+            verbose_message(values, "<td>#{values['mac'].to_s}</td>")
+            verbose_message(values, "<td>#{values['status'].to_s}</td>")
+            verbose_message(values, "</tr>")
           else
             output = values['name'].to_s+" ip="+values['ip'].to_s+" mac="+values['mac'].to_s+" status="+values['status'].to_s
-            verbose_output(values, output)
+            verbose_message(values, output)
           end
         end
       end
     end
     if values['output'].to_s.match(/html/)
-      verbose_output(values, "</table>")
+      verbose_message(values, "</table>")
     else
-      verbose_output(values, "")
+      verbose_message(values, "")
     end
   end
   return

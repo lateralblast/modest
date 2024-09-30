@@ -111,7 +111,7 @@ def set_defaults(values, defaults)
   else
     case defaults['host-os-uname']
     when /not recognised/
-      verbose_output(values,"Information:\tAt the moment Cygwin is required to run on Windows")
+      verbose_message(values,"Information:\tAt the moment Cygwin is required to run on Windows")
     when /NT/
       defaults['valid-vm'] = [ 'vbox', 'aws', 'vmware', 'fusion', 'multipass' ]
     when /SunOS/
@@ -428,7 +428,7 @@ def set_defaults(values, defaults)
   defaults['nosuffix']        = false
   defaults['notice']          = false
   defaults['noreboot']        = false
-  defaults['nobuild']         = false
+  defaults['build']           = false
   defaults['noboot']          = false
   defaults['reboot']          = true
   defaults['novncdir']        = "/usr/local/novnc"

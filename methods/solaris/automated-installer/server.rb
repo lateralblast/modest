@@ -58,7 +58,7 @@ def check_default_route(values)
   command = "netstat -rn |grep default |awk '{print $2}'"
   output  = execute_command(values, message, command)
   if !output.match(/[0-9]/)
-    verbose_output(values, "Warning:\tNo default route exists")
+    warning_message(values, "No default route exists")
     if values['dryrun'] != true
       quit(values)
     end
@@ -73,7 +73,7 @@ def check_dhcpd4_conf(values)
   if values['host-os-uname'].to_s.match(/SunOS/)
     file="/etc/inet/dhcpd4.conf"
     if values['verbose'] == true
-      verbose_output(values, "Checking:\t#{file} exists")
+      verbose_message(values, "Checking:\t#{file} exists")
     end
     if not File.exist?(file)
       message = "Information:\tCreating "+file
@@ -94,7 +94,7 @@ end
 
 def check_ai_base_dir(values)
   if values['verbose'] == true
-    verbose_output(values, "Checking:\t#{values['aibasedir']}")
+    verbose_message(values, "Checking:\t#{values['aibasedir']}")
   end
   output = check_fs_exists(values, values['aibasedir'])
   return output
@@ -105,7 +105,7 @@ end
 
 def check_version_dir(values, dir_name, repo_version)
   full_version_dir = dir_name+repo_version
-  verbose_output(values, "Checking:\t#{full_version_dir}")
+  verbose_message(values, "Checking:\t#{full_version_dir}")
   check_fs_exists(values, full_version_dir)
   return full_version_dir
 end
@@ -130,7 +130,7 @@ end
 # Routine to create AI service
 
 def configure_ai_services(values, iso_repo_version)
-  verbose_output(values, "Information:\tCreating AI services")
+  information_message(values, "Creating AI services")
   arch_list= []
   if not values['arch'].downcase.match(/i386|sparc/)
     arch_list.append("i386")
@@ -142,7 +142,7 @@ def configure_ai_services(values, iso_repo_version)
   command = "svcs -a |grep dhcp |grep server |grep maintenance"
   output  = execute_command(values, message, command)
   if output.to_s.match(/maintenance/)
-    verbose_output(values, "Warning:\tDHCP Server is in maintenance mode")
+    warning_message(values, "DHCP Server is in maintenance mode")
     quit(values)
   end
   arch_list.each do |sys_arch|
@@ -163,13 +163,13 @@ def configure_ai_services(values, iso_repo_version)
       ai_file = "sol-"+service_version+"_"+service_release+"-ai-"+lc_arch+".iso"
       ai_file = values['isodir']+"/"+ai_file
       if not File.exist?(ai_file)
-        verbose_output(values, "Warning:\tAI ISO file #{ai_file} not found for architecture #{lc_arch}")
+        warning_message(values, "AI ISO file #{ai_file} not found for architecture #{lc_arch}")
       else
         if values['host-os-uname'].to_s.match(/Darwin/)
           tftp_version_dir = values['tftpdir']+"/"+values['service']
           output = check_osx_iso_mount(tftp_version_dir, ai_values['file'])
           if output.match(/Resource busy/)
-            verbose_output(values, "Warning:\t ISO already mounted")
+            warning_message(values, " ISO already mounted")
             quit(values)
           end
         end
@@ -234,9 +234,9 @@ def get_ai_solaris_release(values)
       output           = execute_command(values, message, command)
       iso_repo_version = output.chomp.gsub(/\./, "_")
     else
-      verbose_output(values, "Warning:\tCould not find #{release_file}")
-      verbose_output(values, "Warning:\tCould not verify solaris release from repository")
-      verbose_output(values, "Information:\tSetting Solaris release to 11")
+      warning_message(values, "Could not find #{release_file}")
+      warning_message(values, "Could not verify solaris release from repository")
+      information_message(values, "Setting Solaris release to 11")
       iso_repo_version="11"
     end
   end
@@ -283,7 +283,7 @@ def configure_ai_server(values)
   # If given a service name check the service doesn't already exist
   if values['service'].to_s.match(/[a-z,A-Z]/)
     if services_list.match(/#{values['service']}/)
-      verbose_output(values, "Warning:\tService #{values['service']} already exists")
+      warning_message(values, "Service #{values['service']} already exists")
       quit(values)
     end
   end
@@ -303,17 +303,17 @@ def configure_ai_server(values)
     iso_list[0] = file_name
   end
   if not iso_list[0]
-    verbose_output(values, "Warning:\tNo suitable ISOs found")
+    warning_message(values, "No suitable ISOs found")
     quit(values)
   end
   iso_list.each do |file_name|
     if File.exist?(file_name)
       if !file_name.match(/repo/)
-        verbose_output(values, "Warning:\tISO #{file_name} does not appear to be a valid Solaris distribution")
+        warning_message(values, "ISO #{file_name} does not appear to be a valid Solaris distribution")
         quit(values)
       end
     else
-      verbose_output(values, "Warning:\tISO #{file_name}'' does} not exist")
+      warning_message(values, "ISO #{file_name}'' does} not exist")
       quit(values)
     end
     iso_repo_version = File.basename(values['file'], ".iso")
@@ -361,8 +361,8 @@ def list_ai_services(values)
     message = "AI Services:"
     command = "installadm list |grep auto_install |grep -v default |awk \"{print \\\$1}\""
     output  = execute_command(values, message, command)
-    verbose_output(values ,message)
-    verbose_output(values, output)
+    verbose_message(values ,message)
+    verbose_message(values, output)
   end
   return
 end

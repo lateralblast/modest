@@ -2,7 +2,7 @@
 
 # List PE clients
 
-def list_pe_clients()
+def list_pe_clients(values)
   values['method'] = "pe"
   list_clients(values)
   return
@@ -510,7 +510,7 @@ end
 
 # Populate Windows winrm powershell script
 
-def populate_winrm_psh()
+def populate_winrm_psh(values)
   winrm_psh = []
   winrm_psh.push("netsh advfirewall firewall set rule group=\"remote administration\" new enable=yes")
   winrm_psh.push("netsh advfirewall firewall add rule name=\"Open Port 5985\" dir=in action=allow protocol=TCP localport=5985")
@@ -566,7 +566,7 @@ end
 
 # Populate Windows OpenSSH powershell script
 
-def populate_openssh_psh()
+def populate_openssh_psh(values)
   openssh_psh = []
   openssh_psh.push("")
   return openssh_psh

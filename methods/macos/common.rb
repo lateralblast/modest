@@ -5,10 +5,8 @@
 def check_osx_ip_forwarding(values, gw_if_name)
   message = "Information:\tChecking IP forwarding is enabled"
   command = "sudo sh -c \"sysctl -a net.inet.ip.forwarding |awk '{print $2}'\""
-  if values['verbose'] == true
-    verbose_output(values, message)
-    verbose_output(values, "Executing:\t"+command)
-  end
+  verbose_message(values, message)
+  verbose_message(values, "Executing:\t"+command)
   output = %x[#{command}]
   output = output.chomp.to_i
   if output == 0
@@ -22,10 +20,8 @@ def check_osx_ip_forwarding(values, gw_if_name)
   else
     command = "sudo sh -c \"ipfw list |grep 'any to any via #{gw_if_name}'\""
   end
-  if values['verbose'] == true
-    verbose_output(values, message)
-    verbose_output(values, "Executing:\t"+command)
-  end
+  verbose_message(values, message)
+  verbose_message(values, "Executing:\t"+command)
   output = %x[#{command}]
   return output
 end
@@ -39,7 +35,7 @@ def check_osx_pfctl(values, gw_if_name, if_name)
       File.delete(pf_file)
     end
     output = File.open(pf_file, "w")
-    verbose_output(values, "Information:\tEnabling forwarding between #{gw_if_name} and #{if_name}")
+    information_message(values, "Enabling forwarding between #{gw_if_name} and #{if_name}")
     output.write("nat on #{gw_if_name} from #{if_name}:network to any -> (#{gw_if_name})\n")
     output.write("pass inet proto icmp all\n")
     output.write("pass in on #{if_name} proto udp from any to any port domain keep state\n")
@@ -180,7 +176,7 @@ def check_osx_service_is_enabled(values, service)
     plist_file = "/System"+plist_file
   end
   if not File.exist?(plist_file)
-    verbose_output(values, "Warning:\tLaunch Agent not found for #{service}")
+    warning_message(values, "Launch Agent not found for #{service}")
     quit(values)
   end
   tmp_file = "/tmp/tmp.plist"
@@ -192,9 +188,7 @@ def check_osx_service_is_enabled(values, service)
   end
   output = execute_command(values, message, command)
   if not output.match(/true/)
-    if values['verbose'] == true
-      verbose_output(values, "Information:\t#{service} enabled")
-    end
+    information_message(values, "#{service} enabled")
   else
     backup_file(values, plist_file)
     copy      = []
@@ -226,9 +220,9 @@ end
 
 # Check TFTPd enabled on OS X
 
-def check_osx_tftpd()
+def check_osx_tftpd(values)
   service = "tftp"
-  check_osx_service_is_enabled(service)
+  check_osx_service_is_enabled(values, service)
   return
 end
 
@@ -339,7 +333,7 @@ def create_osx_dhcpd_plist(values)
     output  = execute_command(values, message, command)
   else
     output = "Information:\tCreating #{plist_file}"
-    verbose_output(values, output)
+    verbose_message(values, output)
   end
   if not output.match(/#{values['nic']}/)
     xml = Builder::XmlMarkup.new(:target => xml_output, :indent => 2)
@@ -377,10 +371,10 @@ end
 # Check ISC DHCP installed on OS X
 
 def check_osx_dhcpd(values)
-  check_osx_dhcpd_installed()
-  create_osx_dhcpd_plist()
+  check_osx_dhcpd_installed(values)
+  create_osx_dhcpd_plist(values)
   service = "dhcp"
-  check_osx_service_is_enabled(service)
+  check_osx_service_is_enabled(values, service)
   return
 end
 
@@ -402,7 +396,7 @@ end
 # Enable OS X service
 
 def enable_osx_service(service_name)
-  check_osx_service_is_enabled(service_name)
+  check_osx_service_is_enabled(values, service_name)
   message = "Information:\tEnabling service "+service_name
   command = "launchctl start #{service_name}"
   output  = execute_command(values, message, command)

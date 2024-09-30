@@ -5,16 +5,16 @@
 def create_aws_s3_bucket(values)
   s3 = initiate_aws_s3_resource(values)
   if s3.bucket(values['bucket']).exists?
-    verbose_output(values, "Information:\tBucket: #{values['bucket']} already exists")
+    information_message(values, "Bucket: #{values['bucket']} already exists")
     s3 = initiate_aws_s3_client(values['access'], values['secret'], values['region'])
     begin
       s3.head_bucket({ bucket: values['bucket'], })
     rescue
-      verbose_output(values, "Warning:\tDo not have permissions to access bucket: #{values['bucket']}")
+      warning_message(values, "Do not have permissions to access bucket: #{values['bucket']}")
       quit(values)
     end
   else
-    verbose_output(values, "Information:\tCreating S3 bucket: #{values['bucket']}")
+    information_message(values, "Creating S3 bucket: #{values['bucket']}")
     s3.create_bucket({ acl: values['acl'], bucket: values['bucket'], create_bucket_configuration: { location_constraint: values['region'], }, })
   end
   return s3
@@ -27,7 +27,7 @@ def get_aws_s3_bucket_acl(values)
   begin
     acl = s3.get_bucket_acl(bucket: values['bucket'])
   rescue Aws::S3::Errors::AccessDenied
-    verbose_output(values, "Warning:\tUser needs to be given appropriate rights in AWS IAM")
+    warning_message(values, "User needs to be given appropriate rights in AWS IAM")
     quit(values)
   end
   return acl
@@ -38,7 +38,7 @@ end
 def show_aws_s3_bucket_acl(values)
   acl    = get_aws_s3_bucket_acl(values)
   owner  = acl.owner.display_name
-  verbose_output(values, "#{values['bucket']}\towner=#{owner}")
+  verbose_message(values, "#{values['bucket']}\towner=#{owner}")
   acl.grants.each_with_index do |grantee, counter|
     owner = grantee[0].display_name
     email = grantee[0].email_address
@@ -46,7 +46,7 @@ def show_aws_s3_bucket_acl(values)
     type  = grantee[0].type
     uri   = grantee[0].uri
     perms = grantee.permission
-    verbose_output(values, "grants[#{counter}]\towner=#{owner}\temail=#{email}\ttype=#{type}\turi=#{uri}\tid=#{id}\tperms=#{perms}")
+    verbose_message(values, "grants[#{counter}]\towner=#{owner}\temail=#{email}\ttype=#{type}\turi=#{uri}\tid=#{id}\tperms=#{perms}")
   end
   return
 end
@@ -68,13 +68,13 @@ def upload_file_to_aws_bucket(values)
     values['file'] = download_file
   end
   if not File.exist?(values['file'])
-    verbose_output(values, "Warning:\tFile '#{values['file']}' does not exist")
+    warning_message(values, "File '#{values['file']}' does not exist")
     quit(values)
   end
   if not values['bucket'].to_s.match(/[A-Z]|[a-z]|[0-9]/)
-    verbose_output(values, "Warning:\tNo Bucket name given")
+    warning_message(values, "No Bucket name given")
     values['bucket'] =  values['bucket']
-    verbose_output(values, "Information:\tSetting Bucket to default bucket '#{values['bucket']}'")
+    information_message(values, "Setting Bucket to default bucket '#{values['bucket']}'")
   end
   exists = check_if_aws_bucket_exists(values['access'], values['secret'], values['region'], values['bucket'])
   if exists == false
@@ -84,7 +84,7 @@ def upload_file_to_aws_bucket(values)
     values['key'] = values['object']+"/"+File.basename(values['file'])
   end
   s3 = initiate_aws_s3_resource(values['access'], values['secret'], values['region'])
-  verbose_output(values, "Information:\tUploading: File '#{values['file']}' with key: '#{values['key']}' to bucket: '#{values['bucket']}'")
+  information_message(values, "Uploading: File '#{values['file']}' with key: '#{values['key']}' to bucket: '#{values['bucket']}'")
   s3.bucket(values['bucket']).object(values['key']).upload_file(values['file'])
   return
 end
@@ -93,9 +93,9 @@ end
 
 def download_file_from_aws_bucket(values)
   if not values['bucket'].to_s.match(/[A-Z]|[a-z]|[0-9]/)
-    verbose_output(values, "Warning:\tNo Bucket name given")
+    warning_message(values, "No Bucket name given")
     values['bucket'] =  values['bucket']
-    verbose_output(values, "Information:\tSetting Bucket to default bucket '#{values['bucket']}'")
+    information_message(values, "Setting Bucket to default bucket '#{values['bucket']}'")
   end
   if not values['key'].to_s.match(/[A-Z]|[a-z]|[0-9]/)
     values['key'] = values['object']+"/"+File.basename(values['file'])
@@ -108,7 +108,7 @@ def download_file_from_aws_bucket(values)
     end
   end
   s3 = initiate_aws_s3_client(values)
-  verbose_output(values, "Information:\tDownloading: Key '#{values['key']}' from bucket: '#{values['bucket']}' to file: '#{values['file']}'")
+  information_message(values, "Downloading: Key '#{values['key']}' from bucket: '#{values['bucket']}' to file: '#{values['file']}'")
   s3.get_object({ bucket: values['bucket'], key: values['key'], }, target: values['file'] )
   return
 end
@@ -120,7 +120,7 @@ def get_aws_buckets(values)
   begin
     buckets = s3.list_buckets.buckets
   rescue Aws::S3::Errors::AccessDenied
-    verbose_output(values, "Warning:\tUser needs to be given appropriate rights in AWS IAM")
+    warning_message(values, "User needs to be given appropriate rights in AWS IAM")
     quit(values)
   end
   return buckets

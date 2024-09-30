@@ -44,7 +44,7 @@ end
 # Get kickstart header
 
 def get_vs_header(values)
-  version = get_version()
+  version = get_version(values)
   version = version.join(" ")
   header  = "# kickstart file for "+values['name']+" "+version
   return header

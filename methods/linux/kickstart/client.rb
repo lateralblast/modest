@@ -3,7 +3,7 @@
 
 # List ks clients
 
-def list_ks_clients()
+def list_ks_clients(values)
   service_type = "Kickstart"
   list_clients(values)
   return
@@ -13,7 +13,7 @@ end
 
 def configure_ks_pxe_client(values)
   values['ip'] = single_install_ip(values)
-  tftp_pxe_file = values['mac'].gsub(/:/,"")
+  tftp_pxe_file = values['mac'].gsub(/:/, "")
   tftp_pxe_file = tftp_pxe_file.upcase
   tftp_pxe_file = "01"+tftp_pxe_file+".pxelinux"
   test_file     = values['tftpdir']+"/"+tftp_pxe_file
@@ -31,40 +31,40 @@ def configure_ks_pxe_client(values)
     iso_dir  = values['tftpdir']+"/"+values['service']
     message  = "Information:\tDetermining install ISO location"
     command  = "ls #{iso_dir}/*.iso"
-    iso_file = execute_command(values,message,command) 
+    iso_file = execute_command(values, message, command) 
     iso_file = iso_file.chomp
     install_iso = File.basename(iso_file)
   end
   if values['biostype'].to_s.match(/efi/)
     shim_efi_file  = "/usr/lib/shim/shimx64.efi"
     if !File.exist?(shim_efi_file)
-      install_package(values,"shim")
+      install_package(values, "shim")
     end
     shim_grub_file = values['tftpdir']+"/shimx64.efi"
     net_efi_file   = "/usr/lib/grub/x86_64-efi/monolithic/grubnetx64.efi"
     if !File.exist?(net_efi_file)
-      install_package(values,"grub-efi-amd64-bin")
+      install_package(values, "grub-efi-amd64-bin")
     end
     net_grub_file  = values['tftpdir']+"/grubx64.efi"
     check_dir_exists(values,values['tftpdir'])
     check_dir_owner(values,values['tftpdir'],values['uid'])
     if !File.exist?(shim_efi_file)
-      install_package(values,"shim-signed")
+      install_package(values, "shim-signed")
     end
     if !File.exist?(net_efi_file)
-      install_package(values,"grub-efi-amd64-signed")
+      install_package(values, "grub-efi-amd64-signed")
     end
     if !File.exist?(shim_grub_file)
       message = "Information:\tCopying #{shim_efi_file} to #{shim_grub_file}"
       command = "cp #{shim_efi_file} #{shim_grub_file}"
-      execute_command(values,message,command)
-      check_file_owner(values,shim_grub_file,values['uid'])
+      execute_command(values, message, command)
+      check_file_owner(values, shim_grub_file, values['uid'])
     end
     if !File.exist?(net_grub_file)
       message = "Information:\tCopying #{net_efi_file} to #{net_grub_file}"
       command = "cp #{net_efi_file} #{net_grub_file}"
-      execute_command(values,message,command)
-      check_file_owner(values,net_grub_file,values['uid'])
+      execute_command(values, message, command)
+      check_file_owner(values, net_grub_file, values['uid'])
     end
     tmp_cfg_octs = values['ip'].split(".")
     pxe_cfg_octs = [] 
@@ -83,7 +83,7 @@ def configure_ks_pxe_client(values)
     pxe_cfg_file = pxe_cfg_dir+"/"+pxe_cfg_file
   else
     pxe_cfg_dir  = values['tftpdir']+"/pxelinux.cfg"
-    pxe_cfg_file = values['mac'].gsub(/:/,"-")
+    pxe_cfg_file = values['mac'].gsub(/:/, "-")
     pxe_cfg_file = "01-"+pxe_cfg_file
     pxe_cfg_file = pxe_cfg_file.downcase
     pxe_cfg_file = pxe_cfg_dir+"/"+pxe_cfg_file
@@ -113,7 +113,7 @@ def configure_ks_pxe_client(values)
       ldlinux_file = values['service']+"/images/pxeboot/netboot/ldlinux.c32"
       message = "Information:\tCreating symlink for ldlinux.c32"
       command = "ln -s #{ldlinux_file} #{ldlinux_link}"
-      execute_command(values,message,command)
+      execute_command(values, message, command)
     end
   else
     if values['service'].to_s.match(/sles/)
@@ -123,8 +123,8 @@ def configure_ks_pxe_client(values)
     end
   end
   if values['host-os-uname'].to_s.match(/Darwin/)
-    vmlinuz_file = vmlinuz_file.gsub(/^\//,"")
-    initrd_file  = initrd_file.gsub(/^\//,"")
+    vmlinuz_file = vmlinuz_file.gsub(/^\//, "")
+    initrd_file  = initrd_file.gsub(/^\//, "")
   end
   if values['service'].to_s.match(/packer/)
     host_info = values['vmgateway']+":"+values['httpport']
@@ -140,7 +140,7 @@ def configure_ks_pxe_client(values)
   ks_url       = "http://"+values['hostip']+"/"+values['name']+"/"+values['name']+".cfg"
   autoyast_url = "http://"+values['hostip']+"/"+values['name']+"/"+values['name']+".xml"
   install_url  = "http://"+host_info+"/"+values['service']
-  file         = File.open(tmp_file,"w")
+  file         = File.open(tmp_file, "w")
   if values['biostype'].to_s.match(/efi/)
     menuentry = "menuentry \""+values['name']+"\" {\n"
     file.write(menuentry)
@@ -277,12 +277,12 @@ def configure_ks_pxe_client(values)
     grub_file.close
     grub_file = pxe_cfg_dir+"/grub.cfg"
     FileUtils.touch(grub_file)
-    print_contents_of_file(values,"",grub_file)
+    print_contents_of_file(values, "", grub_file)
   end
   message = "Information:\tCreating PXE configuration file "+pxe_cfg_file
   command = "cp #{tmp_file} #{pxe_cfg_file} ; rm #{tmp_file}"
   execute_command(values,message,command)
-  print_contents_of_file(values,"",pxe_cfg_file)
+  print_contents_of_file(values, "", pxe_cfg_file)
   return
 end
 
@@ -291,7 +291,7 @@ end
 def unconfigure_ks_pxe_client(values)
   values['mac'] = get_install_mac(values)
   if not values['mac']
-    verbose_output(values,"Warning:\tNo MAC Address entry found for #{values['name']}")
+    warning_message(values, "No MAC Address entry found for #{values['name']}")
     quit(values)
   end
   if values['biostype'].to_s.match(/efi/)
@@ -313,7 +313,7 @@ def unconfigure_ks_pxe_client(values)
     pxe_cfg_file  = pxe_cfg_dir+"/"+pxe_cfg_file
     tftp_pxe_file = pxe_cfg_file
   else
-    tftp_pxe_file = values['mac'].gsub(/:/,"")
+    tftp_pxe_file = values['mac'].gsub(/:/, "")
     tftp_pxe_file = tftp_pxe_file.upcase
     tftp_pxe_file = "01"+tftp_pxe_file+".pxelinux"
     tftp_pxe_file = values['tftpdir']+"/"+tftp_pxe_file
@@ -322,17 +322,17 @@ def unconfigure_ks_pxe_client(values)
     check_file_owner(values,ttftp_pxe_file,values['uid'])
     message = "Information:\tRemoving PXE boot file "+tftp_pxe_file+" for "+values['name']
     command = "rm #{tftp_pxe_file}"
-    output  = execute_command(values,message,command)
+    output  = execute_command(values, message, command)
   end
   pxe_cfg_dir  = values['tftpdir']+"/pxelinux.cfg"
-  pxe_cfg_file = values['mac'].gsub(/:/,"-")
+  pxe_cfg_file = values['mac'].gsub(/:/, "-")
   pxe_cfg_file = "01-"+pxe_cfg_file
   pxe_cfg_file = pxe_cfg_file.downcase
   pxe_cfg_file = pxe_cfg_dir+"/"+pxe_cfg_file
   if File.exist?(pxe_cfg_file)
     message = "Information:\tRemoving PXE boot config file "+pxe_cfg_file+" for "+values['name']
     command = "rm #{pxe_cfg_file}"
-    output  = execute_command(values,message,command)
+    output  = execute_command(values, message, command)
     if values['biostype'].to_s.match(/efi/)
       grub_file = pxe_cfg_dir+"/grub.cfg"
       grub_file = File.open(grub_file, "w")
@@ -387,9 +387,9 @@ def configure_ks_client(values)
     values['clientdir'] = values['clientdir']+"/"+values['service']+"/"+values['name']
     check_fs_exists(values,values['clientdir'])
     if not File.directory?(values['repodir'])
-      verbose_output(values,"Warning:\tService #{values['service']} does not exist")
-      verbose_output(values,"")
-      list_ks_services()
+      warning_message(values, "Service #{values['service']} does not exist")
+      verbose_message(values, "")
+      list_ks_services(values)
       quit(values)
     end
   else
@@ -420,9 +420,9 @@ def configure_ks_client(values)
       process_questions(values)
       output_ks_header(values,output_file)
       pkg_list = populate_ks_pkg_list(values['service'])
-      output_ks_pkg_list(values,pkg_list,output_file)
+      output_ks_pkg_list(values, pkg_list, output_file)
       post_list = populate_ks_post_list(values)
-      output_ks_post_list(values,post_list,output_file)
+      output_ks_post_list(values, post_list, output_file)
     end
   else
     if values['service'].to_s.match(/sles/)
@@ -434,7 +434,7 @@ def configure_ks_client(values)
       else
         values = populate_ks_questions(values)
         process_questions(values)
-        output_ay_client_profile(values,output_file)
+        output_ay_client_profile(values, output_file)
       end
     else
       if values['service'].to_s.match(/live/) || values['vm'].to_s.match(/mp|multipass/)
@@ -449,13 +449,13 @@ def configure_ks_client(values)
           values = populate_ps_questions(values)
           process_questions(values)
           if !values['service'].to_s.match(/purity/)
-            output_ps_header(values,output_file)
+            output_ps_header(values, output_file)
             output_file = values['clientdir']+"/"+values['name']+"_post.sh"
             post_list   = populate_ps_post_list(values)
-            output_ks_post_list(values,post_list,output_file)
+            output_ks_post_list(values, post_list, output_file)
             output_file = values['clientdir']+"/"+values['name']+"_first_boot.sh"
             post_list   = populate_ps_first_boot_list(values)
-            output_ks_post_list(values,post_list,output_file)
+            output_ks_post_list(values, post_list, output_file)
           end
         end
       end
@@ -710,9 +710,7 @@ def populate_ks_post_list(values)
     alt_url  = "http://"+values['hostip']
     rpm_list = build_ks_alt_rpm_list(values['service'])
     alt_dir  = values['baserepodir']+"/"+values['service']+"/alt"
-    if values['verbose'] == true
-      verbose_output(values,"Checking:\tAdditional packages")
-    end
+    verbose_message(values, "Checking:\tAdditional packages")
     if File.directory?(alt_dir)
       rpm_list.each do |rpm_url|
         rpm_file = File.basename(rpm_url)
@@ -841,7 +839,7 @@ end
 
 # Output the Kickstart file header
 
-def output_ks_header(values,output_file)
+def output_ks_header(values, output_file)
   tmp_file = "/tmp/ks_"+values['name']
   file=File.open(tmp_file, 'w')
   values['order'].each do |key|
@@ -857,13 +855,13 @@ def output_ks_header(values,output_file)
   file.close
   message = "Creating:\tKickstart file "+output_file
   command = "cp #{tmp_file} #{output_file} ; rm #{tmp_file}"
-  execute_command(values,message,command)
+  execute_command(values, message, command)
   return
 end
 
 # Output the ks packages list
 
-def output_ks_pkg_list(values,pkg_list,output_file)
+def output_ks_pkg_list(values, pkg_list, output_file)
   tmp_file = "/tmp/ks_pkg_"+values['name']
   file     = File.open(tmp_file, 'w')
   output   = "\n%packages\n"
@@ -879,13 +877,13 @@ def output_ks_pkg_list(values,pkg_list,output_file)
   file.close
   message = "Updating:\tKickstart file "+output_file
   command = "cat #{tmp_file} >> #{output_file} ; rm #{tmp_file}"
-  execute_command(values,message,command)
+  execute_command(values, message, command)
   return
 end
 
 # Output the ks packages list
 
-def output_ks_post_list(values,post_list,output_file)
+def output_ks_post_list(values, post_list, output_file)
   tmp_file = "/tmp/postinstall_"+values['name']
   if values['service'].to_s.match(/centos|fedora|rhel|sl_|oel|rocky|alma/)
     message = "Information:\tAppending post install script "+output_file
@@ -910,7 +908,7 @@ def output_ks_post_list(values,post_list,output_file)
   file.close
   message = "Information:\tCreating post install script "+output_file
 #  command = "cat #{tmp_file} >> #{output_file} ; rm #{tmp_file}"
-  execute_command(values,message,command)
+  execute_command(values, message, command)
   return
 end
 
@@ -918,12 +916,12 @@ end
 
 def check_ks_install_service(values)
   if not values['service'].to_s.match(/[a-z,A-Z]/)
-    verbose_output(values,"Warning:\tService name not given")
+    warning_message(values, "Service name not given")
     quit(values)
   end
   client_list = Dir.entries(values['baserepodir'])
   if not client_list.grep(values['service'])
-    verbose_output(values,"Warning:\tService name #{values['service']} does not exist")
+    warning_message(values, "Service name #{values['service']} does not exist")
     quit(values)
   end
   return

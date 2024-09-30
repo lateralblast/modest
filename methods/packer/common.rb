@@ -2,7 +2,7 @@
 
 # Get packer version
 
-def get_packer_version()
+def get_packer_version(values)
   packer_version = %x[#{values['packer']} --version].chomp
   return packer_version
 end

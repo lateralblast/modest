@@ -10,7 +10,7 @@ def initiate_aws_ec2_image(values)
       :secret_access_key  =>  values['secret']
     )
   rescue Aws::Errors::NoSuchEndpointError
-    verbose_output(values,"Warning:\tInvalid region, or keys")
+    verbose_message(values,"Warning:\tInvalid region, or keys")
   end
   return ec2
 end
@@ -25,7 +25,7 @@ def initiate_aws_ec2_instance(values)
       :secret_access_key  =>  values['secret']
     )
   rescue Aws::Errors::NoSuchEndpointError
-    verbose_output(values,"Warning:\tInvalid region, or keys")
+    verbose_message(values,"Warning:\tInvalid region, or keys")
   end
   return ec2
 end
@@ -40,7 +40,7 @@ def initiate_aws_ec2_client(values)
       :secret_access_key  =>  values['secret']
     )
   rescue Aws::Errors::NoSuchEndpointError
-    verbose_output(values,"Warning:\tInvalid region, or keys")
+    verbose_message(values,"Warning:\tInvalid region, or keys")
   end
   return ec2
 end
@@ -55,7 +55,7 @@ def initiate_aws_ec2_resource(values)
       :secret_access_key  =>  values['secret']
     )
   rescue Aws::Errors::NoSuchEndpointError
-    verbose_output(values,"Warning:\tInvalid region, or keys")
+    verbose_message(values,"Warning:\tInvalid region, or keys")
   end
   return ec2
 end 
@@ -70,7 +70,7 @@ def initiate_aws_ec2_resource(values)
       :secret_access_key  =>  values['secret']
     )
   rescue Aws::Errors::NoSuchEndpointError
-    verbose_output(values,"Warning:\tInvalid region, or keys")
+    verbose_message(values,"Warning:\tInvalid region, or keys")
   end
   return ec2
 end 
@@ -157,16 +157,16 @@ def handle_aws_values(values)
     if not values['ami'].to_s.match(/^#{values['empty']}/)
       values['name'] = values['ami']
     else
-      verbose_output(values, "Warning:\tNo name specified for AWS image")
+      warning_message(values, "No name specified for AWS image")
       quit(values)
     end
   end
   if values['key'].to_s.match(/^#{values['empty']}$|^none$/)
-    verbose_output(values, "Warning:\tNo key pair specified")
+    warning_message(values, "No key pair specified")
     if values['keyfile'] == values['empty']
       if values['name'].to_s.match(/^#{values['empty']}/)
         if values['group'].to_s.match(/^#{}values['empty']/)
-          verbose_output(values, "Warning:\tCould not determine key pair")
+          warning_message(values, "Could not determine key pair")
           quit(values)
         else
           values['key'] = values['group']
@@ -178,11 +178,11 @@ def handle_aws_values(values)
       values['key'] = File.basename(values['keyfile'])
       values['key'] = values['key'].split(/\./)[0..-2].join
     end
-    verbose_output(values, "Information:\tSetting key pair to #{values['key']}")
+    information_message(values, "Setting key pair to #{values['key']}")
   end
   if values['group'].to_s.match(/^default$/)
     values['group'] = values['key']
-    verbose_output(values, "Information:\tSetting security group to #{values['group']}")
+    information_message(values, "Setting security group to #{values['group']}")
   end
   if values['nosuffix'] == false
     values['name'] = get_aws_uniq_name(values)
@@ -191,13 +191,13 @@ def handle_aws_values(values)
   if values['keyfile'] == values['empty']
     values = set_aws_key_file(values)
     puts values['keyfile']
-    verbose_output(values, "Information:\tSetting key file to #{values['keyfile']}")
+    information_message(values, "Setting key file to #{values['keyfile']}")
   end
   if not File.exist?(values['keyfile'])
     values = create_aws_key_pair(values)
   end
   if not File.exist?(values['keyfile'])
-    verbose_output(values, "Warning:\tKey file '#{values['keyfile']}' does not exist")
+    warning_message(values, "Key file '#{values['keyfile']}' does not exist")
     quit(values)
   end
   exists = check_if_aws_security_group_exists(values)
@@ -240,7 +240,7 @@ def get_aws_snapshots(values)
   begin
     snapshots = ec2.describe_snapshots.snapshots
   rescue Aws::EC2::Errors::AccessDenied
-    verbose_output(values, "Warning:\tUser needs to be specified appropriate rights in AWS IAM")
+    warning_message(values, "User needs to be specified appropriate rights in AWS IAM")
     quit(values)
   end
   return snapshots
@@ -257,10 +257,10 @@ def list_aws_snapshots(values)
     if snapshot_owner == owner_id
       if values['snapshot'].to_s.match(/[0-9]/)
         if snapshot_id.match(/^#{values['snapshot']}$/)
-          verbose_output(values, "#{snapshot_id}")
+          verbose_message(values, "#{snapshot_id}")
         end
       else
-        verbose_output(values, "#{snapshot_id}")
+        verbose_message(values, "#{snapshot_id}")
       end
     end
   end
@@ -271,7 +271,7 @@ end
 
 def delete_aws_snapshot(values)
   if not values['snapshot'].to_s.match(/[A-Z]|[a-z]|[0-9]/)
-    verbose_output(values, "Warning:\tNo Snapshot ID specified")
+    warning_message(values, "No Snapshot ID specified")
     return
   end
   owner_id  = get_aws_owner_id(values)
@@ -282,11 +282,11 @@ def delete_aws_snapshot(values)
     snapshot_owner = snapshot.owner_id
     if snapshot_owner == owner_id
       if snapshot_id.match(/^#{values['snapshot']}$/) || values['snapshot'] == "all"
-        verbose_output(values, "Information:\tDeleting Snapshot ID #{snapshot_id}")
+        information_message(values, "Deleting Snapshot ID #{snapshot_id}")
         begin
           ec2.delete_snapshot({snapshot_id: snapshot_id})
         rescue 
-          verbose_output(values, "Warning:\tUnable to delete Snapshot ID #{snapshot_id}")
+          warning_message(values, "Unable to delete Snapshot ID #{snapshot_id}")
         end
       end
     end
@@ -312,7 +312,7 @@ def get_aws_reservations(values)
   begin
     reservations = ec2.describe_instances({ }).reservations
   rescue Aws::EC2::Errors::AccessDenied
-    verbose_output(values, "Warning:\tUser needs to be specified appropriate rights in AWS IAM")
+    warning_message(values, "User needs to be specified appropriate rights in AWS IAM")
     quit(values)
   end
   return ec2, reservations
@@ -325,7 +325,7 @@ def get_aws_key_pairs(values)
   begin
     key_pairs = ec2.describe_key_pairs({ }).key_pairs
   rescue Aws::EC2::Errors::AccessDenied
-    verbose_output(values, "Warning:\tUser needs to be specified appropriate rights in AWS IAM")
+    warning_message(values, "User needs to be specified appropriate rights in AWS IAM")
     quit(values)
   end
   return ec2, key_pairs
@@ -392,7 +392,7 @@ end
 def remove_ingress_rule_from_aws_security_group(values)
   ec2 = initiate_aws_ec2_client(values)
   prefix_list_id = get_aws_prefix_list_id(values)
-  verbose_output(values, "Information:\tDeleting ingress rule to security group #{values['group']} (Protocol: #{values['proto']} From: #{values['from']} To: #{values['to']} CIDR: #{values['cidr']})")
+  information_message(values, "Deleting ingress rule to security group #{values['group']} (Protocol: #{values['proto']} From: #{values['from']} To: #{values['to']} CIDR: #{values['cidr']})")
   ec2.revoke_security_group_ingress({
     group_id: values['group'],
     ip_permissions: [
@@ -416,7 +416,7 @@ end
 def remove_egress_rule_from_aws_security_group(values)
   ec2 = initiate_aws_ec2_client(values)
   prefix_list_id = get_aws_prefix_list_id(values['access'], values['secret'], values['region'])
-  verbose_output(values, "Information:\tDeleting egress rule to security group #{values['group']} (Protocol: #{values['proto']} From: #{values['from']} To: #{values['to']} CIDR: #{values['cidr']})")
+  information_message(values, "Deleting egress rule to security group #{values['group']} (Protocol: #{values['proto']} From: #{values['from']} To: #{values['to']} CIDR: #{values['cidr']})")
   ec2.revoke_security_group_egress({
     group_id: values['group'],
     ip_permissions: [
@@ -457,7 +457,7 @@ end
 def add_ingress_rule_to_aws_security_group(values)
   ec2 = initiate_aws_ec2_client(values)
   prefix_list_id = get_aws_prefix_list_id(values)
-  verbose_output(values, "Information:\tAdding ingress rule to security group #{values['group']} (Protocol: #{values['proto']} From: #{values['from']} To: #{values['to']} CIDR: #{values['cidr']})")
+  information_message(values, "Adding ingress rule to security group #{values['group']} (Protocol: #{values['proto']} From: #{values['from']} To: #{values['to']} CIDR: #{values['cidr']})")
   begin
     ec2.authorize_security_group_ingress({
       group_id: values['group'],
@@ -475,7 +475,7 @@ def add_ingress_rule_to_aws_security_group(values)
       ],
     })
   rescue Aws::EC2::Errors::InvalidPermissionDuplicate
-    verbose_output(values, "Warning:\tRule already exists")
+    warning_message(values, "Rule already exists")
   end
   return
 end
@@ -485,7 +485,7 @@ end
 def add_egress_rule_to_aws_security_group(values)
   ec2 = initiate_aws_ec2_client(values)
   prefix_list_id = get_aws_prefix_list_id(values)
-  verbose_output(values, "Information:\tAdding egress rule to security group #{values['group']} (Protocol: #{values['proto']} From: #{values['from']} To: #{values['to']} CIDR: #{values['cidr']})")
+  information_message(values, "Adding egress rule to security group #{values['group']} (Protocol: #{values['proto']} From: #{values['from']} To: #{values['to']} CIDR: #{values['cidr']})")
   begin
     ec2.authorize_security_group_egress({
       group_id: values['group'],
@@ -503,7 +503,7 @@ def add_egress_rule_to_aws_security_group(values)
       ],
     })
   rescue Aws::EC2::Errors::InvalidPermissionDuplicate
-    verbose_output(values, "Warning:\tRule already exists")
+    warning_message(values, "Rule already exists")
   end
   return
 end
@@ -581,14 +581,14 @@ end
 
 def create_aws_security_group(values)
   if not values['desc'].to_s.match(/[A-Z]|[a-z]|[0-9]/)
-    verbose_output(values, "Information:\tNo description specified, using group name '#{values['group']}'")
+    information_message(values, "No description specified, using group name '#{values['group']}'")
     values['desc'] = values['group']
   end
   exists = check_if_aws_security_group_exists(values)
   if exists == "yes"
-    verbose_output(values, "Warning:\tSecurity group '#{values['group']}' already exists")
+    warning_message(values, "Security group '#{values['group']}' already exists")
   else
-    verbose_output(values, "Information:\tCreating security group '#{values['group']}'")
+    information_message(values, "Creating security group '#{values['group']}'")
     ec2 = initiate_aws_ec2_client(values)
     ec2.create_security_group({ group_name: values['group'], description: values['desc'] })
   end
@@ -600,11 +600,11 @@ end
 def delete_aws_security_group(values)
   exists = check_if_aws_security_group_exists(values)
   if exists == "yes"
-    verbose_output(values, "Information:\tDeleting security group '#{values['group']}'")
+    information_message(values, "Deleting security group '#{values['group']}'")
     ec2 = initiate_aws_ec2_client(values)
     ec2.delete_security_group({ group_name: values['group'] })
   else
-    verbose_output(values, "Warning:\tSecurity group '#{values['group']}' doesn't exist")
+    warning_message(values, "Security group '#{values['group']}' doesn't exist")
   end
   return
 end
@@ -630,7 +630,7 @@ def handle_ip_perms(values, ip_perms, type, group_name)
     if ip_protocol and from_port and to_port
       if ip_protocol.match(/[a-z]/) and cidr_ip.match(/[0-9]/)
         ip_rule = ip_protocol+","+from_port+","+to_port
-        verbose_output(values, "#{name_spacer} rule=#{ip_rule} range=#{cidr_ip} (IPv4 #{type})")
+        verbose_message(values, "#{name_spacer} rule=#{ip_rule} range=#{cidr_ip} (IPv4 #{type})")
       end
     end
     cidr_ip = []
@@ -642,7 +642,7 @@ def handle_ip_perms(values, ip_perms, type, group_name)
     if ip_protocol and from_port and to_port
       if ip_protocol.match(/[a-z]/) and cidr_ip.match(/[0-9]/)
         ip_rule = ip_protocol+","+from_port+","+to_port
-        verbose_output(values, "#{name_spacer} rule=#{ip_rule} range=#{cidr_ip} (IPv4 #{type})")
+        verbose_message(values, "#{name_spacer} rule=#{ip_rule} range=#{cidr_ip} (IPv4 #{type})")
       end
     end
   end
@@ -657,7 +657,7 @@ def list_aws_security_groups(values)
     group_name = group.group_name
     if values['group'].to_s.match(/^all$|^#{group_name}$/)
       description = group.description
-      verbose_output(values, "#{group_name} desc=\"#{description}\"")
+      verbose_message(values, "#{group_name} desc=\"#{description}\"")
       ip_perms = group.ip_permissions
       handle_ip_perms(values, ip_perms, "Ingress", group_name)
       ip_perms = group.ip_permissions_egress
@@ -707,9 +707,9 @@ end
 def get_aws_owner_id(values)
   iam = initiate_aws_iam_client(values)
   begin
-    user = iam.get_user()
+    user = iam.get_user(values)
   rescue Aws::EC2::Errors::AccessDenied
-    verbose_output(values, "Warning:\tUser needs to be specified appropriate rights in AWS IAM")
+    warning_message(values, "User needs to be specified appropriate rights in AWS IAM")
     quit(values)
   end
   owner_id = user[0].arn.split(/:/)[4]
@@ -723,7 +723,7 @@ def get_aws_images(values)
   begin
     images = ec2.describe_images({ owners: ['self'] }).images
   rescue Aws::EC2::Errors::AccessDenied
-    verbose_output(values, "Warning:\tUser needs to be specified appropriate rights in AWS IAM")
+    warning_message(values, "User needs to be specified appropriate rights in AWS IAM")
     quit(values)
   end
   return ec2, images
@@ -736,7 +736,7 @@ def list_aws_images(values)
   images.each do |image|
     image_name = image.name
     image_id   = image.image_id
-    verbose_output(values, "#{image_name} id=#{image_id}")
+    verbose_message(values, "#{image_name} id=#{image_id}")
   end
   return
 end
@@ -761,10 +761,10 @@ end
 def delete_aws_image(values)
   ec2, image_id = get_aws_image(values)
   if image_id == "none"
-    verbose_output(values, "Warning:\tNo AWS Image exists for '#{values['name']}'")
+    warning_message(values, "No AWS Image exists for '#{values['name']}'")
     quit(values)  
   else
-    verbose_output(values, "Information:\tDeleting Image ID #{image_id} for '#{values['name']}'")
+    information_message(values, "Deleting Image ID #{image_id} for '#{values['name']}'")
     ec2.deregister_image({ dry_run: false, image_id: image_id, })
   end
   return
@@ -786,15 +786,15 @@ end
 
 # Get vagrant version
 
-def get_vagrant_version()
+def get_vagrant_version(values)
   vagrant_version = %x[$vagrant_bin --version].chomp
   return vagrant_version
 end
 
 # Check vagrant aws plugin is installed
 
-def check_vagrant_aws_is_installed()
-  check_vagrant_is_installed()
+def check_vagrant_aws_is_installed(values)
+  check_vagrant_is_installed(values)
   plugin_list = %x[vagrant plugin list]
   if not plugin_list.match(/aws/)
     message = "Information:\tInstalling Vagrant AWS Plugin"
@@ -867,19 +867,19 @@ def get_aws_creds(values)
       end
     end
   else
-    verbose_output(values, "Warning:\tCredentials file '#{values['creds']}' does not exist")
+    warning_message(values, "Credentials file '#{values['creds']}' does not exist")
   end
   return values['access'], values['secret']
 end
 
 # Check AWS CLI is installed
 
-def check_if_aws_cli_is_installed()
+def check_if_aws_cli_is_installed(values)
   aws_cli = %x[which aws]
   if not aws_cli.match(/aws/)
-    verbose_output(values, "Warning:\tAWS CLI not installed")
+    warning_message(values, "AWS CLI not installed")
     if values['host-os-uname'].to_s.match(/Darwin/)
-      verbose_output(values, "Information:\tInstalling AWS CLI")
+      information_message(values, "Installing AWS CLI")
       brew_install("awscli")
     end
   end
@@ -891,7 +891,7 @@ end
 def create_aws_creds_file(values)
   creds_dir = File.dirname(values['creds'])
   if !values['access'].to_s.match(/[a-z]/) || !values['secret'].to_s.match(/[a-z]/)
-    verbose_output(values, "Warning:\tNo access key or secret specified")
+    warning_message(values, "No access key or secret specified")
     quit(values)
   end
   if not File.exist?(creds_dir)
@@ -942,16 +942,16 @@ def create_aws_key_pair(values)
   end
   exists = check_aws_key_pair_exists(values)
   if exists == true
-    verbose_output(values, "Warning:\tKey Pair '#{values['keyname']}' already exists")
+    warning_message(values, "Key Pair '#{values['keyname']}' already exists")
     if values['type'].to_s.match(/key/)
       quit(values)
     end
   else
-    verbose_output(values, "Information:\tCreating Key Pair '#{values['keyname']}'")
+    information_message(values, "Creating Key Pair '#{values['keyname']}'")
     ec2      = initiate_aws_ec2_client(values)
     key_pair = ec2.create_key_pair({ key_name: values['keyname'] }).key_material
     key_file = aws_ssh_dir+"/"+values['keyname']+".pem"
-    verbose_output(values, "Information:\tSaving Key Pair '#{values['keyname']}' to '#{key_file}'")
+    information_message(values, "Saving Key Pair '#{values['keyname']}' to '#{key_file}'")
     file = File.open(key_file, "w")
     file.write(key_pair)
     file.close
@@ -971,15 +971,15 @@ def delete_aws_key_pair(values)
   end
   exists = check_aws_key_pair_exists(values)
   if exists == false
-    verbose_output(values, "Warning:\tAWS Key Pair '#{values['keyname']}' does not exist")
+    warning_message(values, "AWS Key Pair '#{values['keyname']}' does not exist")
     quit(values)
   else
-    verbose_output(values, "Information:\tDeleting AWS Key Pair '#{values['keyname']}'")
+    information_message(values, "Deleting AWS Key Pair '#{values['keyname']}'")
     ec2      = initiate_aws_ec2_client(values)
     key_pair = ec2.delete_key_pair({ key_name: values['keyname'] })
     key_file = aws_ssh_dir+"/"+values['keyname']+".pem"
     if File.exist?(key_file)
-      verbose_output(values, "Information:\tDeleting AWS Key Pair file '#{key_file}'")
+      information_message(values, "Deleting AWS Key Pair file '#{key_file}'")
       File.delete(key_file)
     end
   end
@@ -994,10 +994,10 @@ def list_aws_key_pairs(values)
     key_name = key_pair.key_name
     if values['key'].to_s.match(/[A-Z]|[a-z]|[0-9]/)
       if key_name.match(/^#{values['key']}$/) or values['key'].to_s.match(/^all$|^none$/)
-        verbose_output(key_name)
+        verbose_message(key_name)
       end
     else
-      verbose_output(key_name)
+      verbose_message(key_name)
     end
   end
   return

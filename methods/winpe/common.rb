@@ -1,6 +1,6 @@
 # Common Windows (PE) related code
 
-def list_pe_isos()
+def list_pe_isos(values)
   values['os-type'] = "win"
   values['method']  = ""
   values['release'] = ""
