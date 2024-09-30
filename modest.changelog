@@ -1631,3 +1631,5 @@
 # Improved values processing
 # 8.1.5: Mon 30 Sep 2024 18:45:40 AEST
 # Bug fixes and code cleanup
+# 8.1.6: Tue  1 Oct 2024 09:20:36 AEST
+# Added additional checking for IP and MAC addresses

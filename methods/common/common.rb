@@ -3989,13 +3989,29 @@ end
 
 # Check valid IP
 
-def check_ip_is_valid(ip_address)
-  if IPAddress.valid?(ip_address)
-    information_message(values,"Valid IP Address: #{ip_address}")
+def check_ip_is_valid(values, ip_address, ip_text)
+  if ip_text.match(/[a-z]/)
+    spacer = "for parameter #{ip_text}: "
   else
-    warning_message(values,"Invalid IP Address: #{ip_address}")
+    spacer = ": "
+  end
+  if IPAddress.valid?(ip_address)
+    information_message(values,"Valid IP Address#{spacer}#{ip_address}")
+  else
+    warning_message(values,"Invalid IP Address#{spacer}#{ip_address}")
     quit(values)
   end
+  return
+end
+
+def check_mac_is_valid(values, mac_address)
+  if mac_address.to_s.match(/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})|([0-9a-fA-F]{4}\\.[0-9a-fA-F]{4}\\.[0-9a-fA-F]{4})$/)
+    information_message(values,"Valid MAC Address: #{mac_address}")
+  else
+    warning_message(values,"Invalid MAC Address: #{mac_address}")
+    quit(values)
+  end
+  return    
 end
 
 # Check install IP

@@ -16,7 +16,7 @@ def post_process_values(values)
   # Handle when running in defaults (non interactive mode)
   if values['defaults'] == true
     if values['dhcp'] == false
-      [ 'cidr', 'ip', 'nameserver', 'gateway' ].each do |item|
+      [ 'cidr', 'ip', 'nameserver', 'vmgateway' ].each do |item|
         if not values[item].to_s.match(/[0-9]/)
           warning_message(values, "No value for #{item} given")
           quit(values)
@@ -749,6 +749,20 @@ def handle_power_state_values(values)
   end
   if values['noreboot'] == true
     values['powerstate'] = "noreboot"
+  end
+  return values
+end
+
+# Handle netowkr values
+
+def handle_network_values(values)
+  if values['dhcp'] == false and values['defaults'] == true
+    [ "ip", "vmgateway", "nameserver" ].each do |address|
+      check_ip_is_valid(values, values[address], address)
+    end
+    if not values['mac'] == values['empty']
+      check_mac_is_valid(values, values['mac'])
+    end
   end
   return values
 end

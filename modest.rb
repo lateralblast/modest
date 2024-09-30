@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      8.1.5
+# Version:      8.1.6
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -938,6 +938,10 @@ if !values['vm'] == values['empty']
     values = set_hostonly_info(values)
   end
 end
+
+# Check network values
+
+values = handle_network_values(values)
 
 # Check action when set to build or import
 
