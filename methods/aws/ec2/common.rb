@@ -604,7 +604,7 @@ def delete_aws_security_group(values)
     ec2 = initiate_aws_ec2_client(values)
     ec2.delete_security_group({ group_name: values['group'] })
   else
-    warning_message(values, "Security group '#{values['group']}' doesn't exist")
+    warning_message(values, "Security group '#{values['group']}' does not exist")
   end
   return
 end

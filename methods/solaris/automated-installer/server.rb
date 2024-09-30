@@ -66,8 +66,8 @@ def check_default_route(values)
   return
 end
 
-# Touch /etc/inet/dhcpd4.conf if it doesn't exist
-# If you don't do this it won't actually write to the file
+# Touch /etc/inet/dhcpd4.conf if it does not exist
+# If you do not do this it will not actually write to the file
 
 def check_dhcpd4_conf(values)
   if values['host-os-uname'].to_s.match(/SunOS/)
@@ -89,7 +89,7 @@ def check_dhcpd4_conf(values)
   return
 end
 
-# Create a ZFS file system for base directory if it doesn't exist
+# Create a ZFS file system for base directory if it does not exist
 # Eg /export/auto_install
 
 def check_ai_base_dir(values)
@@ -100,7 +100,7 @@ def check_ai_base_dir(values)
   return output
 end
 
-# Create a ZFS file system for repo directory if it doesn't exist
+# Create a ZFS file system for repo directory if it does not exist
 # Eg /export/repo/11_1 or /export/auto_install/11_1
 
 def check_version_dir(values, dir_name, repo_version)
@@ -280,7 +280,7 @@ def configure_ai_server(values)
   check_dhcpd4_conf(values)
   # Get a list of installed services
   services_list = get_ai_install_services(values)
-  # If given a service name check the service doesn't already exist
+  # If given a service name check the service does not already exist
   if values['service'].to_s.match(/[a-z,A-Z]/)
     if services_list.match(/#{values['service']}/)
       warning_message(values, "Service #{values['service']} already exists")

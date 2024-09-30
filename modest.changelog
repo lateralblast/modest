@@ -1633,3 +1633,5 @@
 # Bug fixes and code cleanup
 # 8.1.6: Tue  1 Oct 2024 09:20:36 AEST
 # Added additional checking for IP and MAC addresses
+# 8.1.7: Tue  1 Oct 2024 09:50:12 AEST
+# Bug fixes and documentation updates

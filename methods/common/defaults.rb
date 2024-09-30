@@ -207,7 +207,7 @@ def set_defaults(values, defaults)
     defaults['basedir']  = defaults['home'].to_s+"/Documents/modest"
     defaults['mountdir'] = defaults['home'].to_s+"/Documents/modest/cdrom"
     if values['vm'].to_s.match(/kvm/)
-      if values['host-os-uname'].to_s.match(/Darwin/)
+      if defaults['host-os-uname'].to_s.match(/Darwin/)
         if Dir.exist?("/opt/homebrew/Cellar")
           defaults['virtdir'] = "/opt/homebrew/Cellar/libvirt/images"
         else
@@ -217,7 +217,7 @@ def set_defaults(values, defaults)
     end
   else
     if values['vm'].to_s.match(/kvm/)
-      if values['host-os-uname'].to_s.match(/Darwin/)
+      if defaults['host-os-uname'].to_s.match(/Darwin/)
         if Dir.exist?("/opt/homebrew/Cellar")
           defaults['virtdir'] = "/opt/homebrew/Cellar/libvirt/images"
         else

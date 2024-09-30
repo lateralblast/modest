@@ -161,7 +161,7 @@ def standard_zone_post_install(values)
     admin_shell    = values['answers']['admin_shell'].value
     passwd_file    = values['clientdir']+"/etc/passwd"
     shadow_file    = values['clientdir']+"/etc/shadow"
-    message = "Checking:\tUser "+admin_username+" doesn't exist"
+    message = "Checking:\tUser "+admin_username+" does not exist"
     command = "cat #{passwd_file} | grep -v '#{admin_username}' > #{tmp_file}"
     execute_command(values, message, command)
     message    = "Adding:\tUser "+admin_username+" to "+passwd_file
@@ -246,7 +246,7 @@ def standard_zone_post_install(values)
     command = "echo '#{admin_username} ALL=(ALL) NOPASSWD:ALL' > #{sudoers_file}"
     execute_command(values, message, command)
   else
-    warning_message(values, "Zone #{values['name']} doesn't exist")
+    warning_message(values, "Zone #{values['name']} does not exist")
     quit(values)
   end
   return
@@ -280,7 +280,7 @@ def branded_zone_post_install(values)
     command = "cp #{tmp_file} #{post_file} ; rm #{tmp_file}"
     execute_command(values, message, command)
   else
-    warning_message(values, "Zone #{values['name']} doesn't exist")
+    warning_message(values, "Zone #{values['name']} does not exist")
     quit(values)
   end
   return
@@ -295,17 +295,17 @@ def create_branded_zone(option)
     command = "cd /tmp ; #{values['image']} -p #{values['zonedir']} -i #{values['vmnic']} -z #{values['name']} -f"
     execute_command(values, message, command)
   else
-    warning_message(values, "Image file #{values['image']} doesn't exist")
+    warning_message(values, "Image file #{values['image']} does not exist")
   end
   standard_zone_post_install(values['name'], values['release'])
   branded_zone_post_install(values['name'], values['release'])
   return
 end
 
-# Check zone doesn't exist
+# Check zone does not exist
 
 def check_zone_doesnt_exist(values)
-  message = "Information:\tChecking Zone "+values['name']+" doesn't exist"
+  message = "Information:\tChecking Zone "+values['name']+" does not exist"
   command = "zoneadm list -cv |awk '{print $2}' |grep '#{values['name']}'"
   output  = execute_command(values, message, command)
   return output
@@ -413,7 +413,7 @@ def create_zone(values)
       end
       create_zone_config(values['name'], values['ip'])
       if values['host-os-unamer'].match(/11/) and virtual == true
-        warning_message(values, "Can't create branded zones with exclusive IPs in VMware")
+        warning_message(values, "Cannot create branded zones with exclusive IPs in VMware")
         quit(values)
       else
         create_branded_zone(values['image'], values['ip'], values['vmnic'], values['name'], values['release'])
@@ -458,7 +458,7 @@ end
 # Get zone status
 
 def get_zone_status(values)
-  message = "Information:\tChecking Zone "+values['name']+" isn't running"
+  message = "Information:\tChecking Zone "+values['name']+" is not running"
   command = "zoneadm list -cv |grep ' #{values['name']} ' |awk '{print $3}'"
   output  = execute_command(values, message, command)
   return output

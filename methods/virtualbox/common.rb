@@ -19,7 +19,7 @@ def get_vbox_vm_status(values)
       information_message(values, "VrtualBox VM #{values['name']} is Not Running")
     end
   else
-    warning_message(values, "Fusion VM #{values['name']} doesn't exist")
+    warning_message(values, "Fusion VM #{values['name']} does not exist")
   end
   return
 end
@@ -663,10 +663,10 @@ def check_vbox_vm_config_exists(values)
   return exists
 end
 
-# Check VM doesn't exist
+# Check VM does not exist
 
 def check_vbox_vm_doesnt_exist(values)
-  message   = "Checking:\tVM "+values['name']+" doesn't exist"
+  message   = "Checking:\tVM "+values['name']+" does not exist"
   command   = "#{values['vboxmanage']} list vms"
   host_list = execute_command(values, message, command)
   if host_list.match(values)

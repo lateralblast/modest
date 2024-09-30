@@ -603,7 +603,7 @@ def set_local_config(values)
 end
 
 # Check local configuration
-# Create work directory if it doesn't exist
+# Create work directory if it does not exist
 # If not running on Solaris, run in test mode
 # Useful for generating client config files
 
@@ -3884,7 +3884,7 @@ def get_ipv4_default_route(values)
   return ipv4_default_route
 end
 
-# Create a ZFS filesystem for ISOs if it doesn't exist
+# Create a ZFS filesystem for ISOs if it does not exist
 # Eg /export/isos
 # This could be an NFS mount from elsewhere
 # If a directory already exists it will do nothing

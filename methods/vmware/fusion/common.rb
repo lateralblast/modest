@@ -47,7 +47,7 @@ def add_fusion_vm_network(values)
       information_message(values, "#{values['vmapp']} VM #{values['name']} is Running")
     end
   else
-    warning_message(values, "#{values['vmapp']} VM #{values['name']} doesn't exist")
+    warning_message(values, "#{values['vmapp']} VM #{values['name']} does not exist")
   end
   return
 end
@@ -81,7 +81,7 @@ def delete_fusion_vm_network(values, install_interface)
       information_message(values, "#{values['vmapp']} VM #{values['name']} is Running")
     end
   else
-    warning_message(values, "#{values['vmapp']} VM #{values['name']} doesn't exist")
+    warning_message(values, "#{values['vmapp']} VM #{values['name']} does not exist")
   end
   return
 end
@@ -97,7 +97,7 @@ def show_fusion_vm_network(values)
     output  = execute_command(values, message, command)
     verbose_message(values, output)
   else
-    warning_message(values, "#{values['vmapp']} VM #{values['name']} doesn't exist")
+    warning_message(values, "#{values['vmapp']} VM #{values['name']} does not exist")
   end
   return
 end
@@ -114,7 +114,7 @@ def get_fusion_vm_status(values)
       information_message(values, "#{values['vmapp']} VM #{values['name']} is Not Running")
     end
   else
-    warning_message(values, "#{values['vmapp']} VM #{values['name']} doesn't exist")
+    warning_message(values, "#{values['vmapp']} VM #{values['name']} does not exist")
   end
   return
 end
@@ -135,7 +135,7 @@ def get_fusion_vm_screen(values)
       information_message(values, "#{values['vmapp']} VM #{values['name']} is Not Running")
     end
   else
-    warning_message(values, "#{values['vmapp']} VM #{values['name']} doesn't exist")
+    warning_message(values, "#{values['vmapp']} VM #{values['name']} does not exist")
   end
   return
 end
@@ -168,7 +168,7 @@ def get_fusion_vm_ip(values)
       warning_message(values, "#{values['vmapp']} VM #{values['name']} is not running")
     end
   else
-    warning_message(values, "#{values['vmapp']} VM #{values['name']} doesn't exist")
+    warning_message(values, "#{values['vmapp']} VM #{values['name']} does not exist")
   end
   return values['ip'].chomp
 end
@@ -1274,7 +1274,7 @@ def check_fusion_vm_exists(values)
   return exists
 end
 
-# Check VMware Fusion VM doesn't exist
+# Check VMware Fusion VM does not exist
 
 def check_fusion_vm_doesnt_exist(values)
   if values['host-os-uname'].to_s.match(/Linux/)

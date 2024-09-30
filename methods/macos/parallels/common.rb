@@ -509,7 +509,7 @@ def list_vs_parallels_vms(values)
   return
 end
 
-# Check Parallels VM doesn't exit
+# Check Parallels VM does not exit
 
 def check_parallels_vm_doesnt_exist(values)
   exists = check_parallels_vm_exists(values)

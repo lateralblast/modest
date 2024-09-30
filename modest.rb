@@ -241,7 +241,7 @@ begin
     ['--baserepodir', REQUIRED],        # Base repository directory
     ['--bename', REQUIRED],             # ZFS BE (Boot Environment) name
     ['--biosdevnames', BOOLEAN],        # Use biosdevnames (e.g. eth0 instead of eno1)
-    ['--nobiosdevnames', BOOLEAN],      # Don't use biosdevnames (e.g. eth0 instead of eno1)
+    ['--nobiosdevnames', BOOLEAN],      # Do not use biosdevnames (e.g. eth0 instead of eno1)
     ['--biostype', REQUIRED],           # BIOS boot type (bios/uefi)
     ['--blkiotune', REQUIRED],          # Block IO tune (KVM)
     ['--boot', REQUIRED],               # Set boot device
@@ -253,14 +253,14 @@ begin
     ['--bridge', REQUIRED],             # Set bridge
     ['--bucket', REQUIRED],             # AWS S3 bucket
     ['--build', BOOLEAN],               # Build (Packer)
-    ['--nobuild', BOOLEAN],             # Don't build (Packer)
+    ['--nobuild', BOOLEAN],             # Do not build (Packer)
     ['--changelog', BOOLEAN],           # Print changelog
     ['--channel', BOOLEAN],             # Channel (KVM)
     ['--nochannel', BOOLEAN],           # No channel (KVM)
     ['--check', REQUIRED],              # Check
     ['--checknat', BOOLEAN],            # Check NAT configuration
     ['--checksum', BOOLEAN],            # Do checksums
-    ['--nochecksum', BOOLEAN],          # Don't do checksums
+    ['--nochecksum', BOOLEAN],          # Do not do checksums
     ['--cidr', REQUIRED],               # CIDR
     ['--client', REQUIRED],             # Client / AWS Name
     ['--clientdir', REQUIRED],          # Base Client Directory
@@ -278,7 +278,7 @@ begin
     ['--containertype', REQUIRED],      # AWS AMI export container
     ['--controller', REQUIRED],         # Specify disk controller
     ['--copykeys', BOOLEAN],            # Copy SSH Keys (default)
-    ['--nocopykeys', BOOLEAN],          # Don't copy SSH Keys (default)
+    ['--nocopykeys', BOOLEAN],          # Do not copy SSH Keys (default)
     ['--country', REQUIRED],            # Country
     ['--cpu', REQUIRED],                # Type of CPU (e.g. KVM CPU type)
     ['--cputune', REQUIRED],            # CPU tune (KVM)
@@ -286,12 +286,12 @@ begin
     ['--creds', REQUIRED],              # Credentials file
     ['--datastore', REQUIRED],          # Datastore to deploy to on remote server
     ['--defaults', BOOLEAN],            # Answer defaults to all questions (accept defaults)
-    ['--nodefaults', BOOLEAN],          # Don't answer defaults to all questions (accept defaults)
+    ['--nodefaults', BOOLEAN],          # Do not answer defaults to all questions (accept defaults)
     ['--delete', BOOLEAN],              # Delete client / service
-    ['--nodelete', BOOLEAN],            # Don't delete client / service
+    ['--nodelete', BOOLEAN],            # Do not delete client / service
     ['--desc', REQUIRED],               # Description
     ['--destroy-on-exit', BOOLEAN],     # Destroy on exit (KVM)
-    ['--nodestroy-on-exit', BOOLEAN],   # Don't destroy on exit (KVM)
+    ['--nodestroy-on-exit', BOOLEAN],   # Do not destroy on exit (KVM)
     ['--dhcp', BOOLEAN],                # DHCP
     ['--nodhcp', BOOLEAN],              # No DHCP
     ['--dhcpdfile', REQUIRED],          # DHCP Config file
@@ -331,7 +331,7 @@ begin
     ['--filesystem', REQUIRED],         # Filesystem (KVM)
     ['--finish', REQUIRED],             # Jumpstart finish file
     ['--force',  BOOLEAN],              # Force mode
-    ['--noforce',  BOOLEAN],            # Don't use force mode
+    ['--noforce',  BOOLEAN],            # Do not use force mode
     ['--format', REQUIRED],             # AWS / Output disk format (e.g. VMDK, RAW, VHD)
     ['--from', REQUIRED],               # From
     ['--fusiondir', REQUIRED],          # VMware Fusion Directory
@@ -340,14 +340,14 @@ begin
     ['--graphics', REQUIRED],           # Graphics (KVM)
     ['--grant', REQUIRED],              # AWS ACL grant
     ['--growpart', BOOLEAN],            # Grow partition
-    ['--nogrowpart', BOOLEAN],          # Don't grow partition
+    ['--nogrowpart', BOOLEAN],          # Do not grow partition
     ['--growpartdevice', REQUIRED],     # Grow partition device
     ['--growpartmode', REQUIRED],       # Groe part mode
     ['--group', REQUIRED],              # Group Name (e.g. AWS)
     ['--guest', REQUIRED],              # Guest OS
     ['--gwifname', REQUIRED],           # Gateway Interface name
     ['--headless', BOOLEAN],            # Headless mode for builds
-    ['--noheadless', BOOLEAN],          # Don't use headless mode for builds
+    ['--noheadless', BOOLEAN],          # Do not use headless mode for builds
     ['--help', BOOLEAN],                # Display usage information
     ['--home', REQUIRED],               # Set home directory
     ['--homefs', REQUIRED],             # Set home fs
@@ -376,13 +376,13 @@ begin
     ['--inputfile', REQUIRED],          # Input file (KVM)
     ['--install', REQUIRED],            # Install (KVM)
     ['--installdrivers', BOOLEAN],      # Install Drivers
-    ['--dontinstalldrivers', BOOLEAN],  # Don't install Drivers
+    ['--dontinstalldrivers', BOOLEAN],  # Do not install Drivers
     ['--installsecurity', BOOLEAN],     # Install Security Updates
-    ['--donginstallsecurity', BOOLEAN], # Don't install Security Updates
+    ['--donginstallsecurity', BOOLEAN], # Do not install Security Updates
     ['--installupdates', BOOLEAN],      # Install Package Updates
-    ['--dontinstallupdates', BOOLEAN],  # Don't install Package Updates
+    ['--dontinstallupdates', BOOLEAN],  # Do not install Package Updates
     ['--installupgrades', BOOLEAN],     # Install Package Upgrades
-    ['--dontinstallupgrades', BOOLEAN], # Don't install Package Upgrades
+    ['--dontinstallupgrades', BOOLEAN], # Do not install Package Upgrades
     ['--iothreads', REQUIRED],          # IO threads (KVM)
     ['--ip', REQUIRED],                 # IP Address of client
     ['--ipfamily', REQUIRED],           # IP family (e.g. IPv4 or IPv6)
@@ -441,12 +441,12 @@ begin
     ['--network', REQUIRED],            # Network (KVM)
     ['--networkfile', REQUIRED],        # Network config file (KVM)
     ['--nic', REQUIRED],                # Default NIC
-    ['--noboot', BOOLEAN],              # Create VM/configs but don't boot
-    ['--nobuild', BOOLEAN],             # Create VM/configs but don't build
-    ['--noeeys', BOOLEAN],              # Don't copy SSH Keys
-    ['--noreboot', BOOLEAN],            # Don't reboot as part of post script (used for troubleshooting)
+    ['--noboot', BOOLEAN],              # Create VM/configs but do not boot
+    ['--nobuild', BOOLEAN],             # Create VM/configs but do not build
+    ['--noeeys', BOOLEAN],              # Do not copy SSH Keys
+    ['--noreboot', BOOLEAN],            # Do not reboot as part of post script (used for troubleshooting)
     ['--nosudo', BOOLEAN],              # Use sudo
-    ['--nosuffix', BOOLEAN],            # Don't add suffix to AWS AMI names
+    ['--nosuffix', BOOLEAN],            # Do not add suffix to AWS AMI names
     ['--notice', BOOLEAN],              # Print notice messages
     ['--novncdir', REQUIRED],           # NoVNC directory
     ['--number', REQUIRED],             # Number of AWS instances
@@ -491,8 +491,8 @@ begin
     ['--pxebootdir', REQUIRED],         # PXE boot dir
     ['--qemu-commandline', REQUIRED],   # Qemu commandline (KVM)
     ['--reboot', BOOLEAN],              # Reboot as part of post script
-    ['--noreboot', BOOLEAN],            # Don't reboot as part of post script
-    ['--dontreboot', BOOLEAN],          # Don't reboot as part of post script
+    ['--noreboot', BOOLEAN],            # Do not reboot as part of post script
+    ['--dontreboot', BOOLEAN],          # Do not reboot as part of post script
     ['--redirdev', REQUIRED],           # Redirdev (KVM)
     ['--release', REQUIRED],            # OS Release
     ['--region', REQUIRED],             # AWS Region
@@ -500,8 +500,8 @@ begin
     ['--repodir', REQUIRED],            # Base Repository Directory
     ['--resource', REQUIRED],           # Resource (KVM)
     ['--restart', BOOLEAN],             # Re-start VM
-    ['--norestart', BOOLEAN],           # Don't re-start VM
-    ['--dontrestart', BOOLEAN],         # Don't re-start VM
+    ['--norestart', BOOLEAN],           # Do not re-start VM
+    ['--dontrestart', BOOLEAN],         # Do not re-start VM
     ['--rng', REQUIRED],                # RNG (KVM)
     ['--rootdisk', REQUIRED],           # Set root device to install to
     ['--rootfs', REQUIRED],             # Set root fs
@@ -533,17 +533,17 @@ begin
     ['--share', REQUIRED],              # Shared folder
     ['--shutdowncommand', REQUIRED],    # Packer Shutdown command
     ['--shutdowntimeout', REQUIRED],    # Packer Shutdown timeout
-    ['--silent', BOOLEAN],              # Run in silent mode (don't print warning messages)
+    ['--silent', BOOLEAN],              # Run in silent mode (do not print warning messages)
     ['--sitename', REQUIRED],           # Sitename for VCSA
     ['--smartcard', REQUIRED],          # Smartcard (KVM)
     ['--snapshot', REQUIRED],           # AWS snapshot
     ['--socker', REQUIRED],             # Socket file
     ['--sound', REQUIRED],              # Sound (KVM)
     ['--splitvols', BOOLEAN],           # Split volumes, e.g. seperate /, /var, etc
-    ['--nosplitvols', BOOLEAN],         # Don't split volumes, e.g. seperate /, /var, etc
+    ['--nosplitvols', BOOLEAN],         # Do not split volumes, e.g. seperate /, /var, etc
     ['--sshkey', REQUIRED],             # SSH Key
     ['--usesshkey', BOOLEAN],           # Use SSH key
-    ['--dontusesshkey', BOOLEAN],       # Don't use SSH key
+    ['--dontusesshkey', BOOLEAN],       # Do not use SSH key
     ['--sshkeyfile', REQUIRED],         # SSH Keyfile
     ['--sshpassword', REQUIRED],        # Packer SSH Port min
     ['--sshport', REQUIRED],            # SSH Port
@@ -554,12 +554,12 @@ begin
     ['--ssopassword', REQUIRED],        # SSO password
     ['--stack', REQUIRED],              # AWS CF Stack
     ['--start', BOOLEAN],               # Start VM
-    ['--dontstart', BOOLEAN],           # Don't start VM
+    ['--dontstart', BOOLEAN],           # Do not start VM
     ['--stop', BOOLEAN],                # Stop VM
-    ['--dontstop', BOOLEAN],            # Don't stop VM
+    ['--dontstop', BOOLEAN],            # Do not stop VM
     ['--strict', BOOLEAN],              # Ignore SSH keys
     ['--sudo', BOOLEAN],                # Use sudo
-    ['--nosudo', BOOLEAN],              # Don't use sudo
+    ['--nosudo', BOOLEAN],              # Do not use sudo
     ['--sudoers', REQUIRED],            # Sudoers entry
     ['--sudogroup', REQUIRED],          # Set Sudo group
     ['--suffix', REQUIRED],             # AWS AMI Name suffix
@@ -1007,7 +1007,7 @@ values = handle_memory_values(values)
 
 values = handle_publisher_values(values)
 
-# If service is set, but method and os isn't specified, try to set method from service name
+# If service is set, but method and os is not specified, try to set method from service name
 
 if values['service'] != values['empty'] && values['method'] == values['empty'] && values['os-type'] == values['empty']
   values['method'] = get_install_method_from_service(values)

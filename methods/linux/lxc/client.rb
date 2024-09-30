@@ -252,16 +252,16 @@ def check_lxc_exists(values)
   command = "lxc-ls |grep '#{values['name']}'"
   output  = execute_command(values, message, command)
   if not output.match(/#{values['name']}/)
-    warning_message(values, "Client #{values['name']} doesn't exist")
+    warning_message(values, "Client #{values['name']} does not exist")
     quit(values)
   end
   return
 end
 
-# Check LXC doesn't exist
+# Check LXC does not exist
 
 def check_lxc_doesnt_exist(values)
-  message = "Information:\tChecking LXC "+values['name']+" doesn't exist"
+  message = "Information:\tChecking LXC "+values['name']+" does not exist"
   command = "lxc-ls |grep '#{values['name']}'"
   output  = execute_command(values, message, command)
   if output.match(/#{values['name']}/)

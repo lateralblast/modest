@@ -58,7 +58,7 @@ def connect_to_kvm_vm(values)
     information_message(values, " Connecting to KVM VM #{vm_name}")
     exec("virsh console #{vm_name}")
   else
-    warning_message(values, "KVM VM #{vm_name} doesn't exist")
+    warning_message(values, "KVM VM #{vm_name} does not exist")
     quit(values)
   end
 end

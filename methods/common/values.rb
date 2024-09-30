@@ -678,7 +678,7 @@ end
 def handle_share_values(values)
   if values['share'] != values['empty']
     if !File.directory?(values['share'])
-      warning_message(values, "Share point #{values['share']} doesn't exist")
+      warning_message(values, "Share point #{values['share']} does not exist")
       quit(values)
     end
     if values['mount'] == values['empty']

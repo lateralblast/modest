@@ -13,7 +13,7 @@ def check_gdom_is_running(values)
   return
 end
 
-# Check Guest Domain isn't running
+# Check Guest Domain is not running
 
 def check_gdom_isnt_running(values)
   message = "Information:\tChecking Guest Domain "+values['name']+" is running"
@@ -93,7 +93,7 @@ def create_gdom_disk(values)
       output = execute_command(values, message, command)
     end
   end
-  message = "Information:\tChecking Virtual Disk Server device doesn't already exist"
+  message = "Information:\tChecking Virtual Disk Server device does not already exist"
   command = "ldm list-services |grep 'primary-vds0' |grep '#{vds_disk}'"
   output = execute_command(values, message, command)
   if not output.match(/#{values['name']}/)
@@ -104,10 +104,10 @@ def create_gdom_disk(values)
   return
 end
 
-# Check Guest domain doesn't exist
+# Check Guest domain does not exist
 
 def check_gdom_doesnt_exist(values)
-  message = "Information:\tChecking guest domain "+values['name']+" doesn't exist"
+  message = "Information:\tChecking guest domain "+values['name']+" does not exist"
   command = "ldm list |grep #{values['name']}"
   output  = execute_command(values, message, command)
   if output.match(/#{values['name']}/)
@@ -117,14 +117,14 @@ def check_gdom_doesnt_exist(values)
   return
 end
 
-# Check Guest domain doesn't exist
+# Check Guest domain does not exist
 
 def check_gdom_exists(values)
   message = "Information:\tChecking guest domain "+values['name']+" exist"
   command = "ldm list |grep #{values['name']}"
   output  = execute_command(values, message, command)
   if not output.match(/#{values['name']}/)
-    warning_message(values, "Guest domain #{values['name']} doesn't exist")
+    warning_message(values, "Guest domain #{values['name']} does not exist")
     quit(values)
   end
   return

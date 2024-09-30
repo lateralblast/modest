@@ -152,7 +152,7 @@ def vnc_to_vm(values)
           remote_vnc_port = values['vncport']
         end
         if remote_vnc_port.match(/[0-9]/)
-          message = "Information:\tChecking noVNC isn't already running"
+          message = "Information:\tChecking noVNC is not already running"
           command = "ps -ef |grep noVNC |grep #{values['ip']} | grep -v grep"
           output  = execute_command(values, message, command)
           if not output.match(/noVNC/)

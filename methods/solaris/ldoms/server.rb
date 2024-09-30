@@ -109,7 +109,7 @@ def check_cdom_config(values)
   output  = execute_command(values, message, command)
   if output.match(/factory\-default/)
     config  = values['answers']['cdom_name'].value
-    message = "Information:\tChecking LDom configuration "+config+" doesn't exist"
+    message = "Information:\tChecking LDom configuration "+config+" does not exist"
     command = "ldm list-config |grep #{config}"
     output  = execute_command(values, message, command)
     if output.match(/#{config}/)

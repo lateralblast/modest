@@ -101,7 +101,7 @@ def get_account_home_mountpoint(values)
 end
 
 # Import AI manifest
-# This is done to change the default manifest so that it doesn't point
+# This is done to change the default manifest so that it does not point
 # to the Oracle one amongst other things
 # Check the structs for settings and more information
 
@@ -250,11 +250,11 @@ def create_ai_client(values)
   return
 end
 
-# Check AI client doesn't exist
+# Check AI client does not exist
 
 def check_ai_client_doesnt_exist(values)
   values['mac'] = values['mac'].upcase
-  message = "Information:\tChecking client "+values['name']+" doesn't exist"
+  message = "Information:\tChecking client "+values['name']+" does not exist"
   command = "installadm list -p |grep '#{values['mac']}'"
   output  = execute_command(values, message, command)
   if output.match(/#{values['name']}/)
