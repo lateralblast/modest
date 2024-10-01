@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      8.1.7
+# Version:      8.1.8
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -75,6 +75,14 @@ end
 
 def information_message(values, text)
   text = "Information:\t#{text}"
+  handle_output(values, text)
+  return
+end
+
+# Execute message
+
+def execute_message(values, text)
+  text = "Executing:\t#{text}"
   handle_output(values, text)
   return
 end

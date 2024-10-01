@@ -3588,7 +3588,7 @@ end
 # Does not execute cerver/client import/create operations in test mode
 
 def execute_command(values, message, command)
-  if !command
+  if not command.match(/[a-z]|[A-Z]|[0-9]/)
     warning_message(values, "Empty command")
     return
   end
@@ -3679,12 +3679,14 @@ def execute_command(values, message, command)
         end
       end
     end
-    verbose_message(values, "Executing:\t#{command}")
+    execute_message(values, command)
     if values['executehost'].to_s.match(/localhost/)
       if values['dryrun'] == true and execute == true
         output = %x[#{command}]
       else
-        output = %x[#{command}]
+        if values['drydun'] == false
+          output = %x[#{command}]
+        end
       end
     else
 #      Net::SSH.start(values['server'], values['serveradmin'], :password => values['serverpassword'], :verify_host_key => "never") do |ssh_session|
@@ -4238,7 +4240,7 @@ def mount_iso(values)
   end
   if values['host-os-uname'].to_s.match(/Darwin/)
     command = "hdiutil attach -nomount \"#{values['file']}\" |head -1 |awk \"{print \\\$1}\""
-    verbose_message(values, "Executing:\t#{command}")
+    execute_message(values, command)
     disk_id = %x[#{command}]
     disk_id = disk_id.chomp
     file_du = %x[du "#{values['file'].to_s}" |awk '{print $1}']
@@ -4267,7 +4269,7 @@ def mount_iso(values)
       umount_iso(values)
       if values['host-os-uname'].to_s.match(/Darwin/)
         command = "hdiutil attach -nomount \"#{values['file']}\" |head -1 |awk \"{print \\\$1}\""
-        verbose_message(values, "Executing:\t#{command}")
+        execute_message(values, command)
         disk_id = %x[#{command}]
         disk_id = disk_id.chomp
         command = "sudo mount -t udf -o ro "+disk_id+" "+values['mountdir']
@@ -4522,7 +4524,7 @@ end
 def umount_iso(values)
   if values['host-os-uname'].to_s.match(/Darwin/)
     command = "df |grep \"#{values['mountdir']}$\" |head -1 |awk \"{print \\\$1}\""
-    verbose_message(values, "Executing:\t#{command}")
+    execute_message(values, command)
     disk_id = %x[#{command}]
     disk_id = disk_id.chomp
   end

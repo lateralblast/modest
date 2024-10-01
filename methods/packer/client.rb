@@ -371,7 +371,7 @@ def build_packer_config(values)
   end
   if values['verbose'] == true
     verbose_message(values, message)
-    verbose_message(values, "Executing:\t"+command)
+    execute_message(values, command)
   end
   exec(command)
 	return
