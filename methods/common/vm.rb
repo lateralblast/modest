@@ -506,7 +506,7 @@ def list_vms(values)
     list_kvm_vms(values)
   else
     verbose_message(values,"Warning:\tInvalid VM type")
-    exit
+    quit(values)
   end
   return
 end

@@ -178,7 +178,9 @@ def quit(values)
     values['stdout'].push("</html>")
     puts values['stdout'].join("\n")
   end
-  exit
+  if values['dryrun'] == false
+    exit
+  end
 end
 
 # Get valid switches and put in an array
