@@ -1,34 +1,33 @@
+# frozen_string_literal: true
 
 # AutoYast server routines
 
 # Configure AutoYast server
 
 def configure_ay_server(values)
-  if not values['search'].to_s.match(/[a-z]|[A-Z]|all/)
+  unless values['search'].to_s.match(/[a-z]|[A-Z]|all/)
     if values['service'].to_s.match(/[a-z]/)
-      if values['service'].downcase.match(/suse/)
-        search_string = "SLE"
-      end
+      search_string = 'SLE' if values['service'].downcase.match(/suse/)
     else
-      search_string = "SLE"
+      search_string = 'SLE'
     end
   end
   configure_linux_server(values, search_string)
-  return
+  nil
 end
 
 # List AutoYast services
 
 def list_ay_services(values)
-  values['method'] = "ay"
+  values['method'] = 'ay'
   dir_list = get_dir_item_list(values)
-  message  = "AutoYast Services:"
+  message  = 'AutoYast Services:'
   verbose_message(values, message)
   dir_list.each do |service|
     verbose_message(values, service)
   end
-  verbose_message(values, "")
-  return
+  verbose_message(values, '')
+  nil
 end
 
 # Unconfigure AutoYast server

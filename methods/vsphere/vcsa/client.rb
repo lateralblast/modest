@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # VC client code
 
 # Handle VCSA OVA
@@ -7,15 +9,15 @@ def handle_vcsa_ova(values)
     uid = values['uid']
     check_dir_exists(values, values['baserepodir'])
     check_dir_owner(values, values['baserepodir'], uid)
-    values['repodir'] = values['baserepodir']+"/"+values['service']
+    values['repodir'] = "#{values['baserepodir']}/#{values['service']}"
     check_dir_exists(values, values['repodir'])
     check_dir_owner(values, values['repodir'], uid)
     mount_iso(values)
     copy_iso(values)
-    values['file'] = values['repodir']+"/vcsa/vmware-vcsa"
+    values['file'] = "#{values['repodir']}/vcsa/vmware-vcsa"
     umount_iso(values)
   end
-  return values['file']
+  values['file']
 end
 
 # Deploy VCSA image
@@ -41,49 +43,42 @@ def deploy_vcsa_vm(values)
   values['vmgateway']      = values['answers']['gateway'].value
   values['nameserver']     = values['answers']['dns.servers'].value
   vcsa_json_file = create_vcsa_json(values)
-  #create_vcsa_deploy_script(values)
-  values['repodir'] = values['baserepodir']+"/"+values['service']
-  if values['host-os-uname'].to_s.match(/Darwin/)
-    deployment_dir = values['repodir']+"/vcsa-cli-installer/mac"
-  end
-  if values['host-os-uname'].to_s.match(/Linux/)
-    deployment_dir = values['repodir']+"/vcsa-cli-installer/lin64"
-  end
+  # create_vcsa_deploy_script(values)
+  values['repodir'] = "#{values['baserepodir']}/#{values['service']}"
+  deployment_dir = "#{values['repodir']}/vcsa-cli-installer/mac" if values['host-os-uname'].to_s.match(/Darwin/)
+  deployment_dir = "#{values['repodir']}/vcsa-cli-installer/lin64" if values['host-os-uname'].to_s.match(/Linux/)
   if File.directory?(deployment_dir)
     message = "Information:\tDeploying VCSA OVA"
-    if deployment_dir.match(/6_0_0_3040890/)
-      command = "cd #{deployment_dir} ; echo yes | ./vcsa-deploy install #{vcsa_json_file} --accept-eula -v"
-    else
-      if deployment_dir.match(/6_[5-6]/)
-        command = "cd #{deployment_dir} ; echo 1 | ./vcsa-deploy install #{vcsa_json_file} --accept-eula -v"
-      else
-        if deployment_dir.match(/6_7/)
-          command = "cd #{deployment_dir} ; echo 1 | ./vcsa-deploy install #{vcsa_json_file}  --no-ssl-certificate-verification --accept-eula --acknowledge-ceip -v"
-        else
-          command = "cd #{deployment_dir} ; echo yes | ./vcsa-deploy install #{vcsa_json_file} -v"
-        end
-      end
-    end
+    command = case deployment_dir
+              when /6_0_0_3040890/
+                "cd #{deployment_dir} ; echo yes | ./vcsa-deploy install #{vcsa_json_file} --accept-eula -v"
+              when /6_[5-6]/
+                "cd #{deployment_dir} ; echo 1 | ./vcsa-deploy install #{vcsa_json_file} --accept-eula -v"
+              when /6_7/
+                "cd #{deployment_dir} ; echo 1 | ./vcsa-deploy install #{vcsa_json_file}  --no-ssl-certificate-verification --accept-eula --acknowledge-ceip -v"
+              else
+                "cd #{deployment_dir} ; echo yes | ./vcsa-deploy install #{vcsa_json_file} -v"
+              end
     execute_command(values, message, command)
   end
-  return
+  nil
 end
 
 # Create deployment script
 
 def create_vcsa_deploy_script(values)
-  values['netmask'] = values['netmask'].gsub(/\//, "")
-  uid = %x[id -u].chomp
-  information_message(values, "Checking VCSA client directory")
+  values['netmask'] = values['netmask'].gsub(%r{/}, '')
+  uid = `id -u`.chomp
+  information_message(values, 'Checking VCSA client directory')
   check_dir_exists(values, values['clientdir'])
   check_dir_owner(values, values['clientdir'], uid)
-  service_dir = values['clientdir']+"/"+values['service']
+  service_dir = "#{values['clientdir']}/#{values['service']}"
   check_dir_exists(values, service_dir)
-  values['clientdir']  = service_dir+"/"+values['name']
+  values['clientdir'] = "#{service_dir}/#{values['name']}"
   check_dir_exists(values, values['clientdir'])
-  output_file = values['clientdir']+"/"+values['name']+".sh"
+  output_file = "#{values['clientdir']}/#{values['name']}.sh"
   check_dir_exists(values, values['clientdir'])
-  file = File.open(output_file, "w")
+  file = File.open(output_file, 'w')
   file.write("#!/bin/bash\n")
   file.write("\n")
   file.write("OVFTOOL=\"#{values['ovfbin']}\"\n")
@@ -138,22 +133,18 @@ def create_vcsa_deploy_script(values)
   file.write("\"--prop:guestinfo.cis.appliance.ssh.enabled=${VCSA_ENABLE_SSH}\" \\\n")
   file.write("\"--prop:guestinfo.cis.appliance.ntp.servers=${NTP_SERVERS}\" \\\n")
   file.write("${VCSA_OVA} \"vi://${ESXI_USERNAME}:${ESXI_PASSWORD}@${ESXI_HOST}/\"\n")
-  file.close()
-  if File.exist?(output_file)
-    %x[chmod +x #{output_file}]
-  end
-  return output_file
+  file.close
+  `chmod +x #{output_file}` if File.exist?(output_file)
+  output_file
 end
 
 # Create VCSA JSON file
 
 def create_vcsa_json(values)
-  values['netmask'] = values['netmask'].gsub(/\//, "")
-  if values['service'].to_s.match(/6_[5-6]/)
-    json_version = "2.3.0"
-  end
+  values['netmask'] = values['netmask'].gsub(%r{/}, '')
+  json_version = '2.3.0' if values['service'].to_s.match(/6_[5-6]/)
   if values['service'].to_s.match(/6_7/)
-    json_version = "2.13.0"
+    json_version = '2.13.0'
     values['cidr'] = netmask_to_cidr(values['netmask'])
   end
   if values['service'].to_s.match(/6_[5-6]/)
@@ -198,10 +189,10 @@ def create_vcsa_json(values)
                   }
                 }
               }"
-  else
-    if values['service'].to_s.match(/6_7/)
-      system_name = values['name']+"."+values['domainname']
-      string = "{
+  elsif values['service'].to_s.match(/6_7/)
+    values['name']
+    values['domainname']
+    string = "{
                   \"__version\": \"#{json_version}\",
                   \"new_vcsa\": {
                     \"esxi\": {
@@ -243,13 +234,13 @@ def create_vcsa_json(values)
                     }
                   }
                 }"
-    else
-      string = "{ 
+  else
+    string = "{
                   \"__comments\":
                   [
                     \"VCSA deployment\"
                   ],
-  
+
                   \"deployment\":
                   {
                     \"esx.hostname\":\"#{values['server']}\",
@@ -260,26 +251,26 @@ def create_vcsa_json(values)
                     \"deployment.network\":\"#{values['servernetmask']}\",
                     \"appliance.name\":\"#{values['name']}\",
                     \"appliance.thin.disk.mode\":#{values['thindiskmode']}
-                 }, 
-                 
-                 
+                 },
+
+
                   \"vcsa\":
                   {
-  
+
                     \"system\":
                     {
                       \"root.password\":\"#{values['rootpassword']}\",
                       \"ssh.enable\":true,
                       \"ntp.servers\":\"#{values['timeserver']}\"
                     },
-  
+
                     \"sso\":
                     {
                       \"password\":\"#{values['adminpassword']}\",
                       \"domain-name\":\"#{values['domainname']}\",
                       \"site-name\":\"#{values['sitename']}\"
                     },
-  
+
                     \"networking\":
                     {
                       \"ip.family\":\"#{values['ipfamil']}\",
@@ -292,24 +283,23 @@ def create_vcsa_json(values)
                     }
                   }
                }"
-      end
-    end
-    uid = %x[id -u].chomp
-    information_message(values, "Checking VCSA JSON configuration directory")
-    check_dir_exists(values, values['clientdir'])
-    check_dir_owner(values, values['clientdir'], uid)
-    service_dir = values['clientdir']+"/"+values['service']
-    check_dir_exists(values, service_dir)
-    check_dir_owner(values, service_dir, uid)
-    values['clientdir']  = service_dir+"/"+values['name']
-    check_dir_exists(values, values['clientdir'])
-    check_dir_owner(values, values['clientdir'], uid)
-    output_file = values['clientdir']+"/"+values['name']+".json"
-    check_dir_exists(values, values['clientdir'])
-    json   = JSON.parse(string)
-    output = JSON.pretty_generate(json)
-    file   = File.open(output_file, "w")
-    file.write(output)
-    file.close()
-  return output_file
+  end
+  uid = `id -u`.chomp
+  information_message(values, 'Checking VCSA JSON configuration directory')
+  check_dir_exists(values, values['clientdir'])
+  check_dir_owner(values, values['clientdir'], uid)
+  service_dir = "#{values['clientdir']}/#{values['service']}"
+  check_dir_exists(values, service_dir)
+  check_dir_owner(values, service_dir, uid)
+  values['clientdir'] = "#{service_dir}/#{values['name']}"
+  check_dir_exists(values, values['clientdir'])
+  check_dir_owner(values, values['clientdir'], uid)
+  output_file = "#{values['clientdir']}/#{values['name']}.json"
+  check_dir_exists(values, values['clientdir'])
+  json   = JSON.parse(string)
+  output = JSON.pretty_generate(json)
+  file   = File.open(output_file, 'w')
+  file.write(output)
+  file.close
+  output_file
 end

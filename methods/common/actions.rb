@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Actions
 
 # Handle action switch
@@ -6,61 +8,31 @@ def handle_action(values)
   if values['action'] != values['empty']
     case values['action']
     when /convert/
-      if values['vm'].to_s.match(/kvm|qemu/)
-        convert_kvm_image(values)
-      end
+      convert_kvm_image(values) if values['vm'].to_s.match(/kvm|qemu/)
     when /check/
-      if values['check'].to_s.match(/dnsmasq/)
-        check_dnsmasq(values)
-      end
-      if values['vm'].to_s.match(/kvm/)
-        check_kvm_permissions(values)
-      end
-      if values['type'].to_s.match(/bridge/) && values['vm'].to_s.match(/kvm/)
-        check_kvm_network_bridge(values)
-      end
-      if values['mode'].to_s.match(/server/)
-        values = check_local_config(values)
-      end
+      check_dnsmasq(values) if values['check'].to_s.match(/dnsmasq/)
+      check_kvm_permissions(values) if values['vm'].to_s.match(/kvm/)
+      check_kvm_network_bridge(values) if values['type'].to_s.match(/bridge/) && values['vm'].to_s.match(/kvm/)
+      values = check_local_config(values) if values['mode'].to_s.match(/server/)
       if values['mode'].to_s.match(/osx/)
         check_osx_dnsmasq(values)
         check_osx_tftpd(values)
         check_osx_dhcpd(values)
       end
-      if values['vm'].to_s.match(/fusion|vbox|kvm/)
-        check_vm_network(values)
-      end
-      if values['check'].to_s.match(/dhcp/)
-        check_dhcpd_config(values)
-      end
-      if values['check'].to_s.match(/tftp/)
-        check_tftpd_config(values)
-      end
+      check_vm_network(values) if values['vm'].to_s.match(/fusion|vbox|kvm/)
+      check_dhcpd_config(values) if values['check'].to_s.match(/dhcp/)
+      check_tftpd_config(values) if values['check'].to_s.match(/tftp/)
     when /execute|shell/
-      if values['type'].to_s.match(/docker/) or values['vm'].to_s.match(/docker/)
-        execute_docker_command(values)
-      end
-      if values['vm'].to_s.match(/mp|multipass/)
-        execute_multipass_command(values)
-      end
+      execute_docker_command(values) if values['type'].to_s.match(/docker/) || values['vm'].to_s.match(/docker/)
+      execute_multipass_command(values) if values['vm'].to_s.match(/mp|multipass/)
     when /screen/
-      if values['vm'] != values['empty']
-        get_vm_screen(values)
-      end
+      get_vm_screen(values) if values['vm'] != values['empty']
     when /vnc/
-      if values['vm'] != values['empty']
-        vnc_to_vm(values)
-      end
+      vnc_to_vm(values) if values['vm'] != values['empty']
     when /status/
-      if values['vm'] != values['empty']
-        status = get_vm_status(values)
-      end
+      get_vm_status(values) if values['vm'] != values['empty']
     when /set|put/
-      if values['type'].to_s.match(/acl/)
-        if values['bucket'] != values['empty']
-          set_aws_s3_bucket_acl(values)
-        end
-      end
+      set_aws_s3_bucket_acl(values) if values['type'].to_s.match(/acl/) && (values['bucket'] != values['empty'])
     when /upload|download/
       if values['bucket'] != values['empty']
         if values['action'].to_s.match(/upload/)
@@ -73,20 +45,16 @@ def handle_action(values)
       if values['type'].to_s.match(/acl|url/) || values['action'].to_s.match(/acl|url/)
         if values['bucket'] != values['empty']
           show_aws_s3_bucket_acl(values)
+        elsif values['type'].to_s.match(/url/) || values['action'].to_s.match(/url/)
+          show_s3_bucket_url(values)
         else
-          if values['type'].to_s.match(/url/) || values['action'].to_s.match(/url/)
-            show_s3_bucket_url(values)
-          else
-            get_aws_billing(values)
-          end
+          get_aws_billing(values)
         end
-      else
-        if values['name'] != values['empty']
-          if values['vm'] != values['empty']
-            show_vm_config(values)
-          else
-            get_client_config(values)
-          end
+      elsif values['name'] != values['empty']
+        if values['vm'] != values['empty']
+          show_vm_config(values)
+        else
+          get_client_config(values)
         end
       end
     when /help/
@@ -102,9 +70,7 @@ def handle_action(values)
         print_examples(values)
       end
     when /show/
-      if values['vm'] != values['empty']
-        show_vm_config(values)
-      end
+      show_vm_config(values) if values['vm'] != values['empty']
     when /listisos|listimages/
       case values['vm']
       when /kvm/
@@ -116,9 +82,7 @@ def handle_action(values)
         list_kvm_vms(values)
       end
     when /list/
-      if values['file'] != values['empty']
-        describe_file(values)
-      end
+      describe_file(values) if values['file'] != values['empty']
       case values['type']
       when /service/
         list_services(values)
@@ -179,22 +143,14 @@ def handle_action(values)
           return values
         end
         if values['mode'].to_s.match(/client/) || values['type'].to_s.match(/client/)
-          values['mode'] = "client"
+          values['mode'] = 'client'
           check_local_config(values)
-          if values['service'] != values['empty']
-            if values['service'].to_s.match(/[a-z]/)
-              list_clients(values)
-            end
-          end
-          if values['vm'] != values['empty']
-            if values['vm'].to_s.match(/[a-z]/)
-              if values['type'] == values['empty']
-                if values['file'] != values['empty']
-                  describe_file(values)
-                else
-                  list_vms(values)
-                end
-              end
+          list_clients(values) if (values['service'] != values['empty']) && values['service'].to_s.match(/[a-z]/)
+          if (values['vm'] != values['empty']) && values['vm'].to_s.match(/[a-z]/) && (values['type'] == values['empty'])
+            if values['file'] != values['empty']
+              describe_file(values)
+            else
+              list_vms(values)
             end
           end
           return values
@@ -218,7 +174,7 @@ def handle_action(values)
       end
     when /delete|remove|terminate/
       if values['name'] == values['empty'] && values['service'] == values['empty']
-        warning_message(values, "No service of client name specified")
+        warning_message(values, 'No service of client name specified')
         quit(values)
       end
       if values['type'].to_s.match(/network|snapshot/) && values['vm'] != values['empty']
@@ -245,42 +201,32 @@ def handle_action(values)
               values['sudo'] = false
               delete_vm(values)
             else
-              warning_message(values, "No VM, client or service specified")
-              verbose_message(values, "Available services")
+              warning_message(values, 'No VM, client or service specified')
+              verbose_message(values, 'Available services')
               list_all_services(values)
             end
           end
-        else
-          if values['vm'].to_s.match(/fusion|vbox|parallels|aws|kvm/)
-            if values['type'].to_s.match(/packer|ansible/)
-              unconfigure_client(values)
+        elsif values['vm'].to_s.match(/fusion|vbox|parallels|aws|kvm/)
+          if values['type'].to_s.match(/packer|ansible/)
+            unconfigure_client(values)
+          elsif values['type'].to_s.match(/snapshot/)
+            if values['name'] != values['empty'] && values['snapshot'] != values['empty']
+              delete_vm_snapshot(values)
             else
-              if values['type'].to_s.match(/snapshot/)
-                if values['name'] != values['empty'] && values['snapshot'] != values['empty']
-                  delete_vm_snapshot(values)
-                else
-                  warning_message(values, "Client name or snapshot not specified")
-                end
-              else
-                delete_vm(values)
-              end
+              warning_message(values, 'Client name or snapshot not specified')
             end
           else
-            if values['vm'].to_s.match(/ldom|gdom/)
-              unconfigure_gdom(values)
-            else
-              if values['vm'].to_s.match(/mp|multipass/)
-                delete_multipass_vm(values)
-                return values
-              else
-                remove_hosts_entry(values)
-                remove_dhcp_client(values)
-                if values['yes'] == true
-                  delete_client_dir(values)
-                end
-              end
-            end
+            delete_vm(values)
           end
+        elsif values['vm'].to_s.match(/ldom|gdom/)
+          unconfigure_gdom(values)
+        elsif values['vm'].to_s.match(/mp|multipass/)
+          delete_multipass_vm(values)
+          return values
+        else
+          remove_hosts_entry(values)
+          remove_dhcp_client(values)
+          delete_client_dir(values) if values['yes'] == true
         end
       else
         if values['type'].to_s.match(/instance|snapshot|key|stack|cf|cloud|securitygroup|iprule|sg|ami|image/) || values['id'].to_s.match(/[0-9]|all/)
@@ -296,23 +242,19 @@ def handle_action(values)
           when /snapshot/
             if values['vm'].to_s.match(/aws/)
               delete_aws_snapshot(values)
-            else
-              if values['snapshot'] == values['empty']
-                warning_message(values, "No snapshot name specified")
-                if values['name'] == values['empty']
-                  warning_message(values, "No client name specified")
-                  list_all_vm_snapshots(values)
-                else
-                  list_vm_snapshots(values)
-                end
+            elsif values['snapshot'] == values['empty']
+              warning_message(values, 'No snapshot name specified')
+              if values['name'] == values['empty']
+                warning_message(values, 'No client name specified')
+                list_all_vm_snapshots(values)
               else
-                if values['name'] == values['empty'] && values['snapshot'] == values['empty']
-                  warning_message(values, "No client or snapshot name specified")
-                  return values
-                else
-                  delete_vm_snapshot(values)
-                end
+                list_vm_snapshots(values)
               end
+            elsif values['name'] == values['empty'] && values['snapshot'] == values['empty']
+              warning_message(values, 'No client or snapshot name specified')
+              return values
+            else
+              delete_vm_snapshot(values)
             end
           when /key/
             values = delete_aws_key_pair(values)
@@ -330,7 +272,7 @@ def handle_action(values)
                 ports = ports.uniq
               else
                 port  = values['ports']
-                ports = [ port ]
+                ports = [port]
               end
               ports.each do |port|
                 values['from'] = port
@@ -351,14 +293,10 @@ def handle_action(values)
         end
         if values['type'].to_s.match(/packer|docker/)
           unconfigure_client(values)
-        else
-          if values['service'] != values['empty']
-            if values['method'] == values['empty']
-              unconfigure_server(values)
-            else
-              unconfigure_server(values)
-            end
+        elsif values['service'] != values['empty']
+          if values['method'] == values['empty']
           end
+          unconfigure_server(values)
         end
       end
     when /build/
@@ -386,16 +324,14 @@ def handle_action(values)
         return values
       end
       if values['type'] == values['empty'] && values['vm'] == values['empty'] && values['service'] == values['empty']
-        warning_message(values, "No service type or VM specified")
+        warning_message(values, 'No service type or VM specified')
         return values
       end
-    if values['type'].to_s.match(/service/) && !values['service'].to_s.match(/[a-z]/) && !values['service'] == values['empty']
-        warning_message(values, "No service name specified")
+      if values['type'].to_s.match(/service/) && !values['service'].to_s.match(/[a-z]/) && !values['service'] == values['empty']
+        warning_message(values, 'No service name specified')
         return values
       end
-      if values['file'] == values['empty']
-        values['mode'] = "client"
-      end
+      values['mode'] = 'client' if values['file'] == values['empty']
       if values['type'].to_s.match(/network/) && values['vm'] != values['empty']
         add_vm_network(values)
         return values
@@ -420,7 +356,7 @@ def handle_action(values)
               ports = ports.uniq
             else
               port  = values['ports']
-              ports = [ port ]
+              ports = [port]
             end
             ports.each do |port|
               values['from'] = port
@@ -441,7 +377,7 @@ def handle_action(values)
           configure_ansible_aws_client(values)
         else
           if values['key'] == values['empty'] && values['group'] == values['empty']
-            warning_message(values, "No Key Pair or Security Group specified")
+            warning_message(values, 'No Key Pair or Security Group specified')
             return values
           else
             values = configure_aws_client(values)
@@ -457,37 +393,21 @@ def handle_action(values)
         values = configure_kvm_client(values)
         return values
       end
-      if values['vm'] == values['empty'] && values['method'] == values['empty'] && values['type'] == values['empty'] && !values['mode'].to_s.match(/server/)
-        warning_message(values, "No VM, Method or specified")
-      end
+      warning_message(values, 'No VM, Method or specified') if values['vm'] == values['empty'] && values['method'] == values['empty'] && values['type'] == values['empty'] && !values['mode'].to_s.match(/server/)
       if values['mode'].to_s.match(/server/) || values['type'].to_s.match(/service/) && values['file'] != values['empty'] && values['vm'] == values['empty'] && !values['type'].to_s.match(/packer/) && !values['service'].to_s.match(/packer/)
-        values['mode'] = "server"
+        values['mode'] = 'server'
         values = check_local_config(values)
-        if values['host-os'].to_s.match(/Docker/)
-          configure_docker_server(values)
-        end
-        if values['method'] == "none"
-          if values['service'] != "none"
-            values['method'] = get_method_from_service(values)
-          end
-        end
+        configure_docker_server(values) if values['host-os'].to_s.match(/Docker/)
+        values['method'] = get_method_from_service(values) if (values['method'] == 'none') && (values['service'] != 'none')
         configure_server(values)
       else
-        if values['vm'].to_s.match(/fusion|vbox|kvm|mp|multipass/)
-          check_vm_network(values)
-        end
+        check_vm_network(values) if values['vm'].to_s.match(/fusion|vbox|kvm|mp|multipass/)
         if values['name'] != values['empty']
           if values['service'] != values['empty'] || values['type'].to_s.match(/packer/)
-            if values['method'] == values['empty']
-              values['method'] = get_install_method(values)
-            end
-            if !values['type'].to_s.match(/packer/) && values['vm'] == values['empty']
-              check_dhcpd_config(values)
-            end
+            values['method'] = get_install_method(values) if values['method'] == values['empty']
+            check_dhcpd_config(values) if !values['type'].to_s.match(/packer/) && values['vm'] == values['empty']
             if !values['vmnetwork'].to_s.match(/nat/) && !values['action'].to_s.match(/add/)
-              if !values['type'].to_s.match(/pxe/)
-                check_install_ip(values)
-              end
+              check_install_ip(values) unless values['type'].to_s.match(/pxe/)
               check_install_mac(values)
             end
             if values['type'].to_s.match(/packer/)
@@ -506,120 +426,88 @@ def handle_action(values)
                 end
               end
               configure_client(values)
-            else
-              if values['vm'] == values['empty']
-                if values['method'] == values['empty']
-                  if values['ip'].to_s.match(/[0-9]/)
-                    values['mode'] = "client"
-                    values = check_local_config(values)
-                    add_hosts_entry(values)
-                  end
-                  if values['mac'].to_s.match(/[0-9]|[a-f]|[A-F]/)
-                    values['service'] = ""
-                    add_dhcp_client(values)
-                  end
-                else
-                  if values['model'] == values['empty']
-                    values['model'] = "vmware"
-                    values['slice'] = "4192"
-                  end
-                  values['mode'] = "server"
+            elsif values['vm'] == values['empty']
+              if values['method'] == values['empty']
+                if values['ip'].to_s.match(/[0-9]/)
+                  values['mode'] = 'client'
                   values = check_local_config(values)
-                  if !values['mac'].to_s.match(/[0-9]/)
-                    values['mac'] = generate_mac_address(values)
-                  end
-                  configure_client(values)
+                  add_hosts_entry(values)
+                end
+                if values['mac'].to_s.match(/[0-9]|[a-f]|[A-F]/)
+                  values['service'] = ''
+                  add_dhcp_client(values)
                 end
               else
-                if values['vm'].to_s.match(/fusion|vbox|parallels/) && !values['action'].to_s.match(/add/)
-                  create_vm(values)
+                if values['model'] == values['empty']
+                  values['model'] = 'vmware'
+                  values['slice'] = '4192'
                 end
-                if values['vm'].to_s.match(/zone|lxc|gdom/)
-                  eval"[configure_#{values['vm']}(values)]"
-                end
-                if values['vm'].to_s.match(/cdom/)
-                  configure_cdom(values)
-                end
+                values['mode'] = 'server'
+                values = check_local_config(values)
+                values['mac'] = generate_mac_address(values) unless values['mac'].to_s.match(/[0-9]/)
+                configure_client(values)
               end
+            else
+              create_vm(values) if values['vm'].to_s.match(/fusion|vbox|parallels/) && !values['action'].to_s.match(/add/)
+              eval "[configure_#{values['vm']}(values)]" if values['vm'].to_s.match(/zone|lxc|gdom/)
+              configure_cdom(values) if values['vm'].to_s.match(/cdom/)
             end
           else
-            if values['vm'].to_s.match(/fusion|vbox|parallels/)
-              create_vm(values)
-            end
-            if values['vm'].to_s.match(/zone|lxc|gdom/)
-              eval"[configure_#{values['vm']}(values)]"
-            end
-            if values['vm'].to_s.match(/cdom/)
-              configure_cdom(values)
-            end
+            create_vm(values) if values['vm'].to_s.match(/fusion|vbox|parallels/)
+            eval "[configure_#{values['vm']}(values)]" if values['vm'].to_s.match(/zone|lxc|gdom/)
+            configure_cdom(values) if values['vm'].to_s.match(/cdom/)
             if values['vm'] == values['empty']
               if values['ip'].to_s.match(/[0-9]/)
-                values['mode'] = "client"
+                values['mode'] = 'client'
                 values = check_local_config(values)
                 add_hosts_entry(values)
               end
               if values['mac'].to_s.match(/[0-9]|[a-f]|[A-F]/)
-                values['service'] = ""
+                values['service'] = ''
                 add_dhcp_client(values)
               end
             end
           end
-        else
-          if values['mode'].to_s.match(/server/)
-            if values['method'].to_s.match(/ai/)
-              configure_ai_server(values)
-            else
-              warning_message(values, "No install method specified")
-            end
+        elsif values['mode'].to_s.match(/server/)
+          if values['method'].to_s.match(/ai/)
+            configure_ai_server(values)
           else
-            warning_message(values, "Client or service name not specified")
+            warning_message(values, 'No install method specified')
           end
+        else
+          warning_message(values, 'Client or service name not specified')
         end
       end
     when /^boot$|^stop$|^halt$|^shutdown$|^suspend$|^resume$|^start$|^destroy$/
-      values['mode']   = "client"
-      values['action'] = values['action'].gsub(/start/, "boot")
-      values['action'] = values['action'].gsub(/halt/, "stop")
-      values['action'] = values['action'].gsub(/shutdown/, "stop")
+      values['mode']   = 'client'
+      values['action'] = values['action'].gsub(/start/, 'boot')
+      values['action'] = values['action'].gsub(/halt/, 'stop')
+      values['action'] = values['action'].gsub(/shutdown/, 'stop')
       if values['vm'].to_s.match(/aws/)
         values = boot_aws_vm(values)
         return values
       end
       if values['name'] != values['empty'] && values['vm'] != values['empty'] && values['vm'] != values['empty']
-        eval"[#{values['action']}_#{values['vm']}_vm(values)]"
-      else
-        if values['name'] != values['empty'] && values['vm'] == values['empty']
-          values['vm'] = get_client_vm_type(values)
-          values = check_local_config(values)
-          if values['vm'].to_s.match(/vbox|fusion|parallels/)
-            values['sudo'] = false
-          end
-          if values['vm'] != values['empty']
-            control_vm(values)
-          end
-        else
-          if values['name'] != values['empty']
-            for vm_type in values['valid-vm']
-              values['vm'] = vm_type
-              exists = check_vm_exists(values)
-              if exists == "yes"
-                control_vm(values)
-              end
-            end
-          else
-            if values['name'] == values['empty']
-              warning_message(values, "Client name not specified")
-            end
-          end
+        eval "[#{values['action']}_#{values['vm']}_vm(values)]"
+      elsif values['name'] != values['empty'] && values['vm'] == values['empty']
+        values['vm'] = get_client_vm_type(values)
+        values = check_local_config(values)
+        values['sudo'] = false if values['vm'].to_s.match(/vbox|fusion|parallels/)
+        control_vm(values) if values['vm'] != values['empty']
+      elsif values['name'] != values['empty']
+        values['valid-vm'].each do |vm_type|
+          values['vm'] = vm_type
+          exists = check_vm_exists(values)
+          control_vm(values) if exists == 'yes'
         end
+      elsif values['name'] == values['empty']
+        warning_message(values, 'Client name not specified')
       end
     when /restart|reboot/
       if values['service'] != values['empty']
-        eval"[restart_#{values['service']}]"
+        eval "[restart_#{values['service']}]"
       else
-        if values['vm'] == values['empty'] && values['name'] != values['empty']
-          values['vm'] = get_client_vm_type(values)
-        end
+        values['vm'] = get_client_vm_type(values) if values['vm'] == values['empty'] && values['name'] != values['empty']
         if values['vm'].to_s.match(/aws/)
           values = reboot_aws_vm(values)
           return values
@@ -629,148 +517,116 @@ def handle_action(values)
             stop_vm(values)
             boot_vm(values)
           else
-            warning_message(values, "Client name not specified")
+            warning_message(values, 'Client name not specified')
+          end
+        elsif values['name'] != values['empty']
+          values['valid-vm'].each do |vm_type|
+            values['vm'] = vm_type
+            exists = check_vm_exists(values)
+            next unless exists == 'yes'
+
+            stop_vm(values)
+            boot_vm(values)
+            return values
           end
         else
-          if values['name'] != values['empty']
-            for vm_type in values['valid-vm']
-              values['vm'] = vm_type
-              exists = check_vm_exists(values)
-              if exists == "yes"
-                stop_vm(values)
-                boot_vm(values)
-                return values
-              end
-            end
-          else
-            warning_message(values, "Install service or VM type not specified")
-          end
+          warning_message(values, 'Install service or VM type not specified')
         end
       end
     when /import/
       if values['file'] == values['empty']
-        if values['type'].to_s.match(/packer/)
-          import_packer_vm(values)
-        end
-      else
-        if values['vm'].to_s.match(/fusion|vbox|kvm/)
-          if values['file'].to_s.match(/ova/)
-            if !values['vm'].to_s.match(/kvm/)
-              set_ovfbin
-            end
-            import_ova(values)
-          else
-            if values['file'].to_s.match(/vmdk/)
-              import_vmdk(values)
-            end
-          end
+        import_packer_vm(values) if values['type'].to_s.match(/packer/)
+      elsif values['vm'].to_s.match(/fusion|vbox|kvm/)
+        if values['file'].to_s.match(/ova/)
+          set_ovfbin unless values['vm'].to_s.match(/kvm/)
+          import_ova(values)
+        elsif values['file'].to_s.match(/vmdk/)
+          import_vmdk(values)
         end
       end
     when /export/
-      if values['vm'].to_s.match(/fusion|vbox/)
-        eval"[export_#{values['vm']}_ova(values)]"
-      end
-      if values['vm'].to_s.match(/aws/)
-        export_aws_image(values)
-      end
+      eval "[export_#{values['vm']}_ova(values)]" if values['vm'].to_s.match(/fusion|vbox/)
+      export_aws_image(values) if values['vm'].to_s.match(/aws/)
     when /clone|copy/
       if values['clone'] != values['empty'] && values['name'] != values['empty']
-        eval"[clone_#{values['vm']}_vm(values)]"
+        eval "[clone_#{values['vm']}_vm(values)]"
       else
-        warning_message(values, "Client name or clone name not specified")
+        warning_message(values, 'Client name or clone name not specified')
       end
     when /running|stopped|suspended|paused/
-      if values['vm'] != values['empty'] && values['vm'] != values['empty']
-        eval"[list_#{values['action']}_#{values['vm']}_vms]"
-      end
+      eval "[list_#{values['action']}_#{values['vm']}_vms]" if values['vm'] != values['empty'] && values['vm'] != values['empty']
     when /post/
-      eval"[execute_#{values['vm']}_post(values)]"
+      eval "[execute_#{values['vm']}_post(values)]"
     when /change|modify/
       if values['name'] != values['empty']
-        if values['memory'].to_s.match(/[0-9]/)
-          eval"[change_#{values['vm']}_vm_mem(values)]"
-        end
-        if values['mac'].to_s.match(/[0-9]|[a-f]|[A-F]/)
-          eval"[change_#{values['vm']}_vm_mac(values)]"
-        end
+        eval "[change_#{values['vm']}_vm_mem(values)]" if values['memory'].to_s.match(/[0-9]/)
+        eval "[change_#{values['vm']}_vm_mac(values)]" if values['mac'].to_s.match(/[0-9]|[a-f]|[A-F]/)
       else
-        warning_message(values, "Client name not specified")
+        warning_message(values, 'Client name not specified')
       end
     when /attach/
-      if values['vm'] != values['empty'] && values['vm'] != values['empty']
-        eval"[attach_file_to_#{values['vm']}_vm(values)]"
-      end
+      eval "[attach_file_to_#{values['vm']}_vm(values)]" if values['vm'] != values['empty'] && values['vm'] != values['empty']
     when /detach/
       if values['vm'] != values['empty'] && values['name'] != values['empty'] && values['vm'] != values['empty']
-        eval"[detach_file_from_#{values['vm']}_vm(values)]"
+        eval "[detach_file_from_#{values['vm']}_vm(values)]"
       else
-        warning_message(values, "Client name or virtualisation platform not specified")
+        warning_message(values, 'Client name or virtualisation platform not specified')
       end
     when /share/
-      if values['vm'] != values['empty'] && values['vm'] != values['empty']
-        eval"[add_shared_folder_to_#{values['vm']}_vm(values)]"
-      end
+      eval "[add_shared_folder_to_#{values['vm']}_vm(values)]" if values['vm'] != values['empty'] && values['vm'] != values['empty']
     when /^snapshot|clone/
       if values['vm'] != values['empty'] && values['vm'] != values['empty']
         if values['name'] != values['empty']
-          eval"[snapshot_#{values['vm']}_vm(values)]"
+          eval "[snapshot_#{values['vm']}_vm(values)]"
         else
-          warning_message(values, "Client name not specified")
+          warning_message(values, 'Client name not specified')
         end
       end
     when /migrate/
-      eval"[migrate_#{values['vm']}_vm(values)]"
+      eval "[migrate_#{values['vm']}_vm(values)]"
     when /deploy/
       if values['type'].to_s.match(/vcsa/)
         set_ovfbin
         values['file'] = handle_vcsa_ova(values)
         deploy_vcsa_vm(values)
       else
-        eval"[deploy_#{values['vm']}_vm(values)]"
+        eval "[deploy_#{values['vm']}_vm(values)]"
       end
     when /restore|revert/
       if values['vm'] != values['empty'] && values['vm'] != values['empty']
         if values['name'] != values['empty']
-          eval"[restore_#{values['vm']}_vm_snapshot(values)]"
+          eval "[restore_#{values['vm']}_vm_snapshot(values)]"
         else
-          warning_message(values, "Client name not specified")
+          warning_message(values, 'Client name not specified')
         end
       end
     when /set/
-      if values['vm'] != values['empty']
-        eval"[set_#{values['vm']}_value(values)]"
-      end
+      eval "[set_#{values['vm']}_value(values)]" if values['vm'] != values['empty']
     when /get/
-      if values['vm'] != values['empty']
-        eval"[get_#{values['vm']}_value(values)]"
-      end
+      eval "[get_#{values['vm']}_value(values)]" if values['vm'] != values['empty']
     when /console|serial|connect|ssh/
-      if values['vm'].to_s.match(/kvm/)
-        connect_to_kvm_vm(values)
-      end
+      connect_to_kvm_vm(values) if values['vm'].to_s.match(/kvm/)
       if values['vm'].to_s.match(/mp|multipass/)
-        connect_to_multipass_vm((values))
+        connect_to_multipass_vm(values)
         return values
       end
       if values['vm'].to_s.match(/aws/) || values['id'].to_s.match(/[0-9]/)
         connect_to_aws_vm(values)
         return values
       end
-      if values['type'].to_s.match(/docker/)
-        connect_to_docker_client(values)
-      end
+      connect_to_docker_client(values) if values['type'].to_s.match(/docker/)
       if values['vm'] != values['empty'] && values['vm'] != values['empty']
         if values['name'] != values['empty']
           connect_to_virtual_serial(values)
         else
-          warning_message(values, "Client name not specified")
+          warning_message(values, 'Client name not specified')
         end
       end
     else
       warning_message(values, "Action #{values['method']}")
     end
   end
-  return values
+  values
 end
 
 # Handle VM action
@@ -780,64 +636,53 @@ def handle_vm_action(values)
     if values['action'].to_s.match(/delete/) && values['service'] == values['empty']
       if values['vm'] == values['empty'] && values['type'] != values['empty']
         values['vm'] = get_client_vm_type_from_packer(values)
-      else
-        if values['type'] != values['empty'] && values['vm'] == values['empty']
-          if values['type'].to_s.match(/packer/)
-            if values['name'] != values['empty']
-              values['vm'] = get_client_vm_type_from_packer(values)
-            end
-          end
-        end
+      elsif values['type'] != values['empty'] && values['vm'] == values['empty']
+        values['vm'] = get_client_vm_type_from_packer(values) if values['type'].to_s.match(/packer/) && (values['name'] != values['empty'])
       end
     end
     if values['action'].to_s.match(/migrate|deploy/)
       if values['action'].to_s.match(/deploy/)
         if values['type'].to_s.match(/vcsa/)
-          values['vm'] = "fusion"
+          values['vm'] = 'fusion'
         else
-          values['type'] =get_install_type_from_file(values)
-          if values['type'].to_s.match(/vcsa/)
-            values['vm'] = "fusion"
-          end
+          values['type'] = get_install_type_from_file(values)
+          values['vm'] = 'fusion' if values['type'].to_s.match(/vcsa/)
         end
       end
-     if values['vm'] == values['empty']
-        information_message(values, "Virtualisation method not specified, setting virtualisation method to VMware")
-        values['vm'] = "vm"
+      if values['vm'] == values['empty']
+        information_message(values, 'Virtualisation method not specified, setting virtualisation method to VMware')
+        values['vm'] = 'vm'
       end
       if values['server'] == values['empty'] || values['ip'] == values['empty']
-        warning_message(values, "Remote server hostname or IP not specified")
+        warning_message(values, 'Remote server hostname or IP not specified')
         quit(values)
       end
     end
   end
-  return values
+  values
 end
 
 # Handle packer import action
 
 def handle_packer_import_action(values)
-  if values['action'].to_s.match(/import/)
-    if values['file'] == values['empty'] && values['service'] == values['empty'] && !values['type'].to_s.match(/packer/)
-      vm_types  = [ "fusion", "vbox" ]
-      exists    = []
-      vm_exists = ""
-      vm_type   = ""
-      vm_types.each do |vm_type|
-        exists = check_packer_vm_image_exists(values, vm_type)
-        if exists[0].to_s.match(/yes/)
-          values['type'] = "packer"
-          values['vm']   = vm_type
-          vm_exists      = "yes"
-        end
-      end
-      if !vm_exists.match(/yes/)
-        warning_message(values, "No install file, type or service specified")
-        quit(values)
-      end
+  if values['action'].to_s.match(/import/) && values['file'] == values['empty'] && values['service'] == values['empty'] && !values['type'].to_s.match(/packer/)
+    vm_types = %w[fusion vbox]
+    exists    = []
+    vm_exists = ''
+    vm_types.each do |vm_type|
+      exists = check_packer_vm_image_exists(values, vm_type)
+      next unless exists[0].to_s.match(/yes/)
+
+      values['type'] = 'packer'
+      values['vm']   = vm_type
+      vm_exists      = 'yes'
+    end
+    unless vm_exists.match(/yes/)
+      warning_message(values, 'No install file, type or service specified')
+      quit(values)
     end
   end
-  return values
+  values
 end
 
 # Handle list action
@@ -847,30 +692,24 @@ def handle_list_action(values)
     if values['file'] && !values['file'] == values['empty']
       describe_file(values)
       quit(values)
-    else
-      if values['vm'] == values['empty'] && values['service'] == values['empty'] && values['method'] == values['empty'] && values['type'] == values['empty'] && values['mode'] == values['empty']
-        warning_message(values, "No type or service specified")
-      end
+    elsif values['vm'] == values['empty'] && values['service'] == values['empty'] && values['method'] == values['empty'] && values['type'] == values['empty'] && values['mode'] == values['empty']
+      warning_message(values, 'No type or service specified')
     end
   end
-  return values
+  values
 end
 
 # Handle deploy action
 
 def handle_deploy_action(values)
   if values['action'].to_s.match(/deploy/)
-    if values['type'] == values['empty']
-      values['type'] = "esx"
-    end
+    values['type'] = 'esx' if values['type'] == values['empty']
     if values['type'].to_s.match(/esx|vcsa/)
-      if values['serverpassword'] == values['empty']
-        values['serverpassword'] = values['rootpassword']
-      end
+      values['serverpassword'] = values['rootpassword'] if values['serverpassword'] == values['empty']
       check_ovftool_exists(values)
       if values['type'].to_s.match(/vcsa/)
         if values['file'] == values['empty']
-          warning_message(values, "No deployment image file specified")
+          warning_message(values, 'No deployment image file specified')
           quit(values)
         end
         check_password(values)
@@ -878,5 +717,5 @@ def handle_deploy_action(values)
       end
     end
   end
-  return values
+  values
 end

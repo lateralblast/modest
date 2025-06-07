@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Common routines for Multipass
 
 # Check Multipass is installed
@@ -5,17 +7,13 @@
 def check_multipass_is_installed(values)
   case values['host-os-uname'].to_s
   when /Darwin/
-    if !File.exist?("/usr/local/bin/multipass")
-      install_brew_pkg(values, "multipass")
-    end
+    install_brew_pkg(values, 'multipass') unless File.exist?('/usr/local/bin/multipass')
   when /Linux/
-    if !File.exist?("/snap/bin/multipass")
-      install_snap_pkg(values, "multipass")
-    end
+    install_snap_pkg(values, 'multipass') unless File.exist?('/snap/bin/multipass')
   end
   if_name = get_vm_if_name(values)
   check_multipass_hostonly_network(values, if_name)
-  return
+  nil
 end
 
 # Connect Multipass VM
@@ -30,16 +28,14 @@ def connect_to_multipass_vm(values)
   else
     warning_message(values, "Multipass VM #{values['name']} does not exist")
   end
-  return
+  nil
 end
 
 # Check Multipass NATd
 
-def check_multipass_natd(values, vm_if_name)
-  if values['vmnetwork'].to_s.match(/hostonly/)
-    check_multipass_hostonly_network(values, if_name)
-  end
-  return values
+def check_multipass_natd(values, _vm_if_name)
+  check_multipass_hostonly_network(values, if_name) if values['vmnetwork'].to_s.match(/hostonly/)
+  values
 end
 
 # Check Multipass hostonly network
@@ -47,61 +43,49 @@ end
 def check_multipass_hostonly_network(values, if_name)
   gw_if_name = get_gw_if_name(values)
   check_nat(values, gw_if_name, if_name)
-  return
+  nil
 end
 
 # Multipass post install
 
 def multipass_post_install(values)
   exists = check_multipass_vm_exists(values)
-  if values['nobuild'] == false
-    if exists == false
-      return values
-    end
-  end
+  return values if (values['nobuild'] == false) && (exists == false)
+
   install_locale = values['answers']['locale'].value
-  if install_locale.match(/\./)
-    install_locale = install_locale.split(".")[0]
-  end
-  if values['livecd'] == true
-    install_target  = "/target"
-  else
-    install_target  = ""
-  end
-  install_nameserver = values['answers']['nameserver'].value
-  install_base_url   = "http://"+values['hostip']+"/"+values['name']
-  install_layout  = install_locale.split("_")[0]
-  install_variant = install_locale.split("_")[1].downcase
+  install_locale = install_locale.split('.')[0] if install_locale.match(/\./)
+  install_target = if values['livecd'] == true
+                     '/target'
+                   else
+                     ''
+                   end
+  values['answers']['nameserver'].value
+  values['hostip']
+  values['name']
+  install_locale.split('_')[0]
+  install_locale.split('_')[1].downcase
   install_gateway = values['answers']['gateway'].value
-  admin_shell   = values['answers']['admin_shell'].value
-  admin_sudo    = values['answers']['admin_sudo'].value
-  disable_dhcp  = values['answers']['disable_dhcp'].value
-  install_name  = values['answers']['hostname'].value
-  resolved_conf = "/etc/systemd/resolved.conf"
-  admin_user    = values['answers']['admin_username'].value
-  admin_group   = values['answers']['admin_username'].value
-  admin_home    = "/home/"+values['answers']['admin_username'].value
-  admin_crypt   = values['answers']['admin_crypt'].value
-  install_nic   = values['answers']['interface'].value
-  if disable_dhcp.match(/true/)
-    install_ip  = values['answers']['ip'].value
-  end
-  install_cidr  = values['answers']['cidr'].value
-  install_disk  = values['answers']['partition_disk'].value
-  #netplan_file  = "#{install_target}/etc/netplan/01-netcfg.yaml"
-  netplan_file  = "#{install_target}/etc/netplan/50-cloud-init.yaml"
-  locale_file   = "#{install_target}/etc/default/locales"
-  grub_file = "#{install_target}/etc/default/grub"
-  ssh_dir   = "#{install_target}/home/#{admin_user}/.ssh"
-  auth_file = "#{ssh_dir}/authorized_keys"
-  sudo_file = "#{install_target}/etc/sudoers.d/#{admin_user}"
+  values['answers']['admin_shell'].value
+  values['answers']['admin_sudo'].value
+  disable_dhcp = values['answers']['disable_dhcp'].value
+  values['answers']['hostname'].value
+  values['answers']['admin_username'].value
+  values['answers']['admin_username'].value
+  values['answers']['admin_username'].value
+  values['answers']['admin_crypt'].value
+  install_nic = values['answers']['interface'].value
+  install_ip = values['answers']['ip'].value if disable_dhcp.match(/true/)
+  install_cidr = values['answers']['cidr'].value
+  values['answers']['partition_disk'].value
+  # netplan_file  = "#{install_target}/etc/netplan/01-netcfg.yaml"
+  netplan_file = "#{install_target}/etc/netplan/50-cloud-init.yaml"
   host_name = values['name'].to_s
   exec_data = []
   if values['dnsmasq'] == true && values['vm'].to_s.match(/mp|multipass/)
-    exec_data.push("/usr/bin/systemctl disable systemd-resolved")
-    exec_data.push("/usr/bin/systemctl stop systemd-resolved")
-    exec_data.push("rm /etc/resolv.conf")
-    if values['answers']['nameserver'].value.to_s.match(/\,/)
+    exec_data.push('/usr/bin/systemctl disable systemd-resolved')
+    exec_data.push('/usr/bin/systemctl stop systemd-resolved')
+    exec_data.push('rm /etc/resolv.conf')
+    if values['answers']['nameserver'].value.to_s.match(/,/)
       nameservers = values['answers']['nameserver'].value.to_s.split("\,")
       nameservers.each do |nameserver|
         exec_data.push("echo 'nameserver #{nameserver}' >> /etc/resolv.conf")
@@ -124,16 +108,16 @@ def multipass_post_install(values)
     nameservers = values['answers']['nameserver'].value
     exec_data.push("echo '      nameservers:' >> #{netplan_file}")
     exec_data.push("echo '        addresses: [#{nameservers}]' >> #{netplan_file}")
-  end 
-  exec_data.each do |shell_command| 
+  end
+  exec_data.each do |shell_command|
     exec_command = "multipass exec #{host_name} -- sudo sh -c \"#{shell_command}\""
     if values['nobuild'] == true
       verbose_message(values, exec_command)
     else
-      %x[#{exec_command}]
+      `#{exec_command}`
     end
   end
-  return values
+  values
 end
 
 # List Multipass instances
@@ -143,36 +127,35 @@ def list_multipass_vms(values)
     get_multipass_vm_info(values)
     return
   end
-  if values['search'] != values['empty'] or values['search'].to_s.match(/all/)
+  if (values['search'] != values['empty']) || values['search'].to_s.match(/all/)
     search_string = values['search'].to_s
     command = "multipass list |grep #{search_string} |grep -v ^Name"
   else
-    command = "multipass list |grep -v ^Name"
+    command = 'multipass list |grep -v ^Name'
   end
   message = "Informtion:\tGetting list of local Multipass instances"
   output  = execute_command(values, message, command)
-  vm_list = output.split("\n")
+  output.split("\n")
   verbose_message(values, "Image:\t\t\tState:\t\t  IPv4:\t\t   Image")
   vm_list = output.split("\n")
   vm_list.each do |line|
     verbose_message(values, line)
   end
-  return
+  nil
 end
 
 # List available instances
 
 def get_multipass_iso_list(values)
-  if values['search'] != values['empty'] or values['search'].to_s.match(/all/)
+  if (values['search'] != values['empty']) || values['search'].to_s.match(/all/)
     search_string = values['search'].to_s
     command = "multipass find |grep #{search_string} |grep -v ^Image"
   else
-    command = "multipass find |grep -v ^Image"
+    command = 'multipass find |grep -v ^Image'
   end
   message  = "Informtion:\tGetting list of remote Multipass instances"
   output   = execute_command(values, message, command)
-  iso_list = output.split("\n")
-  return iso_list
+  output.split("\n")
 end
 
 # Get service name from release name
@@ -184,13 +167,11 @@ def get_multipass_service_from_release(values)
     message = "Information:\tDetermining service name"
     command = "multipass find |grep '^#{release}'"
     output  = execute_command(values, message, command)
-    output  = output.chomp.gsub(/ LTS/, "")
-  else
-    if release.match(/^[0-9]/)
-      values['service'] = "ubuntu_"+release.gsub(/\./, "_")+"_"+machine
-    end
+    output.chomp.gsub(/ LTS/, '')
+  elsif release.match(/^[0-9]/)
+    values['service'] = "ubuntu_#{release.gsub(/\./, '_')}_#{machine}"
   end
-  return values
+  values
 end
 
 # Check if Multipass instance exists
@@ -198,32 +179,30 @@ end
 def check_multipass_vm_exists(values)
   exists = false
   if values['name'] == values['empty']
-    warning_message(values, "No client name specified")
+    warning_message(values, 'No client name specified')
     quit(values)
   end
   vm_name = values['name'].to_s
   message = "Information:\tChecking if VM #{vm_name} exists"
   command = "multipass list |grep #{vm_name}"
   output  = execute_command(values, message, command)
-  if output.match(/#{vm_name}/)
-    exists = true
-  end
-  return exists
+  exists = true if output.match(/#{vm_name}/)
+  exists
 end
 
 # Execute command in Multipass VM
 
 def execute_multipass_command(values)
-  command = values['command'].to_s 
-	exists  = check_multipass_vm_exists(values)
-	if exists == true
+  command = values['command'].to_s
+  exists = check_multipass_vm_exists(values)
+  if exists == true
     command = "multipass exec #{values['name']} -- bash -c \"#{command}\""
-		output  = %x[#{command}]
-		verbose_message(values, output)
-	else
-		information_message(values, "Multipass instance #{values['name']} does not exist")
-	end
-  return
+    output = `#{command}`
+    verbose_message(values, output)
+  else
+    information_message(values, "Multipass instance #{values['name']} does not exist")
+  end
+  nil
 end
 
 # Create Multipass VM
@@ -239,15 +218,15 @@ def configure_multipass_vm(values)
     message = "Information:\tCreating Multipass VM #{vm_name}"
     if values['method'].to_s.match(/ci/)
       if values['file'] != values['empty']
-        command = "cat #{values['file'].to_s} |multipass launch --name #{vm_name} --cloud-init -"
+        command = "cat #{values['file']} |multipass launch --name #{vm_name} --cloud-init -"
       else
         values = configure_ps_client(values)
         values = get_multipass_service_from_release(values)
-        values['file'] = values['clientdir'].to_s+"/user-data"
+        values['file'] = "#{values['clientdir']}/user-data"
         no_cpus = values['vcpu'].to_s
         vm_size = values['size'].to_s
         memory  = values['memory'].to_s
-        command = "cat #{values['file'].to_s} |multipass launch --cpus #{no_cpus} --disk #{vm_size} --mem #{memory} --name #{vm_name} --cloud-init -"
+        command = "cat #{values['file']} |multipass launch --cpus #{no_cpus} --disk #{vm_size} --mem #{memory} --name #{vm_name} --cloud-init -"
       end
     else
       no_cpus = values['vcpu'].to_s
@@ -255,18 +234,16 @@ def configure_multipass_vm(values)
       memory  = values['memory'].to_s
       command = "multipass launch --cpus #{no_cpus} --disk #{vm_size} --mem #{memory} --name #{vm_name}"
     end
-    if not values['release'] == values['empty']
-      command = command+" "+values['release'].to_s
-    end
+    command = "#{command} #{values['release']}" unless values['release'] == values['empty']
     if values['nobuild'] == false
       execute_command(values, message, command)
     else
-      verbose_message(values, "Build Command:")
+      verbose_message(values, 'Build Command:')
       verbose_message(values, command)
     end
   end
-  values = multipass_post_install(values)
-  return
+  multipass_post_install(values)
+  nil
 end
 
 # Get Multipass VM info
@@ -283,22 +260,20 @@ def get_multipass_vm_info(values)
     lines   = output.split("\n")
     lines.each do |line|
       if values['search'] != values['empty']
-        if line.downcase.match(/#{values['search'].to_s.downcase}/)
-          verbose_message(values, line)
-        end
+        verbose_message(values, line) if line.downcase.match(/#{values['search'].to_s.downcase}/)
       else
         verbose_message(values, line)
       end
     end
   end
-  return
+  nil
 end
 
 # Delete Multipass VM
 
 def delete_multipass_vm(values)
   unconfigure_multipass_vm(values)
-  return
+  nil
 end
 
 def unconfigure_multipass_vm(values)
@@ -311,7 +286,7 @@ def unconfigure_multipass_vm(values)
   else
     warning_message(values, "Multipass VM #{vm_name} does not exist")
   end
-  return
+  nil
 end
 
 # Start Multipass instance
@@ -326,7 +301,7 @@ def boot_multipass_vm(values)
   else
     verbose_message("Warning:\tMultipass VM #{vm_name} does not exist")
   end
-  return
+  nil
 end
 
 # Stop Multipass instance
@@ -341,5 +316,5 @@ def stop_multipass_vm(values)
   else
     verbose_message("Warning:\tMultipass VM #{vm_name} does not exist")
   end
-  return
+  nil
 end

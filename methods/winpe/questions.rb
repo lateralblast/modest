@@ -1,214 +1,215 @@
+# frozen_string_literal: true
+
 # Preseed configuration questions for Windows
 
 def populate_pe_questions(values)
-
   qs = Struct.new(:type, :question, :ask, :parameter, :value, :valid, :eval)
 
   values['ip'] = single_install_ip(values)
-  if values['label'].to_s.match(/20[1,2][0-9]/)
-    if values['vm'].to_s.match(/fusion/)
-      network_name = "Ethernet0"
-    else
-      network_name = "Ethernet"
-    end
-  else
-    network_name = "Local Area Connection"
-  end
+  network_name = if values['label'].to_s.match(/20[1,2][0-9]/)
+                   if values['vm'].to_s.match(/fusion/)
+                     'Ethernet0'
+                   else
+                     'Ethernet'
+                   end
+                 else
+                   'Local Area Connection'
+                 end
 
   # values['answers'] = {}
   # values['order']  = []
 
-  name   = "headless_mode"
+  name   = 'headless_mode'
   config = qs.new(
-    type      = "",
-    question  = "Headless mode",
-    ask       = "yes",
-    parameter = "",
-    value     = values['headless'].to_s.downcase,
-    valid     = "",
-    eval      = "no"
+    '',
+    'Headless mode',
+    'yes',
+    '',
+    values['headless'].to_s.downcase,
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
   name   = "values['label']"
   config = qs.new(
-    type      = "string",
-    question  = "Installation Label",
-    ask       = "yes",
-    parameter = "",
-    value     = values['label'],
-    valid     = "",
-    eval      = "no"
+    'string',
+    'Installation Label',
+    'yes',
+    '',
+    values['label'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "cpu_arch"
+  name   = 'cpu_arch'
   config = qs.new(
-    type      = "string",
-    question  = "CPU Architecture",
-    ask       = "yes",
-    parameter = "",
-    value     = values['arch'].gsub(/x86_64/,"amd64"),
-    valid     = "",
-    eval      = "no"
+    'string',
+    'CPU Architecture',
+    'yes',
+    '',
+    values['arch'].gsub(/x86_64/, 'amd64'),
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "boot_disk_size"
+  name   = 'boot_disk_size'
   config = qs.new(
-    type      = "string",
-    question  = "Boot disk size",
-    ask       = "yes",
-    parameter = "",
-    value     = values['size'].gsub(/G/,""),
-    valid     = "",
-    eval      = "no"
+    'string',
+    'Boot disk size',
+    'yes',
+    '',
+    values['size'].gsub(/G/, ''),
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "language"
+  name   = 'language'
   config = qs.new(
-    type      = "string",
-    question  = "Language",
-    ask       = "yes",
-    parameter = "",
-    value     = values['locale'].gsub(/_/,"-"),
-    valid     = "",
-    eval      = "no"
+    'string',
+    'Language',
+    'yes',
+    '',
+    values['locale'].gsub(/_/, '-'),
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "locale"
+  name   = 'locale'
   config = qs.new(
-    type      = "string",
-    question  = "Locale",
-    ask       = "yes",
-    parameter = "",
-    value     = values['locale'].gsub(/_/,"-"),
-    valid     = "",
-    eval      = "no"
+    'string',
+    'Locale',
+    'yes',
+    '',
+    values['locale'].gsub(/_/, '-'),
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "organisation"
+  name   = 'organisation'
   config = qs.new(
-    type      = "string",
-    question  = "Organisation",
-    ask       = "yes",
-    parameter = "",
-    value     = values['organisation'],
-    valid     = "",
-    eval      = "no"
+    'string',
+    'Organisation',
+    'yes',
+    '',
+    values['organisation'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "timezone"
+  name   = 'timezone'
   config = qs.new(
-    type      = "string",
-    question  = "Time Zone",
-    ask       = "yes",
-    parameter = "",
-    value     = values['timezone'],
-    valid     = "",
-    eval      = "no"
+    'string',
+    'Time Zone',
+    'yes',
+    '',
+    values['timezone'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "admin_username"
+  name   = 'admin_username'
   config = qs.new(
-    type      = "string",
-    question  = "Admin Username",
-    ask       = "yes",
-    parameter = "",
-    value     = values['adminuser'],
-    valid     = "",
-    eval      = "no"
+    'string',
+    'Admin Username',
+    'yes',
+    '',
+    values['adminuser'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "admin_fullname"
+  name   = 'admin_fullname'
   config = qs.new(
-    type      = "string",
-    question  = "Admin Fullname",
-    ask       = "yes",
-    parameter = "",
-    value     = values['adminname'],
-    valid     = "",
-    eval      = "no"
+    'string',
+    'Admin Fullname',
+    'yes',
+    '',
+    values['adminname'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "admin_password"
+  name   = 'admin_password'
   config = qs.new(
-    type      = "string",
-    question  = "Admin Password",
-    ask       = "yes",
-    parameter = "",
-    value     = values['adminpassword'],
-    valid     = "",
-    eval      = "no"
+    'string',
+    'Admin Password',
+    'yes',
+    '',
+    values['adminpassword'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "license_key"
+  name   = 'license_key'
   config = qs.new(
-    type      = "string",
-    question  = "License Key",
-    ask       = "yes",
-    parameter = "",
-    value     = values['license'],
-    valid     = "",
-    eval      = "no"
+    'string',
+    'License Key',
+    'yes',
+    '',
+    values['license'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "search_domain"
+  name   = 'search_domain'
   config = qs.new(
-    type      = "string",
-    question  = "Search Domain",
-    ask       = "yes",
-    parameter = "",
-    value     = values['domainname'],
-    valid     = "",
-    eval      = "no"
+    'string',
+    'Search Domain',
+    'yes',
+    '',
+    values['domainname'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "install_shell"
+  name   = 'install_shell'
   config = qs.new(
-    type      = "string",
-    question  = "Install Shell",
-    ask       = "yes",
-    parameter = "",
-    value     = values['winshell'],
-    valid     = "",
-    eval      = "no"
+    'string',
+    'Install Shell',
+    'yes',
+    '',
+    values['winshell'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "network_type"
+  name   = 'network_type'
   config = qs.new(
-    type      = "string",
-    question  = "Network Type",
-    ask       = "yes",
-    parameter = "",
-    value     = values['vmnetwork'],
-    valid     = "",
-    eval      = "no"
+    'string',
+    'Network Type',
+    'yes',
+    '',
+    values['vmnetwork'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
@@ -217,71 +218,71 @@ def populate_pe_questions(values)
 
   if values['vmnetwork'].to_s.match(/hostonly|bridged/)
 
-    name   = "network_name"
+    name   = 'network_name'
     config = qs.new(
-      type      = "string",
-      question  = "Network Name",
-      ask       = "yes",
-      parameter = "",
-      value     = network_name,
-      valid     = "",
-      eval      = "no"
+      'string',
+      'Network Name',
+      'yes',
+      '',
+      network_name,
+      '',
+      'no'
     )
     values['answers'][name] = config
     values['order'].push(name)
 
-    name   = "ip_address"
+    name   = 'ip_address'
     config = qs.new(
-      type      = "string",
-      question  = "IP Address",
-      ask       = "yes",
-      parameter = "",
-      value     = values['ip'],
-      valid     = "",
-      eval      = "no"
+      'string',
+      'IP Address',
+      'yes',
+      '',
+      values['ip'],
+      '',
+      'no'
     )
     values['answers'][name] = config
     values['order'].push(name)
 
-    name   = "gateway_address"
+    name   = 'gateway_address'
     config = qs.new(
-      type      = "string",
-      question  = "Gateway Address",
-      ask       = "yes",
-      parameter = "",
-      value     = values['vmgateway'],
-      valid     = "",
-      eval      = "no"
+      'string',
+      'Gateway Address',
+      'yes',
+      '',
+      values['vmgateway'],
+      '',
+      'no'
     )
     values['answers'][name] = config
     values['order'].push(name)
 
-    name   = "network_cidr"
+    name   = 'network_cidr'
     config = qs.new(
-      type      = "string",
-      question  = "Network CIDR",
-      ask       = "yes",
-      parameter = "",
-      value     = values['cidr'],
-      valid     = "",
-      eval      = "no"
+      'string',
+      'Network CIDR',
+      'yes',
+      '',
+      values['cidr'],
+      '',
+      'no'
     )
     values['answers'][name] = config
     values['order'].push(name)
 
-    name   = "nameserver_ip"
+    name   = 'nameserver_ip'
     config = qs.new(
-      type      = "string",
-      question  = "Nameserver IP Address",
-      ask       = "yes",
-      parameter = "",
-      value     = values['nameserver'],
-      valid     = "",
-      eval      = "no"
+      'string',
+      'Nameserver IP Address',
+      'yes',
+      '',
+      values['nameserver'],
+      '',
+      'no'
     )
     values['answers'][name] = config
     values['order'].push(name)
 
   end
-  return
+  nil
 end

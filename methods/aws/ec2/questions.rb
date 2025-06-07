@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Questions for AWS EC2 creation
 
 # Populate AWS questions
@@ -8,138 +10,135 @@ def populate_aws_questions(values, user_data_file)
 
   if values['type'].to_s.match(/packer|ansible/)
 
-    name   = "name"
+    name   = 'name'
     config = Ks.new(
-      type      = "",
-      question  = "AMI Name",
-      ask       = "no",
-      parameter = "",
-      value     = "aws",
-      valid     = "",
-      eval      = "no"
-    )
-    values['answers'][name] = config
-    values['order'].push(name)
-  
-    name   = "access_key"
-    config = Ks.new(
-      type      = "",
-      question  = "Access Key",
-      ask       = "yes",
-      parameter = "",
-      value     = values['access'],
-      valid     = "",
-      eval      = "no"
+      '',
+      'AMI Name',
+      'no',
+      '',
+      'aws',
+      '',
+      'no'
     )
     values['answers'][name] = config
     values['order'].push(name)
 
+    name   = 'access_key'
+    config = Ks.new(
+      '',
+      'Access Key',
+      'yes',
+      '',
+      values['access'],
+      '',
+      'no'
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
+
+    name = 'secret_key'
     if values['unmasked'] == true
 
-      name   = "secret_key"
       config = Ks.new(
-        type      = "",
-        question  = "Secret Key",
-        ask       = "yes",
-        parameter = "",
-        value     = values['secret'],
-        valid     = "",
-        eval      = "no"
+        '',
+        'Secret Key',
+        'yes',
+        '',
+        values['secret'],
+        '',
+        'no'
       )
       values['answers'][name] = config
       values['order'].push(name)
 
-      name   = "keyfile"
+      name   = 'keyfile'
       config = Ks.new(
-        type      = "",
-        question  = "AWS Key file",
-        ask       = "yes",
-        parameter = "",
-        value     = values['keyfile'],
-        valid     = "",
-        eval      = "no"
+        '',
+        'AWS Key file',
+        'yes',
+        '',
+        values['keyfile'],
+        '',
+        'no'
       )
-      values['answers'][name] = config
-      values['order'].push(name)
 
     else
 
-      name   = "secret_key"
       config = Ks.new(
-        type      = "",
-        question  = "Secret Key",
-        ask       = "no",
-        parameter = "",
-        value     = values['secret'],
-        valid     = "",
-        eval      = "no"
+        '',
+        'Secret Key',
+        'no',
+        '',
+        values['secret'],
+        '',
+        'no'
       )
       values['answers'][name] = config
       values['order'].push(name)
 
-      name   = "keyfile"
+      name   = 'keyfile'
       config = Ks.new(
-        type      = "",
-        question  = "AWS Key file",
-        ask       = "no",
-        parameter = "",
-        value     = values['keyfile'],
-        valid     = "",
-        eval      = "no"
+        '',
+        'AWS Key file',
+        'no',
+        '',
+        values['keyfile'],
+        '',
+        'no'
       )
-      values['answers'][name] = config
-      values['order'].push(name)
 
     end
+    values['answers'][name] = config
+    values['order'].push(name)
 
-    name   = "type"
+    name   = 'type'
     config = Ks.new(
-      type      = "",
-      question  = "AWS Type",
-      ask       = "yes",
-      parameter = "",
-      value     = values['type'],
-      valid     = "",
-      eval      = "no"
+      '',
+      'AWS Type',
+      'yes',
+      '',
+      values['type'],
+      '',
+      'no'
     )
     values['answers'][name] = config
     values['order'].push(name)
 
-    name   = "region"
+    name   = 'region'
     config = Ks.new(
-      type      = "",
-      question  = "Region",
-      ask       = "yes",
-      parameter = "",
-      value     = values['region'],
-      valid     = "",
-      eval      = "no"
-    )
-    values['answers'][name] = config
-    values['order'].push(name) 
-
-    name   = "ssh_username"
-    config = Ks.new(
-      type      = "",
-      question  = "SSH Username",
-      ask       = "yes",
-      parameter = "",
-      value     = values['adminuser'],
-      valid     = "",
-      eval      = "no"
+      '',
+      'Region',
+      'yes',
+      '',
+      values['region'],
+      '',
+      'no'
     )
     values['answers'][name] = config
     values['order'].push(name)
 
-    name   = "ami_name"
+    name   = 'ssh_username'
     config = Ks.new(
-      type      = "",
-      question  = "AMI Name",
-      ask       = "yes",
-      parameter = "",
-      value     = values['name'],
-      valid     = "",
-      eval      = "no"
+      '',
+      'SSH Username',
+      'yes',
+      '',
+      values['adminuser'],
+      '',
+      'no'
+    )
+    values['answers'][name] = config
+    values['order'].push(name)
+
+    name   = 'ami_name'
+    config = Ks.new(
+      '',
+      'AMI Name',
+      'yes',
+      '',
+      values['name'],
+      '',
+      'no'
     )
     values['answers'][name] = config
     values['order'].push(name)
@@ -148,140 +147,137 @@ def populate_aws_questions(values, user_data_file)
 
   if values['type'].to_s.match(/packer/)
 
-    name   = "user_data_file"
+    name   = 'user_data_file'
     config = Ks.new(
-      type      = "",
-      question  = "User Data File",
-      ask       = "yes",
-      parameter = "",
-      value     = user_data_file,
-      valid     = "",
-      eval      = "no"
+      '',
+      'User Data File',
+      'yes',
+      '',
+      user_data_file,
+      '',
+      'no'
+    )
+
+  else
+
+    name   = 'min_count'
+    config = Ks.new(
+      '',
+      'Minimum Instances',
+      'yes',
+      '',
+      values['number'].split(/,/)[0],
+      '',
+      'no'
     )
     values['answers'][name] = config
     values['order'].push(name)
-    
-  else
 
-    name   = "min_count"
+    name   = 'max_count'
     config = Ks.new(
-      type      = "",
-      question  = "Minimum Instances",
-      ask       = "yes",
-      parameter = "",
-      value     = values['number'].split(/,/)[0],
-      valid     = "",
-      eval      = "no"
+      '',
+      'Maximum Instances',
+      'yes',
+      '',
+      values['number'].split(/,/)[1],
+      '',
+      'no'
     )
     values['answers'][name] = config
-    values['order'].push(name)  
+    values['order'].push(name)
 
-    name   = "max_count"
+    name   = 'key_name'
     config = Ks.new(
-      type      = "",
-      question  = "Maximum Instances",
-      ask       = "yes",
-      parameter = "",
-      value     = values['number'].split(/,/)[1],
-      valid     = "",
-      eval      = "no"
+      '',
+      'Key Name',
+      'yes',
+      '',
+      values['key'],
+      '',
+      'no'
     )
     values['answers'][name] = config
-    values['order'].push(name)  
+    values['order'].push(name)
 
-    name   = "key_name"
+    name   = 'security_group'
     config = Ks.new(
-      type      = "",
-      question  = "Key Name",
-      ask       = "yes",
-      parameter = "",
-      value     = values['key'],
-      valid     = "",
-      eval      = "no"
+      '',
+      'Security Groups',
+      'yes',
+      '',
+      values['group'],
+      '',
+      'no'
     )
     values['answers'][name] = config
-    values['order'].push(name)  
+    values['order'].push(name)
 
-    name   = "security_group"
+    name   = 'dry_run'
     config = Ks.new(
-      type      = "",
-      question  = "Security Groups",
-      ask       = "yes",
-      parameter = "",
-      value     = values['group'],
-      valid     = "",
-      eval      = "no"
+      '',
+      'Dry run',
+      'yes',
+      '',
+      values['dryrun'],
+      '',
+      'no'
     )
-    values['answers'][name] = config
-    values['order'].push(name) 
-
-    name   = "dry_run"
-    config = Ks.new(
-      type      = "",
-      question  = "Dry run",
-      ask       = "yes",
-      parameter = "",
-      value     = values['dryrun'],
-      valid     = "",
-      eval      = "no"
-    )
-    values['answers'][name] = config
-    values['order'].push(name)  
 
   end
+  values['answers'][name] = config
+  values['order'].push(name)
 
-  name   = "source_ami"
+  name   = 'source_ami'
   config = Ks.new(
-    type      = "",
-    question  = "Source AMI",
-    ask       = "yes",
-    parameter = "",
-    value     = values['ami'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'Source AMI',
+    'yes',
+    '',
+    values['ami'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "instance_type"
+  name   = 'instance_type'
   config = Ks.new(
-    type      = "",
-    question  = "Instance Type",
-    ask       = "yes",
-    parameter = "",
-    value     = values['size'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'Instance Type',
+    'yes',
+    '',
+    values['size'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "open_ports"
+  name   = 'open_ports'
   config = Ks.new(
-    type      = "",
-    question  = "Open ports",
-    ask       = "yes",
-    parameter = "",
-    value     = values['ports'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'Open ports',
+    'yes',
+    '',
+    values['ports'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "default_cidr"
+  name   = 'default_cidr'
   config = Ks.new(
-    type      = "",
-    question  = "Default CIDR",
-    ask       = "yes",
-    parameter = "",
-    value     = values['cidr'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'Default CIDR',
+    'yes',
+    '',
+    values['cidr'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  return
+  nil
 end
-

@@ -6,3 +6,5 @@
 # Added parseconfig gem to webserver
 # 0.0.4: Mon 22 Aug 2016 11:11:29 AEST
 # More fixes and webserver plumbing
+# 0.0.5: Sat  7 Jun 2025 15:48:10 AEST
+# Code cleanup based on rubocop

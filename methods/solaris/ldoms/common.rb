@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Solaris LDoms support code
 
 def list_ldoms(values)
@@ -11,14 +13,11 @@ def list_ldoms(values)
   else
     list_all_ldoms(values)
   end
-  return
+  nil
 end
 
 def list_all_ldoms(values)
   list_cdoms(values)
   list_gdoms(values)
-  return
+  nil
 end
-
-
-  

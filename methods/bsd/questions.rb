@@ -1,264 +1,264 @@
+# frozen_string_literal: true
+
 # Questions for *BSD and other (e.g. CoreOS)
 
 # Populate CoreOS questions
 
 def populate_coreos_questions(values)
-
   # values['answers'] = {}
   # values['order']  = []
 
   values['ip'] = single_install_ip(values)
 
-  name   = "hostname"
+  name   = 'hostname'
   config = Ks.new(
-    type      = "",
-    question  = "Hostname",
-    ask       = "yes",
-    parameter = "",
-    value     = values['name'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'Hostname',
+    'yes',
+    '',
+    values['name'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "nic"
+  name   = 'nic'
   config = Ks.new(
-    type      = "",
-    question  = "Primary Network Interface",
-    ask       = "yes",
-    parameter = "",
-    value     = values['vmnet'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'Primary Network Interface',
+    'yes',
+    '',
+    values['vmnet'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "ip"
+  name   = 'ip'
   config = Ks.new(
-    type      = "",
-    question  = "IP",
-    ask       = "yes",
-    parameter = "",
-    value     = values['ip'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'IP',
+    'yes',
+    '',
+    values['ip'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "netmask"
+  name   = 'netmask'
   config = Ks.new(
-    type      = "",
-    question  = "Netmask",
-    ask       = "yes",
-    parameter = "",
-    value     = values['netmask'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'Netmask',
+    'yes',
+    '',
+    values['netmask'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "nameserver"
+  name   = 'nameserver'
   config = Ks.new(
-    type      = "",
-    question  = "Nameserver(s)",
-    ask       = "yes",
-    parameter = "",
-    value     = values['nameserver'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'Nameserver(s)',
+    'yes',
+    '',
+    values['nameserver'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  gateway = values['ip'].split(/\./)[0..2].join(".")+"."+values['gatewaynode']
+  gateway = "#{values['ip'].split(/\./)[0..2].join('.')}.#{values['gatewaynode']}"
 
-  name   = "gateway"
+  name   = 'gateway'
   config = Ks.new(
-    type      = "",
-    question  = "Gateway",
-    ask       = "yes",
-    parameter = "",
-    value     = gateway,
-    valid     = "",
-    eval      = "no"
+    '',
+    'Gateway',
+    'yes',
+    '',
+    gateway,
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  broadcast = values['ip'].split(/\./)[0..2].join(".")+".255"
+  broadcast = "#{values['ip'].split(/\./)[0..2].join('.')}.255"
 
-  name   = "broadcast"
+  name   = 'broadcast'
   config = Ks.new(
-    type      = "",
-    question  = "Broadcast",
-    ask       = "yes",
-    parameter = "",
-    value     = broadcast,
-    valid     = "",
-    eval      = "no"
+    '',
+    'Broadcast',
+    'yes',
+    '',
+    broadcast,
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  network_address = values['ip'].split(/\./)[0..2].join(".")+".0"
+  network_address = "#{values['ip'].split(/\./)[0..2].join('.')}.0"
 
-  name   = "network_address"
+  name   = 'network_address'
   config = Ks.new(
-    type      = "",
-    question  = "Network Address",
-    ask       = "yes",
-    parameter = "",
-    value     = network_address,
-    valid     = "",
-    eval      = "no"
+    '',
+    'Network Address',
+    'yes',
+    '',
+    network_address,
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "root_password"
+  name   = 'root_password'
   config = Ks.new(
-    type      = "",
-    question  = "Root Password",
-    ask       = "yes",
-    parameter = "",
-    value     = values['rootpassword'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'Root Password',
+    'yes',
+    '',
+    values['rootpassword'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "root_crypt"
+  name   = 'root_crypt'
   config = Ks.new(
-    type      = "",
-    question  = "Root Password Crypt",
-    ask       = "yes",
-    parameter = "",
-    value     = "get_root_password_crypt(values)",
-    valid     = "",
-    eval      = "no"
+    '',
+    'Root Password Crypt',
+    'yes',
+    '',
+    'get_root_password_crypt(values)',
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "rootpw"
+  name   = 'rootpw'
   config = Ks.new(
-    type      = "output",
-    question  = "Root Password Configuration",
-    ask       = "yes",
-    parameter = "rootpw",
-    value     = "get_ks_root_password(values)",
-    valid     = "",
-    eval      = "get_ks_root_password(values)"
+    'output',
+    'Root Password Configuration',
+    'yes',
+    'rootpw',
+    'get_ks_root_password(values)',
+    '',
+    'get_ks_root_password(values)'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "admin_user"
+  name   = 'admin_user'
   config = Ks.new(
-    type      = "",
-    question  = "Admin Username",
-    ask       = "yes",
-    parameter = "",
-    value     = values['adminuser'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'Admin Username',
+    'yes',
+    '',
+    values['adminuser'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "admin_uid"
+  name   = 'admin_uid'
   config = Ks.new(
-    type      = "",
-    question  = "Admin User ID",
-    ask       = "yes",
-    parameter = "",
-    value     = values['adminuid'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'Admin User ID',
+    'yes',
+    '',
+    values['adminuid'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "admin_shell"
+  name   = 'admin_shell'
   config = Ks.new(
-    type      = "",
-    question  = "Admin User Shell",
-    parameter = "",
-    value     = values['adminshell'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'Admin User Shell',
+    '',
+    values['adminshell'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "admin_home"
+  name   = 'admin_home'
   config = Ks.new(
-    type      = "",
-    question  = "Admin User Home Directory",
-    ask       = "yes",
-    parameter = "",
-    value     = "/home/"+values['adminuser'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'Admin User Home Directory',
+    'yes',
+    '',
+    "/home/#{values['adminuser']}",
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "admin_group"
+  name   = 'admin_group'
   config = Ks.new(
-    type      = "",
-    question  = "Admin User Group",
-    ask       = "yes",
-    parameter = "",
-    value     = values['admingroup'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'Admin User Group',
+    'yes',
+    '',
+    values['admingroup'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "admin_gid"
+  name   = 'admin_gid'
   config = Ks.new(
-    type      = "",
-    question  = "Admin Group ID",
-    ask       = "yes",
-    parameter = "",
-    value     = values['admingid'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'Admin Group ID',
+    'yes',
+    '',
+    values['admingid'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "admin_password"
+  name   = 'admin_password'
   config = Ks.new(
-    type      = "",
-    question  = "Admin User Password",
-    ask       = "yes",
-    parameter = "",
-    value     = values['adminpassword'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'Admin User Password',
+    'yes',
+    '',
+    values['adminpassword'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name = "admin_crypt"
+  name = 'admin_crypt'
   config = Ks.new(
-    type      = "",
-    question  = "Admin User Password Crypt",
-    ask       = "yes",
-    parameter = "",
-    value     = "get_admin_password_crypt(values)",
-    valid     = "",
-    eval      = "no"
+    '',
+    'Admin User Password Crypt',
+    'yes',
+    '',
+    'get_admin_password_crypt(values)',
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
-
 end

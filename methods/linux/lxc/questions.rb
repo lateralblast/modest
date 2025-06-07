@@ -1,215 +1,217 @@
+# frozen_string_literal: true
+
 # LXC quextions
 
 def populate_lxc_client_questions(values)
   lx = Struct.new(:question, :ask, :value, :valid, :eval)
 
-  name   = "root_password"
+  name   = 'root_password'
   config = lx.new(
-    question  = "Root password",
-    ask       = "yes",
-    value     = values['rootpassword'],
-    valid     = "",
-    eval      = "no"
+    'Root password',
+    'yes',
+    values['rootpassword'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "root_crypt"
+  name   = 'root_crypt'
   config = lx.new(
-    question  = "Root Password Crypt",
-    ask       = "yes",
-    value     = "get_root_password_crypt(values)",
-    valid     = "",
-    eval      = "get_root_password_crypt(values)"
+    'Root Password Crypt',
+    'yes',
+    'get_root_password_crypt(values)',
+    '',
+    'get_root_password_crypt(values)'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "admin_fullname"
+  name   = 'admin_fullname'
   config = lx.new(
-    question  = "User full name",
-    ask       = "yes",
-    value     = values['adminname'],
-    valid     = "",
-    eval      = "no"
+    'User full name',
+    'yes',
+    values['adminname'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "admin_username"
+  name   = 'admin_username'
   config = lx.new(
-    question  = "Username",
-    ask       = "yes",
-    value     = values['adminuser'],
-    valid     = "",
-    eval      = "no"
+    'Username',
+    'yes',
+    values['adminuser'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "admin_uid"
+  name   = 'admin_uid'
   config = lx.new(
-    question  = "User UID",
-    ask       = "yes",
-    value     = values['adminuid'],
-    valid     = "",
-    eval      = "no"
+    'User UID',
+    'yes',
+    values['adminuid'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "admin_group"
+  name   = 'admin_group'
   config = lx.new(
-    question  = "User Group",
-    ask       = "yes",
-    value     = values['admingroup'],
-    valid     = "",
-    eval      = "no"
+    'User Group',
+    'yes',
+    values['admingroup'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "admin_gid"
+  name   = 'admin_gid'
   config = lx.new(
-    question  = "User GID",
-    ask       = "yes",
-    value     = values['admingid'],
-    valid     = "",
-    eval      = "no"
+    'User GID',
+    'yes',
+    values['admingid'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "admin_home"
+  name   = 'admin_home'
   config = lx.new(
-    question  = "User Home Directory",
-    ask       = "yes",
-    value     = values['adminhome'],
-    valid     = "",
-    eval      = "no"
+    'User Home Directory',
+    'yes',
+    values['adminhome'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "admin_shell"
+  name   = 'admin_shell'
   config = lx.new(
-    question  = "User Shell",
-    ask       = "yes",
-    value     = values['adminshell'],
-    valid     = "",
-    eval      = "no"
+    'User Shell',
+    'yes',
+    values['adminshell'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "admin_password"
+  name   = 'admin_password'
   config = lx.new(
-    question  = "User password",
-    ask       = "yes",
-    value     = values['adminpassword'],
-    valid     = "",
-    eval      = "no"
+    'User password',
+    'yes',
+    values['adminpassword'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "admin_crypt"
+  name   = 'admin_crypt'
   config = lx.new(
-    question  = "User Password Crypt",
-    ask       = "yes",
-    value     = "get_admin_password_crypt(values)",
-    valid     = "",
-    eval      = "get_admin_password_crypt(values)"
+    'User Password Crypt',
+    'yes',
+    'get_admin_password_crypt(values)',
+    '',
+    'get_admin_password_crypt(values)'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "sudoers"
+  name   = 'sudoers'
   config = qs.new(
-    type      = "",
-    question  = "Admin sudoers",
-    ask       = "yes",
-    parameter = "",
-    value     = values['sudoers'],
-    valid     = "",
-    eval      = "no"
-    )
-  values['answers'][name] = config
-  values['order'].push(name)
-
-  name   = "nameserver"
-  config = lx.new(
-    question  = "Nameservers",
-    ask       = "yes",
-    value     = values['nameserver'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'Admin sudoers',
+    'yes',
+    '',
+    values['sudoers'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "ip"
+  name   = 'nameserver'
   config = lx.new(
-    question  = "IP address",
-    ask       = "yes",
-    value     = values['ip'],
-    valid     = "",
-    eval      = "no"
+    'Nameservers',
+    'yes',
+    values['nameserver'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "netmask"
+  name   = 'ip'
   config = lx.new(
-    question  = "Netmask",
-    ask       = "yes",
-    value     = values['netmask'],
-    valid     = "",
-    eval      = "no"
+    'IP address',
+    'yes',
+    values['ip'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  gateway = values['ip'].split(/\./)[0..2].join(".")+"."+values['gatewaynode']
-
-  name   = "gateway"
+  name   = 'netmask'
   config = lx.new(
-    question  = "Gateway",
-    ask       = "yes",
-    value     = gateway,
-    valid     = "",
-    eval      = "no"
+    'Netmask',
+    'yes',
+    values['netmask'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  broadcast = values['ip'].split(/\./)[0..2].join(".")+".255"
+  gateway = "#{values['ip'].split(/\./)[0..2].join('.')}.#{values['gatewaynode']}"
 
-  name   = "broadcast"
+  name   = 'gateway'
   config = lx.new(
-    question  = "Broadcast",
-    ask       = "yes",
-    value     = broadcast,
-    valid     = "",
-    eval      = "no"
+    'Gateway',
+    'yes',
+    gateway,
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  network_address = values['ip'].split(/\./)[0..2].join(".")+".0"
+  broadcast = "#{values['ip'].split(/\./)[0..2].join('.')}.255"
 
-  name   = "network_address"
+  name   = 'broadcast'
   config = lx.new(
-    question  = "Network Address",
-    ask       = "yes",
-    value     = network_address,
-    valid     = "",
-    eval      = "no"
+    'Broadcast',
+    'yes',
+    broadcast,
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  return values
+  network_address = "#{values['ip'].split(/\./)[0..2].join('.')}.0"
+
+  name   = 'network_address'
+  config = lx.new(
+    'Network Address',
+    'yes',
+    network_address,
+    '',
+    'no'
+  )
+  values['answers'][name] = config
+  values['order'].push(name)
+
+  values
 end
 
 # LXC server populate_lxc_client_questions
@@ -217,77 +219,77 @@ end
 def populate_lxc_server_questions(values)
   lx = Struct.new(:question, :ask, :value, :valid, :eval)
 
-  name   = "nameserver"
+  name   = 'nameserver'
   config = lx.new(
-    question  = "Nameservers",
-    ask       = "yes",
-    value     = values['nameserver'],
-    valid     = "",
-    eval      = "no"
+    'Nameservers',
+    'yes',
+    values['nameserver'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "ip"
+  name   = 'ip'
   config = lx.new(
-    question  = "IP address",
-    ask       = "yes",
-    value     = values['hostip'],
-    valid     = "",
-    eval      = "no"
+    'IP address',
+    'yes',
+    values['hostip'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "netmask"
+  name   = 'netmask'
   config = lx.new(
-    question  = "Netmask",
-    ask       = "yes",
-    value     = values['netmask'],
-    valid     = "",
-    eval      = "no"
+    'Netmask',
+    'yes',
+    values['netmask'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  gateway = values['hostip'].split(/\./)[0..2].join(".")+"."+values['gatewaynode']
+  gateway = "#{values['hostip'].split(/\./)[0..2].join('.')}.#{values['gatewaynode']}"
 
-  name   = "gateway"
+  name   = 'gateway'
   config = lx.new(
-    question  = "Gateway",
-    ask       = "yes",
-    value     = gateway,
-    valid     = "",
-    eval      = "no"
+    'Gateway',
+    'yes',
+    gateway,
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  broadcast = values['hostip'].split(/\./)[0..2].join(".")+".255"
+  broadcast = "#{values['hostip'].split(/\./)[0..2].join('.')}.255"
 
-  name   = "broadcast"
+  name   = 'broadcast'
   config = lx.new(
-    question  = "Broadcast",
-    ask       = "yes",
-    value     = broadcast,
-    valid     = "",
-    eval      = "no"
+    'Broadcast',
+    'yes',
+    broadcast,
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  network_address = values['hostip'].split(/\./)[0..2].join(".")+".0"
+  network_address = "#{values['hostip'].split(/\./)[0..2].join('.')}.0"
 
-  name   = "network_address"
+  name   = 'network_address'
   config = lx.new(
-    question  = "Network Address",
-    ask       = "yes",
-    value     = network_address,
-    valid     = "",
-    eval      = "no"
+    'Network Address',
+    'yes',
+    network_address,
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  return values
+  values
 end

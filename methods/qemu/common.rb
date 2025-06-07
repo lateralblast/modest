@@ -1,29 +1,30 @@
+# frozen_string_literal: true
+
 # QEMU support code
 
 # Check QEMU VM exists
 
 def check_qemu_vm_exists(values)
-  message   = "Information:\tChecking VM "+values['name']+" exists"
-  command   = "virsh list --all"
+  message   = "Information:\tChecking VM #{values['name']} exists"
+  command   = 'virsh list --all'
   host_list = execute_command(values, message, command)
-  if not host_list.match(/#{values['name']}/)
+  if !host_list.match(/#{values['name']}/)
     information_message(values, "KVM VM #{values['name']} does not exist")
     exists = false
   else
     exists = true
   end
-  return exists
+  exists
 end
 
 # Get QEMY guest OS
 
 def get_qemu_guest_os(values)
   if values['method'].to_s.match(/win/)
-    guest_os = "windows"
+    'windows'
   else
-    guest_os = "linux"
+    'linux'
   end
-  return guest_os
 end
 
 # Check KVM VM exists
@@ -41,24 +42,23 @@ end
 # Get KVM guest OS
 
 def get_kvm_guest_os(values)
-  guest_os = get_qemu_guest_os(values)
-  return guest_os
+  get_qemu_guest_os(values)
 end
 
 # Get XEN guest OS
 
-def get_xen_guest_os(values)
-  return
+def get_xen_guest_os(_values)
+  nil
 end
 
 # Check QEMU is installed
 
-def check_qemu_is_installed(values)
-  return
+def check_qemu_is_installed(_values)
+  nil
 end
 
 # List QEMU VMs
 
-def list_qemu_vms(values)
-  return
+def list_qemu_vms(_values)
+  nil
 end

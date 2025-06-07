@@ -1,320 +1,318 @@
+# frozen_string_literal: true
 
 # Questions for cloud-init
 
 # Populate ci questions
 
 def populate_ci_questions(values)
-
   qs = Struct.new(:type, :question, :ask, :parameter, :value, :valid, :eval)
 
   values['ip'] = single_install_ip(values)
 
-  name   = "hostname"
+  name   = 'hostname'
   config = qs.new(
-    type      = "",
-    question  = "Hostname",
-    ask       = "yes",
-    parameter = "",
-    value     = values['hostname'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'Hostname',
+    'yes',
+    '',
+    values['hostname'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "groups"
+  name   = 'groups'
   config = qs.new(
-    type      = "",
-    question  = "Admin Group",
-    ask       = "yes",
-    parameter = "",
-    value     = values['admingroup'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'Admin Group',
+    'yes',
+    '',
+    values['admingroup'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "adminuser"
+  name   = 'adminuser'
   config = qs.new(
-    type      = "",
-    question  = "Admin User",
-    ask       = "yes",
-    parameter = "",
-    value     = values['adminuser'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'Admin User',
+    'yes',
+    '',
+    values['adminuser'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "shell"
+  name   = 'shell'
   config = qs.new(
-    type      = "",
-    question  = "Admin Shell",
-    ask       = "yes",
-    parameter = "",
-    value     = values['adminshell'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'Admin Shell',
+    'yes',
+    '',
+    values['adminshell'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "password"
+  name   = 'password'
   config = qs.new(
-    type      = "",
-    question  = "Admin Password",
-    ask       = "yes",
-    parameter = "",
-    value     = values['adminpassword'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'Admin Password',
+    'yes',
+    '',
+    values['adminpassword'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  if values['admincrypt'] == values['empty']
-    values['admincrypt']  = get_password_crypt(values['adminpassword'])
-  end
+  values['admincrypt'] = get_password_crypt(values['adminpassword']) if values['admincrypt'] == values['empty']
 
-  name   = "passwd"
+  name   = 'passwd'
   config = qs.new(
-    type      = "",
-    question  = "Admin Password Crypt",
-    ask       = "yes",
-    parameter = "",
-    value     = values['admincrypt'],
-    valid     = "",
-    eval      = "get_password_crypt(values['adminpassword'])"
+    '',
+    'Admin Password Crypt',
+    'yes',
+    '',
+    values['admincrypt'],
+    '',
+    "get_password_crypt(values['adminpassword'])"
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "ssh-authorized-keys"
+  name   = 'ssh-authorized-keys'
   config = qs.new(
-    type      = "",
-    question  = "Admin SSH key",
-    ask       = "yes",
-    parameter = "",
-    value     = values['sshkey'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'Admin SSH key',
+    'yes',
+    '',
+    values['sshkey'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "sudoers"
+  name   = 'sudoers'
   config = qs.new(
-    type      = "",
-    question  = "Admin sudoers",
-    ask       = "yes",
-    parameter = "",
-    value     = values['sudoers'],
-    valid     = "",
-    eval      = "no"
-    )
+    '',
+    'Admin sudoers',
+    'yes',
+    '',
+    values['sudoers'],
+    '',
+    'no'
+  )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "lock_passwd"
+  name   = 'lock_passwd'
   config = qs.new(
-    type      = "",
-    question  = "Lock Password",
-    ask       = "yes",
-    parameter = "",
-    value     = values['lockpassword'].to_s,
-    valid     = "",
-    eval      = "no"
+    '',
+    'Lock Password',
+    'yes',
+    '',
+    values['lockpassword'].to_s,
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
   if values['growpart'] == true
 
-    name   = "growpartdevice"
+    name   = 'growpartdevice'
     config = qs.new(
-      type      = "",
-      question  = "Grow partition on device",
-      ask       = "yes",
-      parameter = "",
-      value     = values['growpartdevice'],
-      valid     = "",
-      eval      = "no"
+      '',
+      'Grow partition on device',
+      'yes',
+      '',
+      values['growpartdevice'],
+      '',
+      'no'
     )
     values['answers'][name] = config
     values['order'].push(name)
 
-    name   = "growpartmode"
+    name   = 'growpartmode'
     config = qs.new(
-      type      = "",
-      question  = "Grow partition mode",
-      ask       = "yes",
-      parameter = "",
-      value     = values['growpartmode'],
-      valid     = "",
-      eval      = "no"
+      '',
+      'Grow partition mode',
+      'yes',
+      '',
+      values['growpartmode'],
+      '',
+      'no'
     )
     values['answers'][name] = config
     values['order'].push(name)
 
   end
 
-  name   = "powerstate"
+  name   = 'powerstate'
   config = qs.new(
-    type      = "",
-    question  = "Power state",
-    ask       = "yes",
-    parameter = "",
-    value     = values['powerstate'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'Power state',
+    'yes',
+    '',
+    values['powerstate'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "vmnic"
+  name   = 'vmnic'
   config = qs.new(
-    type      = "",
-    question  = "Ethernet",
-    ask       = "yes",
-    parameter = "",
-    value     = values['vmnic'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'Ethernet',
+    'yes',
+    '',
+    values['vmnic'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "dhcp"
+  name   = 'dhcp'
   config = qs.new(
-    type      = "",
-    question  = "DHCP",
-    ask       = "yes",
-    parameter = "",
-    value     = values['dhcp'].to_s,
-    valid     = "",
-    eval      = "no"
+    '',
+    'DHCP',
+    'yes',
+    '',
+    values['dhcp'].to_s,
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "ip"
+  name   = 'ip'
   config = qs.new(
-    type      = "",
-    question  = "IP Address",
-    ask       = "yes",
-    parameter = "",
-    value     = values['ip'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'IP Address',
+    'yes',
+    '',
+    values['ip'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "cidr"
+  name   = 'cidr'
   config = qs.new(
-    type      = "",
-    question  = "CIDR",
-    ask       = "yes",
-    parameter = "",
-    value     = values['cidr'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'CIDR',
+    'yes',
+    '',
+    values['cidr'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "nameserver"
+  name   = 'nameserver'
   config = qs.new(
-    type      = "",
-    question  = "Nameserver",
-    ask       = "yes",
-    parameter = "",
-    value     = values['nameserver'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'Nameserver',
+    'yes',
+    '',
+    values['nameserver'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "vmgateway"
+  name   = 'vmgateway'
   config = qs.new(
-    type      = "",
-    question  = "Gatewayr",
-    ask       = "yes",
-    parameter = "",
-    value     = values['vmgateway'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'Gatewayr',
+    'yes',
+    '',
+    values['vmgateway'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "graphics"
+  name   = 'graphics'
   config = qs.new(
-    type      = "",
-    question  = "Graphics mode",
-    ask       = "yes",
-    parameter = "",
-    value     = values['headless'].to_s,
-    valid     = "",
-    eval      = "no"
+    '',
+    'Graphics mode',
+    'yes',
+    '',
+    values['headless'].to_s,
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "memory"
+  name   = 'memory'
   config = qs.new(
-    type      = "",
-    question  = "Memory",
-    ask       = "yes",
-    parameter = "",
-    value     = values['memory'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'Memory',
+    'yes',
+    '',
+    values['memory'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "vcpu"
+  name   = 'vcpu'
   config = qs.new(
-    type      = "output",
-    question  = "Number of vCPUs",
-    ask       = "yes",
-    parameter = "",
-    value     = values['vcpu'],
-    valid     = "",
-    eval      = "no"
+    'output',
+    'Number of vCPUs',
+    'yes',
+    '',
+    values['vcpu'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "cpu"
+  name   = 'cpu'
   config = qs.new(
-    type      = "",
-    question  = "CPU family",
-    ask       = "yes",
-    parameter = "",
-    value     = values['cputype'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'CPU family',
+    'yes',
+    '',
+    values['cputype'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "diskformat"
+  name   = 'diskformat'
   config = qs.new(
-    type      = "",
-    question  = "Disk format",
-    ask       = "yes",
-    parameter = "",
-    value     = values['diskformat'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'Disk format',
+    'yes',
+    '',
+    values['diskformat'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  return values
+  values
 end

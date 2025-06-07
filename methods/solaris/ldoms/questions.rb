@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # LDom related questions
 
 # Control domain questions
@@ -7,119 +9,119 @@ def populate_cdom_questions(values)
 
   if values['host-os-unamea'].match(/T5[0-9]|T3/)
 
-    name   = "cdom_mau"
+    name   = 'cdom_mau'
     config = ld.new(
-      question  = "Control Domain Cryptographic Units",
-      ask       = "yes",
-      value     = values['mau'],
-      valid     = "",
-      eval      = "no"
+      'Control Domain Cryptographic Units',
+      'yes',
+      values['mau'],
+      '',
+      'no'
     )
     values['answers'][name] = config
     values['order'].push(name)
 
   end
 
-  name   = "cdom_vcpu"
+  name   = 'cdom_vcpu'
   config = ld.new(
-    question  = "Control Domain Virtual CPUs",
-    ask       = "yes",
-    value     = values['vcpus'],
-    valid     = "",
-    eval      = "no"
+    'Control Domain Virtual CPUs',
+    'yes',
+    values['vcpus'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "cdom_memory"
+  name   = 'cdom_memory'
   config = ld.new(
-    question  = "Control Domain Memory",
-    ask       = "yes",
-    value     = values['vcpus'],
-    valid     = "",
-    eval      = "no"
+    'Control Domain Memory',
+    'yes',
+    values['vcpus'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "cdom_name"
+  name   = 'cdom_name'
   config = ld.new(
-    question  = "Control Domain Configuration Name",
-    ask       = "yes",
-    value     = values['name'],
-    valid     = "",
-    eval      = "no"
+    'Control Domain Configuration Name',
+    'yes',
+    values['name'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  return values
+  values
 end
 
 # Guest domain questions
 
 def populate_gdom_questions(values)
-  gdom_dir    = $ldom_base_dir+"/"+values['name']
-  client_disk = gdom_dir+"/vdisk0"
+  gdom_dir    = "#{$ldom_base_dir}/#{values['name']}"
+  client_disk = "#{gdom_dir}/vdisk0"
 
   if values['host-os-unamea'].match(/T5[0-9]|T3/)
 
-    name   = "gdom_mau"
+    name   = 'gdom_mau'
     config = ld.new(
-      question  = "Domain Cryptographic Units",
-      ask       = "yes",
-      value     = values['mau'],
-      valid     = "",
-      eval      = "no"
+      'Domain Cryptographic Units',
+      'yes',
+      values['mau'],
+      '',
+      'no'
     )
     values['answers'][name] = config
     values['order'].push(name)
 
   end
 
-  name   = "gdom_vcpu"
+  name   = 'gdom_vcpu'
   config = ld.new(
-    question  = "Guest Domain Virtual CPUs",
-    ask       = "yes",
-    value     = values['vcpus'],
-    valid     = "",
-    eval      = "no"
+    'Guest Domain Virtual CPUs',
+    'yes',
+    values['vcpus'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "gdom_memory"
+  name   = 'gdom_memory'
   config = ld.new(
-    question  = "Guest Domain Memory",
-    ask       = "yes",
-    value     = values['memory'],
-    valid     = "",
-    eval      = "no"
+    'Guest Domain Memory',
+    'yes',
+    values['memory'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "gdom_disk"
+  name   = 'gdom_disk'
   config = ld.new(
-    question  = "Guest Domain Disk",
-    ask       = "yes",
-    value     = client_disk,
-    valid     = "",
-    eval      = "no"
+    'Guest Domain Disk',
+    'yes',
+    client_disk,
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "gdom_size"
+  name   = 'gdom_size'
   config = ld.new(
-    question  = "Guest Domain Disk Size",
-    ask       = "yes",
-    value     = values['size'],
-    valid     = "",
-    eval      = "no"
+    'Guest Domain Disk Size',
+    'yes',
+    values['size'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  return values
+  values
 end

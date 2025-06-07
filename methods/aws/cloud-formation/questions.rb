@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # AWS CloudFormation questions
 
 # Populate AWS CF questions
@@ -6,83 +8,83 @@ def populate_aws_cf_questions(values)
   # values['answers'] = {}
   # values['order']  = []
 
-  name   = "stack_name"
+  name   = 'stack_name'
   config = Ks.new(
-    type      = "",
-    question  = "Stack Name",
-    ask       = "yes",
-    parameter = "",
-    value     = values['name'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'Stack Name',
+    'yes',
+    '',
+    values['name'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "instance_type"
+  name   = 'instance_type'
   config = Ks.new(
-    type      = "",
-    question  = "Instance Type",
-    ask       = "yes",
-    parameter = "",
-    value     = values['size'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'Instance Type',
+    'yes',
+    '',
+    values['size'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "key_name"
+  name   = 'key_name'
   config = Ks.new(
-    type      = "",
-    question  = "Key Name",
-    ask       = "yes",
-    parameter = "",
-    value     = values['key'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'Key Name',
+    'yes',
+    '',
+    values['key'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "ssh_location"
+  name   = 'ssh_location'
   config = Ks.new(
-    type      = "",
-    question  = "SSH Location",
-    ask       = "yes",
-    parameter = "",
-    value     = values['cidr'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'SSH Location',
+    'yes',
+    '',
+    values['cidr'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "template_url"
+  name   = 'template_url'
   config = Ks.new(
-    type      = "",
-    question  = "Template Location",
-    ask       = "yes",
-    parameter = "",
-    value     = values['file'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'Template Location',
+    'yes',
+    '',
+    values['file'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  name   = "security_groups"
+  name   = 'security_groups'
   config = Ks.new(
-    type      = "",
-    question  = "Security Groups",
-    ask       = "yes",
-    parameter = "",
-    value     = values['group'],
-    valid     = "",
-    eval      = "no"
+    '',
+    'Security Groups',
+    'yes',
+    '',
+    values['group'],
+    '',
+    'no'
   )
   values['answers'][name] = config
   values['order'].push(name)
 
-  return
+  nil
 end

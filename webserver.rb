@@ -1,7 +1,8 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 # Name:         mode (Multi OS Deployment Engine) webserver
-# Version:      0.0.4
+# Version:      0.0.5
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -22,83 +23,79 @@ require 'date'
 
 def install_gem(gem_name)
   puts "Information:\tInstalling #{gem_name}"
-  %x[gem install #{gem_name}]
+  `gem install #{gem_name}`
   Gem.clear_paths
-  return
+  nil
 end
 
 begin
   require 'sinatra'
 rescue LoadError
-  install_gem("sinatra")
+  install_gem('sinatra')
 end
 begin
   require 'sinatra/formkeeper'
 rescue LoadError
-  install_gem("sinatra-formkeeper")
+  install_gem('sinatra-formkeeper')
 end
 begin
   require 'fileutils'
 rescue LoadError
-  install_gem("fileutils")
+  install_gem('fileutils')
 end
 begin
   require 'hex_string'
 rescue LoadError
-  install_gem("hex_string")
+  install_gem('hex_string')
 end
 begin
   require 'unpack'
 rescue LoadError
-  install_gem("unpack")
+  install_gem('unpack')
 end
 begin
   require 'enumerate'
 rescue LoadError
-  install_gem("enumerate")
+  install_gem('enumerate')
 end
 begin
   require 'iconv'
 rescue LoadError
-  install_gem("iconv")
+  install_gem('iconv')
 end
 begin
   require 'bcrypt'
 rescue LoadError
-  install_gem("bcrypt")
+  install_gem('bcrypt')
 end
 begin
   require 'fileutils'
 rescue LoadError
-  install_gem("fileutils")
+  install_gem('fileutils')
 end
 begin
   require 'parseconfig'
 rescue LoadError
-  install_gem("parseconfig")
+  install_gem('parseconfig')
 end
 
 # Some webserver defaults
 
-default_bind       = "127.0.0.1"
+default_bind       = '127.0.0.1'
 default_exceptions = false
-default_port       = "9495"
-default_sessions   = "true"
-default_errors     = "false"
+default_port       = '9495'
+default_sessions   = 'true'
+default_errors     = 'false'
 enable_ssl         = true
 enable_auth        = false
-enable_upload      = false
-$ssl_dir           = Dir.pwd+"/ssl"
-ssl_certificate    = $ssl_dir+"/cert.crt"
-ssl_key            = $ssl_dir+"/pkey.pem"
-$ssl_password      = "123456"
-$htpasswd_file     = Dir.pwd+"/views/.htpasswd"
+ssl_dir            = "#{Dir.pwd}/ssl"
+ssl_certificate    = "#{ssl_dir}/cert.crt"
+ssl_key            = "#{ssl_dir}/pkey.pem"
+Dir.pwd
 
 # Only allow uploads if we has authentication
 
-if not enable_auth == true
-  enable_upload = false
-end
+false unless enable_auth == true
 
 set :port,            default_port
 set :bind,            default_bind
@@ -108,12 +105,10 @@ set :show_exceptions, default_exceptions
 
 # Load methods
 
-if Dir.exist?("./methods")
-  file_list = Dir.entries("./methods")
-  for file in file_list
-    if file =~ /rb$/
-      require "./methods/#{file}"
-    end
+if Dir.exist?('./methods')
+  file_list = Dir.entries('./methods')
+  file_list.each do |file|
+    require "./methods/#{file}" if file =~ /rb$/
   end
 end
 
@@ -122,13 +117,11 @@ end
 if enable_ssl == true
   require 'webrick/ssl'
   require 'webrick/https'
-  if not File.directory?($ssl_dir)
-    puts "Information: Creating "+$ssl_dir
-    Dir.mkdir($ssl_dir)
+  unless File.directory?(ssl_dir)
+    puts "Information: Creating #{ssl_dir}"
+    Dir.mkdir(ssl_dir)
   end
-  if not File.exist?(ssl_certificate) or not File.exist?(ssl_key)
-    %x[openssl req -x509 -nodes -days 365 -newkey rsa:1024 -keyout #{ssl_key} -out #{ssl_certificate}]
-  end
+  `openssl req -x509 -nodes -days 365 -newkey rsa:1024 -keyout #{ssl_key} -out #{ssl_certificate}` if !File.exist?(ssl_certificate) || !File.exist?(ssl_key)
   set :ssl_certificate, ssl_certificate
   set :ssl_key, ssl_key
   module Sinatra
@@ -136,17 +129,17 @@ if enable_ssl == true
       def self.run!
         certificate_content = File.open(ssl_certificate).read
         key_content = File.open(ssl_key).read
-  
+
         server_values = {
-          :Host => bind,
-          :Port => port,
-          :SSLEnable => true,
-          :SSLCertificate => OpenSSL::X509::Certificate.new(certificate_content),
-          :SSLPrivateKey => OpenSSL::PKey::RSA.new(key_content,$ssl_password)
+          Host: bind,
+          Port: port,
+          SSLEnable: true,
+          SSLCertificate: OpenSSL::X509::Certificate.new(certificate_content),
+          SSLPrivateKey: OpenSSL::PKey::RSA.new(key_content, ssl_password)
         }
-  
+
         Rack::Handler::WEBrick.run self, server_values do |server|
-          [:INT, :TERM].each { |sig| trap(sig) { server.stop } }
+          %i[INT TERM].each { |sig| trap(sig) { server.stop } }
           server.threaded = settings.threaded if server.respond_to? :threaded=
           set :running, true
         end
@@ -160,25 +153,25 @@ end
 if enable_auth == true
   module Sinatra
     class Application
-    
       helpers do
         def protect!
-          unless authorized?
-            response['WWW-Authenticate'] = %(Basic realm="Restricted Area")
-            throw(:halt, [401, "Not authorized\n'])
-          end
+          return if authorized?
+
+          response['WWW-Authenticate'] = %(Basic realm="Restricted Area")
+          throw(:halt, [401, 'Not authorized\n'])
         end
-  
+
         def authorized?
-          @auth ||=  Rack::Auth::Basic::Request.new(request.env)
-          passwd = File.open($htpasswd_file).read.split("\n").map {|credential| credential.split(':')}
-          if @auth.provided? && @auth.basic? && @auth.credentials
-            user, pass = @auth.credentials
-            auth = passwd.assoc(user)
-            crypt = BCrypt::Password.create(auth[1])
-            return false unless auth
-            [user, crypt] == auth
-          end
+          @auth ||= Rack::Auth::Basic::Request.new(request.env)
+          passwd = File.open(htpasswd_file).read.split("\n").map { |credential| credential.split(':') }
+          return unless @auth.provided? && @auth.basic? && @auth.credentials
+
+          user, = @auth.credentials
+          auth = passwd.assoc(user)
+          crypt = BCrypt::Password.create(auth[1])
+          return false unless auth
+
+          auth == [user, crypt]
         end
       end
     end
@@ -189,294 +182,230 @@ end
 # Set defaults
 # Unlike the reporting script, these currently don't get auto detected
 
-set_global_vars()
+set_global_vars
 
 before do
-  set_global_vars()
-  check_local_config("client")
-  values['verbose']  = 0
-  values['output'] = "html"
-  values['stdout']   = []
+  set_global_vars
+  check_local_config('client')
+  values['verbose'] = 0
+  values['output']  = 'html'
+  values['stdout']  = []
 end
 
 # handle error - redirect to help
 
 error do
-  head  = []
-  body  = []
-  head  = File.readlines("./views/layout.html")
-  body  = File.readlines("./views/help.html")
+  head  = File.readlines('./views/layout.html')
+  body  = File.readlines('./views/help.html')
   array = head + body
   array = array.join("\n")
-  "#{array}"
+  array.to_s
 end
 
 # handle 404
 
 not_found do
-  head  = []
-  body  = []
-  head  = File.readlines("./views/layout.html")
-  body  = File.readlines("./views/help.html")
+  head  = File.readlines('./views/layout.html')
+  body  = File.readlines('./views/help.html')
   array = head + body
   array = array.join("\n")
-  "#{array}"
+  array.to_s
 end
 
 # handle help
 
 get '/help' do
-  head  = []
-  body  = []
-  head  = File.readlines("./views/layout.html")
-  body  = File.readlines("./views/help.html")
+  head  = File.readlines('./views/layout.html')
+  body  = File.readlines('./views/help.html')
   array = head + body
   array = array.join("\n")
-  "#{array}"
+  array.to_s
 end
 
 # handle version
 
 get '/version' do
-  head  = []
-  body  = []
   foot  = []
-  head  = File.readlines("./views/layout.html")
-  head  = html_header(head,"Mode")
-  body  = print_version()
+  head  = File.readlines('./views/layout.html')
+  head  = html_header(head, 'Mode')
+  body  = print_version
   foot  = html_footer(foot)
   array = head + body + foot
   array = array.join("\n")
-  "#{array}"
-end 
+  array.to_s
+end
 
 # handle /list
 
-get '/list/*/*' do 
-  head = []
-  body = []
+get '/list/*/*' do
   foot = []
-  ( values['type'], values['search'] ) = params[:splat]
-  head = File.readlines("./views/layout.html")
-  head = html_header(head,"Mode")
+  (values['type'], values['search']) = params[:splat]
+  head = File.readlines('./views/layout.html')
+  head = html_header(head, 'Mode')
   case values['type']
   when /packer/
     list_packer_clients(values['search'])
   when /service/
-    eval"[list_#{values['search']}_services()]"
+    eval "[list_#{values['search']}_services()]"
   when /iso/
     if values['search'].to_s.match(/[a-z]/)
-      eval"[list_#{values['search']}_isos()]"
+      eval "[list_#{values['search']}_isos()]"
     else
       list_os_isos(values['search'])
     end
   else
-    list_vms(values['type'],values['search'])
+    list_vms(values)
   end
   body  = values['stdout']
   foot  = html_footer(foot)
   array = head + body + foot
   array = array.join("\n")
-  "#{array}"
+  array.to_s
 end
 
 get '/list/*' do
-  head = []
-  body = []
   foot = []
   values['type']   = params[:splat][0]
-  values['search'] = ""
-  head = File.readlines("./views/layout.html")
-  head = html_header(head,"Mode")
+  values['search'] = ''
+  head = File.readlines('./views/layout.html')
+  head = html_header(head, 'Mode')
   case values['type']
   when /packer/
-    list_packer_clients(values['search']) 
+    list_packer_clients(values)
   when /service/
-    list_all_services()
+    list_all_services(values)
   else
-    list_vms(values['type'],values['search'])
+    list_vms(values)
   end
   body  = values['stdout']
   foot  = html_footer(foot)
   array = head + body + foot
   array = array.join("\n")
-  "#{array}"
+  array.to_s
 end
 
 get '/show/*/*' do
-  head = []
-  body = []
   foot = []
-  head = File.readlines("./views/layout.html")
-  head = html_header(head,"Mode")
-  ( values['vm'], values['name'] ) = params[:splat]
-  values['method']  = ""
-  values['type']    = ""
-  values['service'] = ""
-  get_client_config(values['name'],values['service'],values['method'],values['type'],values['vm'])
+  head = File.readlines('./views/layout.html')
+  head = html_header(head, 'Mode')
+  (values['vm'], values['name']) = params[:splat]
+  values['method']  = ''
+  values['type']    = ''
+  values['service'] = ''
+  get_client_config(values)
   body  = values['stdout']
   foot  = html_footer(foot)
   array = head + body + foot
   array = array.join("\n")
-  "#{array}"
+  array.to_s
 end
 
 get '/add/client' do
-  head = []
-  body = []
   foot = []
-  head = File.readlines("./views/layout.html")
-  head = html_header(head,"Mode")
+  head = File.readlines('./views/layout.html')
+  head = html_header(head, 'Mode')
   # values['order']  = []
   # values['answers'] = {}
-  if params['client']
-    values['name'] = params['client'] 
-  else
-    values['name'] = ""
-  end
-  if params['ip']
-    values['ip'] = params['ip']
-  else
-    values['ip'] = ""
-  end
+  values['name'] = (params['client'] || '')
+  values['ip'] = (params['ip'] || '')
   if params['method']
     values['method'] = params['method']
   else
-    redirect "/help"
+    redirect '/help'
   end
   if params['service']
     values['service'] = params['service']
   else
-    redirect "/list/services"
+    redirect '/list/services'
   end
-  eval"[populate_#{values['method']}_questions(values['service'],values['name'],values['ip'])]"
-  values['stdout'].push("<form action=\"/add/client\" method=\"post\">")
+  eval "[populate_#{values['method']}_questions(values['service'],values['name'],values['ip'])]"
+  values['stdout'].push('<form action="/add/client" method="post">')
   values['order'].each do |key|
     values['stdout'].push(values['answers'][key].question)
     values['stdout'].push("<input type=\"text\" name = \"#{key}\">")
   end
-  values['stdout'].push("<input type=\"submit\" value=\"Submit\">")
-  values['stdout'].push("</form>")
+  values['stdout'].push('<input type="submit" value="Submit">')
+  values['stdout'].push('</form>')
   body  = values['stdout']
   foot  = html_footer(foot)
   array = head + body + foot
   array = array.join("\n")
-  "#{array}"
+  array.to_s
 end
 
 get '/add/fusion' do
-  head = []
-  body = []
   foot = []
-  head = File.readlines("./views/layout.html")
-  head = html_header(head,"Mode")
+  head = File.readlines('./views/layout.html')
+  head = html_header(head, 'Mode')
   # values['order']  = []
   # values['answers'] = {}
-  if params['client']
-    values['name'] = params['client'] 
-  else
-    values['name'] = ""
-  end
-  if params['ip']
-    values['ip'] = params['ip']
-  else
-    values['ip'] = ""
-  end
+  values['name'] = (params['client'] || '')
+  values['ip'] = (params['ip'] || '')
   values['stdout'] = []
-  values['stdout'].push("<form action=\"/add/client\" method=\"post\">")
-  values['stdout'].push("Client Name:")
+  values['stdout'].push('<form action="/add/client" method="post">')
+  values['stdout'].push('Client Name:')
   values['stdout'].push("<input type=\"text\" name = \"values['name']\" value=\"#{values['name']}\">")
-  values['stdout'].push("<input type=\"submit\" value=\"Submit\">")
-  values['stdout'].push("</form>")
+  values['stdout'].push('<input type="submit" value="Submit">')
+  values['stdout'].push('</form>')
   body  = values['stdout']
   foot  = html_footer(foot)
   array = head + body + foot
   array = array.join("\n")
-  "#{array}"
+  array.to_s
 end
 
 post '/add/fusion' do
-  create_vm(values['method'],values['vm'],values['name'],values['mac'],values['os-type'],values['arch'],values['release'],values['size'],values['file'],values['memory'],values['vcpus'],values['vmnetwork'],values['share'],values['mount'],values['ip'])
-end  
+  create_vm(values)
+end
 
 # handle /
 
 get '/' do
-  head = []
-  body = []
   foot = []
-  head = File.readlines("./views/layout.html")
-  head = html_header(head,"Mode")
-  if params['help']
-    redirect "/help"
-  end
-  if params['version']
-    redirect "/version"
-  end
-  if params['client']
-    values['name'] = params['client']
-  else
-    values['name'] = ""
-  end
+  head = File.readlines('./views/layout.html')
+  head = html_header(head, 'Mode')
+  redirect '/help' if params['help']
+  redirect '/version' if params['version']
+  values['name'] = (params['client'] || '')
   if params['action']
     values['action'] = params['action']
   else
-    redirect "/help"
+    redirect '/help'
   end
-  if params['vm']
-    values['vm'] = params['vm']
-  else
-    values['vm'] = ""
-  end
-  if params['method']
-    values['method'] = params['method']
-  else
-    values['method'] = ""
-  end
-  if params['os']
-    values['os-type'] = params['os']
-  else
-    values['os-type'] = ""
-  end
-  if params['type']
-    values['type'] = params['type']
-  else
-    values['type'] = ""
-  end
+  values['vm'] = (params['vm'] || '')
+  values['method'] = (params['method'] || '')
+  values['os-type'] = (params['os'] || '')
+  values['type'] = (params['type'] || '')
   case values['action']
   when /help/
-    redirect "/help"
+    redirect '/help'
   when /display|view|show|prop/
     if values['name'].to_s.match(/[a-z,A-Z]/)
-      if values['vm'].to_s.match(/[a-z]/) and not values['vm'] == values['empty']
-        eval"[show_#{values['vm']}_vm_config(values)]"
+      if values['vm'].to_s.match(/[a-z]/) && (values['vm'] != values['empty'])
+        eval "[show_#{values['vm']}_vm_config(values)]"
       else
-        get_client_config(values['name'],values['service'],values['method'],values['type'])
+        get_client_config(values)
       end
     else
-      verbose_message(values,"Warning:\tClient name not specified")
+      verbose_message(values, "Warning:\tClient name not specified")
     end
   when /list/
     if values['type'].to_s.match(/[a-z]/)
       if values['type'].to_s.match(/iso/)
         if values['method'].to_s.match(/[a-z]/)
-          eval"[list_#{values['method']}_isos]"
+          eval "[list_#{values['method']}_isos]"
         else
-          list_os_isos(values['os-type'])
+          list_os_isos(values)
         end
       end
-      if values['type'].to_s.match(/packer/)
-        list_packer_clients(values['vm'])
-      end
-    else
-      if values['vm'].to_s.match(/[a-z]/)
-        list_vms(values['vm'],values['os-type'])
-      end
+      list_packer_clients(values) if values['type'].to_s.match(/packer/)
+    elsif values['vm'].to_s.match(/[a-z]/)
+      list_vms(values)
     end
   end
   body  = values['stdout']
   foot  = html_footer(foot)
   array = head + body + foot
   array = array.join("\n")
-  "#{array}"
+  array.to_s
 end

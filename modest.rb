@@ -1,7 +1,8 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      8.1.9
+# Version:      8.2.0
 # Release:      1
 # License:      CC-BA (Creative Commons By Attribution)
 #               http://creativecommons.org/licenses/by/4.0/legalcode
@@ -41,34 +42,24 @@ values['pkgs']    = {}
 # Handle output
 
 def handle_output(values, text)
-  if values['output'].to_s.match(/html/)
-    if text == ""
-      text = "<br>"
-    end
-  end
-  if values['output'].to_s.match(/text/)
-    puts text
-  end
-  #values['stdout'].push(text)
-  return
+  text = '<br>' if values['output'].to_s.match(/html/) && (text == '')
+  puts text if values['output'].to_s.match(/text/)
+  # values['stdout'].push(text)
+  nil
 end
 
 # Verbose output
 
 def verbose_message(values, text)
-  if values['verbose'] == true or values['notice'] == true
-    handle_output(values, text)
-  end
-  return
+  handle_output(values, text) if (values['verbose'] == true) || (values['notice'] == true)
+  nil
 end
 
 # Warning message
 
 def warning_message(values, text)
-  if values['silent'] == false
-    puts "Warning:\t#{text}" 
-  end
-  return
+  puts "Warning:\t#{text}" if values['silent'] == false
+  nil
 end
 
 # Information message
@@ -76,7 +67,7 @@ end
 def information_message(values, text)
   text = "Information:\t#{text}"
   handle_output(values, text)
-  return
+  nil
 end
 
 # Execute message
@@ -84,21 +75,19 @@ end
 def execute_message(values, text)
   text = "Executing:\t#{text}"
   handle_output(values, text)
-  return
+  nil
 end
 
 # If given verbose switch/option enable verbose mode early
 
 if ARGV.to_s.match(/verbose/)
   values['verbose'] = true
-  values['output']  = "text"
+  values['output']  = 'text'
 end
 
 # If given dryrun switch/option enable dryrun mode early
 
-if ARGV.to_s.match(/dryrun/)
-  values['dryrun'] = true
-end
+values['dryrun'] = true if ARGV.to_s.match(/dryrun/)
 
 # String class overrides
 
@@ -108,6 +97,7 @@ class String
       str << char unless char.ascii_only? && (char.ord < 32 || char.ord == 127)
     end
   end
+
   def strip_control_and_extended_characters
     chars.each_with_object do |char, str|
       str << char if char.ascii_only? && char.ord.between?(32, 226)
@@ -117,33 +107,33 @@ end
 
 class String
   def convert_base(from, to)
-    self.to_i(from).to_s(to)
+    to_i(from).to_s(to)
   end
 end
 
 # Function to install gems
 
 def install_gem(load_name)
-  case load_name
-  when "unix_crypt"
-    install_name = "unix-crypt"
-  when "getopt/long"
-    install_name = "getopt"
-  when "capistrano"
-    install_name = "rvm-capistrano"
-  when "net/scp"
-    install_name = "net-scp"
-  when "net/ssh"
-    install_name = "net-ssh"
-  when "terminfo"
-    install_name = "ruby-terminfo"
-  else
-    install_name = load_name
-  end
+  install_name = case load_name
+                 when 'unix_crypt'
+                   'unix-crypt'
+                 when 'getopt/long'
+                   'getopt'
+                 when 'capistrano'
+                   'rvm-capistrano'
+                 when 'net/scp'
+                   'net-scp'
+                 when 'net/ssh'
+                   'net-ssh'
+                 when 'terminfo'
+                   'ruby-terminfo'
+                 else
+                   load_name
+                 end
   puts "Information:\tInstalling #{install_name}"
-  %x[gem install #{install_name}]
+  `gem install #{install_name}`
   Gem.clear_paths
-  require "#{load_name}"
+  require load_name.to_s
 end
 
 class NegatedRegex < Regexp
@@ -163,23 +153,21 @@ end
 # "capistrano", "nokogiri", "mechanize", "terminfo"
 #
 
-[ "getopt/long", "builder", "parseconfig", "unix_crypt", "netaddr", "json",
-  "fileutils", "ssh-config", "yaml", "net/ssh", "net/scp", "ipaddress" ].each do |load_name|
-  begin
-    require "#{load_name}"
-  rescue LoadError
-    install_gem(load_name)
-  end
+['getopt/long', 'builder', 'parseconfig', 'unix_crypt', 'netaddr', 'json',
+ 'fileutils', 'ssh-config', 'yaml', 'net/ssh', 'net/scp', 'ipaddress'].each do |load_name|
+  require load_name.to_s
+rescue LoadError
+  install_gem(load_name)
 end
 
 # Load methods
 
-if File.directory?("./methods")
-  file_list = Dir.glob("./methods/**/*")
-  for file in file_list
+if File.directory?('./methods')
+  file_list = Dir.glob('./methods/**/*')
+  file_list.each do |file|
     if file =~ /rb$/
       information_message(values, "Loading module #{file}")
-      require "#{file}"
+      require file.to_s
     end
   end
 end
@@ -187,14 +175,14 @@ end
 # Get command line arguments
 # Print help if specified none
 
-if !ARGV[0]
-  values['output'] = "text"
+unless ARGV[0]
+  values['output'] = 'text'
   print_help(values)
 end
 
 # Check whether we have any single - values
 
-for option in ARGV
+ARGV.each do |option|
   if option.match(/^-[a-z]/)
     puts "Invalid option #{option} in command line"
     exit
@@ -205,12 +193,12 @@ end
 
 valid_values = get_valid_values(values)
 
-ARGV[0..-1].each do |switch|
-  if !valid_values.grep(/--#{switch}/) || switch.match(/^-[a-z,A-Z][a-z,A-Z]/)
-    verbose_message(values, "Invalid command line option: #{switch}")
-    values['output'] = 'text'
-    quit(values)
-  end
+ARGV.each do |switch|
+  next unless !valid_values.grep(/--#{switch}/) || switch.match(/^-[a-z,A-Z][a-z,A-Z]/)
+
+  verbose_message(values, "Invalid command line option: #{switch}")
+  values['output'] = 'text'
+  quit(values)
 end
 
 # Process values
@@ -332,14 +320,14 @@ begin
     ['--events', REQUIRED],             # Events (KVM))
     ['--exportdir', REQUIRED],          # Export directory
     ['--extra-args', REQUIRED],         # Extra args (KVM)
-    ['--features',  REQUIRED],          # Features (KVM)
-    ['--file',  REQUIRED],              # File, eg ISO
+    ['--features', REQUIRED],          # Features (KVM)
+    ['--file', REQUIRED],              # File, eg ISO
     ['--filedir', REQUIRED],            # File / ISO Directory
     ['--files', REQUIRED],              # Set default files resolution entry, eg "dns, files"
     ['--filesystem', REQUIRED],         # Filesystem (KVM)
     ['--finish', REQUIRED],             # Jumpstart finish file
     ['--force',  BOOLEAN],              # Force mode
-    ['--noforce',  BOOLEAN],            # Do not use force mode
+    ['--noforce', BOOLEAN], # Do not use force mode
     ['--format', REQUIRED],             # AWS / Output disk format (e.g. VMDK, RAW, VHD)
     ['--from', REQUIRED],               # From
     ['--fusiondir', REQUIRED],          # VMware Fusion Directory
@@ -517,7 +505,7 @@ begin
     ['--rootcrypt', REQUIRED],          # Client root password
     ['--rootsize', REQUIRED],           # Set root device size in M
     ['--rootuser', REQUIRED],           # Set root user name
-    ['--rpoolname', REQUIRED],          # Solaris rpool name 
+    ['--rpoolname', REQUIRED],          # Solaris rpool name
     ['--rtcuseutc', REQUIRED],          # rtcuseutc
     ['--rules', REQUIRED],              # Solaris Jumpstart rules file
     ['--scratchfs', REQUIRED],          # Set root fs
@@ -608,23 +596,23 @@ begin
     ['--virtiofile', REQUIRED],         # VirtIO driver file/cdrom
     ['--virtualdevice', REQUIRED],      # Virtual disk device (e.g. lsilogic)
     ['--virt-type', REQUIRED],          # Virtualisation type (KVM)
-    ['--vlanid',  REQUIRED],            # VLAN ID
-    ['--vm',  REQUIRED],                # VM type
-    ['--vmdir',  REQUIRED],             # VM Directory
-    ['--vmdkfile', REQUIRED],           # VMDK file
-    ['--vmnet',  REQUIRED],             # VM Network (e.g. vmnet1 or vboxnet0)
-    ['--vmnetdhcp',  BOOLEAN],          # VM Network DHCP
+    ['--vlanid', REQUIRED],            # VLAN ID
+    ['--vm', REQUIRED],                # VM type
+    ['--vmdir', REQUIRED],             # VM Directory
+    ['--vmdkfile', REQUIRED], # VMDK file
+    ['--vmnet', REQUIRED],             # VM Network (e.g. vmnet1 or vboxnet0)
+    ['--vmnetdhcp', BOOLEAN],          # VM Network DHCP
     ['--vmgateway', REQUIRED],          # Set VM network gateway
     ['--vmnetwork', REQUIRED],          # Set network type (e.g. hostonly, bridged, nat)
-    ['--vmnic',  REQUIRED],             # VM NIC (e.g. eth0)
+    ['--vmnic', REQUIRED], # VM NIC (e.g. eth0)
     ['--vmtools', REQUIRED],            # Install VM tools or Guest Additions
     ['--vmtype',  REQUIRED],            # VM type
     ['--vmxfile', REQUIRED],            # VMX file
     ['--vncpassword', REQUIRED],        # VNC password
-    ['--vsock',  REQUIRED],             # vSock (KVM)
+    ['--vsock', REQUIRED], # vSock (KVM)
     ['--vswitch',  REQUIRED],           # vSwitch
     ['--vtxvpid',  REQUIRED],           # vtxvpid
-    ['--vtxux',  REQUIRED],             # vtxux
+    ['--vtxux', REQUIRED], # vtxux
     ['--wait', REQUIRED],               # Wait (KVM)
     ['--winshell', REQUIRED],           # Packer Windows remote action shell (e.g. winrm)
     ['--winrminsecure', BOOLEAN],       # Packer winrm insecure
@@ -637,8 +625,8 @@ begin
     ['--zonedir', REQUIRED],            # Base Zone Directory
     ['--zpool', REQUIRED]               # Boot zpool name
   )
-rescue
-  values['output'] = "text"
+rescue StandardError
+  values['output'] = 'text'
   values['stdout'] = []
   print_help(values)
   quit(values)
@@ -646,79 +634,71 @@ end
 
 # Handle usage
 
-if values['usage']
-  if not values['usage'] == values['empty']
-    print_usage(values)
-    quit(values)
-  end
+if values['usage'] && (values['usage'] != values['empty'])
+  print_usage(values)
+  quit(values)
 end
 
 # Set up some initital defaults
 
-values['stdout']  = []
+values['stdout'] = []
 
 # Get defaults
 
 defaults = {}
 (values, defaults) = set_defaults(values, defaults)
-defaults['stdout']  = []
+defaults['stdout'] = []
 
 # Check valid values
 
 raw_params = IO.readlines(defaults['scriptfile']).grep(/REQUIRED|BOOLEAN/).join.split(/\n/)
 raw_params.each do |raw_param|
-  if raw_param.match(/\[/) && !raw_param.match(/^raw_params/)
-    raw_param   = raw_param.split(/--/)[1].split(/'/)[0]
-    valid_param = "valid-"+raw_param
-    if values[raw_param]
-      if defaults[valid_param]
-        test_value = values[raw_param][0]
-        if test_value.match(/\,/)
-          test_value = test_value.split(",")[0]
-        end
-        if !defaults[valid_param].to_s.downcase.match(/#{test_value.downcase}/)
-          verbose_message(defaults, "Warning:\tOption --#{raw_param} has an invalid value: #{values[raw_param]}")
-          verbose_message(defaults, "Information:\tValid values for --#{raw_param} are: \n #{defaults[valid_param].to_s}")
-          quit(defaults)
-        end
-      end
-    end
-  end
+  next unless raw_param.match(/\[/) && !raw_param.match(/^raw_params/)
+
+  raw_param   = raw_param.split(/--/)[1].split(/'/)[0]
+  valid_param = "valid-#{raw_param}"
+  next unless values[raw_param] && defaults[valid_param]
+
+  test_value = values[raw_param][0]
+  test_value = test_value.split(',')[0] if test_value.match(/,/)
+  next if defaults[valid_param].to_s.downcase.match(/#{test_value.downcase}/)
+
+  verbose_message(defaults, "Warning:\tOption --#{raw_param} has an invalid value: #{values[raw_param]}")
+  verbose_message(defaults,
+                  "Information:\tValid values for --#{raw_param} are: \n #{defaults[valid_param]}")
+  quit(defaults)
 end
 
 # If given verbose switch/option enable verbose mode early
 
 if values['options'].to_s.match(/verbose/)
   values['verbose'] = true
-  values['output']  = "text"
+  values['output']  = 'text'
 end
 
 # If given dryrun switch/option enable dryrun mode early
 
-if values['options'].to_s.match(/dryrun/)
-  values['dryrun'] = true
-end
+values['dryrun'] = true if values['options'].to_s.match(/dryrun/)
 
 # Handle options
 
 if values['options']
-  information_message(values, "Processing options")
+  information_message(values, 'Processing options')
   if values['options'].to_s.match(/[a-z]/)
     options = []
-    if values['options'].to_s.match(/\,/)
-      options = values['options'].split(/\,/)
+    if values['options'].to_s.match(/,/)
+      options = values['options'].split(/,/)
     else
       options[0] = values['options']
     end
     options.each do |option|
+      information_message(values, "Option #{option} is set to true")
       if option.match(/^no|^disable|^dont|^un/)
-        information_message(values, "Option #{option} is set to true")
-        temp_option = option.gsub(/^no|^dont|^un/,"")
-        temp_option = temp_option.gsub(/disable/,"enable")
+        temp_option = option.gsub(/^no|^dont|^un/, '')
+        temp_option = temp_option.gsub(/disable/, 'enable')
         information_message(values, "Setting value #{temp_option} to false")
         values[temp_option] = false
       else
-        information_message(values, "Option #{option} is set to true")
         values[option] = true
       end
     end
@@ -770,46 +750,36 @@ values = handle_libvirt_values(values)
 # Create required directories
 
 check_dir_exists(values, values['workdir'])
-[ values['isodir'], values['repodir'], values['imagedir'], values['pkgdir'], values['clientdir'] ].each do |dir_name|
+[values['isodir'], values['repodir'], values['imagedir'], values['pkgdir'], values['clientdir']].each do |dir_name|
   check_zfs_fs_exists(values, dir_name)
 end
 
 # Handle setup
 
-if values['setup'] != values['empty']
-  if !File.exist?(values['setup'])
-    warning_message(values, "Setup script '#{values['setup']}' not found")
-    quit(values)
-  end
+if (values['setup'] != values['empty']) && !File.exist?(values['setup'])
+  warning_message(values, "Setup script '#{values['setup']}' not found")
+  quit(values)
 end
 
 # Handle IPs option
 
-if values['ips']
-  if values['ips'].to_s.match(/[0-9]/)
-    values['ip'] = values['ips']
-  end
-end
+values['ip'] = values['ips'] if values['ips']&.to_s&.match(/[0-9]/)
 
 # If delete action chosen, check a client or service name is specified
 
-if values['action'].to_s.match(/delete/)
-  if values['name'] == values['empty'] && values['service'] == values['empty']
-    warning_message(values, "No service of client name specified")
-    quit(values)
-  end
+if values['action'].to_s.match(/delete/) && values['name'] == values['empty'] && values['service'] == values['empty']
+  warning_message(values, 'No service of client name specified')
+  quit(values)
 end
 
 # If using AWS check for and load AWS CLI gem
 # Removed this from the default check as it takes a long time to install
 
-if values['vm']
-  if values['vm'].to_s.match(/aws/)
-    begin
-      require 'aws-sdk'
-    rescue LoadError
-      install_gem("aws-sdk")
-    end
+if values['vm']&.to_s&.match(/aws/)
+  begin
+    require 'aws-sdk'
+  rescue LoadError
+    install_gem('aws-sdk')
   end
 end
 
@@ -822,33 +792,27 @@ end
 
 # Handle base ISO dir when dir option set
 
-if values['action'] == "list" && values['type'].to_s.match(/iso|img|image/) && !values['dir'] == values['empty']
-  values['isodir'] = values['dir']
-end
+values['isodir'] = values['dir'] if values['action'] == 'list' && values['type'].to_s.match(/iso|img|image/) && !values['dir'] == values['empty']
 
 # Make sure a VM type is set for ansible
 
-if values['type'].to_s.match(/ansible|packer/)
-  if values['vm'] == values['empty']
-    warning_message(values, "No VM type specified")
-    quit(values)
-  end
+if values['type'].to_s.match(/ansible|packer/) && (values['vm'] == values['empty'])
+  warning_message(values, 'No VM type specified')
+  quit(values)
 end
 
 # Check packer is installed and is latest version
 
-if values['type'].to_s.match(/packer/)
-  values = check_packer_is_installed(values)
-end
+values = check_packer_is_installed(values) if values['type'].to_s.match(/packer/)
 
 # Prime HTML
 
 if values['output'].to_s.match(/html/)
-  values['stdout'].push("<html>")
-  values['stdout'].push("<head>")
+  values['stdout'].push('<html>')
+  values['stdout'].push('<head>')
   values['stdout'].push("<title>#{values['scriptname']}</title>")
-  values['stdout'].push("</head>")
-  values['stdout'].push("<body>")
+  values['stdout'].push('</head>')
+  values['stdout'].push('<body>')
 end
 
 # Handle SSH key values
@@ -863,9 +827,7 @@ values = handle_aws_vm_values(values)
 
 if values['name'] != values['empty']
   check_hostname(values)
-  if values['verbose'] == true
-    information_message(values, "Setting client name to #{values['name']}")
-  end
+  information_message(values, "Setting client name to #{values['name']}") if values['verbose'] == true
 end
 
 # If specified admin set admin user
@@ -902,25 +864,19 @@ values = handle_file_values(values)
 
 # Handle values and parameters
 
-if values['param'] != values['empty']
-  if !values['action'].to_s.match(/get/)
-    if !values['value']
-      warning_message(values, "Setting a parameter requires a value")
-      quit(values)
-    else
-      if !values['value']
-        warning_message(values, "Setting a parameter requires a value")
-        quit(values)
-      end
-    end
+if (values['param'] != values['empty']) && !values['action'].to_s.match(/get/)
+  if !values['value']
+    warning_message(values, 'Setting a parameter requires a value')
+    quit(values)
+  elsif !values['value']
+    warning_message(values, 'Setting a parameter requires a value')
+    quit(values)
   end
 end
 
-if values['value'] != values['empty']
-  if values['param'] == values['empty']
-    warning_message(values, "Setting a value requires a parameter")
-    quit(values)
-  end
+if (values['value'] != values['empty']) && (values['param'] == values['empty'])
+  warning_message(values, 'Setting a value requires a parameter')
+  quit(values)
 end
 
 # Handle LDoms
@@ -929,22 +885,16 @@ values = handle_ldom_values(values)
 
 # Handle Packer and VirtualBox not supporting hostonly or bridged network
 
-if !values['vmnetwork'].to_s.match(/nat/)
-  if values['vm'].to_s.match(/virtualbox|vbox/)
-    if values['type'].to_s.match(/packer/) || values['method'].to_s.match(/packer/) && !values['action'].to_s.match(/delete|import/)
-      warning_message(values, "Packer has a bug that causes issues with Hostonly and Bridged network on VirtualBox")
-      warning_message(values, "To deal with this an addition port may be added to the SSH daemon config file")
-    end
-  end
+if !values['vmnetwork'].to_s.match(/nat/) && values['vm'].to_s.match(/virtualbox|vbox/) && (values['type'].to_s.match(/packer/) || values['method'].to_s.match(/packer/) && !values['action'].to_s.match(/delete|import/))
+  warning_message(values, 'Packer has a bug that causes issues with Hostonly and Bridged network on VirtualBox')
+  warning_message(values, 'To deal with this an addition port may be added to the SSH daemon config file')
 end
 
 # Set default host only Information
 
-if !values['vm'] == values['empty']
-  if values['vmnetwork'] == "hostonly" || values['vmnetwork'] == values['empty']
-    values['vmnetwork'] = "hostonly"
-    values = set_hostonly_info(values)
-  end
+if (!values['vm'] == values['empty']) && (values['vmnetwork'] == 'hostonly' || values['vmnetwork'] == values['empty'])
+  values['vmnetwork'] = 'hostonly'
+  values = set_hostonly_info(values)
 end
 
 # Check network values
@@ -955,17 +905,11 @@ values = handle_network_values(values)
 
 values = handle_import_build_action(values)
 
-if values['ssopassword'] != values['empty']
-  values['adminpassword'] = values['ssopassword']
-end
+values['adminpassword'] = values['ssopassword'] if values['ssopassword'] != values['empty']
 
 # Get Netmask
 
-if values['netmask'] == values['empty']
-  if values['type'].to_s.match(/vcsa/)
-    values['netmask'] = $default_cidr
-  end
-end
+values['netmask'] = $default_cidr if (values['netmask'] == values['empty']) && values['type'].to_s.match(/vcsa/)
 
 # Handle deploy action
 
@@ -989,11 +933,7 @@ values = handle_packer_type(values)
 
 # Handle install service switch
 
-if values['service'] != values['empty']
-  if values['verbose'] == true
-    information_message(values, "Setting install service to #{values['service']}")
-  end
-end
+information_message(values, "Setting install service to #{values['service']}") if (values['service'] != values['empty']) && (values['verbose'] == true)
 
 # Make sure a service (e.g. packer) or an install file (e.g. OVA) is specified for an import
 
@@ -1019,10 +959,8 @@ values = handle_publisher_values(values)
 
 if values['service'] != values['empty'] && values['method'] == values['empty'] && values['os-type'] == values['empty']
   values['method'] = get_install_method_from_service(values)
-else
-  if values['method'] == values['empty'] && values['os-type'] == values['empty']
-    values['method'] = get_install_method_from_service(values)
-  end
+elsif values['method'] == values['empty'] && values['os-type'] == values['empty']
+  values['method'] = get_install_method_from_service(values)
 end
 
 # Handle VM switch
@@ -1040,73 +978,45 @@ values = handle_install_method(values)
 # Do a check to see if we are running Packer and trying to install Windows with network in non NAT mode
 
 if values['type'].to_s.match(/packer/) && values['os-type'].to_s.match(/win/)
-  if !values['vmnetwork'].to_s.match(/nat/)
-    warning_message(values, "Packer only supports installing Windows with a NAT network")
-    information_message(values, "Setting network to NAT mode")
-    values['vmnetwork'] = "nat"
+  unless values['vmnetwork'].to_s.match(/nat/)
+    warning_message(values, 'Packer only supports installing Windows with a NAT network')
+    information_message(values, 'Setting network to NAT mode')
+    values['vmnetwork'] = 'nat'
   end
-  values['shell'] = "winrm"
+  values['shell'] = 'winrm'
 end
 
 # Handle VM named none
 
-if values['action'].to_s.match(/create/) && values['name'] == "none" && values['mode'] != "server" and values['type'] != "service"
-  warning_message(values, "Invalid client name")
+if values['action'].to_s.match(/create/) && values['name'] == 'none' && values['mode'] != 'server' && (values['type'] != 'service')
+  warning_message(values, 'Invalid client name')
   quit(values)
 end
 
 # Handle multiple configs in one line if separated by a comma, or handle a sinlge config
 
-if values['name'].to_s.match(/\,/)
-  host_list = values['name'].to_s.split(",")
+if values['name'].to_s.match(/,/)
+  host_list = values['name'].to_s.split(',')
   ip_list   = []
   mac_list  = []
   vcpu_list = []
   mem_list  = []
   disk_list = []
   rel_list  = []
-  if values['ip'].to_s.match(/\,/)
-    ip_list = values['ip'].to_s.split(",")
-  end
-  if values['mac'].to_s.match(/\,/)
-    mac_list = values['mac'].to_s.split(",")
-  end
-  if values['memory'].to_s.match(/\,/)
-    mem_list = values['memory'].to_s.split(",")
-  end
-  if values['vcpus'].to_s.match(/\,/)
-    vcpus_list = values['vcpus'].to_s.split(",")
-  end
-  if values['disk'].to_s.match(/\,/)
-    disk_list = values['disk'].to_s.split(",")
-  end
-  if values['release'].to_s.match(/\,/)
-    rel_list = values['release'].to_s.split(",")
-  end
+  ip_list = values['ip'].to_s.split(',') if values['ip'].to_s.match(/,/)
+  mac_list = values['mac'].to_s.split(',') if values['mac'].to_s.match(/,/)
+  mem_list = values['memory'].to_s.split(',') if values['memory'].to_s.match(/,/)
+  vcpus_list = values['vcpus'].to_s.split(',') if values['vcpus'].to_s.match(/,/)
+  disk_list = values['disk'].to_s.split(',') if values['disk'].to_s.match(/,/)
+  rel_list = values['release'].to_s.split(',') if values['release'].to_s.match(/,/)
   host_list.each_with_index do |host_name, counter|
     values['name'] = host_name
-    if ip_list[counter]
-      values['ip'] = ip_list[counter]
-    end
-    if mac_list[counter]
-      values['mac'] = mac_list[counter]
-    else
-      values['mac'] = generate_mac_address(values)
-    end
-    if mem_list[counter]
-      values['memory'] = mem_list[counter]
-    end
-    if vcpu_list[counter]
-      values['vcpus'] = vcpus_list[counter]
-    end
-    if rel_list[counter]
-      values['release'] = rel_list[counter]
-    end
-    if disk_list[counter]
-      values['disk'] = disk_list[counter]
-    else
-      values['disk'] = values['empty']
-    end
+    values['ip'] = ip_list[counter] if ip_list[counter]
+    values['mac'] = (mac_list[counter] || generate_mac_address(values))
+    values['memory'] = mem_list[counter] if mem_list[counter]
+    values['vcpus'] = vcpus_list[counter] if vcpu_list[counter]
+    values['release'] = rel_list[counter] if rel_list[counter]
+    values['disk'] = (disk_list[counter] || values['empty'])
     handle_action(values)
   end
 else

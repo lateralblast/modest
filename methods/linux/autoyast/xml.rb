@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 
 # Do Autoyast XML
 
@@ -5,15 +6,15 @@
 
 def populate_ay_hosts(values)
   hosts = []
-  hosts.push("127.0.0.1,localhost")
+  hosts.push('127.0.0.1,localhost')
   hosts.push("#{values['ip']},#{values['name']},#{values['name']}.#{values['domainname']}")
-  hosts.push("::1,localhost ipv6-localhost ipv6-loopback")
-  hosts.push("fe00::0,ipv6-localnet")
-  hosts.push("ff00::0,ipv6-mcastprefix")
-  hosts.push("ff02::1,ipv6-allnodes")
-  hosts.push("ff02::2,ipv6-allrouters")
-  hosts.push("ff02::3,ipv6-allhosts")
-  return hosts
+  hosts.push('::1,localhost ipv6-localhost ipv6-loopback')
+  hosts.push('fe00::0,ipv6-localnet')
+  hosts.push('ff00::0,ipv6-mcastprefix')
+  hosts.push('ff02::1,ipv6-allnodes')
+  hosts.push('ff02::2,ipv6-allrouters')
+  hosts.push('ff02::3,ipv6-allhosts')
+  hosts
 end
 
 # Populate inetd information
@@ -21,1039 +22,1024 @@ end
 def populate_ay_inetd(values)
   inetd = Struct.new(:enabled, :iid, :protocol, :script, :server, :service)
 
-  service = "chargen"
+  service = 'chargen'
   config  = inetd.new(
-    enabled  = "false",
-    iid      = "1:/etc/xinetd.d/"+service,
-    protocol = "tcp",
-    script   = service,
-    server   = "",
-    service  = service
+    'false',
+    "1:/etc/xinetd.d/#{service}",
+    'tcp',
+    service,
+    '',
+    service = service
   )
   values['i_order'].push(service)
   values['i_struct'][service] = config
 
-  service = "chargen-udp"
+  service = 'chargen-udp'
   config  = inetd.new(
-    enabled  = "false",
-    iid      = "1:/etc/xinetd.d/"+service,
-    protocol = "udp",
-    script   = service,
-    server   = "",
-    service  = "chargen"
+    'false',
+    "1:/etc/xinetd.d/#{service}",
+    'udp',
+    service,
+    '',
+    service = 'chargen'
   )
   values['i_order'].push(service)
   values['i_struct'][service] = config
 
-  service = "cups-lpd"
+  service = 'cups-lpd'
   config  = inetd.new(
-    enabled  = "false",
-    iid      = "1:/etc/xinetd.d/"+service,
-    protocol = "tcp",
-    script   = service,
-    server   = "/usr/lib64/cups/daemon/cups-lpd",
-    service  = "printer"
+    'false',
+    "1:/etc/xinetd.d/#{service}",
+    'tcp',
+    service,
+    '/usr/lib64/cups/daemon/cups-lpd',
+    service = 'printer'
   )
   values['i_order'].push(service)
   values['i_struct'][service] = config
 
-  service = "cvs"
+  service = 'cvs'
   config  = inetd.new(
-    enabled  = "false",
-    iid      = "1:/etc/xinetd.d/"+service,
-    protocol = "tcp",
-    script   = service,
-    server   = "/usr/bin/cvs",
-    service  = "cvspserver"
+    'false',
+    "1:/etc/xinetd.d/#{service}",
+    'tcp',
+    service,
+    '/usr/bin/cvs',
+    service = 'cvspserver'
   )
   values['i_order'].push(service)
   values['i_struct'][service] = config
 
-  service = "daytime"
+  service = 'daytime'
   config  = inetd.new(
-    enabled  = "false",
-    iid      = "1:/etc/xinetd.d/"+service,
-    protocol = "tcp",
-    script   = service,
-    server   = "",
-    service  = service
+    'false',
+    "1:/etc/xinetd.d/#{service}",
+    'tcp',
+    service,
+    '',
+    service = service
   )
   values['i_order'].push(service)
   values['i_struct'][service] = config
 
-  service = "daytime-udp"
+  service = 'daytime-udp'
   config  = inetd.new(
-    enabled  = "false",
-    iid      = "1:/etc/xinetd.d/"+service,
-    protocol = "udp",
-    script   = service,
-    server   = "",
-    service  = "daytime"
+    'false',
+    "1:/etc/xinetd.d/#{service}",
+    'udp',
+    service,
+    '',
+    service = 'daytime'
   )
   values['i_order'].push(service)
   values['i_struct'][service] = config
 
-  service = "discard"
+  service = 'discard'
   config  = inetd.new(
-    enabled  = "false",
-    iid      = "1:/etc/xinetd.d/"+service,
-    protocol = "tcp",
-    script   = service,
-    server   = "",
-    service  = service
+    'false',
+    "1:/etc/xinetd.d/#{service}",
+    'tcp',
+    service,
+    '',
+    service = service
   )
   values['i_order'].push(service)
   values['i_struct'][service] = config
 
-  service = "discard-udp"
+  service = 'discard-udp'
   config  = inetd.new(
-    enabled  = "false",
-    iid      = "1:/etc/xinetd.d/"+service,
-    protocol = "udp",
-    script   = service,
-    server   = "",
-    service  = "discard"
+    'false',
+    "1:/etc/xinetd.d/#{service}",
+    'udp',
+    service,
+    '',
+    service = 'discard'
   )
   values['i_order'].push(service)
   values['i_struct'][service] = config
 
-  service = "echo"
+  service = 'echo'
   config  = inetd.new(
-    enabled  = "false",
-    iid      = "1:/etc/xinetd.d/"+service,
-    protocol = "tcp",
-    script   = service,
-    server   = "",
-    service  = service
+    'false',
+    "1:/etc/xinetd.d/#{service}",
+    'tcp',
+    service,
+    '',
+    service = service
   )
   values['i_order'].push(service)
   values['i_struct'][service] = config
 
-  service = "echo-udp"
+  service = 'echo-udp'
   config  = inetd.new(
-    enabled  = "false",
-    iid      = "1:/etc/xinetd.d/"+service,
-    protocol = "udp",
-    script   = service,
-    server   = "",
-    service  = "echo-udp"
+    'false',
+    "1:/etc/xinetd.d/#{service}",
+    'udp',
+    service,
+    '',
+    service = 'echo-udp'
   )
   values['i_order'].push(service)
   values['i_struct'][service] = config
 
-  service = "netstat"
+  service = 'netstat'
   config  = inetd.new(
-    enabled  = "false",
-    iid      = "1:/etc/xinetd.d/"+service,
-    protocol = "tcp",
-    script   = service,
-    server   = "/bin/"+service,
-    service  = service
+    'false',
+    "1:/etc/xinetd.d/#{service}",
+    'tcp',
+    service,
+    "/bin/#{service}",
+    service = service
   )
   values['i_order'].push(service)
   values['i_struct'][service] = config
 
-  service = "rsync"
+  service = 'rsync'
   config  = inetd.new(
-    enabled  = "false",
-    iid      = "1:/etc/xinetd.d/"+service,
-    protocol = "tcp",
-    script   = service,
-    server   = "/usr/sbin/"+service+"d",
-    service  = service
+    'false',
+    "1:/etc/xinetd.d/#{service}",
+    'tcp',
+    service,
+    "/usr/sbin/#{service}d",
+    service = service
   )
   values['i_order'].push(service)
   values['i_struct'][service] = config
 
-  service = "servers"
+  service = 'servers'
   config  = inetd.new(
-    enabled  = "false",
-    iid      = "1:/etc/xinetd.d/"+service,
-    protocol = "tcp",
-    script   = service,
-    server   = "",
-    service  = service
+    'false',
+    "1:/etc/xinetd.d/#{service}",
+    'tcp',
+    service,
+    '',
+    service = service
   )
   values['i_order'].push(service)
   values['i_struct'][service] = config
 
-  service = "services"
+  service = 'services'
   config  = inetd.new(
-    enabled  = "false",
-    iid      = "1:/etc/xinetd.d/"+service,
-    protocol = "tcp",
-    script   = service,
-    server   = "",
-    service  = service
+    'false',
+    "1:/etc/xinetd.d/#{service}",
+    'tcp',
+    service,
+    '',
+    service = service
   )
   values['i_order'].push(service)
   values['i_struct'][service] = config
 
-  service = "swat"
+  service = 'swat'
   config  = inetd.new(
-    enabled  = "false",
-    iid      = "1:/etc/xinetd.d/"+service,
-    protocol = "tcp",
-    script   = service,
-    server   = "/usr/sbin/"+service,
-    service  = service
+    'false',
+    "1:/etc/xinetd.d/#{service}",
+    'tcp',
+    service,
+    "/usr/sbin/#{service}",
+    service = service
   )
   values['i_order'].push(service)
   values['i_struct'][service] = config
 
-  service = "systat"
+  service = 'systat'
   config  = inetd.new(
-    enabled  = "false",
-    iid      = "1:/etc/xinetd.d/"+service,
-    protocol = "tcp",
-    script   = service,
-    server   = "/bin/ps",
-    service  = service
+    'false',
+    "1:/etc/xinetd.d/#{service}",
+    'tcp',
+    service,
+    '/bin/ps',
+    service = service
   )
   values['i_order'].push(service)
   values['i_struct'][service] = config
 
-  service = "time"
+  service = 'time'
   config  = inetd.new(
-    enabled  = "false",
-    iid      = "1:/etc/xinetd.d/"+service,
-    protocol = "tcp",
-    script   = service,
-    server   = "",
-    service  = service
+    'false',
+    "1:/etc/xinetd.d/#{service}",
+    'tcp',
+    service,
+    '',
+    service = service
   )
   values['i_order'].push(service)
   values['i_struct'][service] = config
 
-  service = "time-udp"
+  service = 'time-udp'
   config  = inetd.new(
-    enabled  = "false",
-    iid      = "1:/etc/xinetd.d/"+service,
-    protocol = "udp",
-    script   = service,
-    server   = "",
-    service  = "time"
+    'false',
+    "1:/etc/xinetd.d/#{service}",
+    'udp',
+    service,
+    '',
+    service = 'time'
+  )
+  values['i_order'].push(service)
+  values['i_struct'][service] = config
+  config = inetd.new(
+    'false',
+    '1:/etc/xinetd.d/vnc',
+    'tcp',
+    'vnc',
+    '/usr/bin/Xvnc',
+    service = 'vnc1'
+  )
+  values['i_order'].push(service)
+  values['i_struct'][service] = config
+  config = inetd.new(
+    'false',
+    '16:/etc/xinetd.d/vnc',
+    'tcp',
+    'vnc',
+    '/usr/bin/Xvnc',
+    service = 'vnc2'
+  )
+  values['i_order'].push(service)
+  values['i_struct'][service] = config
+  config = inetd.new(
+    'false',
+    '31:/etc/xinetd.d/vnc3',
+    'tcp',
+    'vnc',
+    '/usr/bin/Xvnc',
+    service = 'vnc3'
+  )
+  values['i_order'].push(service)
+  values['i_struct'][service] = config
+  config = inetd.new(
+    'false',
+    '46:/etc/xinetd.d/vnc',
+    'tcp',
+    'vnc',
+    '/usr/bin/vnc_inetd_httpd',
+    service = 'vnchttpd1'
+  )
+  values['i_order'].push(service)
+  values['i_struct'][service] = config
+  config = inetd.new(
+    'false',
+    '61:/etc/xinetd.d/vnchttpd2',
+    'tcp',
+    'vnc',
+    '/usr/bin/vnc_inetd_httpd',
+    service = 'vnchttpd2'
+  )
+  values['i_order'].push(service)
+  values['i_struct'][service] = config
+  config = inetd.new(
+    'false',
+    '76:/etc/xinetd.d/vnchttpd3',
+    'tcp',
+    'vnc',
+    '/usr/bin/vnc_inetd_httpd',
+    service = 'vnchttpd3'
   )
   values['i_order'].push(service)
   values['i_struct'][service] = config
 
-  service = "vnc1"
-  config  = inetd.new(
-    enabled  = "false",
-    iid      = "1:/etc/xinetd.d/vnc",
-    protocol = "tcp",
-    script   = "vnc",
-    server   = "/usr/bin/Xvnc",
-    service  = "vnc1"
-  )
-  values['i_order'].push(service)
-  values['i_struct'][service] = config
-
-  service = "vnc2"
-  config  = inetd.new(
-    enabled  = "false",
-    iid      = "16:/etc/xinetd.d/vnc",
-    protocol = "tcp",
-    script   = "vnc",
-    server   = "/usr/bin/Xvnc",
-    service  = "vnc2"
-  )
-  values['i_order'].push(service)
-  values['i_struct'][service] = config
-
-  service = "vnc3"
-  config  = inetd.new(
-    enabled  = "false",
-    iid      = "31:/etc/xinetd.d/vnc3",
-    protocol = "tcp",
-    script   = "vnc",
-    server   = "/usr/bin/Xvnc",
-    service  = "vnc3"
-  )
-  values['i_order'].push(service)
-  values['i_struct'][service] = config
-
-  service = "vnchttpd1"
-  config  = inetd.new(
-    enabled  = "false",
-    iid      = "46:/etc/xinetd.d/vnc",
-    protocol = "tcp",
-    script   = "vnc",
-    server   = "/usr/bin/vnc_inetd_httpd",
-    service  = "vnchttpd1"
-  )
-  values['i_order'].push(service)
-  values['i_struct'][service] = config
-
-  service = "vnchttpd2"
-  config  = inetd.new(
-    enabled  = "false",
-    iid      = "61:/etc/xinetd.d/vnchttpd2",
-    protocol = "tcp",
-    script   = "vnc",
-    server   = "/usr/bin/vnc_inetd_httpd",
-    service  = "vnchttpd2"
-  )
-  values['i_order'].push(service)
-  values['i_struct'][service] = config
-
-  service = "vnchttpd3"
-  config  = inetd.new(
-    enabled  = "false",
-    iid      = "76:/etc/xinetd.d/vnchttpd3",
-    protocol = "tcp",
-    script   = "vnc",
-    server   = "/usr/bin/vnc_inetd_httpd",
-    service  = "vnchttpd3"
-  )
-  values['i_order'].push(service)
-  values['i_struct'][service] = config
-
-  return
+  nil
 end
-
 
 # Populate Group information
 
 def populate_ay_groups(values)
-  group = Struct.new(:gid, :group_password, :groupname, :userlist)
+  Struct.new(:gid, :group_password, :groupname, :userlist)
 
-  group  = "users"
+  group  = 'users'
   config = group.new(
-    gid            = "100",
-    group_password = "x",
-    groupname      = group,
-    userlist       = ""
+    '100',
+    'x',
+    group,
+    ''
   )
   values['g_order'].push(group)
   values['g_struct'][group] = config
 
-  group  = "floppy"
+  group  = 'floppy'
   config = group.new(
-    gid            = "19",
-    group_password = "x",
-    groupname      = group,
-    userlist       = ""
+    '19',
+    'x',
+    group,
+    ''
   )
   values['g_order'].push(group)
   values['g_struct'][group] = config
 
-  group  = "bin"
+  group  = 'bin'
   config = group.new(
-    gid            = "1",
-    group_password = "x",
-    groupname      = group,
-    userlist       = "daemon"
+    '1',
+    'x',
+    group,
+    'daemon'
   )
   values['g_order'].push(group)
   values['g_struct'][group] = config
 
-  group  = "xok"
+  group  = 'xok'
   config = group.new(
-    gid            = "41",
-    group_password = "x",
-    groupname      = group,
-    userlist       = ""
+    '41',
+    'x',
+    group,
+    ''
   )
   values['g_order'].push(group)
   values['g_struct'][group] = config
 
-  group  = "nobody"
+  group  = 'nobody'
   config = group.new(
-    gid            = "65535",
-    group_password = "x",
-    groupname      = group,
-    userlist       = ""
+    '65535',
+    'x',
+    group,
+    ''
   )
   values['g_order'].push(group)
   values['g_struct'][group] = config
 
-  group  = "modem"
+  group  = 'modem'
   config = group.new(
-    gid            = "43",
-    group_password = "x",
-    groupname      = group,
-    userlist       = ""
+    '43',
+    'x',
+    group,
+    ''
   )
   values['g_order'].push(group)
   values['g_struct'][group] = config
 
-  group  = "lp"
+  group  = 'lp'
   config = group.new(
-    gid            = "7",
-    group_password = "x",
-    groupname      = group,
-    userlist       = ""
+    '7',
+    'x',
+    group,
+    ''
   )
   values['g_order'].push(group)
   values['g_struct'][group] = config
 
-  group  = "tty"
+  group  = 'tty'
   config = group.new(
-    gid            = "5",
-    group_password = "x",
-    groupname      = group,
-    userlist       = ""
+    '5',
+    'x',
+    group,
+    ''
   )
   values['g_order'].push(group)
   values['g_struct'][group] = config
 
-  group  = "postfix"
+  group = 'postfix'
+
+  config = if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+
+             group.new(
+               '51',
+               'x',
+               group,
+               ''
+             )
+
+           else
+
+             group.new(
+               '51',
+               '!',
+               group,
+               ''
+             )
+
+           end
+
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
+
+  group  = 'uuid'
+  config = group.new(
+    '104',
+    '!',
+    group,
+    ''
+  )
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
+
+  group = 'gdm'
+
+  config = if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+
+             group.new(
+               '485',
+               'x',
+               group,
+               ''
+             )
+
+           else
+
+             group.new(
+               '111',
+               '!',
+               group,
+               ''
+             )
+
+           end
+
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
+
+  group  = 'nogroup'
+  config = group.new(
+    '65534',
+    'x',
+    group,
+    'nobody'
+  )
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
+
+  group = 'maildrop'
+
+  config = if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+
+             group.new(
+               '59',
+               'x',
+               group,
+               ''
+             )
+
+           else
+
+             group.new(
+               '59',
+               '!',
+               group,
+               ''
+             )
+
+           end
+
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
+
+  group = 'messagebus'
+
+  config = if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+
+             group.new(
+               '499',
+               'x',
+               group,
+               ''
+             )
+
+           else
+
+             group.new(
+               '101',
+               '!',
+               group,
+               ''
+             )
+
+           end
+
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
+
+  group  = 'video'
+  config = group.new(
+    '33',
+    'x',
+    group,
+    ''
+  )
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
+
+  group  = 'sys'
+  config = group.new(
+    '3',
+    'x',
+    group,
+    ''
+  )
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
+
+  group  = 'shadow'
+  config = group.new(
+    '15',
+    'x',
+    group,
+    ''
+  )
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
+
+  group  = 'console'
+  config = group.new(
+    '21',
+    'x',
+    group,
+    ''
+  )
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
+
+  group  = 'cdrom'
+  config = group.new(
+    '20',
+    'x',
+    group,
+    ''
+  )
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
+
+  group  = 'haldaemon'
+  config = group.new(
+    '102',
+    '!',
+    group,
+    ''
+  )
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
+
+  group  = 'trusted'
+  config = group.new(
+    '42',
+    'x',
+    group,
+    ''
+  )
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
+
+  group  = 'puppet'
+  config = group.new(
+    '105',
+    '!',
+    group,
+    ''
+  )
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
+
+  group  = 'dialout'
+  config = group.new(
+    '16',
+    'x',
+    group,
+    ''
+  )
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
 
+    group  = 'polkitd'
     config = group.new(
-      gid            = "51",
-      group_password = "x",
-      groupname      = group,
-      userlist       = ""
+      '496',
+      'x',
+      group,
+      ''
     )
 
   else
 
+    group  = 'polkituser'
     config = group.new(
-      gid            = "51",
-      group_password = "!",
-      groupname      = group,
-      userlist       = ""
+      '106',
+      '!',
+      group,
+      ''
     )
 
   end
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
+
+  group = 'pulse'
+
+  config = if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+
+             group.new(
+               '489',
+               'x',
+               group,
+               ''
+             )
+
+           else
+
+             group.new(
+               '100',
+               '!',
+               group,
+               ''
+             )
+
+           end
 
   values['g_order'].push(group)
   values['g_struct'][group] = config
 
-  group  = "uuid"
+  group  = 'wheel'
   config = group.new(
-    gid            = "104",
-    group_password = "!",
-    groupname      = group,
-    userlist       = ""
+    '10',
+    'x',
+    group,
+    ''
   )
   values['g_order'].push(group)
   values['g_struct'][group] = config
 
-  group  = "gdm"
+  group  = 'www'
+  config = group.new(
+    '8',
+    'x',
+    group,
+    ''
+  )
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
+
+  group  = 'games'
+  config = group.new(
+    '40',
+    'x',
+    group,
+    ''
+  )
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
+
+  group  = 'disk'
+  config = group.new(
+    '6',
+    'x',
+    group,
+    ''
+  )
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
+
+  group  = 'audio'
+  config = group.new(
+    '17',
+    'x',
+    group,
+    'pulse'
+  )
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
+
+  group  = 'suse-ncc'
+  config = group.new(
+    '110',
+    '!',
+    group,
+    ''
+  )
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
+
+  group  = 'ftp'
+  config = group.new(
+    '49',
+    'x',
+    group,
+    ''
+  )
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
+
+  group = 'at'
+
+  config = if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+
+             group.new(
+               '25',
+               'x',
+               group,
+               ''
+             )
+
+           else
+
+             group.new(
+               '25',
+               '!',
+               group,
+               ''
+             )
+
+           end
+
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
+
+  group = 'tape'
+
+  config = if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+
+             group.new(
+               '497',
+               'x',
+               group,
+               ''
+             )
+
+           else
+
+             group.new(
+               '103',
+               '!',
+               group,
+               ''
+             )
+
+           end
+
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
+
+  group  = 'kmem'
+  config = group.new(
+    '9',
+    'x',
+    group,
+    ''
+  )
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
+
+  group  = 'public'
+  config = group.new(
+    '32',
+    'x',
+    group,
+    ''
+  )
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
+
+  group  = 'root'
+  config = group.new(
+    '0',
+    'x',
+    group,
+    ''
+  )
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
+
+  group  = 'mail'
+  config = group.new(
+    '12',
+    'x',
+    group,
+    'postfix'
+  )
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
+
+  group  = 'daemon'
+  config = group.new(
+    '2',
+    'x',
+    group,
+    ''
+  )
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
+
+  group = 'ntp'
+
+  config = if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+
+             group.new(
+               '492',
+               'x',
+               group,
+               ''
+             )
+
+           else
+
+             group.new(
+               '107',
+               '!',
+               group,
+               ''
+             )
+
+           end
+
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
 
   if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
 
+    group  = 'scard'
     config = group.new(
-      gid            = "485",
-      group_password = "x",
-      groupname      = group,
-      userlist       = ""
-    )
-
-  else
-
-    config = group.new(
-      gid            = "111",
-      group_password = "!",
-      groupname      = group,
-      userlist       = ""
-    )
-
-  end
-
-  values['g_order'].push(group)
-  values['g_struct'][group] = config
-
-  group  = "nogroup"
-  config = group.new(
-    gid            = "65534",
-    group_password = "x",
-    groupname      = group,
-    userlist       = "nobody"
-  )
-  values['g_order'].push(group)
-  values['g_struct'][group] = config
-
-  group  = "maildrop"
-
-  if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-
-    config = group.new(
-      gid            = "59",
-      group_password = "x",
-      groupname      = group,
-      userlist       = ""
-    )
-
-  else
-
-    config = group.new(
-      gid            = "59",
-      group_password = "!",
-      groupname      = group,
-      userlist       = ""
-    )
-
-  end
-
-  values['g_order'].push(group)
-  values['g_struct'][group] = config
-
-  group  = "messagebus"
-
-  if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-
-    config = group.new(
-      gid            = "499",
-      group_password = "x",
-      groupname      = group,
-      userlist       = ""
-    )
-
-  else
-
-    config = group.new(
-      gid            = "101",
-      group_password = "!",
-      groupname      = group,
-      userlist       = ""
-    )
-
-  end
-
-  values['g_order'].push(group)
-  values['g_struct'][group] = config
-
-  group  = "video"
-  config = group.new(
-    gid            = "33",
-    group_password = "x",
-    groupname      = group,
-    userlist       = ""
-  )
-  values['g_order'].push(group)
-  values['g_struct'][group] = config
-
-  group  = "sys"
-  config = group.new(
-    gid            = "3",
-    group_password = "x",
-    groupname      = group,
-    userlist       = ""
-  )
-  values['g_order'].push(group)
-  values['g_struct'][group] = config
-
-  group  = "shadow"
-  config = group.new(
-    gid            = "15",
-    group_password = "x",
-    groupname      = group,
-    userlist       = ""
-  )
-  values['g_order'].push(group)
-  values['g_struct'][group] = config
-
-  group  = "console"
-  config = group.new(
-    gid            = "21",
-    group_password = "x",
-    groupname      = group,
-    userlist       = ""
-  )
-  values['g_order'].push(group)
-  values['g_struct'][group] = config
-
-  group  = "cdrom"
-  config = group.new(
-    gid            = "20",
-    group_password = "x",
-    groupname      = group,
-    userlist       = ""
-  )
-  values['g_order'].push(group)
-  values['g_struct'][group] = config
-
-  group  = "haldaemon"
-  config = group.new(
-    gid            = "102",
-    group_password = "!",
-    groupname      = group,
-    userlist       = ""
-  )
-  values['g_order'].push(group)
-  values['g_struct'][group] = config
-
-  group  = "trusted"
-  config = group.new(
-    gid            = "42",
-    group_password = "x",
-    groupname      = group,
-    userlist       = ""
-  )
-  values['g_order'].push(group)
-  values['g_struct'][group] = config
-
-  group  = "puppet"
-  config = group.new(
-    gid            = "105",
-    group_password = "!",
-    groupname      = group,
-    userlist       = ""
-  )
-  values['g_order'].push(group)
-  values['g_struct'][group] = config
-
-  group  = "dialout"
-  config = group.new(
-    gid            = "16",
-    group_password = "x",
-    groupname      = group,
-    userlist       = ""
-  )
-  values['g_order'].push(group)
-  values['g_struct'][group] = config
-
-  if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-
-    group  = "polkitd"
-    config = group.new(
-      gid            = "496",
-      group_password = "x",
-      groupname      = group,
-      userlist       = ""
+      '487',
+      'x',
+      group,
+      ''
     )
     values['g_order'].push(group)
     values['g_struct'][group] = config
 
-  else
-
-    group  = "polkituser"
+    group  = 'lock'
     config = group.new(
-      gid            = "106",
-      group_password = "!",
-      groupname      = group,
-      userlist       = ""
+      '54',
+      'x',
+      group,
+      ''
+    )
+    values['g_order'].push(group)
+    values['g_struct'][group] = config
+
+    group  = 'winbind'
+    config = group.new(
+      '486',
+      'x',
+      group,
+      ''
+    )
+    values['g_order'].push(group)
+    values['g_struct'][group] = config
+
+    group  = 'vnc'
+    config = group.new(
+      '491',
+      'x',
+      group,
+      ''
+    )
+    values['g_order'].push(group)
+    values['g_struct'][group] = config
+
+    group  = 'rtkit'
+    config = group.new(
+      '490',
+      'x',
+      group,
+      ''
+    )
+    values['g_order'].push(group)
+    values['g_struct'][group] = config
+
+    group  = 'systemd-journal'
+    config = group.new(
+      '493',
+      'x',
+      group,
+      ''
+    )
+    values['g_order'].push(group)
+    values['g_struct'][group] = config
+
+    group  = 'nscd'
+    config = group.new(
+      '495',
+      'x',
+      group,
+      ''
+    )
+    values['g_order'].push(group)
+    values['g_struct'][group] = config
+
+    group  = 'brlapi'
+    config = group.new(
+      '494',
+      'x',
+      group,
+      ''
     )
     values['g_order'].push(group)
     values['g_struct'][group] = config
 
   end
 
-  group  = "pulse"
-
-  if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-
-    config = group.new(
-      gid            = "489",
-      group_password = "x",
-      groupname      = group,
-      userlist       = ""
-    )
-
-  else
-
-    config = group.new(
-      gid            = "100",
-      group_password = "!",
-      groupname      = group,
-      userlist       = ""
-    )
-
-  end
-
-  values['g_order'].push(group)
-  values['g_struct'][group] = config
-
-  group  = "wheel"
+  group  = 'uucp'
   config = group.new(
-    gid            = "10",
-    group_password = "x",
-    groupname      = group,
-    userlist       = ""
+    '14',
+    'x',
+    group,
+    ''
   )
   values['g_order'].push(group)
   values['g_struct'][group] = config
 
-  group  = "www"
+  group = 'pulse-access'
+
+  config = if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+
+             group.new(
+               '488',
+               'x',
+               group,
+               ''
+             )
+
+           else
+
+             group.new(
+               '109',
+               '!',
+               group,
+               ''
+             )
+
+           end
+
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
+
+  group = 'ntadmin'
+
+  config = if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+
+             group.new(
+               '71',
+               'x',
+               group,
+               ''
+             )
+
+           else
+
+             group.new(
+               '72',
+               '!',
+               group,
+               ''
+             )
+
+           end
+
+  values['g_order'].push(group)
+  values['g_struct'][group] = config
+
+  group  = 'man'
   config = group.new(
-    gid            = "8",
-    group_password = "x",
-    groupname      = group,
-    userlist       = ""
+    '62',
+    'x',
+    group,
+    ''
   )
   values['g_order'].push(group)
   values['g_struct'][group] = config
 
-  group  = "games"
+  group  = 'utmp'
   config = group.new(
-    gid            = "40",
-    group_password = "x",
-    groupname      = group,
-    userlist       = ""
+    '22',
+    'x',
+    group,
+    ''
   )
   values['g_order'].push(group)
   values['g_struct'][group] = config
 
-  group  = "disk"
+  group  = 'news'
   config = group.new(
-    gid            = "6",
-    group_password = "x",
-    groupname      = group,
-    userlist       = ""
+    '13',
+    'x',
+    group,
+    ''
   )
   values['g_order'].push(group)
   values['g_struct'][group] = config
 
-  group  = "audio"
-  config = group.new(
-    gid            = "17",
-    group_password = "x",
-    groupname      = group,
-    userlist       = "pulse"
-  )
-  values['g_order'].push(group)
-  values['g_struct'][group] = config
+  group = 'sshd'
 
-  group  = "suse-ncc"
-  config = group.new(
-    gid            = "110",
-    group_password = "!",
-    groupname      = group,
-    userlist       = ""
-  )
-  values['g_order'].push(group)
-  values['g_struct'][group] = config
+  config = if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
 
-  group  = "ftp"
-  config = group.new(
-    gid            = "49",
-    group_password = "x",
-    groupname      = group,
-    userlist       = ""
-  )
-  values['g_order'].push(group)
-  values['g_struct'][group] = config
+             group.new(
+               '498',
+               'x',
+               group,
+               ''
+             )
 
-  group  = "at"
+           else
 
-  if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+             group.new(
+               '65',
+               '!',
+               group,
+               ''
+             )
 
-    config = group.new(
-      gid            = "25",
-      group_password = "x",
-      groupname      = group,
-      userlist       = ""
-    )
-
-  else
-
-    config = group.new(
-      gid            = "25",
-      group_password = "!",
-      groupname      = group,
-      userlist       = ""
-    )
-
-  end
+           end
 
   values['g_order'].push(group)
   values['g_struct'][group] = config
 
-  group  = "tape"
-
-  if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-
-    config = group.new(
-      gid            = "497",
-      group_password = "x",
-      groupname      = group,
-      userlist       = ""
-    )
-
-  else
-
-    config = group.new(
-      gid            = "103",
-      group_password = "!",
-      groupname      = group,
-      userlist       = ""
-    )
-
-  end
-
-  values['g_order'].push(group)
-  values['g_struct'][group] = config
-
-  group  = "kmem"
-  config = group.new(
-    gid            = "9",
-    group_password = "x",
-    groupname      = group,
-    userlist       = ""
-  )
-  values['g_order'].push(group)
-  values['g_struct'][group] = config
-
-  group  = "public"
-  config = group.new(
-    gid            = "32",
-    group_password = "x",
-    groupname      = group,
-    userlist       = ""
-  )
-  values['g_order'].push(group)
-  values['g_struct'][group] = config
-
-  group  = "root"
-  config = group.new(
-    gid            = "0",
-    group_password = "x",
-    groupname      = group,
-    userlist       = ""
-  )
-  values['g_order'].push(group)
-  values['g_struct'][group] = config
-
-  group  = "mail"
-  config = group.new(
-    gid            = "12",
-    group_password = "x",
-    groupname      = group,
-    userlist       = "postfix"
-  )
-  values['g_order'].push(group)
-  values['g_struct'][group] = config
-
-  group  = "daemon"
-  config = group.new(
-    gid            = "2",
-    group_password = "x",
-    groupname      = group,
-    userlist       = ""
-  )
-  values['g_order'].push(group)
-  values['g_struct'][group] = config
-
-  group  = "ntp"
-
-  if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-
-    config = group.new(
-      gid            = "492",
-      group_password = "x",
-      groupname      = group,
-      userlist       = ""
-    )
-
-  else
-
-    config = group.new(
-      gid            = "107",
-      group_password = "!",
-      groupname      = group,
-      userlist       = ""
-    )
-
-  end
-
-  values['g_order'].push(group)
-  values['g_struct'][group] = config
-
-  if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-
-    group  = "scard"
-    config = group.new(
-      gid            = "487",
-      group_password = "x",
-      groupname      = group,
-      userlist       = ""
-    )
-    values['g_order'].push(group)
-    values['g_struct'][group] = config
-
-    group  = "lock"
-    config = group.new(
-      gid            = "54",
-      group_password = "x",
-      groupname      = group,
-      userlist       = ""
-    )
-    values['g_order'].push(group)
-    values['g_struct'][group] = config
-
-    group  = "winbind"
-    config = group.new(
-      gid            = "486",
-      group_password = "x",
-      groupname      = group,
-      userlist       = ""
-    )
-    values['g_order'].push(group)
-    values['g_struct'][group] = config
-
-    group  = "vnc"
-    config = group.new(
-      gid            = "491",
-      group_password = "x",
-      groupname      = group,
-      userlist       = ""
-    )
-    values['g_order'].push(group)
-    values['g_struct'][group] = config
-
-    group  = "rtkit"
-    config = group.new(
-      gid            = "490",
-      group_password = "x",
-      groupname      = group,
-      userlist       = ""
-    )
-    values['g_order'].push(group)
-    values['g_struct'][group] = config
-
-    group  = "systemd-journal"
-    config = group.new(
-      gid            = "493",
-      group_password = "x",
-      groupname      = group,
-      userlist       = ""
-    )
-    values['g_order'].push(group)
-    values['g_struct'][group] = config
-
-    group  = "nscd"
-    config = group.new(
-      gid            = "495",
-      group_password = "x",
-      groupname      = group,
-      userlist       = ""
-    )
-    values['g_order'].push(group)
-    values['g_struct'][group] = config
-
-    group  = "brlapi"
-    config = group.new(
-      gid            = "494",
-      group_password = "x",
-      groupname      = group,
-      userlist       = ""
-    )
-    values['g_order'].push(group)
-    values['g_struct'][group] = config
-
-  end
-
-  group  = "uucp"
-  config = group.new(
-    gid            = "14",
-    group_password = "x",
-    groupname      = group,
-    userlist       = ""
-  )
-  values['g_order'].push(group)
-  values['g_struct'][group] = config
-
-  group  = "pulse-access"
-
-  if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-
-    config = group.new(
-      gid            = "488",
-      group_password = "x",
-      groupname      = group,
-      userlist       = ""
-    )
-
-  else
-
-    config = group.new(
-      gid            = "109",
-      group_password = "!",
-      groupname      = group,
-      userlist       = ""
-    )
-
-  end
-
-  values['g_order'].push(group)
-  values['g_struct'][group] = config
-
-  group  = "ntadmin"
-
-  if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-
-    config = group.new(
-      gid            = "71",
-      group_password = "x",
-      groupname      = group,
-      userlist       = ""
-    )
-
-  else
-
-    config = group.new(
-      gid            = "72",
-      group_password = "!",
-      groupname      = group,
-      userlist       = ""
-    )
-
-  end
-
-  values['g_order'].push(group)
-  values['g_struct'][group] = config
-
-  group  = "man"
-  config = group.new(
-    gid            = "62",
-    group_password = "x",
-    groupname      = group,
-    userlist       = ""
-  )
-  values['g_order'].push(group)
-  values['g_struct'][group] = config
-
-  group  = "utmp"
-  config = group.new(
-    gid            = "22",
-    group_password = "x",
-    groupname      = group,
-    userlist       = ""
-  )
-  values['g_order'].push(group)
-  values['g_struct'][group] = config
-
-  group  = "news"
-  config = group.new(
-    gid            = "13",
-    group_password = "x",
-    groupname      = group,
-    userlist       = ""
-  )
-  values['g_order'].push(group)
-  values['g_struct'][group] = config
-
-  group  = "sshd"
-
-  if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-
-    config = group.new(
-      gid            = "498",
-      group_password = "x",
-      groupname      = group,
-      userlist       = ""
-    )
-
-  else
-
-    config = group.new(
-      gid            = "65",
-      group_password = "!",
-      groupname      = group,
-      userlist       = ""
-    )
-
-  end
-
-  values['g_order'].push(group)
-  values['g_struct'][group] = config
-
-  return values
+  values
 end
 
 # Populate list of packages to add
@@ -1062,83 +1048,81 @@ def populate_ay_add_packages(values)
   add_packages = []
   case values['service'].to_s
   when /sles_15/
-    add_packages.push("openssh")
-    add_packages.push("sudo")
-    add_packages.push("wget")
+    add_packages.push('openssh')
+    add_packages.push('sudo')
+    add_packages.push('wget')
   when /sles_12_[1-9]/
-    if !values['service'].to_s.match(/sles_12_3/)
-      add_packages.push("at-spi-32bit")
-      add_packages.push("gdbm-32bit")
-      add_packages.push("libcanberra-gtk-32bit")
-      add_packages.push("libcanberra-gtk0-32bit")
-      add_packages.push("libdb-4_5-32bit")
-      add_packages.push("libgstreamer-0_10-0-32bit")
-      add_packages.push("libproxy0-config-gnome")
-      add_packages.push("libpython2_6-1_0-32bit")
-      add_packages.push("librsvg-32bit")
+    unless values['service'].to_s.match(/sles_12_3/)
+      add_packages.push('at-spi-32bit')
+      add_packages.push('gdbm-32bit')
+      add_packages.push('libcanberra-gtk-32bit')
+      add_packages.push('libcanberra-gtk0-32bit')
+      add_packages.push('libdb-4_5-32bit')
+      add_packages.push('libgstreamer-0_10-0-32bit')
+      add_packages.push('libproxy0-config-gnome')
+      add_packages.push('libpython2_6-1_0-32bit')
+      add_packages.push('librsvg-32bit')
     end
-    add_packages.push("cyrus-sasl-32bit")
-    add_packages.push("dbus-1-32bit")
-    add_packages.push("dbus-1-glib-32bit")
-    add_packages.push("libFLAC8-32bit")
-    add_packages.push("libbonobo-32bit")
-    add_packages.push("libbz2-1-32bit")
-    add_packages.push("libcanberra0-32bit")
-    add_packages.push("libcroco-0_6-3-32bit")
-    add_packages.push("libgsf-1-114-32bit")
-    add_packages.push("libgthread-2_0-0-32bit")
-    add_packages.push("libidl-32bit")
-    add_packages.push("libldap-2_4-2-32bit")
-    add_packages.push("libltdl7-32bit")
-    add_packages.push("libogg0-32bit")
-    add_packages.push("libpulse0-32bit")
-    add_packages.push("libsndfile-32bit")
-    add_packages.push("libtalloc2-32bit")
-    add_packages.push("libtdb1-32bit")
-    add_packages.push("libvorbis-32bit")
-    add_packages.push("libxml2-32bit")
-    add_packages.push("orbit2-32bit")
-    add_packages.push("samba-client-32bit")
-    add_packages.push("sles-manuals_en")
-    add_packages.push("tcpd-32bit")
-    add_packages.push("xorg-x11-driver-video-radeonhd")
-    add_packages.push("yast2-trans-en_US")
+    add_packages.push('cyrus-sasl-32bit')
+    add_packages.push('dbus-1-32bit')
+    add_packages.push('dbus-1-glib-32bit')
+    add_packages.push('libFLAC8-32bit')
+    add_packages.push('libbonobo-32bit')
+    add_packages.push('libbz2-1-32bit')
+    add_packages.push('libcanberra0-32bit')
+    add_packages.push('libcroco-0_6-3-32bit')
+    add_packages.push('libgsf-1-114-32bit')
+    add_packages.push('libgthread-2_0-0-32bit')
+    add_packages.push('libidl-32bit')
+    add_packages.push('libldap-2_4-2-32bit')
+    add_packages.push('libltdl7-32bit')
+    add_packages.push('libogg0-32bit')
+    add_packages.push('libpulse0-32bit')
+    add_packages.push('libsndfile-32bit')
+    add_packages.push('libtalloc2-32bit')
+    add_packages.push('libtdb1-32bit')
+    add_packages.push('libvorbis-32bit')
+    add_packages.push('libxml2-32bit')
+    add_packages.push('orbit2-32bit')
+    add_packages.push('samba-client-32bit')
+    add_packages.push('sles-manuals_en')
+    add_packages.push('tcpd-32bit')
+    add_packages.push('xorg-x11-driver-video-radeonhd')
+    add_packages.push('yast2-trans-en_US')
   else
-    add_packages.push("syslinux")
-    add_packages.push("snapper")
-    add_packages.push("sles-release")
-    add_packages.push("perl-Bootloader-YAML")
-    add_packages.push("kexec-tools")
-    add_packages.push("grub2")
-    add_packages.push("glibc")
-    add_packages.push("e2fsprogs")
-    add_packages.push("btrfsprogs")
+    add_packages.push('syslinux')
+    add_packages.push('snapper')
+    add_packages.push('sles-release')
+    add_packages.push('perl-Bootloader-YAML')
+    add_packages.push('kexec-tools')
+    add_packages.push('grub2')
+    add_packages.push('glibc')
+    add_packages.push('e2fsprogs')
+    add_packages.push('btrfsprogs')
   end
-  return add_packages
+  add_packages
 end
 
 # Populate list of packages to remove
 
 def populate_ay_remove_packages(values)
   remove_packages = []
-  remove_packages.push("cups-autoconfig")
-  remove_packages.push("cups-drivers")
-  remove_packages.push("emacs-nox")
-  remove_packages.push("filters")
-  remove_packages.push("gutenprint")
-  remove_packages.push("libqt4-sql-sqlite")
-  remove_packages.push("lprng")
-  remove_packages.push("manufacturer-PPDs")
-  remove_packages.push("pcmciautils")
-  remove_packages.push("portmap")
-  if values['service'].to_s.match(/sles_12_0/)
-    remove_packages.push("postfix")
-  end
-  remove_packages.push("rsyslog")
-  remove_packages.push("sendmail")
-  remove_packages.push("susehelp_de")
-  remove_packages.push("yast2-control-center-qt")
-  return remove_packages
+  remove_packages.push('cups-autoconfig')
+  remove_packages.push('cups-drivers')
+  remove_packages.push('emacs-nox')
+  remove_packages.push('filters')
+  remove_packages.push('gutenprint')
+  remove_packages.push('libqt4-sql-sqlite')
+  remove_packages.push('lprng')
+  remove_packages.push('manufacturer-PPDs')
+  remove_packages.push('pcmciautils')
+  remove_packages.push('portmap')
+  remove_packages.push('postfix') if values['service'].to_s.match(/sles_12_0/)
+  remove_packages.push('rsyslog')
+  remove_packages.push('sendmail')
+  remove_packages.push('susehelp_de')
+  remove_packages.push('yast2-control-center-qt')
+  remove_packages
 end
 
 # Populate patterns
@@ -1146,870 +1130,856 @@ end
 def populate_ay_patterns(values)
   patterns = []
   if values['service'].to_s.match(/sles_15/)
-    patterns.push("base")
+    patterns.push('base')
   else
-    patterns.push("Minimal")
-    patterns.push("base")
+    patterns.push('Minimal')
+    patterns.push('base')
     if !values['service'].to_s.match(/sles_12_[1-9]/)
-      patterns.push("Basis-Devel")
-      if !values['service'].to_s.match(/sles_12/)
-        patterns.push("gnome")
-        patterns.push("print_server")
+      patterns.push('Basis-Devel')
+      unless values['service'].to_s.match(/sles_12/)
+        patterns.push('gnome')
+        patterns.push('print_server')
       end
     else
-      patterns.push("apparmor")
-      patterns.push("documentation")
-      patterns.push("gnome-basic")
-      patterns.push("32bit")
-      patterns.push("sles-Minimal-32bit")
-      patterns.push("sles-apparmor-32bit")
-      patterns.push("sles-base-32bit")
-      patterns.push("sles-documentation-32bit")
-      patterns.push("sles-x11-32bit")
+      patterns.push('apparmor')
+      patterns.push('documentation')
+      patterns.push('gnome-basic')
+      patterns.push('32bit')
+      patterns.push('sles-Minimal-32bit')
+      patterns.push('sles-apparmor-32bit')
+      patterns.push('sles-base-32bit')
+      patterns.push('sles-documentation-32bit')
+      patterns.push('sles-x11-32bit')
     end
-    patterns.push("x11")
+    patterns.push('x11')
   end
-  return patterns
+  patterns
 end
 
 # Populate users
 
 def populate_ay_users(values)
-  user  = Struct.new(:fullname, :gid, :home, :expire, :flag, :inact, :max, :min, :warn, :shell, :uid, :user_password, :username)
+  Struct.new(:fullname, :gid, :home, :expire, :flag, :inact, :max, :min, :warn, :shell, :uid, :user_password,
+             :username)
 
   user   = values['adminuser']
   config = user.new(
-    fullname      = values['adminname'],
-    gid           = "100",
-    home          = values['adminhome'],
-    expire        = "",
-    flag          = "",
-    inact         = "",
-    max           = "99999",
-    min           = "0",
-    warn          = "7",
-    shell         = values['adminshell'],
-    uid           = "1000",
-    user_password = values['answers']['admin_crypt'].value,
-    username      = values['adminuser']
+    values['adminname'],
+    '100',
+    values['adminhome'],
+    '',
+    '',
+    '',
+    '99999',
+    '0',
+    '7',
+    values['adminshell'],
+    '1000',
+    values['answers']['admin_crypt'].value,
+    values['adminuser']
   )
-  values['u_struct'][user]=config
+  values['u_struct'][user] = config
   values['u_order'].push(user)
 
-  user   = "games"
+  user   = 'games'
   config = user.new(
-    fullname      = "Games account",
-    gid           = "100",
-    home          = "/var/games",
-    expire        = "",
-    flag          = "",
-    inact         = "",
-    max           = "",
-    min           = "",
-    warn          = "",
-    shell         = "/bin/bash",
-    uid           = "12",
-    user_password = "*",
-    username      = user
+    'Games account',
+    '100',
+    '/var/games',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '/bin/bash',
+    '12',
+    '*',
+    user
   )
-  values['u_struct'][user]=config
+  values['u_struct'][user] = config
   values['u_order'].push(user)
 
-  user   = "bin"
+  user   = 'bin'
   config = user.new(
-    fullname      = "bin",
-    gid           = "1",
-    home          = "/bin",
-    expire        = "",
-    flag          = "",
-    inact         = "",
-    max           = "",
-    min           = "",
-    warn          = "",
-    shell         = "/bin/bash",
-    uid           = "",
-    user_password = "*",
-    username      = user
+    'bin',
+    '1',
+    '/bin',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '/bin/bash',
+    '',
+    '*',
+    user
   )
-  values['u_struct'][user]=config
+  values['u_struct'][user] = config
   values['u_order'].push(user)
 
-  user   = "nobody"
+  user   = 'nobody'
   config = user.new(
-    fullname      = "nobody",
-    gid           = "65533",
-    home          = "/var/lib/nobody",
-    expire        = "",
-    flag          = "",
-    inact         = "",
-    max           = "",
-    min           = "",
-    warn          = "",
-    shell         = "/bin/bash",
-    uid           = "",
-    user_password = "",
-    username      = user
+    'nobody',
+    '65533',
+    '/var/lib/nobody',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '/bin/bash',
+    '',
+    '',
+    user
   )
-  values['u_struct'][user]=config
+  values['u_struct'][user] = config
   values['u_order'].push(user)
 
-  user   = "lp"
+  user   = 'lp'
   config = user.new(
-    fullname      = "Printing daemon",
-    gid           = "7",
-    home          = "/var/spool/lpd",
-    expire        = "",
-    flag          = "",
-    inact         = "",
-    max           = "",
-    min           = "",
-    warn          = "",
-    shell         = "/bin/bash",
-    uid           = "4",
-    user_password = "*",
-    username      = user
+    'Printing daemon',
+    '7',
+    '/var/spool/lpd',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '/bin/bash',
+    '4',
+    '*',
+    user
   )
-  values['u_struct'][user]=config
+  values['u_struct'][user] = config
   values['u_order'].push(user)
 
-  user   = "uuid"
+  user   = 'uuid'
   config = user.new(
-    fullname      = "User for uuid",
-    gid           = "104",
-    home          = "/var/run/uuid",
-    expire        = "",
-    flag          = "",
-    inact         = "",
-    max           = "9999",
-    min           = "0",
-    warn          = "7",
-    shell         = "/bin/false",
-    uid           = "102",
-    user_password = "*",
-    username      = user
+    'User for uuid',
+    '104',
+    '/var/run/uuid',
+    '',
+    '',
+    '',
+    '9999',
+    '0',
+    '7',
+    '/bin/false',
+    '102',
+    '*',
+    user
   )
-  values['u_struct'][user]=config
+  values['u_struct'][user] = config
   values['u_order'].push(user)
 
-  user = "postfix"
+  user = 'postfix'
   config = user.new(
-    fullname      = "Postfix Daemon",
-    gid           = "51",
-    home          = "/var/spool/postfix",
-    expire        = "",
-    flag          = "",
-    inact         = "",
-    max           = "99999",
-    min           = "0",
-    warn          = "7",
-    shell         = "/bin/false",
-    uid           = "51",
-    user_password = "*",
-    username      = user
+    'Postfix Daemon',
+    '51',
+    '/var/spool/postfix',
+    '',
+    '',
+    '',
+    '99999',
+    '0',
+    '7',
+    '/bin/false',
+    '51',
+    '*',
+    user
   )
-  values['u_struct'][user]=config
+  values['u_struct'][user] = config
   values['u_order'].push(user)
 
-  user   = "suse-ncc"
+  user   = 'suse-ncc'
   config = user.new(
-    fullname      = "Novell Customer Center User",
-    gid           = "110",
-    home          = "/var/lib/YaST2/suse-ncc-fakehome",
-    expire        = "",
-    flag          = "",
-    inact         = "",
-    max           = "99999",
-    min           = "0",
-    warn          = "7",
-    shell         = "/bin/bash",
-    uid           = "106",
-    user_password = "*",
-    username      = user
+    'Novell Customer Center User',
+    '110',
+    '/var/lib/YaST2/suse-ncc-fakehome',
+    '',
+    '',
+    '',
+    '99999',
+    '0',
+    '7',
+    '/bin/bash',
+    '106',
+    '*',
+    user
   )
-  values['u_struct'][user]=config
+  values['u_struct'][user] = config
   values['u_order'].push(user)
 
-  user   = "ftp"
+  user   = 'ftp'
   config = user.new(
-    fullname      = "FTP account",
-    gid           = "49",
-    home          = "/srv/ftp",
-    expire        = "",
-    flag          = "",
-    inact         = "",
-    max           = "",
-    min           = "",
-    warn          = "",
-    shell         = "/bin/bash",
-    uid           = "40",
-    user_password = "*",
-    username      = user
+    'FTP account',
+    '49',
+    '/srv/ftp',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '/bin/bash',
+    '40',
+    '*',
+    user
   )
-  values['u_struct'][user]=config
+  values['u_struct'][user] = config
+  values['u_order'].push(user)
+
+  user = 'gdm'
+  config = if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+
+             user.new(
+               'Gnome Display Manager daemon',
+               '485',
+               '/var/lib/gdm',
+               '',
+               '',
+               '',
+               '',
+               '',
+               '',
+               '/bin/false',
+               '486',
+               '!',
+               user
+             )
+
+           else
+
+             user.new(
+               'Gnome Display Manager daemon',
+               '111',
+               '/var/lib/gdm',
+               '',
+               '',
+               '',
+               '9999',
+               '0',
+               '7',
+               '/bin/bash',
+               '107',
+               '*',
+               user
+             )
+
+           end
+  values['u_struct'][user] = config
+  values['u_order'].push(user)
+
+  user   = 'at'
+  config = user.new(
+    'Batch job daemon',
+    '25',
+    '/var/spool/atjobs',
+    '',
+    '',
+    '',
+    '99999',
+    '0',
+    '7',
+    '/bin/bash',
+    '25',
+    '*',
+    user
+  )
+  values['u_struct'][user] = config
+  values['u_order'].push(user)
+
+  user = 'root'
+  config = user.new(
+    'root',
+    '0',
+    '/root',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '/bin/bash',
+    '0',
+    values['answers']['root_crypt'].value,
+    user
+  )
+  values['u_struct'][user] = config
+  values['u_order'].push(user)
+
+  user   = 'mail'
+  config = user.new(
+    'Mailer daemon',
+    '12',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '/bin/false',
+    '8',
+    '*',
+    user
+  )
+  values['u_struct'][user] = config
   values['u_order'].push(user)
 
   if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
 
-    user   = "gdm"
+    user   = 'openslp'
     config = user.new(
-      fullname      = "Gnome Display Manager daemon",
-      gid           = "485",
-      home          = "/var/lib/gdm",
-      expire        = "",
-      flag          = "",
-      inact         = "",
-      max           = "",
-      min           = "",
-      warn          = "",
-      shell         = "/bin/false",
-      uid           = "486",
-      user_password = "!",
-      username      = user
+      'openslp daemon',
+      '2',
+      '/var/lib/empty',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '/sbin/nologin',
+      '494',
+      '!',
+      user
     )
-    values['u_struct'][user]=config
+    values['u_struct'][user] = config
     values['u_order'].push(user)
+
+    user   = 'usbmuxd'
+    config = user.new(
+      'usbmuxd daemon',
+      '65534',
+      '/var/lib/usbmuxd',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '/sbin/nologin',
+      '493',
+      '!',
+      user
+    )
+    values['u_struct'][user] = config
+    values['u_order'].push(user)
+
+    user   = 'statd'
+    config = user.new(
+      'NFS statd daemon',
+      '65534',
+      '/var/lib/nfs',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '/sbin/nologin',
+      '484',
+      '!',
+      user
+    )
+    values['u_struct'][user] = config
+    values['u_order'].push(user)
+
+    user   = 'scard'
+    config = user.new(
+      'Smart Card Reader',
+      '487',
+      '/var/run/pcscd',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '/usr/sbin/nologin',
+      '487',
+      '!',
+      user
+    )
+    values['u_struct'][user] = config
+    values['u_order'].push(user)
+
+    user   = 'vnc'
+    config = user.new(
+      'user for VNC',
+      '491',
+      '/var/lib/empty',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '/sbin/nologin',
+      '492',
+      '!',
+      user
+    )
+    values['u_struct'][user] = config
+    values['u_order'].push(user)
+
+    user   = 'sshd'
+    config = user.new(
+      'SSH daemon',
+      '498',
+      '/var/lib/sshd',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '/bin/false',
+      '498',
+      '!',
+      user
+    )
+    values['u_struct'][user] = config
+    values['u_order'].push(user)
+
+    user   = 'nscd'
+    config = user.new(
+      'User for nscd',
+      '495',
+      '/run/nscd',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '/sbin/nologin',
+      '496',
+      '!',
+      user
+    )
+    values['u_struct'][user] = config
+    values['u_order'].push(user)
+
+    user   = 'rtkit'
+    config = user.new(
+      'RealtimeKit',
+      '490',
+      '/proc',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '/bin/false',
+      '490',
+      '!',
+      user
+    )
+    values['u_struct'][user] = config
+    values['u_order'].push(user)
+
+    user   = 'ftpsecure'
+    config = user.new(
+      'Secure FTP User',
+      '65534',
+      '/var/lib/empty',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '/bin/false',
+      '488',
+      '!',
+      user
+    )
+    values['u_struct'][user] = config
+    values['u_order'].push(user)
+
+    user   = 'rpc'
+    config = user.new(
+      'user for rpcbind',
+      '65534',
+      '/var/lib/empty',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '/bin/false',
+      '495',
+      '!',
+      user
+    )
+    values['u_struct'][user] = config
+    values['u_order'].push(user)
+
+  end
+
+  user   = 'daemon'
+  config = user.new(
+    'Daemon',
+    '2',
+    '/sbin',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '/bin/bash',
+    '2',
+    '*',
+    user
+  )
+  values['u_struct'][user] = config
+  values['u_order'].push(user)
+
+  user   = 'ntp'
+  config = user.new(
+    'NTP daemon',
+    '107',
+    '/var/lib/ntp',
+    '',
+    '',
+    '',
+    '99999',
+    '0',
+    '7',
+    '/bin/false',
+    '74',
+    '*',
+    user
+  )
+  values['u_struct'][user] = config
+  values['u_order'].push(user)
+
+  user   = 'uucp'
+  config = user.new(
+    'Unix-to-Unix CoPy system',
+    '14',
+    '/etc/uucp',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '/bin/bash',
+    '10',
+    '*',
+    user
+  )
+  values['u_struct'][user] = config
+  values['u_order'].push(user)
+
+  user = 'messagebus'
+  config = if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+
+             user.new(
+               'User for D-Bus',
+               '499',
+               '/var/run/dbus',
+               '',
+               '',
+               '',
+               '',
+               '',
+               '',
+               '/bin/false',
+               '499',
+               '!',
+               user
+             )
+
+           else
+
+             user.new(
+               'User for D-Bus',
+               '101',
+               '/var/run/dbus',
+               '',
+               '',
+               '',
+               '',
+               '0',
+               '7',
+               '/bin/false',
+               '100',
+               '*',
+               user
+             )
+
+           end
+  values['u_struct'][user] = config
+  values['u_order'].push(user)
+
+  user   = 'haldaemon'
+  config = user.new(
+    'User for haldaemon',
+    '102',
+    '/var/run/hald',
+    '',
+    '',
+    '',
+    '',
+    '0',
+    '7',
+    '/bin/false',
+    '101',
+    '*',
+    user
+  )
+  values['u_struct'][user] = config
+  values['u_order'].push(user)
+
+  user   = 'wwwrun'
+  config = user.new(
+    'WWW daemon apache',
+    '8',
+    '/var/lib/wwwrun',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '/bin/false',
+    '30',
+    '*',
+    user
+  )
+  values['u_struct'][user] = config
+  values['u_order'].push(user)
+
+  user   = 'puppet'
+  config = user.new(
+    'Puppet daemon',
+    '105',
+    '/var/lib/puppet',
+    '',
+    '',
+    '',
+    '99999',
+    '0',
+    '7',
+    '/bin/false',
+    '103',
+    '*',
+    user
+  )
+  values['u_struct'][user] = config
+  values['u_order'].push(user)
+
+  user   = 'man'
+  config = user.new(
+    'Manual pages viewer',
+    '62',
+    '/var/cache/man',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '/bin/bash',
+    '13',
+    '*',
+    user
+  )
+  values['u_struct'][user] = config
+  values['u_order'].push(user)
+
+  if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+
+    user   = 'polkitd'
+    config = user.new(
+      'User for polkitd',
+      '496',
+      '/var/lib/polkitd',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '/sbin/nologin',
+      '497',
+      '*',
+      user
+    )
 
   else
 
-    user   = "gdm"
+    user   = 'polkituser'
     config = user.new(
-      fullname      = "Gnome Display Manager daemon",
-      gid           = "111",
-      home          = "/var/lib/gdm",
-      expire        = "",
-      flag          = "",
-      inact         = "",
-      max           = "9999",
-      min           = "0",
-      warn          = "7",
-      shell         = "/bin/bash",
-      uid           = "107",
-      user_password = "*",
-      username      = user
+      'PolicyKit',
+      '106',
+      '/var/run/PolicyKit',
+      '',
+      '',
+      '',
+      '99999',
+      '0',
+      '7',
+      '/bin/false',
+      '104',
+      '*',
+      user
     )
-    values['u_struct'][user]=config
-    values['u_order'].push(user)
 
   end
-
-  user   = "at"
-  config = user.new(
-    fullname      = "Batch job daemon",
-    gid           = "25",
-    home          = "/var/spool/atjobs",
-    expire        = "",
-    flag          = "",
-    inact         = "",
-    max           = "99999",
-    min           = "0",
-    warn          = "7",
-    shell         = "/bin/bash",
-    uid           = "25",
-    user_password = "*",
-    username      = user
-  )
-  values['u_struct'][user]=config
+  values['u_struct'][user] = config
   values['u_order'].push(user)
 
-
-  user  = "root"
+  user   = 'news'
   config = user.new(
-    fullname      = "root",
-    gid           = "0",
-    home          = "/root",
-    expire        = "",
-    flag          = "",
-    inact         = "",
-    max           = "",
-    min           = "",
-    warn          = "",
-    shell         = "/bin/bash",
-    uid           = "0",
-    user_password = values['answers']['root_crypt'].value,
-    username      = user
+    'News system',
+    '13',
+    '/etc/news',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+    '/bin/false',
+    '9',
+    '*',
+    user
   )
-  values['u_struct'][user]=config
+  values['u_struct'][user] = config
   values['u_order'].push(user)
 
-  user   = "mail"
-  config = user.new(
-    fullname      = "Mailer daemon",
-    gid           = "12",
-    home          = "",
-    expire        = "",
-    flag          = "",
-    inact         = "",
-    max           = "",
-    min           = "",
-    warn          = "",
-    shell         = "/bin/false",
-    uid           = "8",
-    user_password = "*",
-    username      = user
-  )
-  values['u_struct'][user]=config
+  user = 'pulse'
+  config = if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+
+             user.new(
+               'PulseAudio daemon',
+               '489',
+               '/var/lib/pulseaudio',
+               '',
+               '',
+               '',
+               '',
+               '',
+               '',
+               '/sbin/nologin',
+               '489',
+               '*',
+               user
+             )
+
+           else
+
+             user.new(
+               'PulseAudio daemon',
+               '100',
+               '/var/lib/pulseaudio',
+               '',
+               '',
+               '',
+               '99999',
+               '0',
+               '7',
+               '/bin/false',
+               '105',
+               '*',
+               user
+             )
+
+           end
+  values['u_struct'][user] = config
   values['u_order'].push(user)
 
-  if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-
-    user   = "openslp"
-    config = user.new(
-      fullname      = "openslp daemon",
-      gid           = "2",
-      home          = "/var/lib/empty",
-      expire        = "",
-      flag          = "",
-      inact         = "",
-      max           = "",
-      min           = "",
-      warn          = "",
-      shell         = "/sbin/nologin",
-      uid           = "494",
-      user_password = "!",
-      username      = user
-    )
-    values['u_struct'][user]=config
-    values['u_order'].push(user)
-
-    user   = "usbmuxd"
-    config = user.new(
-      fullname      = "usbmuxd daemon",
-      gid           = "65534",
-      home          = "/var/lib/usbmuxd",
-      expire        = "",
-      flag          = "",
-      inact         = "",
-      max           = "",
-      min           = "",
-      warn          = "",
-      shell         = "/sbin/nologin",
-      uid           = "493",
-      user_password = "!",
-      username      = user
-    )
-    values['u_struct'][user]=config
-    values['u_order'].push(user)
-
-    user   = "statd"
-    config = user.new(
-      fullname      = "NFS statd daemon",
-      gid           = "65534",
-      home          = "/var/lib/nfs",
-      expire        = "",
-      flag          = "",
-      inact         = "",
-      max           = "",
-      min           = "",
-      warn          = "",
-      shell         = "/sbin/nologin",
-      uid           = "484",
-      user_password = "!",
-      username      = user
-    )
-    values['u_struct'][user]=config
-    values['u_order'].push(user)
-
-    user   = "scard"
-    config = user.new(
-      fullname      = "Smart Card Reader",
-      gid           = "487",
-      home          = "/var/run/pcscd",
-      expire        = "",
-      flag          = "",
-      inact         = "",
-      max           = "",
-      min           = "",
-      warn          = "",
-      shell         = "/usr/sbin/nologin",
-      uid           = "487",
-      user_password = "!",
-      username      = user
-    )
-    values['u_struct'][user]=config
-    values['u_order'].push(user)
-
-    user   = "vnc"
-    config = user.new(
-      fullname      = "user for VNC",
-      gid           = "491",
-      home          = "/var/lib/empty",
-      expire        = "",
-      flag          = "",
-      inact         = "",
-      max           = "",
-      min           = "",
-      warn          = "",
-      shell         = "/sbin/nologin",
-      uid           = "492",
-      user_password = "!",
-      username      = user
-    )
-    values['u_struct'][user]=config
-    values['u_order'].push(user)
-
-    user   = "sshd"
-    config = user.new(
-      fullname      = "SSH daemon",
-      gid           = "498",
-      home          = "/var/lib/sshd",
-      expire        = "",
-      flag          = "",
-      inact         = "",
-      max           = "",
-      min           = "",
-      warn          = "",
-      shell         = "/bin/false",
-      uid           = "498",
-      user_password = "!",
-      username      = user
-    )
-    values['u_struct'][user]=config
-    values['u_order'].push(user)
-
-    user   = "nscd"
-    config = user.new(
-      fullname      = "User for nscd",
-      gid           = "495",
-      home          = "/run/nscd",
-      expire        = "",
-      flag          = "",
-      inact         = "",
-      max           = "",
-      min           = "",
-      warn          = "",
-      shell         = "/sbin/nologin",
-      uid           = "496",
-      user_password = "!",
-      username      = user
-    )
-    values['u_struct'][user]=config
-    values['u_order'].push(user)
-
-    user   = "rtkit"
-    config = user.new(
-      fullname      = "RealtimeKit",
-      gid           = "490",
-      home          = "/proc",
-      expire        = "",
-      flag          = "",
-      inact         = "",
-      max           = "",
-      min           = "",
-      warn          = "",
-      shell         = "/bin/false",
-      uid           = "490",
-      user_password = "!",
-      username      = user
-    )
-    values['u_struct'][user]=config
-    values['u_order'].push(user)
-
-    user   = "ftpsecure"
-    config = user.new(
-      fullname      = "Secure FTP User",
-      gid           = "65534",
-      home          = "/var/lib/empty",
-      expire        = "",
-      flag          = "",
-      inact         = "",
-      max           = "",
-      min           = "",
-      warn          = "",
-      shell         = "/bin/false",
-      uid           = "488",
-      user_password = "!",
-      username      = user
-    )
-    values['u_struct'][user]=config
-    values['u_order'].push(user)
-
-    user   = "rpc"
-    config = user.new(
-      fullname      = "user for rpcbind",
-      gid           = "65534",
-      home          = "/var/lib/empty",
-      expire        = "",
-      flag          = "",
-      inact         = "",
-      max           = "",
-      min           = "",
-      warn          = "",
-      shell         = "/bin/false",
-      uid           = "495",
-      user_password = "!",
-      username      = user
-    )
-    values['u_struct'][user]=config
-    values['u_order'].push(user)
-
-  end
-
-  user   = "daemon"
-  config = user.new(
-    fullname      = "Daemon",
-    gid           = "2",
-    home          = "/sbin",
-    expire        = "",
-    flag          = "",
-    inact         = "",
-    max           = "",
-    min           = "",
-    warn          = "",
-    shell         = "/bin/bash",
-    uid           = "2",
-    user_password = "*",
-    username      = user
-  )
-  values['u_struct'][user]=config
-  values['u_order'].push(user)
-
-
-  user   = "ntp"
-  config = user.new(
-    fullname      = "NTP daemon",
-    gid           = "107",
-    home          = "/var/lib/ntp",
-    expire        = "",
-    flag          = "",
-    inact         = "",
-    max           = "99999",
-    min           = "0",
-    warn          = "7",
-    shell         = "/bin/false",
-    uid           = "74",
-    user_password = "*",
-    username      = user
-  )
-  values['u_struct'][user]=config
-  values['u_order'].push(user)
-
-
-  user   = "uucp"
-  config = user.new(
-    fullname      = "Unix-to-Unix CoPy system",
-    gid           = "14",
-    home          = "/etc/uucp",
-    expire        = "",
-    flag          = "",
-    inact         = "",
-    max           = "",
-    min           = "",
-    warn          = "",
-    shell         = "/bin/bash",
-    uid           = "10",
-    user_password = "*",
-    username      = user
-  )
-  values['u_struct'][user]=config
-  values['u_order'].push(user)
-
-  if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-
-    user   = "messagebus"
-    config = user.new(
-      fullname      = "User for D-Bus",
-      gid           = "499",
-      home          = "/var/run/dbus",
-      expire        = "",
-      flag          = "",
-      inact         = "",
-      max           = "",
-      min           = "",
-      warn          = "",
-      shell         = "/bin/false",
-      uid           = "499",
-      user_password = "!",
-      username      = user
-    )
-    values['u_struct'][user]=config
-    values['u_order'].push(user)
-
-  else
-
-    user   = "messagebus"
-    config = user.new(
-      fullname      = "User for D-Bus",
-      gid           = "101",
-      home          = "/var/run/dbus",
-      expire        = "",
-      flag          = "",
-      inact         = "",
-      max           = "",
-      min           = "0",
-      warn          = "7",
-      shell         = "/bin/false",
-      uid           = "100",
-      user_password = "*",
-      username      = user
-    )
-    values['u_struct'][user]=config
-    values['u_order'].push(user)
-
-  end
-
-  user   = "haldaemon"
-  config = user.new(
-    fullname      = "User for haldaemon",
-    gid           = "102",
-    home          = "/var/run/hald",
-    expire        = "",
-    flag          = "",
-    inact         = "",
-    max           = "",
-    min           = "0",
-    warn          = "7",
-    shell         = "/bin/false",
-    uid           = "101",
-    user_password = "*",
-    username      = user
-  )
-  values['u_struct'][user]=config
-  values['u_order'].push(user)
-
-  user   = "wwwrun"
-  config = user.new(
-    fullname      = "WWW daemon apache",
-    gid           = "8",
-    home          = "/var/lib/wwwrun",
-    expire        = "",
-    flag          = "",
-    inact         = "",
-    max           = "",
-    min           = "",
-    warn          = "",
-    shell         = "/bin/false",
-    uid           = "30",
-    user_password = "*",
-    username      = user
-  )
-  values['u_struct'][user]=config
-  values['u_order'].push(user)
-
-  user   = "puppet"
-  config = user.new(
-    fullname      = "Puppet daemon",
-    gid           = "105",
-    home          = "/var/lib/puppet",
-    expire        = "",
-    flag          = "",
-    inact         = "",
-    max           = "99999",
-    min           = "0",
-    warn          = "7",
-    shell         = "/bin/false",
-    uid           = "103",
-    user_password = "*",
-    username      = user
-  )
-  values['u_struct'][user]=config
-  values['u_order'].push(user)
-
-  user   = "man"
-  config = user.new(
-    fullname      = "Manual pages viewer",
-    gid           = "62",
-    home          = "/var/cache/man",
-    expire        = "",
-    flag          = "",
-    inact         = "",
-    max           = "",
-    min           = "",
-    warn          = "",
-    shell         = "/bin/bash",
-    uid           = "13",
-    user_password = "*",
-    username      = user
-  )
-  values['u_struct'][user]=config
-  values['u_order'].push(user)
-
-  if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-
-    user   = "polkitd"
-    config = user.new(
-      fullname      = "User for polkitd",
-      gid           = "496",
-      home          = "/var/lib/polkitd",
-      expire        = "",
-      flag          = "",
-      inact         = "",
-      max           = "",
-      min           = "",
-      warn          = "",
-      shell         = "/sbin/nologin",
-      uid           = "497",
-      user_password = "*",
-      username      = user
-    )
-    values['u_struct'][user]=config
-    values['u_order'].push(user)
-
-  else
-
-    user   = "polkituser"
-    config = user.new(
-      fullname      = "PolicyKit",
-      gid           = "106",
-      home          = "/var/run/PolicyKit",
-      expire        = "",
-      flag          = "",
-      inact         = "",
-      max           = "99999",
-      min           = "0",
-      warn          = "7",
-      shell         = "/bin/false",
-      uid           = "104",
-      user_password = "*",
-      username      = user
-    )
-    values['u_struct'][user]=config
-    values['u_order'].push(user)
-
-  end
-
-  user   = "news"
-  config = user.new(
-    fullname      = "News system",
-    gid           = "13",
-    home          = "/etc/news",
-    expire        = "",
-    flag          = "",
-    inact         = "",
-    max           = "",
-    min           = "",
-    warn          = "",
-    shell         = "/bin/false",
-    uid           = "9",
-    user_password = "*",
-    username      = user
-  )
-  values['u_struct'][user]=config
-  values['u_order'].push(user)
-
-  if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-
-    user   = "pulse"
-    config = user.new(
-      fullname      = "PulseAudio daemon",
-      gid           = "489",
-      home          = "/var/lib/pulseaudio",
-      expire        = "",
-      flag          = "",
-      inact         = "",
-      max           = "",
-      min           = "",
-      warn          = "",
-      shell         = "/sbin/nologin",
-      uid           = "489",
-      user_password = "*",
-      username      = user
-    )
-    values['u_struct'][user]=config
-    values['u_order'].push(user)
-
-  else
-
-    user   = "pulse"
-    config = user.new(
-      fullname      = "PulseAudio daemon",
-      gid           = "100",
-      home          = "/var/lib/pulseaudio",
-      expire        = "",
-      flag          = "",
-      inact         = "",
-      max           = "99999",
-      min           = "0",
-      warn          = "7",
-      shell         = "/bin/false",
-      uid           = "105",
-      user_password = "*",
-      username      = user
-    )
-    values['u_struct'][user]=config
-    values['u_order'].push(user)
-
-  end
-
-  return values
+  values
 end
 
 # Populate disabled http modules
 
-def populate_ay_disabled_http_modules(values)
+def populate_ay_disabled_http_modules(_values)
   disabled_http_modules = []
-  disabled_http_modules.push("authz_host")
-  disabled_http_modules.push("actions")
-  disabled_http_modules.push("alias")
-  disabled_http_modules.push("auth_basic")
-  disabled_http_modules.push("authn_file")
-  disabled_http_modules.push("authz_user")
-  disabled_http_modules.push("authz_groupfile")
-  disabled_http_modules.push("autoindex")
-  disabled_http_modules.push("cgi")
-  disabled_http_modules.push("dir")
-  disabled_http_modules.push("include")
-  disabled_http_modules.push("log_config")
-  disabled_http_modules.push("mime")
-  disabled_http_modules.push("negotiation")
-  disabled_http_modules.push("setenvif")
-  disabled_http_modules.push("status")
-  disabled_http_modules.push("userdir")
-  disabled_http_modules.push("asis")
-  disabled_http_modules.push("imagemap")
-  return disabled_http_modules
+  disabled_http_modules.push('authz_host')
+  disabled_http_modules.push('actions')
+  disabled_http_modules.push('alias')
+  disabled_http_modules.push('auth_basic')
+  disabled_http_modules.push('authn_file')
+  disabled_http_modules.push('authz_user')
+  disabled_http_modules.push('authz_groupfile')
+  disabled_http_modules.push('autoindex')
+  disabled_http_modules.push('cgi')
+  disabled_http_modules.push('dir')
+  disabled_http_modules.push('include')
+  disabled_http_modules.push('log_config')
+  disabled_http_modules.push('mime')
+  disabled_http_modules.push('negotiation')
+  disabled_http_modules.push('setenvif')
+  disabled_http_modules.push('status')
+  disabled_http_modules.push('userdir')
+  disabled_http_modules.push('asis')
+  disabled_http_modules.push('imagemap')
+  disabled_http_modules
 end
 
 # Populate enabled http modules
 
-def populate_ay_enabled_http_modules(values)
-  enabled_http_modules = []
-  return enabled_http_modules
+def populate_ay_enabled_http_modules(_values)
+  []
 end
 
 # Populate services to disable
 
-def populate_ay_disabled_services(values)
+def populate_ay_disabled_services(_values)
   disabled_services = []
-  disabled_services.push("display_manager")
-  return disabled_services
+  disabled_services.push('display_manager')
+  disabled_services
 end
 
 # Populate services to enable
 
-def populate_ay_enabled_services(values)
+def populate_ay_enabled_services(_values)
   enabled_services = []
-  enabled_services.push("btrfsmaintenance-refresh")
-  enabled_services.push("cron")
-  enabled_services.push("getty@tty1")
-  enabled_services.push("haveged")
-  enabled_services.push("irqbalance")
-  enabled_services.push("iscsi")
-  enabled_services.push("nscd")
-  enabled_services.push("ntpd")
-  enabled_services.push("postfix")
-  enabled_services.push("purge-kernels")
-  enabled_services.push("rollback")
-  enabled_services.push("rsyslog")
-  enabled_services.push("smartd")
-  enabled_services.push("sshd")
-  enabled_services.push("SuSEfirewall2")
-  enabled_services.push("SuSEfirewall2_init")
-  enabled_services.push("systemd-readahead-collect")
-  enabled_services.push("systemd-readahead-replay")
-  enabled_services.push("vmtoolsd")
-  enabled_services.push("wicked")
-  enabled_services.push("wickedd-auto4")
-  enabled_services.push("wickedd-dhcp4")
-  enabled_services.push("wickedd-dhcp6")
-  enabled_services.push("wickedd-nanny")
-  enabled_services.push("YaST2-Firstboot")
-  enabled_services.push("YaST2-Second-Stage")
-  return enabled_services
+  enabled_services.push('btrfsmaintenance-refresh')
+  enabled_services.push('cron')
+  enabled_services.push('getty@tty1')
+  enabled_services.push('haveged')
+  enabled_services.push('irqbalance')
+  enabled_services.push('iscsi')
+  enabled_services.push('nscd')
+  enabled_services.push('ntpd')
+  enabled_services.push('postfix')
+  enabled_services.push('purge-kernels')
+  enabled_services.push('rollback')
+  enabled_services.push('rsyslog')
+  enabled_services.push('smartd')
+  enabled_services.push('sshd')
+  enabled_services.push('SuSEfirewall2')
+  enabled_services.push('SuSEfirewall2_init')
+  enabled_services.push('systemd-readahead-collect')
+  enabled_services.push('systemd-readahead-replay')
+  enabled_services.push('vmtoolsd')
+  enabled_services.push('wicked')
+  enabled_services.push('wickedd-auto4')
+  enabled_services.push('wickedd-dhcp4')
+  enabled_services.push('wickedd-dhcp6')
+  enabled_services.push('wickedd-nanny')
+  enabled_services.push('YaST2-Firstboot')
+  enabled_services.push('YaST2-Second-Stage')
+  enabled_services
 end
 
 # Output client profile file
 
-def output_ay_client_profile(values,output_file)
+def output_ay_client_profile(values, output_file)
   values = populate_ay_users(values)
   values = populate_ay_groups(values)
   values = populate_ay_inetd(values)
@@ -2023,129 +1993,127 @@ def output_ay_client_profile(values,output_file)
   enabled_services  = populate_ay_enabled_services(values)
   disabled_http_modules = populate_ay_disabled_http_modules(values)
   enabled_http_modules  = populate_ay_enabled_http_modules(values)
-  xml = Builder::XmlMarkup.new(:target => xml_output, :indent => 2)
-  xml.instruct! :xml, :version => "1.0", :encoding => "UTF-8"
+  xml = Builder::XmlMarkup.new(target: xml_output, indent: 2)
+  xml.instruct! :xml, version: '1.0', encoding: 'UTF-8'
   xml.declare! :DOCTYPE, :profile
-  xml.profile(:xmlns => "http://www.suse.com/1.0/yast2ns", :"xmlns:config" => "http://www.suse.com/1.0/configns") {
-    xml.tag!("add-on") {
-      xml.add_on_products(:"config:type" => "list") {
+  xml.profile(xmlns: 'http://www.suse.com/1.0/yast2ns', "xmlns:config": 'http://www.suse.com/1.0/configns') do
+    xml.tag!('add-on') do
+      xml.add_on_products("config:type": 'list') do
         if values['service'].to_s.match(/sles_15/)
-          xml.listentry {
-            xml.media_url{ xml.declare! :"[CDATA[dvd:///?devices=/dev/sr0]]" }
-#            xml.product("base")
-            xml.product_dir("/Module-Basesystem")
-          }
+          xml.listentry do
+            xml.media_url { xml.declare! :"[CDATA[dvd:///?devices=/dev/sr0]]" }
+            #            xml.product("base")
+            xml.product_dir('/Module-Basesystem')
+          end
         end
-      }
-    }
-    xml.tag!("audit-laf") {
-      xml.auditd {
-        xml.action_mail_acct("root")
-        xml.admin_space_left("50")
-        xml.admin_space_left_action("SUSPEND")
-        xml.disk_error_action("SUSPEND")
-        xml.disk_full_action("SUSPEND")
-        xml.disp_qos("lossy")
-        xml.dispatcher("/sbin/audispd")
-        xml.flush("INCREMENTAL")
-        xml.freq("20")
-        xml.log_file("/var/log/audit/audit.log")
-        xml.log_format("RAW")
-        xml.log_group("root")
-        xml.max_log_file("5")
-        xml.max_log_file_action("ROTATE")
-        xml.name_format("NONE")
-        xml.num_logs("4")
-        xml.priority_boost("4")
-        xml.space_left("75")
-        xml.space_left_action("SYSLOG")
-        xml.tcp_client_max_idle("0")
-        xml.tcp_listen_queue("5")
-        if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-          xml.tcp_max_per_addr("1")
-        end
-      }
-      xml.rules {
+      end
+    end
+    xml.tag!('audit-laf') do
+      xml.auditd do
+        xml.action_mail_acct('root')
+        xml.admin_space_left('50')
+        xml.admin_space_left_action('SUSPEND')
+        xml.disk_error_action('SUSPEND')
+        xml.disk_full_action('SUSPEND')
+        xml.disp_qos('lossy')
+        xml.dispatcher('/sbin/audispd')
+        xml.flush('INCREMENTAL')
+        xml.freq('20')
+        xml.log_file('/var/log/audit/audit.log')
+        xml.log_format('RAW')
+        xml.log_group('root')
+        xml.max_log_file('5')
+        xml.max_log_file_action('ROTATE')
+        xml.name_format('NONE')
+        xml.num_logs('4')
+        xml.priority_boost('4')
+        xml.space_left('75')
+        xml.space_left_action('SYSLOG')
+        xml.tcp_client_max_idle('0')
+        xml.tcp_listen_queue('5')
+        xml.tcp_max_per_addr('1') if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+      end
+      xml.rules do
         xml.text!("# First rule - delete all\n")
         xml.text!("-D\n")
         xml.text!("# Make this bigger for busy systems\n")
         xml.text!("-b 320\n")
-      }
-    }
-    xml.bootloader {
-      xml.device_map(:"config:type" => "list") {
-        if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-          xml.device_map_entry {
-            xml.firmware("fd0")
-            xml.linux("/dev/fd0")
-          }
+      end
+    end
+    xml.bootloader do
+      xml.device_map("config:type": 'list') do
+        unless values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+          xml.device_map_entry do
+            xml.firmware('fd0')
+            xml.linux('/dev/fd0')
+          end
         end
-        xml.device_map_entry {
-          xml.firmware("hd0")
-          xml.linux("/dev/sda")
-        }
-      }
-      xml.global {
-        xml.activate("true")
-        if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-          xml.append("resume=/dev/sda1 splash=silent quiet showopts")
-          xml.append_failsafe("single")
+        xml.device_map_entry do
+          xml.firmware('hd0')
+          xml.linux('/dev/sda')
         end
-        xml.boot_root("true")
+      end
+      xml.global do
+        xml.activate('true')
         if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-          xml.cryptodisk("0",:"config:type" => "integer")
-          xml.default("SLES 12-SP1")
+          xml.append('resume=/dev/sda1 splash=silent quiet showopts')
+          xml.append_failsafe('single')
+        end
+        xml.boot_root('true')
+        if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+          xml.cryptodisk('0', "config:type": 'integer')
+          xml.default('SLES 12-SP1')
           xml.distributor
-          xml.failsafe_disabled("true")
-          xml.generic_mbr("true")
-          xml.gfxbackground("/boot/grub2/themes/SLE/background.png")
-          xml.gfxmode("auto")
-          xml.gfxtheme("/boot/grub2/themes/SLE/theme.txt")
-          xml.hiddenmenu("false")
-          xml.os_prober("false")
-          xml.suse_btrfs("true")
-          xml.terminal("gfxterm")
+          xml.failsafe_disabled('true')
+          xml.generic_mbr('true')
+          xml.gfxbackground('/boot/grub2/themes/SLE/background.png')
+          xml.gfxmode('auto')
+          xml.gfxtheme('/boot/grub2/themes/SLE/theme.txt')
+          xml.hiddenmenu('false')
+          xml.os_prober('false')
+          xml.suse_btrfs('true')
+          xml.terminal('gfxterm')
         else
-          xml.default("SUSE Linux Enterprise Server")
-          xml.generic_mbr("true")
-          xml.gfxmenu("/boot/message")
-          xml.lines_cache_id("3")
+          xml.default('SUSE Linux Enterprise Server')
+          xml.generic_mbr('true')
+          xml.gfxmenu('/boot/message')
+          xml.lines_cache_id('3')
         end
-        xml.timeout("8",:"config:type" => "integer")
-      }
-      if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-        xml.initrd_modules(:"config:type" => "list") {
-          xml.initrd_module {
-            xml.module("mptspi")
-          }
-          xml.initrd_module {
-            xml.module("ahci")
-          }
-          xml.initrd_module {
-            xml.module("ata_piix")
-          }
-          xml.initrd_module {
-            xml.module("ata_generic")
-          }
-          xml.initrd_module {
-            xml.module("vmxnet3")
-          }
-          xml.initrd_module {
-            xml.module("vmw_pvscsi")
-          }
-          xml.initrd_module {
-            xml.module("vmxnet")
-          }
-        }
+        xml.timeout('8', "config:type": 'integer')
+      end
+      unless values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+        xml.initrd_modules("config:type": 'list') do
+          xml.initrd_module do
+            xml.module('mptspi')
+          end
+          xml.initrd_module do
+            xml.module('ahci')
+          end
+          xml.initrd_module do
+            xml.module('ata_piix')
+          end
+          xml.initrd_module do
+            xml.module('ata_generic')
+          end
+          xml.initrd_module do
+            xml.module('vmxnet3')
+          end
+          xml.initrd_module do
+            xml.module('vmw_pvscsi')
+          end
+          xml.initrd_module do
+            xml.module('vmxnet')
+          end
+        end
       end
       if values['service'].to_s.match(/sles_12|sles_15/)
-        xml.loader_type("grub2")
+        xml.loader_type('grub2')
       else
-        xml.loader_type("grub")
+        xml.loader_type('grub')
       end
-      if not values['service'].to_s.match(/sles_12|sles_15/)
-        xml.sections(:"config:type" => "list") {
-          #xml.section {
+      unless values['service'].to_s.match(/sles_12|sles_15/)
+        xml.sections("config:type": 'list') do
+          # xml.section {
           #  xml.append("resume=/dev/sda1 splash=silent showopts")
           #  xml.image("/boot/vmlinuz-3.0.13-0.27-default")
           #  xml.initial("1")
@@ -2155,8 +2123,8 @@ def output_ay_client_profile(values,output_file)
           #  xml.original_name("linux")
           #  xml.root("/dev/sda2")
           #  xml.type("image")
-          #}
-          #xml.section {
+          # }
+          # xml.section {
           #  xml.append("showopts ide=nodma apm=off noresume edd=off powersaved=off nohz=off highres=off processor.max_cstate=1 nomodeset x11failsafe")
           #  xml.image("/boot/vmlinuz-3.0.13-0.27-default")
           #  xml.initrd("/boot/initrd-3.0.13-0.27-default")
@@ -2165,8 +2133,8 @@ def output_ay_client_profile(values,output_file)
           #  xml.original_name("failsafe")
           #  xml.root("/dev/sda2")
           #  xml.type("image")
-          #}
-          #xml.section {
+          # }
+          # xml.section {
           #  xml.blockoffset("1")
           #  xml.chainloader("/dev/fd0")
           #  xml.lines_cache_id("2")
@@ -2175,68 +2143,68 @@ def output_ay_client_profile(values,output_file)
           #  xml.original_name("floppy")
           #  xml.root
           #  xml.type("other")
-          #}
-        }
+          # }
+        end
       end
-    }
-    if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-      xml.ca_mgm {
-        xml.CAName("YaST_Default_CA")
-        xml.ca_commonName("YaST Default CA (site)")
+    end
+    unless values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+      xml.ca_mgm do
+        xml.CAName('YaST_Default_CA')
+        xml.ca_commonName('YaST Default CA (site)')
         xml.country(values['country'])
-        xml.importCertificate("false", :'config:type' => "boolean")
+        xml.importCertificate('false', 'config:type': 'boolean')
         xml.locality
         xml.organisation
         xml.organisationUnit
         xml.password(values['adminpassword'])
         xml.server_commonName(values['name'])
-        xml.server_email("postmaster@site")
+        xml.server_email('postmaster@site')
         xml.state
-        xml.takeLocalServerName("true", :'config:type' => "boolean")
-      }
+        xml.takeLocalServerName('true', 'config:type': 'boolean')
+      end
     end
-    xml.deploy_image {
-      xml.image_installation("false", :'config:type' => "boolean")
-    }
-    if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-      xml.tag!("dhcp-server") {
-        xml.allowed_interfaces(:"config:type" => "list")
-        xml.chroot("1")
+    xml.deploy_image do
+      xml.image_installation('false', 'config:type': 'boolean')
+    end
+    unless values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+      xml.tag!('dhcp-server') do
+        xml.allowed_interfaces("config:type": 'list')
+        xml.chroot('1')
         xml.other_values
-        xml.settings(:"config:type" => "list") {
-          xml.settings_entry {
-            xml.children(:"config:type" => "list")
-            xml.directives(:"config:type" => "list")
+        xml.settings("config:type": 'list') do
+          xml.settings_entry do
+            xml.children("config:type": 'list')
+            xml.directives("config:type": 'list')
             xml.id
-            xml.values(:"config:type" => "list")
+            xml.values("config:type": 'list')
             xml.parent_id
             xml.parent_type
             xml.type
-          }
-        }
-        xml.start_service("0")
-        xml.use_ldap("0")
-      }
-      xml.tag!("dns-server") {
-        xml.allowed_interfaces(:"config:type" => "list")
-        xml.chroot("1")
-        xml.logging(:"config:type" => "list")
-        xml.values(:"config:type" => "list") {
-          xml.option {
-            xml.key("forwarders")
+          end
+        end
+        xml.start_service('0')
+        xml.use_ldap('0')
+      end
+      xml.tag!('dns-server') do
+        xml.allowed_interfaces("config:type": 'list')
+        xml.chroot('1')
+        xml.logging("config:type": 'list')
+        xml.values("config:type": 'list') do
+          xml.option do
+            xml.key('forwarders')
             xml.value
-          }
-        }
-        xml.start_service("0")
-        xml.use_ldap("0")
-        xml.zones(:"config:type" => "list")
-      }
+          end
+        end
+        xml.start_service('0')
+        xml.use_ldap('0')
+        xml.zones("config:type": 'list')
+      end
     end
-    xml.firewall {
+    xml.firewall do
       if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-        xml.FW_ALLOW_FW_BROADCAST_DMZ("no")
-        xml.FW_ALLOW_FW_BROADCAST_EXT("no")
-        xml.FW_ALLOW_FW_BROADCAST_INT("no")
+        xml.FW_ALLOW_FW_BROADCAST_DMZ('no')
+        xml.FW_ALLOW_FW_BROADCAST_EXT('no')
+        xml.FW_ALLOW_FW_BROADCAST_INT('no')
         xml.FW_BOOT_FULL_INIT
         xml.FW_CONFIGURATIONS_DMZ
         xml.FW_CONFIGURATIONS_EXT
@@ -2248,18 +2216,18 @@ def output_ay_client_profile(values,output_file)
       if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
         xml.FW_FORWARD_ALWAYS_INOUT_DEV
         xml.FW_FORWARD_MASQ
-        xml.FW_IGNORE_FW_BROADCAST_DMZ("no")
-        xml.FW_IGNORE_FW_BROADCAST_EXT("yes")
-        xml.FW_IGNORE_FW_BROADCAST_INT("no")
-        xml.FW_IPSEC_TRUST("no")
-        xml.FW_LOAD_MODULES("nf_conntrack_netbios_ns")
-        xml.FW_LOG_ACCEPT_ALL("no")
-        xml.FW_LOG_ACCEPT_CRIT("yes")
-        xml.FW_LOG_DROP_ALL("no")
-        xml.FW_LOG_DROP_CRIT("yes")
-        xml.FW_MASQUERADE("no")
-        xml.FW_PROTECT_FROM_INT("no")
-        xml.FW_ROUTE("no")
+        xml.FW_IGNORE_FW_BROADCAST_DMZ('no')
+        xml.FW_IGNORE_FW_BROADCAST_EXT('yes')
+        xml.FW_IGNORE_FW_BROADCAST_INT('no')
+        xml.FW_IPSEC_TRUST('no')
+        xml.FW_LOAD_MODULES('nf_conntrack_netbios_ns')
+        xml.FW_LOG_ACCEPT_ALL('no')
+        xml.FW_LOG_ACCEPT_CRIT('yes')
+        xml.FW_LOG_DROP_ALL('no')
+        xml.FW_LOG_DROP_CRIT('yes')
+        xml.FW_MASQUERADE('no')
+        xml.FW_PROTECT_FROM_INT('no')
+        xml.FW_ROUTE('no')
         xml.FW_SERVICES_ACCEPT_DMZ
         xml.FW_SERVICES_ACCEPT_EXT
         xml.FW_SERVICES_ACCEPT_INT
@@ -2278,76 +2246,73 @@ def output_ay_client_profile(values,output_file)
         xml.FW_SERVICES_INT_RPC
         xml.FW_SERVICES_INT_TCP
         xml.FW_SERVICES_INT_UDP
-        xml.FW_STOP_KEEP_ROUTING_STATE("no")
-        xml.enable_firewall("false", :'config:type' => "boolean")
-        xml.start_firewall("false", :'config:type' => "boolean")
-      else
-        xml.enable_firewall("false", :'config:type' => "boolean")
-        xml.start_firewall("false", :'config:type' => "boolean")
+        xml.FW_STOP_KEEP_ROUTING_STATE('no')
       end
-    }
-    if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-      xml.tag!("ftp-server") {
-        xml.AnonAuthen("1")
-        xml.AnonCreatDirs("NO")
-        xml.AnonMaxRate("0")
-        xml.AnonReadOnly("YES")
-        xml.AntiWarez("YES")
-        xml.Banner("Welcome message")
+      xml.enable_firewall('false', 'config:type': 'boolean')
+      xml.start_firewall('false', 'config:type': 'boolean')
+    end
+    unless values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+      xml.tag!('ftp-server') do
+        xml.AnonAuthen('1')
+        xml.AnonCreatDirs('NO')
+        xml.AnonMaxRate('0')
+        xml.AnonReadOnly('YES')
+        xml.AntiWarez('YES')
+        xml.Banner('Welcome message')
         xml.CertFile
-        xml.ChrootEnable("NO")
-        xml.EnableUpload("NO")
-        xml.FTPUser("ftp")
-        xml.FtpDirAnon("/srv/ftp")
+        xml.ChrootEnable('NO')
+        xml.EnableUpload('NO')
+        xml.FTPUser('ftp')
+        xml.FtpDirAnon('/srv/ftp')
         xml.FtpDirLocal
         xml.GuestUser
-        xml.LocalMaxRate("0")
-        xml.MaxClientsNumber("10")
-        xml.MaxClientsPerIP("3")
-        xml.MaxIdleTime("15")
-        xml.PasMaxPort("40500")
-        xml.PasMinPort("40000")
-        xml.PassiveMode("YES")
-        xml.SSL("0")
-        xml.SSLEnable("NO")
-        xml.SSLv2("NO")
-        xml.SSLv3("NO")
-        xml.StartDaemon("0")
-        xml.StartXinetd("NO")
-        xml.TLS("YES")
+        xml.LocalMaxRate('0')
+        xml.MaxClientsNumber('10')
+        xml.MaxClientsPerIP('3')
+        xml.MaxIdleTime('15')
+        xml.PasMaxPort('40500')
+        xml.PasMinPort('40000')
+        xml.PassiveMode('YES')
+        xml.SSL('0')
+        xml.SSLEnable('NO')
+        xml.SSLv2('NO')
+        xml.SSLv3('NO')
+        xml.StartDaemon('0')
+        xml.StartXinetd('NO')
+        xml.TLS('YES')
         xml.Umask
         xml.UmaskAnon
         xml.UmaskLocal
-        xml.VerboseLogging("NO")
-        xml.VirtualUser("NO")
-      }
-    end
-    xml.general {
-      xml.tag!("ask-list", :"config:type" => "list")
-      xml.mode {
-        xml.halt("false", :"config:type" => "boolean")
-        xml.confirm("false", :"config:type" => "boolean")
-      }
-      if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-        xml.mouse {
-          xml.id("none")
-        }
-        xml.proposals(:"config:type" => "list")
-        xml.tag!("signature-handling") {
-          xml.accept_file_without_checksum("true", :"config:type" => "boolean")
-          xml.accept_non_trusted_gpg_key("true", :"config:type" => "boolean")
-          xml.accept_unknown_gpg_key("true", :"config:type" => "boolean")
-          xml.accept_unsigned_file("true", :"config:type" => "boolean")
-          xml.accept_verification_failed("false", :"config:type" => "boolean")
-          xml.import_gpg_key("true", :"config:type" => "boolean")
-        }
-        xml.storage()
+        xml.VerboseLogging('NO')
+        xml.VirtualUser('NO')
       end
-    }
-    xml.groups(:"config:type" => "list") {
+    end
+    xml.general do
+      xml.tag!('ask-list', "config:type": 'list')
+      xml.mode do
+        xml.halt('false', "config:type": 'boolean')
+        xml.confirm('false', "config:type": 'boolean')
+      end
+      unless values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+        xml.mouse do
+          xml.id('none')
+        end
+        xml.proposals("config:type": 'list')
+        xml.tag!('signature-handling') do
+          xml.accept_file_without_checksum('true', "config:type": 'boolean')
+          xml.accept_non_trusted_gpg_key('true', "config:type": 'boolean')
+          xml.accept_unknown_gpg_key('true', "config:type": 'boolean')
+          xml.accept_unsigned_file('true', "config:type": 'boolean')
+          xml.accept_verification_failed('false', "config:type": 'boolean')
+          xml.import_gpg_key('true', "config:type": 'boolean')
+        end
+        xml.storage
+      end
+    end
+    xml.groups("config:type": 'list') do
       values['g_order'].each do |group|
-        xml.group {
-          xml.encrypted("true", :"config:type" => "boolean")
+        xml.group do
+          xml.encrypted('true', "config:type": 'boolean')
           xml.gid(values['g_struct'][group].gid)
           xml.group_password(values['g_struct'][group].group_password)
           xml.groupname(values['g_struct'][group].groupname)
@@ -2356,668 +2321,646 @@ def output_ay_client_profile(values,output_file)
           else
             xml.userlist
           end
-        }
+        end
       end
-    }
-    if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-        xml.host {
-        xml.hosts(:"config:type" => "list") {
+    end
+    unless values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+      xml.host do
+        xml.hosts("config:type": 'list') do
           hosts.each do |host|
-            xml.hosts_entry {
-              (host_address,name) = host.split(/,/)
+            xml.hosts_entry do
+              (host_address, name) = host.split(/,/)
               xml.host_address(host_address)
-              xml.names(:"config:type" => "list") {
+              xml.names("config:type": 'list') do
                 xml.name(name)
-              }
-            }
+              end
+            end
           end
-        }
-      }
-      xml.tag!("http-server") {
-        xml.Listen(:"config:type" => "list")
-        xml.hosts(:"config:type" => "list")
-        xml.modules(:"config:type" => "list") {
+        end
+      end
+      xml.tag!('http-server') do
+        xml.Listen("config:type": 'list')
+        xml.hosts("config:type": 'list')
+        xml.modules("config:type": 'list') do
           disabled_http_modules.each do |name|
-            xml.module_entry {
-              xml.change("disable")
-              xml.default("1")
+            xml.module_entry do
+              xml.change('disable')
+              xml.default('1')
               xml.name(name)
-            }
+            end
           end
           enabled_http_modules.each do |name|
-            xml.module_entry {
-              xml.change("enabled")
-              xml.default("1")
+            xml.module_entry do
+              xml.change('enabled')
+              xml.default('1')
               xml.name(name)
-            }
+            end
           end
-        }
-      }
-      xml.inetd {
-        xml.last_created("0", :"config:type" => "integer")
-        xml.netd_conf(:"config:type" => "list") {
+        end
+      end
+      xml.inetd do
+        xml.last_created('0', "config:type": 'integer')
+        xml.netd_conf("config:type": 'list') do
           values['i_order'].each do |service|
-            xml.conf {
-              xml.enabled(values['i_struct'][service].enabled, :"config:type" => "boolean")
+            xml.conf do
+              xml.enabled(values['i_struct'][service].enabled, "config:type": 'boolean')
               xml.iid(values['i_struct'][service].iid)
               xml.protocol(values['i_struct'][service].protocol)
               xml.script(values['i_struct'][service].script)
               xml.server(values['i_struct'][service].server)
               xml.service(values['i_struct'][service].service)
-            }
+            end
           end
-        }
-      }
-      xml.tag!("iscsi-client") {
-        xml.initiatorname
-        xml.targets(:"config:type" => "list")
-        xml.version("1.0")
-      }
-    end
-    xml.kdump {
-      xml.add_crash_kernel("false", :"config:type" => "boolean")
-      if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-        xml.crash_kernel("128M,high")
-      else
-        xml.crash_kernel("128M-:64M")
-      end
-      xml.general {
-        if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-          xml.KDUMPTOOL_FLAGS
         end
+      end
+      xml.tag!('iscsi-client') do
+        xml.initiatorname
+        xml.targets("config:type": 'list')
+        xml.version('1.0')
+      end
+    end
+    xml.kdump do
+      xml.add_crash_kernel('false', "config:type": 'boolean')
+      if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+        xml.crash_kernel('128M,high')
+      else
+        xml.crash_kernel('128M-:64M')
+      end
+      xml.general do
+        xml.KDUMPTOOL_FLAGS unless values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
         xml.KDUMP_COMMANDLINE
         xml.KDUMP_COMMANDLINE_APPEND
-        if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-          xml.KDUMP_CONTINUE_ON_ERROR("false")
-        end
-        xml.KDUMP_COPY_KERNEL("yes")
-        xml.KDUMP_DUMPFORMAT("compressed")
-        if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-          xml.KDUMP_DUMPLEVEL("0")
+        xml.KDUMP_CONTINUE_ON_ERROR('false') unless values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+        xml.KDUMP_COPY_KERNEL('yes')
+        xml.KDUMP_DUMPFORMAT('compressed')
+        if !values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+          xml.KDUMP_DUMPLEVEL('0')
         else
-          xml.KDUMP_DUMPLEVEL("31")
+          xml.KDUMP_DUMPLEVEL('31')
         end
-        xml.KDUMP_FREE_DISK_SIZE("64")
-        if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-          xml.KDUMP_HOST_KEY
-        end
-        xml.KDUMP_IMMEDIATE_REBOOT("yes")
-        xml.KDUMP_KEEP_OLD_DUMPS("5")
+        xml.KDUMP_FREE_DISK_SIZE('64')
+        xml.KDUMP_HOST_KEY unless values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+        xml.KDUMP_IMMEDIATE_REBOOT('yes')
+        xml.KDUMP_KEEP_OLD_DUMPS('5')
         xml.KDUMP_KERNELVER
-        if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-          xml.KDUMP_NETCONFIG("auto")
-        end
+        xml.KDUMP_NETCONFIG('auto') unless values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
         xml.KDUMP_NOTIFICATION_CC
         xml.KDUMP_NOTIFICATION_TO
-        if not values['service'].to_s.match(/sles_12_[1-3]|sles_15/)
+        unless values['service'].to_s.match(/sles_12_[1-3]|sles_15/)
           xml.KDUMP_POSTSCRIPT
           xml.KDUMP_PRESCRIPT
           xml.KDUMP_REQUIRED_PROGRAMS
         end
-        xml.KDUMP_SAVEDIR("file:///var/crash")
+        xml.KDUMP_SAVEDIR('file:///var/crash')
         xml.KDUMP_SMTP_PASSWORD
         xml.KDUMP_SMTP_SERVER
         xml.KDUMP_SMTP_USER
         xml.KDUMP_TRANSFER
-        xml.KDUMP_VERBOSE("3")
+        xml.KDUMP_VERBOSE('3')
         xml.KEXEC_values
-      }
-    }
-    if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-      xml.kerberos {
-        xml.kerberos_client {
-          xml.ExpertSettings {
-            xml.external("sshd")
-            xml.use_shmem("sshd")
-          }
-          xml.clockskew("300")
-          xml.default_domain("site")
-          xml.default_realm("SITE")
-          xml.forwardable("true", :"config:type" => "boolean")
-          xml.ignore_unknown("true", :"config:type" => "boolean")
-          xml.kdc_server
-          xml.minimum_uid("1")
-          xml.proxiable("false", :"config:type" => "boolean")
-          xml.renew_lifetime("1d")
-          xml.ssh_support("false", :"config:type" => "boolean")
-          xml.ticket_lifetime("1d")
-        }
-        xml.pam_login {
-          xml.sssd("false", :"config:type" => "boolean")
-          xml.use_kerberos("false", :"config:type" => "boolean")
-        }
-      }
+      end
     end
-    xml.keyboard {
-      xml.keymap("english-us")
-    }
-    xml.language {
+    unless values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+      xml.kerberos do
+        xml.kerberos_client do
+          xml.ExpertSettings do
+            xml.external('sshd')
+            xml.use_shmem('sshd')
+          end
+          xml.clockskew('300')
+          xml.default_domain('site')
+          xml.default_realm('SITE')
+          xml.forwardable('true', "config:type": 'boolean')
+          xml.ignore_unknown('true', "config:type": 'boolean')
+          xml.kdc_server
+          xml.minimum_uid('1')
+          xml.proxiable('false', "config:type": 'boolean')
+          xml.renew_lifetime('1d')
+          xml.ssh_support('false', "config:type": 'boolean')
+          xml.ticket_lifetime('1d')
+        end
+        xml.pam_login do
+          xml.sssd('false', "config:type": 'boolean')
+          xml.use_kerberos('false', "config:type": 'boolean')
+        end
+      end
+    end
+    xml.keyboard do
+      xml.keymap('english-us')
+    end
+    xml.language do
       xml.language(values['language'])
       if values['service'].to_s.match(/sles_12_[1-3]|sles_15/)
         xml.languages
       else
         xml.languages(values['language'])
       end
-    }
-    if not values['service'].to_s.match(/sles_12_[1-3]|sles_15/)
-      xml.ldap {
+    end
+    unless values['service'].to_s.match(/sles_12_[1-3]|sles_15/)
+      xml.ldap do
         xml.base_config_dn
         xml.bind_dn
-        xml.create_ldap("false", :"config:type" => "boolean")
-        xml.file_server("false", :"config:type" => "boolean")
-        xml.ldap_domain("dc=example,dc=com")
-        xml.ldap_server("127.0.0.1")
-        xml.ldap_tls("true", :"config:type" => "boolean")
-        xml.ldap_v2("false", :"config:type" => "boolean")
-        xml.login_enabled("true", :"config:type" => "boolean")
-        xml.member_attribute("member")
-        xml.mkhomedir("false", :"config:type" => "boolean")
-        xml.pam_password("exop")
-        xml.sssd("false", :"config:type" => "boolean")
-        xml.start_autofs("false", :"config:type" => "boolean")
-        xml.start_ldap("false", :"config:type" => "boolean")
-      }
+        xml.create_ldap('false', "config:type": 'boolean')
+        xml.file_server('false', "config:type": 'boolean')
+        xml.ldap_domain('dc=example,dc=com')
+        xml.ldap_server('127.0.0.1')
+        xml.ldap_tls('true', "config:type": 'boolean')
+        xml.ldap_v2('false', "config:type": 'boolean')
+        xml.login_enabled('true', "config:type": 'boolean')
+        xml.member_attribute('member')
+        xml.mkhomedir('false', "config:type": 'boolean')
+        xml.pam_password('exop')
+        xml.sssd('false', "config:type": 'boolean')
+        xml.start_autofs('false', "config:type": 'boolean')
+        xml.start_ldap('false', "config:type": 'boolean')
+      end
     end
-    xml.login_settings()
-    if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-      xml.mail {
-        xml.aliases(:"config:type" => "list") {
+    xml.login_settings
+    unless values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+      xml.mail do
+        xml.aliases("config:type": 'list') do
           values['u_order'].each do |user|
-            xml.alias {
+            xml.alias do
               xml.alias(user)
               xml.comment
-              xml.destinations("root")
-            }
+              xml.destinations('root')
+            end
           end
-        }
-        xml.connection_type("permanent", :"config:type" => "symbol")
-        xml.listen_remote("false", :"config:type" => "boolean")
-        xml.mta("postfix", :"config:type" => "symbol")
-        xml.postfix_mda("local", :"config:type" => "symbol")
-        xml.smtp_use_TLS("no")
-        xml.use_amavis("false", :"config:type" => "boolean")
-        xml.use_dkim("false", :"config:type" => "boolean")
-      }
-    end
-    xml.networking {
-      if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-        xml.dhcp_values {
-          xml.dhclient_client_id
-          xml.dhclient_hostname_option("AUTO")
-        }
+        end
+        xml.connection_type('permanent', "config:type": 'symbol')
+        xml.listen_remote('false', "config:type": 'boolean')
+        xml.mta('postfix', "config:type": 'symbol')
+        xml.postfix_mda('local', "config:type": 'symbol')
+        xml.smtp_use_TLS('no')
+        xml.use_amavis('false', "config:type": 'boolean')
+        xml.use_dkim('false', "config:type": 'boolean')
       end
-      xml.dns {
-        xml.dhcp_hostname("false", :"config:type" => "boolean")
+    end
+    xml.networking do
+      unless values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+        xml.dhcp_values do
+          xml.dhclient_client_id
+          xml.dhclient_hostname_option('AUTO')
+        end
+      end
+      xml.dns do
+        xml.dhcp_hostname('false', "config:type": 'boolean')
         xml.domain(values['domainname'])
         xml.hostname(values['name'])
-        xml.nameservers(:"config:type" => "list") {
+        xml.nameservers("config:type": 'list') do
           xml.nameserver(values['nameserver'])
-        }
-        xml.resolv_conf_policy("auto")
-        if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-          xml.searchlist(:"config:type" => "list") {
-            xml.search(values['domainname'])
-          }
         end
-        xml.write_hostname("false", :"config:type" => "boolean")
-      }
-      xml.interfaces(:"config:type" => "list") {
-        xml.interface {
-          xml.bootproto("static")
+        xml.resolv_conf_policy('auto')
+        if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+          xml.searchlist("config:type": 'list') do
+            xml.search(values['domainname'])
+          end
+        end
+        xml.write_hostname('false', "config:type": 'boolean')
+      end
+      xml.interfaces("config:type": 'list') do
+        xml.interface do
+          xml.bootproto('static')
           if values['service'].to_s.match(/sles_11/)
-            if values['answers']['nic'].value.match(/eth0/)
-              xml.device("eth1")
-            end
+            xml.device('eth1') if values['answers']['nic'].value.match(/eth0/)
           else
             xml.device(values['answers']['nic'].value)
           end
-          xml.firewall("no")
+          xml.firewall('no')
           xml.ipaddr(values['ip'])
           xml.netmask(values['netmask'])
-          xml.startmode("auto")
-          if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-            xml.usercontrol("no")
-          end
-        }
-        xml.interface {
-          if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-            xml.aliases {
-              xml.alias2 {
-                xml.IPADDR("127.0.0.2")
-                xml.NETMASK("255.0.0.0")
-                xml.PREFIXLEN("8")
-              }
-            }
+          xml.startmode('auto')
+          xml.usercontrol('no') unless values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+        end
+        xml.interface do
+          if !values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+            xml.aliases do
+              xml.alias2 do
+                xml.IPADDR('127.0.0.2')
+                xml.NETMASK('255.0.0.0')
+                xml.PREFIXLEN('8')
+              end
+            end
           else
-            xml.bootproto("static")
+            xml.bootproto('static')
           end
-          xml.broadcast("127.255.255.255")
-          xml.device("lo")
-          xml.firewall("no")
-          xml.ipaddr("127.0.0.1")
-          xml.netmask("255.0.0.0")
-          xml.network("127.0.0.0")
-          xml.prefixlen("8")
-          if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-            xml.startmode("auto")
+          xml.broadcast('127.255.255.255')
+          xml.device('lo')
+          xml.firewall('no')
+          xml.ipaddr('127.0.0.1')
+          xml.netmask('255.0.0.0')
+          xml.network('127.0.0.0')
+          xml.prefixlen('8')
+          if !values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+            xml.startmode('auto')
           else
-            xml.startmode("nfsroot")
+            xml.startmode('nfsroot')
           end
-          xml.usercontrol("no")
-        }
-      }
-      if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-        xml.ipv6("true", :"config:type" => "boolean")
-        xml.keep_install_network("false", :"config:type" => "boolean")
+          xml.usercontrol('no')
+        end
       end
-      xml.managed("false", :"config:type" => "boolean")
-      xml.tag!("net-udev", :"config:type" => "list") {
-        xml.rule {
+      if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+        xml.ipv6('true', "config:type": 'boolean')
+        xml.keep_install_network('false', "config:type": 'boolean')
+      end
+      xml.managed('false', "config:type": 'boolean')
+      xml.tag!('net-udev', "config:type": 'list') do
+        xml.rule do
           xml.name(values['answers']['nic'].value)
-          xml.rule("ATTR{address}")
+          xml.rule('ATTR{address}')
           xml.value(values['mac'])
-        }
-      }
-      xml.routing {
-        if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-          xml.ip_forward("false", :"config:type" => "boolean")
-          xml.routes(:"config:type" => "list") {
-            xml.route {
-              xml.destination("default")
-              xml.device("-")
-              xml.gateway(gateway)
-              xml.netmask("-")
-            }
-          }
-        else
-          xml.ipv4_forward("false", :"config:type" => "boolean")
-          xml.ipv6_forward("false", :"config:type" => "boolean")
-        end
-      }
-    }
-    if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-      xml.nfs_server {
-        xml.nfs_exports(:"config:type" => "list")
-        xml.start_nfsserver("false", :"config:type" => "boolean")
-      }
-      xml.nis {
-        xml.netconfig_policy("auto")
-        xml.nis_broadcast("false", :"config:type" => "boolean")
-        xml.nis_broken_server("false", :"config:type" => "boolean")
-        xml.nis_domain
-        xml.nis_local_only("false", :"config:type" => "boolean")
-        xml.nis_values
-        xml.nis_other_domains(:"config:type" => "list")
-        xml.nis_servers(:"config:type" => "list")
-        xml.slp_domain()
-        xml.start_autofs("false", :"config:type" => "boolean")
-        xml.start_nis("false", :"config:type" => "boolean")
-      }
-      xml.nis_server {
-        xml.domain
-        xml.maps_to_serve(:"config:type" => "list")
-        xml.merge_passwd("false", :"config:type" => "boolean")
-        xml.mingid("0",:"config:type" => "integer")
-        xml.minuid("0",:"config:type" => "integer")
-        xml.nopush("false", :"config:type" => "boolean")
-        xml.pwd_chfn("false", :"config:type" => "boolean")
-        xml.pwd_chsh("false", :"config:type" => "boolean")
-        xml.pwd_srcdir("/etc")
-        xml.securenets(:"config:type" => "list") {
-          xml.securenet {
-            xml.netmask("255.0.0.0")
-            xml.network("127.0.0.0")
-          }
-        }
-        xml.server_type("none")
-        xml.slaves(:"config:type" => "list")
-        xml.start_ypbind("false", :"config:type" => "boolean")
-        xml.start_yppasswdd("false", :"config:type" => "boolean")
-        xml.start_ypxfrd("false", :"config:type" => "boolean")
-      }
-      if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-        if values['timezone'].to_s.match(/Victoria/)
-          values['timezone'] = "Australia/Melbourne"
         end
       end
-      xml.tag!("ntp-client") {
-        xml.ntp_policy("auto")
-        xml.peers(:"config:type" => "list") {
-          xml.peer {
-            xml.address($default_timeserver)
-            xml.fudge_oprions(" stratum 10")
-            xml.values
-            xml.type("__clock")
-          }
-          xml.peer {
-            xml.address("var/lib/ntp/drift/ntp.drift ")
-            xml.type("driftfile")
-          }
-          xml.peer {
-            xml.address("/var/log/ntp   ")
-            xml.values
-            xml.type("logfile")
-          }
-          xml.peer {
-            xml.address("etc/ntp.keys   ")
-            xml.questions
-            xml.type("keys")
-          }
-          xml.peer {
-            xml.address("1      ")
-            xml.values
-            xml.type("trustedkey")
-          }
-          xml.peer {
-            xml.address("1      ")
-            xml.values
-            xml.type("requestkey")
-          }
-        }
-        xml.start_at_boot("false", :"config:type" => "boolean")
-        xml.start_in_chroot("true", :"config:type" => "boolean")
-      }
+      xml.routing do
+        if !values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+          xml.ip_forward('false', "config:type": 'boolean')
+          xml.routes("config:type": 'list') do
+            xml.route do
+              xml.destination('default')
+              xml.device('-')
+              xml.gateway(gateway)
+              xml.netmask('-')
+            end
+          end
+        else
+          xml.ipv4_forward('false', "config:type": 'boolean')
+          xml.ipv6_forward('false', "config:type": 'boolean')
+        end
+      end
     end
-    xml.partitioning(:"config:type" => "list") {
-      xml.drive {
-        xml.device("/dev/sda")
+    unless values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+      xml.nfs_server do
+        xml.nfs_exports("config:type": 'list')
+        xml.start_nfsserver('false', "config:type": 'boolean')
+      end
+      xml.nis do
+        xml.netconfig_policy('auto')
+        xml.nis_broadcast('false', "config:type": 'boolean')
+        xml.nis_broken_server('false', "config:type": 'boolean')
+        xml.nis_domain
+        xml.nis_local_only('false', "config:type": 'boolean')
+        xml.nis_values
+        xml.nis_other_domains("config:type": 'list')
+        xml.nis_servers("config:type": 'list')
+        xml.slp_domain
+        xml.start_autofs('false', "config:type": 'boolean')
+        xml.start_nis('false', "config:type": 'boolean')
+      end
+      xml.nis_server do
+        xml.domain
+        xml.maps_to_serve("config:type": 'list')
+        xml.merge_passwd('false', "config:type": 'boolean')
+        xml.mingid('0', "config:type": 'integer')
+        xml.minuid('0', "config:type": 'integer')
+        xml.nopush('false', "config:type": 'boolean')
+        xml.pwd_chfn('false', "config:type": 'boolean')
+        xml.pwd_chsh('false', "config:type": 'boolean')
+        xml.pwd_srcdir('/etc')
+        xml.securenets("config:type": 'list') do
+          xml.securenet do
+            xml.netmask('255.0.0.0')
+            xml.network('127.0.0.0')
+          end
+        end
+        xml.server_type('none')
+        xml.slaves("config:type": 'list')
+        xml.start_ypbind('false', "config:type": 'boolean')
+        xml.start_yppasswdd('false', "config:type": 'boolean')
+        xml.start_ypxfrd('false', "config:type": 'boolean')
+      end
+      values['timezone'] = 'Australia/Melbourne' if values['service'].to_s.match(/sles_12_[1-9]|sles_15/) && values['timezone'].to_s.match(/Victoria/)
+      xml.tag!('ntp-client') do
+        xml.ntp_policy('auto')
+        xml.peers("config:type": 'list') do
+          xml.peer do
+            xml.address($default_timeserver)
+            xml.fudge_oprions(' stratum 10')
+            xml.values
+            xml.type('__clock')
+          end
+          xml.peer do
+            xml.address('var/lib/ntp/drift/ntp.drift ')
+            xml.type('driftfile')
+          end
+          xml.peer do
+            xml.address('/var/log/ntp   ')
+            xml.values
+            xml.type('logfile')
+          end
+          xml.peer do
+            xml.address('etc/ntp.keys   ')
+            xml.questions
+            xml.type('keys')
+          end
+          xml.peer do
+            xml.address('1      ')
+            xml.values
+            xml.type('trustedkey')
+          end
+          xml.peer do
+            xml.address('1      ')
+            xml.values
+            xml.type('requestkey')
+          end
+        end
+        xml.start_at_boot('false', "config:type": 'boolean')
+        xml.start_in_chroot('true', "config:type": 'boolean')
+      end
+    end
+    xml.partitioning("config:type": 'list') do
+      xml.drive do
+        xml.device('/dev/sda')
         if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-          xml.disklabel("msdos")
-          xml.enable_snapshots("true", :"config:type" => "boolean")
+          xml.disklabel('msdos')
+          xml.enable_snapshots('true', "config:type": 'boolean')
         end
-        xml.initialize("true", :"config:type" => "boolean")
-          xml.partitions(:"config:type" => "list") {
-            xml.partition {
-              xml.create("true",:"config:type" => "boolean")
-              xml.crypt_fs("false",:"config:type" => "boolean")
-              xml.filesystem("swap",:"config:type" => "symbol")
-              xml.format("true",:"config:type" => "boolean")
-              xml.fstopt("defaults")
-              xml.loop_fs("false",:"config:type" => "boolean")
-              xml.mount("swap")
-              if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-                xml.mountby("uuid",:"config:type" => "symbol")
-              else
-                xml.mountby("device",:"config:type" => "symbol")
+        xml.initialize('true', "config:type": 'boolean')
+        xml.partitions("config:type": 'list') do
+          xml.partition do
+            xml.create('true', "config:type": 'boolean')
+            xml.crypt_fs('false', "config:type": 'boolean')
+            xml.filesystem('swap', "config:type": 'symbol')
+            xml.format('true', "config:type": 'boolean')
+            xml.fstopt('defaults')
+            xml.loop_fs('false', "config:type": 'boolean')
+            xml.mount('swap')
+            if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+              xml.mountby('uuid', "config:type": 'symbol')
+            else
+              xml.mountby('device', "config:type": 'symbol')
+            end
+            xml.partition_id('130', "config:type": 'integer')
+            xml.partition_nr('1', "config:type": 'integer')
+            xml.raid_values unless values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+            xml.resize('false', "config:type": 'boolean')
+            swap_size = Integer(values['answers']['swapmax'].value) * 1000 * 1000
+            swap_size = swap_size.to_s
+            xml.size(swap_size)
+          end
+          xml.partition do
+            xml.create('true', "config:type": 'boolean')
+            xml.crypt_fs('false', "config:type": 'boolean')
+            if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+              xml.filesystem('btrfs', "config:type": 'symbol')
+              xml.format('true', "config:type": 'boolean')
+              xml.fstopt('defaults')
+            else
+              xml.filesystem('ext3', "config:type": 'symbol')
+              xml.format('true', "config:type": 'boolean')
+              xml.fstopt('acl,user_xattr')
+            end
+            xml.loop_fs('false', "config:type": 'boolean')
+            xml.mount('/')
+            if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+              xml.mountby('uuid', "config:type": 'symbol')
+            else
+              xml.mountby('device', "config:type": 'symbol')
+            end
+            xml.partition_id('131', "config:type": 'integer')
+            xml.partition_nr('2', "config:type": 'integer')
+            xml.raid_values unless values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+            xml.resize('false', "config:type": 'boolean')
+            root_size = Integer(values['answers']['rootsize'].value) * 1000 * 1000 * 10
+            root_size = root_size.to_s
+            xml.size(root_size)
+            if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+              xml.subvolumes("config:type": 'list') do
+                xml.listentry('@')
+                xml.listentry('boot/grub2/i386-pc')
+                xml.listentry('boot/grub2/x86_64-efi')
+                xml.listentry('home')
+                xml.listentry('opt')
+                xml.listentry('srv')
+                xml.listentry('tmp')
+                xml.listentry('usr/local')
+                xml.listentry('var/crash')
+                xml.listentry('var/lib/libvirt/images')
+                xml.listentry('var/lib/mailman')
+                xml.listentry('var/lib/mariadb')
+                xml.listentry('var/lib/mysql')
+                xml.listentry('var/lib/named')
+                xml.listentry('var/lib/pgsql')
+                xml.listentry('var/log')
+                xml.listentry('var/opt')
+                xml.listentry('var/spool')
+                xml.listentry('var/tmp')
               end
-              xml.partition_id("130",:"config:type" => "integer")
-              xml.partition_nr("1",:"config:type" => "integer")
-              if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-                xml.raid_values()
-              end
-              xml.resize("false",:"config:type" => "boolean")
-              swap_size = Integer(values['answers']['swapmax'].value)*1000*1000
-              swap_size = swap_size.to_s
-              xml.size(swap_size)
-            }
-            xml.partition {
-              xml.create("true",:"config:type" => "boolean")
-              xml.crypt_fs("false",:"config:type" => "boolean")
-              if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-                xml.filesystem("btrfs",:"config:type" => "symbol")
-                xml.format("true",:"config:type" => "boolean")
-                xml.fstopt("defaults")
-              else
-                xml.filesystem("ext3",:"config:type" => "symbol")
-                xml.format("true",:"config:type" => "boolean")
-                xml.fstopt("acl,user_xattr")
-              end
-              xml.loop_fs("false",:"config:type" => "boolean")
-              xml.mount("/")
-              if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-                xml.mountby("uuid",:"config:type" => "symbol")
-              else
-                xml.mountby("device",:"config:type" => "symbol")
-              end
-              xml.partition_id("131",:"config:type" => "integer")
-              xml.partition_nr("2",:"config:type" => "integer")
-              if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-                xml.raid_values()
-              end
-              xml.resize("false",:"config:type" => "boolean")
-              root_size = Integer(values['answers']['rootsize'].value)*1000*1000*10
-              root_size = root_size.to_s
-              xml.size(root_size)
-              if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-                xml.subvolumes(:"config:type" => "list") {
-                  xml.listentry("@")
-                  xml.listentry("boot/grub2/i386-pc")
-                  xml.listentry("boot/grub2/x86_64-efi")
-                  xml.listentry("home")
-                  xml.listentry("opt")
-                  xml.listentry("srv")
-                  xml.listentry("tmp")
-                  xml.listentry("usr/local")
-                  xml.listentry("var/crash")
-                  xml.listentry("var/lib/libvirt/images")
-                  xml.listentry("var/lib/mailman")
-                  xml.listentry("var/lib/mariadb")
-                  xml.listentry("var/lib/mysql")
-                  xml.listentry("var/lib/named")
-                  xml.listentry("var/lib/pgsql")
-                  xml.listentry("var/log")
-                  xml.listentry("var/opt")
-                  xml.listentry("var/spool")
-                  xml.listentry("var/tmp")
-                }
-              end
-            }
-          }
-          xml.pesize
-          xml.type("CT_DISK", :"config:type" => "symbol")
-          xml.use("all")
-      }
-    }
-    if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-      xml.tag!("power-management") {
-        xml.global_settings {
+            end
+          end
+        end
+        xml.pesize
+        xml.type('CT_DISK', "config:type": 'symbol')
+        xml.use('all')
+      end
+    end
+    unless values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+      xml.tag!('power-management') do
+        xml.global_settings do
           xml.SCHEME
-        }
-        xml.schemes(:"config:type" => "list") {
-          xml.schema {
-            xml.CPUFREQ_GOVERNOR("ondemand")
-          }
-          xml.schema {
-            xml.CPUFREQ_GOVERNOR("performance")
-          }
-          xml.schema {
-            xml.CPUFREQ_GOVERNOR("ondemand")
-          }
-        }
-      }
-      xml.printer {
-      }
-      xml.proxy {
-      }
-      xml.report {
-        xml.errors {
-          xml.log("true", :"config:type" => "boolean")
-          xml.show("false", :"config:type" => "boolean")
-          xml.timeout("0", :"config:type" => "integer")
-        }
-        xml.messages {
-          xml.log("true", :"config:type" => "boolean")
-          xml.show("true", :"config:type" => "boolean")
-          xml.timeout("0", :"config:type" => "integer")
-        }
-        xml.warnings {
-          xml.log("true", :"config:type" => "boolean")
-          xml.show("true", :"config:type" => "boolean")
-          xml.timeout("0", :"config:type" => "integer")
-        }
-        xml.yesno_messages {
-          xml.log("true", :"config:type" => "boolean")
-          xml.show("true", :"config:type" => "boolean")
-          xml.timeout("0", :"config:type" => "integer")
-        }
-      }
-      xml.runlevel {
-        xml.default("5")
-        disabled_services.each do |name|
-          xml.service {
-            xml.install_service(name)
-            xml.service_status("disabled")
-          }
         end
-      }
-      xml.tag!("samba-server") {
-      }
-      xml.security {
-        xml.console_shutdown("reboot")
-        xml.cracklib_dict_path("/usr/lib/cracklib_dict")
-        xml.cwd_in_root_path("no")
-        xml.cwd_in_user_path("no")
-        xml.disable_restart_on_update("no")
-        xml.disable_stop_on_removal("no")
-        xml.displaymanager_remote_access("no")
-        xml.displaymanager_root_login_remote("no")
-        xml.displaymanager_shutdown("root")
-        xml.displaymanager_xserver_tcp_port_6000_open("no")
-        xml.enable_sysrq("176")
-        xml.fail_delay("3")
-        xml.gid_max("60000")
-        xml.gid_min("1000")
-        xml.group_encryption("md5")
-        xml.ip_forward("no")
-        xml.ip_tcp_syncookies("yes")
-        xml.ipv6_forward("no")
-        xml.lastlog_enab("yes")
-        xml.obscure_checks_enab("yes")
-        xml.pass_max_days("99999")
-        xml.pass_min_days("0")
-        xml.pass_min_len("5")
-        xml.pass_warn_age("7")
-        xml.passwd_encryption("blowfish")
-        xml.passwd_remember_history("0")
-        xml.passwd_use_cracklib("yes")
-        xml.permission_security("easy")
+        xml.schemes("config:type": 'list') do
+          xml.schema do
+            xml.CPUFREQ_GOVERNOR('ondemand')
+          end
+          xml.schema do
+            xml.CPUFREQ_GOVERNOR('performance')
+          end
+          xml.schema do
+            xml.CPUFREQ_GOVERNOR('ondemand')
+          end
+        end
+      end
+      xml.printer do
+      end
+      xml.proxy do
+      end
+      xml.report do
+        xml.errors do
+          xml.log('true', "config:type": 'boolean')
+          xml.show('false', "config:type": 'boolean')
+          xml.timeout('0', "config:type": 'integer')
+        end
+        xml.messages do
+          xml.log('true', "config:type": 'boolean')
+          xml.show('true', "config:type": 'boolean')
+          xml.timeout('0', "config:type": 'integer')
+        end
+        xml.warnings do
+          xml.log('true', "config:type": 'boolean')
+          xml.show('true', "config:type": 'boolean')
+          xml.timeout('0', "config:type": 'integer')
+        end
+        xml.yesno_messages do
+          xml.log('true', "config:type": 'boolean')
+          xml.show('true', "config:type": 'boolean')
+          xml.timeout('0', "config:type": 'integer')
+        end
+      end
+      xml.runlevel do
+        xml.default('5')
+        disabled_services.each do |name|
+          xml.service do
+            xml.install_service(name)
+            xml.service_status('disabled')
+          end
+        end
+      end
+      xml.tag!('samba-server') do
+      end
+      xml.security do
+        xml.console_shutdown('reboot')
+        xml.cracklib_dict_path('/usr/lib/cracklib_dict')
+        xml.cwd_in_root_path('no')
+        xml.cwd_in_user_path('no')
+        xml.disable_restart_on_update('no')
+        xml.disable_stop_on_removal('no')
+        xml.displaymanager_remote_access('no')
+        xml.displaymanager_root_login_remote('no')
+        xml.displaymanager_shutdown('root')
+        xml.displaymanager_xserver_tcp_port_6000_open('no')
+        xml.enable_sysrq('176')
+        xml.fail_delay('3')
+        xml.gid_max('60000')
+        xml.gid_min('1000')
+        xml.group_encryption('md5')
+        xml.ip_forward('no')
+        xml.ip_tcp_syncookies('yes')
+        xml.ipv6_forward('no')
+        xml.lastlog_enab('yes')
+        xml.obscure_checks_enab('yes')
+        xml.pass_max_days('99999')
+        xml.pass_min_days('0')
+        xml.pass_min_len('5')
+        xml.pass_warn_age('7')
+        xml.passwd_encryption('blowfish')
+        xml.passwd_remember_history('0')
+        xml.passwd_use_cracklib('yes')
+        xml.permission_security('easy')
         xml.run_updatedb_as
-        xml.runlevel3_extra_services("insecure")
-        xml.runlevel3_mandatory_services("insecure")
-        xml.runlevel5_extra_services("insecure")
-        xml.runlevel5_mandatory_services("insecure")
-        xml.smtpd_listen_remote("no")
-        xml.syslog_on_no_error("no")
-        xml.system_gid_max("499")
-        xml.system_gid_min("100")
-        xml.system_uid_max("499")
-        xml.system_uid_min("100")
-        xml.systohc("yes")
-        xml.uid_max("60000")
-        xml.uid_min("1000")
-        xml.useradd_cmd("/usr/sbin/useradd.local")
-        xml.userdel_postcmd("/usr/sbin/userdel-post.local")
-        xml.userdel_precmd("/usr/sbin/userdel-pre.local")
-      }
+        xml.runlevel3_extra_services('insecure')
+        xml.runlevel3_mandatory_services('insecure')
+        xml.runlevel5_extra_services('insecure')
+        xml.runlevel5_mandatory_services('insecure')
+        xml.smtpd_listen_remote('no')
+        xml.syslog_on_no_error('no')
+        xml.system_gid_max('499')
+        xml.system_gid_min('100')
+        xml.system_uid_max('499')
+        xml.system_uid_min('100')
+        xml.systohc('yes')
+        xml.uid_max('60000')
+        xml.uid_min('1000')
+        xml.useradd_cmd('/usr/sbin/useradd.local')
+        xml.userdel_postcmd('/usr/sbin/userdel-post.local')
+        xml.userdel_precmd('/usr/sbin/userdel-pre.local')
+      end
     end
     if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-      xml.tag!("services-manager") {
-        xml.default_target("graphical")
-        xml.services {
-          xml.disable(:"config:type" => "list")
-          xml.enable(:"config:type" => "list") {
+      xml.tag!('services-manager') do
+        xml.default_target('graphical')
+        xml.services do
+          xml.disable("config:type": 'list')
+          xml.enable("config:type": 'list') do
             enabled_services.each do |enabled_service|
               xml.service(enabled_service)
             end
-          }
-        }
-      }
+          end
+        end
+      end
     end
-    xml.software {
+    xml.software do
       if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
         xml.image
         xml.instsource
       end
       if values['service'].to_s.match(/sles_15/)
-        xml.products(:"config:type" => "list") {
-          xml.product("SLES")
-        }
+        xml.products("config:type": 'list') do
+          xml.product('SLES')
+        end
       end
-      xml.packages(:"config:type" => "list") {
+      xml.packages("config:type": 'list') do
         add_packages.each do |package|
           xml.package(package)
         end
-      }
-      xml.patterns(:"config:type" => "list") {
+      end
+      xml.patterns("config:type": 'list') do
         patterns.each do |pattern|
           xml.pattern(pattern)
         end
-      }
-      if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-        xml.tag!("remove-packages", :"config:type" => "list") {
+      end
+      unless values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+        xml.tag!('remove-packages', "config:type": 'list') do
           remove_packages.each do |package|
             xml.package(package)
           end
-        }
+        end
       end
-    }
-    if not values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-      xml.sound {
-      }
-      xml.sshd {
-        xml.config {
-          xml.AcceptEnv(:"config:type" => "list") {
-            xml.listentry("LANG LC_CTYPE LC_NUMERIC LC_TIME LC_COLLATE LC_MONETARY LC_MESSAGES ")
-            xml.listentry("LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT ")
-            xml.listentry("LC_IDENTIFICATION LC_ALL")
-          }
-          xml.PasswordAuthentication(:"config:type" => "list") {
-            xml.listentry("no")
-          }
-          xml.Protocol(:"config:type" => "list") {
-            xml.listentry("2")
-          }
-          xml.Subsystem(:"config:type" => "list") {
+    end
+    unless values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+      xml.sound do
+      end
+      xml.sshd do
+        xml.config do
+          xml.AcceptEnv("config:type": 'list') do
+            xml.listentry('LANG LC_CTYPE LC_NUMERIC LC_TIME LC_COLLATE LC_MONETARY LC_MESSAGES ')
+            xml.listentry('LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT ')
+            xml.listentry('LC_IDENTIFICATION LC_ALL')
+          end
+          xml.PasswordAuthentication("config:type": 'list') do
+            xml.listentry('no')
+          end
+          xml.Protocol("config:type": 'list') do
+            xml.listentry('2')
+          end
+          xml.Subsystem("config:type": 'list') do
             xml.listentry("sftp\t/usr/lib64/ssh/sftp-server")
-          }
-          xml.UsePAM(:"config:type" => "list") {
-           xml.listentry("yes")
-          }
-          xml.X11Forwarding(:"config:type" => "list") {
-            xml.listentry("yes")
-          }
-        }
-        xml.status("true", :"config:type" => "boolean")
-      }
-      xml.suse_register {
-        xml.do_registration("false", :"config:type" => "boolean")
+          end
+          xml.UsePAM("config:type": 'list') do
+            xml.listentry('yes')
+          end
+          xml.X11Forwarding("config:type": 'list') do
+            xml.listentry('yes')
+          end
+        end
+        xml.status('true', "config:type": 'boolean')
+      end
+      xml.suse_register do
+        xml.do_registration('false', "config:type": 'boolean')
         xml.reg_server
         xml.reg_server_cert
-        xml.register_regularly("false", :"config:type" => "boolean")
-        xml.registration_data()
-        xml.submit_hwdata("false", :"config:type" => "boolean")
-        xml.submit_optional("false", :"config:type" => "boolean")
-      }
+        xml.register_regularly('false', "config:type": 'boolean')
+        xml.registration_data
+        xml.submit_hwdata('false', "config:type": 'boolean')
+        xml.submit_optional('false', "config:type": 'boolean')
+      end
     end
-    xml.timezone {
-      xml.hwclock("UTC")
+    xml.timezone do
+      xml.hwclock('UTC')
       xml.timezone(values['answers']['timezone'].value)
-    }
-    xml.user_defaults {
+    end
+    xml.user_defaults do
       xml.expire
-      xml.group("100")
+      xml.group('100')
       if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
         xml.groups
       else
-        xml.groups("video,dialout")
+        xml.groups('video,dialout')
       end
-      xml.home("/home")
-      xml.inactive("-1")
-      if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-        xml.no_groups("true", :"config:type" => "boolean")
-      end
-      xml.shell("/bin/bash")
-      xml.skel("/etc/skel")
-      xml.umask("022")
-    }
-    xml.users(:"config:type" => "list") {
+      xml.home('/home')
+      xml.inactive('-1')
+      xml.no_groups('true', "config:type": 'boolean') if values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+      xml.shell('/bin/bash')
+      xml.skel('/etc/skel')
+      xml.umask('022')
+    end
+    xml.users("config:type": 'list') do
       values['u_order'].each do |user|
-        xml.user {
-          xml.encrypted("true", :"config:type" => "boolean")
+        xml.user do
+          xml.encrypted('true', "config:type": 'boolean')
           xml.fullname(values['u_struct'][user].fullname)
           xml.gid(values['u_struct'][user].gid)
           xml.home(values['u_struct'][user].home)
-          xml.password_settings {
+          xml.password_settings do
             if values['u_struct'][user].expire.match(/[a-z,0-9]/)
               xml.expire(values['u_struct'][user].expire)
             else
@@ -3048,42 +2991,42 @@ def output_ay_client_profile(values,output_file)
             else
               xml.warn
             end
-          }
+          end
           xml.shell(values['u_struct'][user].shell)
           xml.uid(values['u_struct'][user].uid)
           xml.user_password(values['u_struct'][user].user_password)
           xml.username(values['u_struct'][user].username)
-        }
+        end
       end
-    }
-    if !values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
-      xml.x11 {
-        xml.color_depth("8",:"config:type" => "integer")
-        xml.display_manager("gdm")
-        xml.enable_3d("true", :"config:type" => "boolean")
-        xml.monitor {
-          xml.display {
-            xml.max_hsync("60",:"config:type" => "integer")
-            xml.max_vsync("75",:"config:type" => "integer")
-            xml.min_hsync("31",:"config:type" => "integer")
-            xml.min_vsync("50",:"config:type" => "integer")
-          }
-          xml.monitor_device("Unknown")
-          xml.monitor_vendor("Unknown")
-        }
-        xml.resolution("800x600 (SVGA)")
-        xml.window_manager
-      }
     end
-  }
-  file=File.open(output_file,"w")
+    unless values['service'].to_s.match(/sles_12_[1-9]|sles_15/)
+      xml.x11 do
+        xml.color_depth('8', "config:type": 'integer')
+        xml.display_manager('gdm')
+        xml.enable_3d('true', "config:type": 'boolean')
+        xml.monitor do
+          xml.display do
+            xml.max_hsync('60', "config:type": 'integer')
+            xml.max_vsync('75', "config:type": 'integer')
+            xml.min_hsync('31', "config:type": 'integer')
+            xml.min_vsync('50', "config:type": 'integer')
+          end
+          xml.monitor_device('Unknown')
+          xml.monitor_vendor('Unknown')
+        end
+        xml.resolution('800x600 (SVGA)')
+        xml.window_manager
+      end
+    end
+  end
+  file = File.open(output_file, 'w')
   xml_output.each do |item|
     file.write(item)
   end
   file.close
-  message = "Information:\tValidating AutoYast XML configuration for "+values['name']
+  message = "Information:\tValidating AutoYast XML configuration for #{values['name']}"
   command = "xmllint #{output_file}"
-  execute_command(values,message,command)
-  print_contents_of_file(values,"",output_file)
-  return
+  execute_command(values, message, command)
+  print_contents_of_file(values, '', output_file)
+  nil
 end

@@ -1,40 +1,39 @@
+# frozen_string_literal: true
+
 # Common packer code
 
 # Get packer version
 
 def get_packer_version(values)
-  packer_version = %x[#{values['packer']} --version].chomp
-  return packer_version
+  `#{values['packer']} --version`.chomp
 end
 
 # Check packer is installed
 
 def check_packer_is_installed(values)
-  if values['packer'] == values['empty']
-    packer_bin = %x[which packer].chomp
-  else
-    packer_bin = values['packer'].to_s
-  end
+  packer_bin = if values['packer'] == values['empty']
+                 `which packer`.chomp
+               else
+                 values['packer'].to_s
+               end
   packer_version = values['packerversion'].to_s
-  if !packer_bin.match(/packer/) or !File.exist?(packer_bin)
+  if !packer_bin.match(/packer/) || !File.exist?(packer_bin)
     if values['host-os-uname'].to_s.match(/Darwin/)
-      install_osx_package(values, "packer")
-      packer_bin = %x[which packer].chomp
+      install_osx_package(values, 'packer')
+      packer_bin = `which packer`.chomp
     else
       if values['host-os-unamem'].to_s.match(/64/)
-        packer_bin = "packer_"+packer_version+"_"+values['host-os-uname'].downcase+"_amd64.zip"
-        packer_url = "https://releases.hashicorp.com/packer/"+packer_version+"/"+packer_bin
+        packer_bin = "packer_#{packer_version}_#{values['host-os-uname'].downcase}_amd64.zip"
+        packer_url = "https://releases.hashicorp.com/packer/#{packer_version}/#{packer_bin}"
       else
-        packer_bin = "packer_"+packer_version+"_"+values['host-os-uname'].downcase+"_386.zip"
-        packer_url = "https://releases.hashicorp.com/packer/"+$packer_version+"/"+packer_bin
+        packer_bin = "packer_#{packer_version}_#{values['host-os-uname'].downcase}_386.zip"
+        packer_url = "https://releases.hashicorp.com/packer/#{$packer_version}/#{packer_bin}"
       end
-      tmp_file = "/tmp/"+packer_bin
-      if not File.exist?(tmp_file)
-        wget_file(values, packer_url, tmp_file)
-      end
-      if not File.directory?("/usr/local/bin") and not File.symlink?("/usr/local/bin")
+      tmp_file = "/tmp/#{packer_bin}"
+      wget_file(values, packer_url, tmp_file) unless File.exist?(tmp_file)
+      if !File.directory?('/usr/local/bin') && !File.symlink?('/usr/local/bin')
         message = "Information:\tCreating /usr/local/bin"
-        command = "mkdir /usr/local/bin"
+        command = 'mkdir /usr/local/bin'
         execute_command(values, message, command)
       end
       message = "Information:\tExtracting and installing Packer"
@@ -43,7 +42,7 @@ def check_packer_is_installed(values)
     end
   end
   values['packer'] = packer_bin
-  return values
+  values
 end
 
 # Import Packer VM
@@ -57,5 +56,5 @@ def import_packer_vm(values)
   when /kvm/
     import_packer_kvm_vm(values)
   end
-  return
+  nil
 end
