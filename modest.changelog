@@ -1639,3 +1639,5 @@
 # Documentation update
 # 8.1.9: Tue  1 Oct 2024 11:47:01 AEST
 # Improved dryrun mode
+# 8.2.0: Sat  7 Jun 2025 15:49:13 AEST
+# Initial code cleanup based on rubocop recommendations
