@@ -15,6 +15,12 @@ def post_process_values(values)
     print_version(values)
     quit(values)
   end
+  # Print changelog
+  if values['changelog']
+    values['output'] = 'text'
+    print_changelog(values)
+    quit(values)
+  end
   # Handle when running in defaults (non interactive mode)
   if (values['defaults'] == true) && (values['dhcp'] == false)
     %w[cidr ip nameserver vmgateway].each do |item|
@@ -190,7 +196,7 @@ end
 
 def handle_os_values(values)
   # Check OS switch
-  values = get_install_service_from_file(values) if (values['os-type'] == values['empty'] || values['method'] == values['empty'] || values['release'] == values['empty'] || values['arch'] == values['empty']) && (!values['file'] == values['empty'])
+  values = get_install_service_from_file(values) if (values['os-type'] == values['empty'] || values['method'] == values['empty'] || values['release'] == values['empty'] || values['arch'] == values['empty']) && (values['file'] != values['empty'])
   if values['os-type'] != values['empty']
     case values['os-type']
     when /suse|sles/
@@ -585,7 +591,7 @@ end
 # Handle size values
 
 def handle_size_values(values)
-  if !values['size'] == values['empty']
+  if values['size'] != values['empty']
     values['size'] = $default_vcsa_size if values['type'].to_s.match(/vcsa/) && !values['size'].to_s.match(/[0-9]/)
   elsif !values['vm'].to_s.match(/aws/) && !values['type'].to_s.match(/cloud|cf|stack/)
     values['size'] = if values['type'].to_s.match(/vcsa/)

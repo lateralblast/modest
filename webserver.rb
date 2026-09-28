@@ -2,10 +2,10 @@
 # frozen_string_literal: true
 
 # Name:         mode (Multi OS Deployment Engine) webserver
-# Version:      0.0.5
+# Version:      0.0.6
 # Release:      1
-# License:      CC-BA (Creative Commons By Attribution)
-#               http://creativecommons.org/licenses/by/4.0/legalcode
+# License:      CC BY-NC-SA (Creative Commons Attribution-NonCommercial-ShareAlike)
+#               http://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
 # Group:        System
 # Source:       N/A
 # URL:          http://lateralblast.com.au/
@@ -26,6 +26,17 @@ def install_gem(gem_name)
   `gem install #{gem_name}`
   Gem.clear_paths
   nil
+end
+
+# Safely dispatch to a method built from user-supplied input (route params),
+# rather than eval-ing an interpolated string. Only calls methods whose full
+# name is a plain lowercase identifier and that are actually defined.
+
+def safe_dispatch(method_name, *args)
+  return nil unless method_name.to_s.match?(/\A[a-z][a-z0-9_]*\z/)
+  return nil unless respond_to?(method_name, true)
+
+  send(method_name, *args)
 end
 
 begin
@@ -85,7 +96,7 @@ default_bind       = '127.0.0.1'
 default_exceptions = false
 default_port       = '9495'
 default_sessions   = 'true'
-default_errors     = 'false'
+default_errors     = false
 enable_ssl         = true
 enable_auth        = false
 ssl_dir            = "#{Dir.pwd}/ssl"
@@ -124,6 +135,7 @@ if enable_ssl == true
   `openssl req -x509 -nodes -days 365 -newkey rsa:1024 -keyout #{ssl_key} -out #{ssl_certificate}` if !File.exist?(ssl_certificate) || !File.exist?(ssl_key)
   set :ssl_certificate, ssl_certificate
   set :ssl_key, ssl_key
+  set :ssl_password, nil
   module Sinatra
     class Application
       def self.run!
@@ -163,15 +175,14 @@ if enable_auth == true
 
         def authorized?
           @auth ||= Rack::Auth::Basic::Request.new(request.env)
+          return false unless @auth.provided? && @auth.basic? && @auth.credentials
+
+          user, password = @auth.credentials
           passwd = File.open(htpasswd_file).read.split("\n").map { |credential| credential.split(':') }
-          return unless @auth.provided? && @auth.basic? && @auth.credentials
+          entry = passwd.assoc(user)
+          return false unless entry
 
-          user, = @auth.credentials
-          auth = passwd.assoc(user)
-          crypt = BCrypt::Password.create(auth[1])
-          return false unless auth
-
-          auth == [user, crypt]
+          BCrypt::Password.new(entry[1]) == password
         end
       end
     end
@@ -246,10 +257,10 @@ get '/list/*/*' do
   when /packer/
     list_packer_clients(values['search'])
   when /service/
-    eval "[list_#{values['search']}_services()]"
+    safe_dispatch("list_#{values['search']}_services")
   when /iso/
     if values['search'].to_s.match(/[a-z]/)
-      eval "[list_#{values['search']}_isos()]"
+      safe_dispatch("list_#{values['search']}_isos")
     else
       list_os_isos(values['search'])
     end
@@ -318,7 +329,7 @@ get '/add/client' do
   else
     redirect '/list/services'
   end
-  eval "[populate_#{values['method']}_questions(values['service'],values['name'],values['ip'])]"
+  safe_dispatch("populate_#{values['method']}_questions", values['service'], values['name'], values['ip'])
   values['stdout'].push('<form action="/add/client" method="post">')
   values['order'].each do |key|
     values['stdout'].push(values['answers'][key].question)
@@ -382,7 +393,7 @@ get '/' do
   when /display|view|show|prop/
     if values['name'].to_s.match(/[a-z,A-Z]/)
       if values['vm'].to_s.match(/[a-z]/) && (values['vm'] != values['empty'])
-        eval "[show_#{values['vm']}_vm_config(values)]"
+        safe_dispatch("show_#{values['vm']}_vm_config", values)
       else
         get_client_config(values)
       end
@@ -393,7 +404,7 @@ get '/' do
     if values['type'].to_s.match(/[a-z]/)
       if values['type'].to_s.match(/iso/)
         if values['method'].to_s.match(/[a-z]/)
-          eval "[list_#{values['method']}_isos]"
+          safe_dispatch("list_#{values['method']}_isos")
         else
           list_os_isos(values)
         end

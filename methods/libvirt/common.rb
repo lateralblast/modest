@@ -410,7 +410,7 @@ end
 
 def create_kvm_disk(values)
   disk_size = values['size'].to_s
-  disk_file = if !values['outputfile'] == values['empty']
+  disk_file = if values['outputfile'] != values['empty']
                 values['outputfile']
               else
                 "#{values['virtdir']}/#{values['name']}.qcow2"

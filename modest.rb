@@ -2,10 +2,10 @@
 # frozen_string_literal: true
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      8.2.0
+# Version:      8.2.2
 # Release:      1
-# License:      CC-BA (Creative Commons By Attribution)
-#               http://creativecommons.org/licenses/by/4.0/legalcode
+# License:      CC BY-NC-SA (Creative Commons Attribution-NonCommercial-ShareAlike)
+#               http://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
 # Group:        System
 # Source:       N/A
 # URL:          http://lateralblast.com.au/
@@ -792,7 +792,7 @@ end
 
 # Handle base ISO dir when dir option set
 
-values['isodir'] = values['dir'] if values['action'] == 'list' && values['type'].to_s.match(/iso|img|image/) && !values['dir'] == values['empty']
+values['isodir'] = values['dir'] if values['action'] == 'list' && values['type'].to_s.match(/iso|img|image/) && values['dir'] != values['empty']
 
 # Make sure a VM type is set for ansible
 
@@ -892,7 +892,7 @@ end
 
 # Set default host only Information
 
-if (!values['vm'] == values['empty']) && (values['vmnetwork'] == 'hostonly' || values['vmnetwork'] == values['empty'])
+if (values['vm'] != values['empty']) && (values['vmnetwork'] == 'hostonly' || values['vmnetwork'] == values['empty'])
   values['vmnetwork'] = 'hostonly'
   values = set_hostonly_info(values)
 end
@@ -997,10 +997,10 @@ end
 
 if values['name'].to_s.match(/,/)
   host_list = values['name'].to_s.split(',')
-  ip_list   = []
-  mac_list  = []
-  vcpu_list = []
-  mem_list  = []
+  ip_list    = []
+  mac_list   = []
+  vcpus_list = []
+  mem_list   = []
   disk_list = []
   rel_list  = []
   ip_list = values['ip'].to_s.split(',') if values['ip'].to_s.match(/,/)
@@ -1014,7 +1014,7 @@ if values['name'].to_s.match(/,/)
     values['ip'] = ip_list[counter] if ip_list[counter]
     values['mac'] = (mac_list[counter] || generate_mac_address(values))
     values['memory'] = mem_list[counter] if mem_list[counter]
-    values['vcpus'] = vcpus_list[counter] if vcpu_list[counter]
+    values['vcpus'] = vcpus_list[counter] if vcpus_list[counter]
     values['release'] = rel_list[counter] if rel_list[counter]
     values['disk'] = (disk_list[counter] || values['empty'])
     handle_action(values)

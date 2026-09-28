@@ -5,7 +5,7 @@
 # Handle publisher values
 
 def handle_publisher_values(values)
-  if values['host-os-uname'].to_s.match(/SunOS/) && (!values['publisher'] == values['empty'])
+  if values['host-os-uname'].to_s.match(/SunOS/) && (values['publisher'] != values['empty'])
     if values['mode'].to_s.match(/server/) || values['type'].to_s.match(/service/)
       values['publisherhost'] = values['publisher']
       (values['publisherhost'], values['publisherport']) = values['publisherhost'].split(/:/) if values['publisherhost'].to_s.match(/:/)

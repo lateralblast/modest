@@ -732,18 +732,14 @@ end
 # Print change log
 
 def print_changelog(values)
-  if File.exist?('changelog')
-    changelog = File.readlines('changelog')
-    changelog = changelog.reverse
-    changelog.each_with_index do |line, index|
-      line = line.gsub(/^# /, '')
-      next unless line.match(/^[0-9]/)
-
-      verbose_message(line)
-      text = changelog[index - 1].gsub(/^# /, '')
-      verbose_message(values, text)
-      verbose_message(values, '')
-    end
+  values['verbose'] = true
+  changelog_file = 'CHANGELOG.md'
+  unless File.exist?(changelog_file)
+    warning_message(values, "#{changelog_file} not found")
+    return nil
+  end
+  File.readlines(changelog_file).each do |line|
+    verbose_message(values, line.chomp)
   end
   nil
 end

@@ -327,7 +327,7 @@ def handle_action(values)
         warning_message(values, 'No service type or VM specified')
         return values
       end
-      if values['type'].to_s.match(/service/) && !values['service'].to_s.match(/[a-z]/) && !values['service'] == values['empty']
+      if values['type'].to_s.match(/service/) && !values['service'].to_s.match(/[a-z]/) && values['service'] != values['empty']
         warning_message(values, 'No service name specified')
         return values
       end
@@ -689,7 +689,7 @@ end
 
 def handle_list_action(values)
   if values['action'].to_s.match(/list|info/)
-    if values['file'] && !values['file'] == values['empty']
+    if values['file'] && values['file'] != values['empty']
       describe_file(values)
       quit(values)
     elsif values['vm'] == values['empty'] && values['service'] == values['empty'] && values['method'] == values['empty'] && values['type'] == values['empty'] && values['mode'] == values['empty']

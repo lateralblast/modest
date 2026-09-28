@@ -1668,7 +1668,7 @@ def populate_fusion_vm_vmx_info(values)
   else
     vmx_info.push('ethernet0.addressType,generated')
   end
-  if !values['mac'] == values['empty']
+  if values['mac'] != values['empty']
     if values['dhcp'] == false
       vmx_info.push("ethernet0.address,#{values['mac']}")
     else
