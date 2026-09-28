@@ -432,7 +432,7 @@ def configure_kvm_import_client(values)
   end
   values = get_install_service_from_file(values) if (values['os-type'] == values['empty']) || (values['os-variant'] == values['empty']) || (values['method'] == values['empty'])
   check_kvm_is_installed(values)
-  if !values['disk1'] == values['none']
+  if values['disk1'] != values['empty']
     values['disk'] = "#{values['disk1']} #{values['disk2']}"
   elsif values['disk'].to_s.match(/ /)
     unless values['disk'].to_s.match(/--disk/)

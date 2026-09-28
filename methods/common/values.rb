@@ -463,7 +463,7 @@ def handle_file_values(values)
     values['file'] = values['vboxadditions'] if values['vm'] == 'vbox' && values['file'] == 'tools'
     if !values['action'].to_s.match(/download/) && !File.exist?(values['file']) && !values['file'].to_s.match(/^http/)
       warning_message(values, "File #{values['file']} does not exist")
-      quit(values) if !values['test'] == true
+      quit(values) unless values['test']
     end
     values['type'] = get_install_type_from_file(values) if values['action'].to_s.match(/deploy/) && (values['type'] == values['empty'])
     if values['file'] != values['empty'] && values['action'].to_s.match(/create|add/)

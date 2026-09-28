@@ -6,6 +6,10 @@ newest first.
 
 ## modest.rb
 
+### [8.2.3] - 2026-09-28
+- Changed license to CC BY-NC-SA
+- Fixed the same operator-precedence bug in the Preseed admin_home_encrypt question guard and a mistyped values['none'] sentinel (should be values['empty']) in KVM combined-disk handling, both found in a follow-up review
+
 ### [8.2.2] - 2026-09-28
 - Fixed operator-precedence bugs (`!x == values['empty']` always evaluating false) that silently disabled --dir, --outputfile, --size, --publisher, --file, --mac, and hostonly network default handling
 - Fixed per-host --vcpus assignment when creating multiple hosts in one command (--name a,b), which previously never applied due to a variable name mismatch
@@ -2477,6 +2481,11 @@ newest first.
 - Fixed Dir.* usage to be compatible on ruby 1.8
 
 ## webserver.rb
+
+### [0.0.7] - 2026-09-28
+- Changed license to CC BY-NC-SA
+- Fixed argument-count mismatches in the safe_dispatch call sites added in 0.0.6 (/list, /add/client routes were calling list_*_services, list_*_isos, and populate_*_questions with the wrong number of arguments)
+- Hardened authorized? against a malformed htpasswd entry raising instead of failing closed
 
 ### [0.0.6] - 2026-09-28
 - Fixed undefined ssl_password crashing SSL startup

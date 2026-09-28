@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 # Name:         mode (Multi OS Deployment Engine) webserver
-# Version:      0.0.6
+# Version:      0.0.7
 # Release:      1
 # License:      CC BY-NC-SA (Creative Commons Attribution-NonCommercial-ShareAlike)
 #               http://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
@@ -180,9 +180,13 @@ if enable_auth == true
           user, password = @auth.credentials
           passwd = File.open(htpasswd_file).read.split("\n").map { |credential| credential.split(':') }
           entry = passwd.assoc(user)
-          return false unless entry
+          return false unless entry && entry[1]
 
-          BCrypt::Password.new(entry[1]) == password
+          begin
+            BCrypt::Password.new(entry[1]) == password
+          rescue BCrypt::Errors::InvalidHash
+            false
+          end
         end
       end
     end
@@ -257,10 +261,10 @@ get '/list/*/*' do
   when /packer/
     list_packer_clients(values['search'])
   when /service/
-    safe_dispatch("list_#{values['search']}_services")
+    safe_dispatch("list_#{values['search']}_services", values)
   when /iso/
     if values['search'].to_s.match(/[a-z]/)
-      safe_dispatch("list_#{values['search']}_isos")
+      safe_dispatch("list_#{values['search']}_isos", values)
     else
       list_os_isos(values['search'])
     end
@@ -329,7 +333,7 @@ get '/add/client' do
   else
     redirect '/list/services'
   end
-  safe_dispatch("populate_#{values['method']}_questions", values['service'], values['name'], values['ip'])
+  safe_dispatch("populate_#{values['method']}_questions", values)
   values['stdout'].push('<form action="/add/client" method="post">')
   values['order'].each do |key|
     values['stdout'].push(values['answers'][key].question)
@@ -404,7 +408,7 @@ get '/' do
     if values['type'].to_s.match(/[a-z]/)
       if values['type'].to_s.match(/iso/)
         if values['method'].to_s.match(/[a-z]/)
-          safe_dispatch("list_#{values['method']}_isos")
+          safe_dispatch("list_#{values['method']}_isos", values)
         else
           list_os_isos(values)
         end

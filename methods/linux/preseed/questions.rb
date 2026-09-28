@@ -273,7 +273,7 @@ def populate_ps_questions(values)
   values['answers'][name] = config
   values['order'].push(name)
 
-  if !values['method'] == 'ci'
+  if values['method'] != 'ci'
 
     name   = 'admin_home_encrypt'
     config = qs.new(
