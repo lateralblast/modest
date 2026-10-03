@@ -483,8 +483,10 @@ def set_other_defaults(values, defaults)
   defaults['enablevhv']       = true
   defaults['force']           = false
   defaults['headless']        = false
+  defaults['changelog']       = false
   defaults['help']            = false
   defaults['nokeys']          = false
+  defaults['silent']          = false
   defaults['nomirror']        = true
   defaults['nosuffix']        = false
   defaults['notice']          = false

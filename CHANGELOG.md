@@ -6,6 +6,60 @@ newest first.
 
 ## modest.rb
 
+### [8.3.9] - 2026-10-03
+- Fixed typos in comments (initial, information, handle, single)
+
+### [8.3.8] - 2026-10-03
+- Removed a duplicated branch when deriving the install method from the service name
+- Simplified per-host list splitting for comma-separated `--name` values and `--options` parsing
+
+### [8.3.7] - 2026-10-03
+- Removed the long-switch pre-validation loop, which could never trigger (it negated an array, and Getopt already rejects unknown switches)
+- Simplified the single-dash option check
+
+### [8.3.6] - 2026-10-03
+- Load method files with `Dir.glob('./methods/**/*.rb')` instead of globbing everything and filtering by regex
+
+### [8.3.5] - 2026-10-03
+- Added `require_or_install` helper to replace duplicated require/rescue/install_gem blocks (core gem list and AWS SDK)
+- `install_gem` now calls `system('gem', 'install', ...)` with an argument list instead of a backtick string
+
+### [8.3.4] - 2026-10-03
+- Removed unused `NegatedRegex` class and `Regexp#negate`
+
+### [8.3.3] - 2026-10-03
+- Fixed `String#strip_control_characters` and `String#strip_control_and_extended_characters` raising ArgumentError (`each_with_object` was called without a memo); the latter is used by the Windows interface/MAC/IP helpers
+- Merged the two reopened `String` class blocks into one
+
+### [8.3.2] - 2026-10-03
+- Fixed warning messages never being displayed by default: `silent` had no default so it resolved to the truthy string `none`, which `warning_message` treated as silent
+
+### [8.3.1] - 2026-10-03
+- Fixed mistyped switch names: `--noeeys` is now `--nokeys` (matches the value read in `handle_ssh_key_values`), `--donginstallsecurity` is now `--dontinstallsecurity`, and `--socker` is now `--socket`
+- Removed duplicate `--nobuild`, `--noreboot` and `--nosudo` switch declarations
+
+### [8.3.0] - 2026-10-03
+- Fixed operator-precedence bug in the VirtualBox/Packer network warning so the delete/import exclusion applies to both the `type` and `method` checks
+
+### [8.2.9] - 2026-10-03
+- Fixed early `--verbose`/`--dryrun` detection matching substrings of any argument (e.g. `--nodryrun` enabled dry-run mode); it now only matches the exact switch
+
+### [8.2.8] - 2026-10-03
+- Removed unreachable duplicate `when /purity/` clause in `handle_file_values`
+
+### [8.2.7] - 2026-10-03
+- Fixed `--param` without `--value` never being detected (the check tested for nil instead of the `empty` sentinel, and the same test was duplicated in an `elsif`)
+
+### [8.2.6] - 2026-10-03
+- Removed leftover debug `puts values['dhcp']` that printed on every run
+
+### [8.2.5] - 2026-10-03
+- Fixed option value validation, which only tested the first character of each value and so accepted almost anything; the whole value is now checked against the valid list
+- Invalid values now produce a warning instead of being silently accepted (not fatal, because the valid-value lists are not exhaustive, e.g. `--action restart`); the check also now runs after defaults are applied so its messages are actually displayed
+
+### [8.2.4] - 2026-10-03
+- Fixed the changelog being printed and the program exiting on every run: `changelog` had no default so it resolved to the truthy string `none` (regression from 8.2.1)
+
 ### [8.2.3] - 2026-09-28
 - Changed license to CC BY-NC-SA
 - Fixed the same operator-precedence bug in the Preseed admin_home_encrypt question guard and a mistyped values['none'] sentinel (should be values['empty']) in KVM combined-disk handling, both found in a follow-up review

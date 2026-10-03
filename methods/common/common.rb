@@ -1107,11 +1107,6 @@ def get_install_service_from_file(values)
     #    end
     values['os-variant'] = "ubuntu#{values['release']}"
     values['livecd'] = true if values['file'].to_s.match(/live/)
-  when /purity/
-    values['service'] = 'purity'
-    service_version = values['file'].to_s.split(/_/)[1]
-    values['method']  = 'ps'
-    values['arch']    = 'x86_64'
   when /vCenter-Server-Appliance|VCSA/
     values['service'] = 'vcsa'
     service_version = values['file'].to_s.split(/-/)[3..4].join('.').gsub(/\./, '_').gsub(/_iso/, '')

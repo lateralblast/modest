@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      8.2.3
+# Version:      8.3.9
 # Release:      1
 # License:      CC BY-NC-SA (Creative Commons Attribution-NonCommercial-ShareAlike)
 #               http://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
@@ -80,32 +80,26 @@ end
 
 # If given verbose switch/option enable verbose mode early
 
-if ARGV.to_s.match(/verbose/)
+if ARGV.include?('--verbose')
   values['verbose'] = true
   values['output']  = 'text'
 end
 
 # If given dryrun switch/option enable dryrun mode early
 
-values['dryrun'] = true if ARGV.to_s.match(/dryrun/)
+values['dryrun'] = true if ARGV.include?('--dryrun')
 
 # String class overrides
 
 class String
   def strip_control_characters
-    chars.each_with_object do |char, str|
-      str << char unless char.ascii_only? && (char.ord < 32 || char.ord == 127)
-    end
+    chars.reject { |char| char.ascii_only? && (char.ord < 32 || char.ord == 127) }.join
   end
 
   def strip_control_and_extended_characters
-    chars.each_with_object do |char, str|
-      str << char if char.ascii_only? && char.ord.between?(32, 226)
-    end
+    chars.select { |char| char.ascii_only? && char.ord.between?(32, 226) }.join
   end
-end
 
-class String
   def convert_base(from, to)
     to_i(from).to_s(to)
   end
@@ -131,21 +125,17 @@ def install_gem(load_name)
                    load_name
                  end
   puts "Information:\tInstalling #{install_name}"
-  `gem install #{install_name}`
+  system('gem', 'install', install_name, out: File::NULL)
   Gem.clear_paths
   require load_name.to_s
 end
 
-class NegatedRegex < Regexp
-  def ===(other)
-    !super
-  end
-end
+# Require a library, installing the gem that provides it if it is missing
 
-class Regexp
-  def negate
-    NegatedRegex.new self
-  end
+def require_or_install(load_name)
+  require load_name.to_s
+rescue LoadError
+  install_gem(load_name)
 end
 
 # Current unused modules:
@@ -154,22 +144,13 @@ end
 #
 
 ['getopt/long', 'builder', 'parseconfig', 'unix_crypt', 'netaddr', 'json',
- 'fileutils', 'ssh-config', 'yaml', 'net/ssh', 'net/scp', 'ipaddress'].each do |load_name|
-  require load_name.to_s
-rescue LoadError
-  install_gem(load_name)
-end
+ 'fileutils', 'ssh-config', 'yaml', 'net/ssh', 'net/scp', 'ipaddress'].each { |load_name| require_or_install(load_name) }
 
 # Load methods
 
-if File.directory?('./methods')
-  file_list = Dir.glob('./methods/**/*')
-  file_list.each do |file|
-    if file =~ /rb$/
-      information_message(values, "Loading module #{file}")
-      require file.to_s
-    end
-  end
+Dir.glob('./methods/**/*.rb').each do |file|
+  information_message(values, "Loading module #{file}")
+  require file
 end
 
 # Get command line arguments
@@ -182,23 +163,9 @@ end
 
 # Check whether we have any single - values
 
-ARGV.each do |option|
-  if option.match(/^-[a-z]/)
-    puts "Invalid option #{option} in command line"
-    exit
-  end
-end
-
-# Try to make sure we have valid long switches
-
-valid_values = get_valid_values(values)
-
-ARGV.each do |switch|
-  next unless !valid_values.grep(/--#{switch}/) || switch.match(/^-[a-z,A-Z][a-z,A-Z]/)
-
-  verbose_message(values, "Invalid command line option: #{switch}")
-  values['output'] = 'text'
-  quit(values)
+ARGV.grep(/^-[a-z]/).each do |option|
+  puts "Invalid option #{option} in command line"
+  exit
 end
 
 # Process values
@@ -374,7 +341,7 @@ begin
     ['--installdrivers', BOOLEAN],      # Install Drivers
     ['--dontinstalldrivers', BOOLEAN],  # Do not install Drivers
     ['--installsecurity', BOOLEAN],     # Install Security Updates
-    ['--donginstallsecurity', BOOLEAN], # Do not install Security Updates
+    ['--dontinstallsecurity', BOOLEAN], # Do not install Security Updates
     ['--installupdates', BOOLEAN],      # Install Package Updates
     ['--dontinstallupdates', BOOLEAN],  # Do not install Package Updates
     ['--installupgrades', BOOLEAN],     # Install Package Upgrades
@@ -438,10 +405,7 @@ begin
     ['--networkfile', REQUIRED],        # Network config file (KVM)
     ['--nic', REQUIRED],                # Default NIC
     ['--noboot', BOOLEAN],              # Create VM/configs but do not boot
-    ['--nobuild', BOOLEAN],             # Create VM/configs but do not build
-    ['--noeeys', BOOLEAN],              # Do not copy SSH Keys
-    ['--noreboot', BOOLEAN],            # Do not reboot as part of post script (used for troubleshooting)
-    ['--nosudo', BOOLEAN],              # Use sudo
+    ['--nokeys', BOOLEAN],              # Do not copy SSH Keys
     ['--nosuffix', BOOLEAN],            # Do not add suffix to AWS AMI names
     ['--notice', BOOLEAN],              # Print notice messages
     ['--novncdir', REQUIRED],           # NoVNC directory
@@ -533,7 +497,7 @@ begin
     ['--sitename', REQUIRED],           # Sitename for VCSA
     ['--smartcard', REQUIRED],          # Smartcard (KVM)
     ['--snapshot', REQUIRED],           # AWS snapshot
-    ['--socker', REQUIRED],             # Socket file
+    ['--socket', REQUIRED],             # Socket file
     ['--sound', REQUIRED],              # Sound (KVM)
     ['--splitvols', BOOLEAN],           # Split volumes, e.g. seperate /, /var, etc
     ['--nosplitvols', BOOLEAN],         # Do not split volumes, e.g. seperate /, /var, etc
@@ -639,7 +603,7 @@ if values['usage'] && (values['usage'] != values['empty'])
   quit(values)
 end
 
-# Set up some initital defaults
+# Set up some initial defaults
 
 values['stdout'] = []
 
@@ -648,26 +612,6 @@ values['stdout'] = []
 defaults = {}
 (values, defaults) = set_defaults(values, defaults)
 defaults['stdout'] = []
-
-# Check valid values
-
-raw_params = IO.readlines(defaults['scriptfile']).grep(/REQUIRED|BOOLEAN/).join.split(/\n/)
-raw_params.each do |raw_param|
-  next unless raw_param.match(/\[/) && !raw_param.match(/^raw_params/)
-
-  raw_param   = raw_param.split(/--/)[1].split(/'/)[0]
-  valid_param = "valid-#{raw_param}"
-  next unless values[raw_param] && defaults[valid_param]
-
-  test_value = values[raw_param][0]
-  test_value = test_value.split(',')[0] if test_value.match(/,/)
-  next if defaults[valid_param].to_s.downcase.match(/#{test_value.downcase}/)
-
-  verbose_message(defaults, "Warning:\tOption --#{raw_param} has an invalid value: #{values[raw_param]}")
-  verbose_message(defaults,
-                  "Information:\tValid values for --#{raw_param} are: \n #{defaults[valid_param]}")
-  quit(defaults)
-end
 
 # If given verbose switch/option enable verbose mode early
 
@@ -685,13 +629,7 @@ values['dryrun'] = true if values['options'].to_s.match(/dryrun/)
 if values['options']
   information_message(values, 'Processing options')
   if values['options'].to_s.match(/[a-z]/)
-    options = []
-    if values['options'].to_s.match(/,/)
-      options = values['options'].split(/,/)
-    else
-      options[0] = values['options']
-    end
-    options.each do |option|
+    values['options'].to_s.split(',').each do |option|
       information_message(values, "Option #{option} is set to true")
       if option.match(/^no|^disable|^dont|^un/)
         temp_option = option.gsub(/^no|^dont|^un/, '')
@@ -705,7 +643,7 @@ if values['options']
   end
 end
 
-# If we've been given a file try to get os and other insformation from file
+# If we've been given a file try to get os and other information from file
 
 values = handle_mount_values(values, defaults)
 
@@ -718,8 +656,6 @@ values = set_ssh_port(values)
 defaults = reset_defaults(values, defaults)
 
 # Process values based on defaults
-
-puts values['dhcp']
 
 values = process_values(values, defaults)
 
@@ -739,7 +675,7 @@ values = cleanup_values(values, defaults)
 
 values = handle_power_state_values(values)
 
-# Hanfle cloud-init values
+# Handle cloud-init values
 
 values = handle_cloud_init_values(values)
 
@@ -752,6 +688,29 @@ values = handle_libvirt_values(values)
 check_dir_exists(values, values['workdir'])
 [values['isodir'], values['repodir'], values['imagedir'], values['pkgdir'], values['clientdir']].each do |dir_name|
   check_zfs_fs_exists(values, dir_name)
+end
+
+# Check valid values
+
+raw_params = IO.readlines(defaults['scriptfile']).grep(/REQUIRED|BOOLEAN/).join.split(/\n/)
+raw_params.each do |raw_param|
+  next unless raw_param.match(/\[/) && !raw_param.match(/^raw_params/)
+
+  raw_param   = raw_param.split(/--/)[1].split(/'/)[0]
+  valid_param = "valid-#{raw_param}"
+  next unless values[raw_param] && defaults[valid_param]
+
+  next unless values[raw_param].is_a?(String) && values[raw_param] != values['empty']
+
+  valid_list = defaults[valid_param].map { |valid_item| valid_item.to_s.downcase }
+  values[raw_param].split(',').first(1).each do |test_value|
+    test_value = test_value.strip.downcase
+    next if valid_list.any? { |valid_item| test_value.include?(valid_item) || valid_item.include?(test_value) }
+
+    # Lists are not exhaustive (e.g. --action restart), so warn rather than quit
+    warning_message(values, "Option --#{raw_param} has an unrecognised value: #{test_value}")
+    information_message(values, "Valid values for --#{raw_param} are: #{valid_list.join(', ')}")
+  end
 end
 
 # Handle setup
@@ -775,13 +734,7 @@ end
 # If using AWS check for and load AWS CLI gem
 # Removed this from the default check as it takes a long time to install
 
-if values['vm']&.to_s&.match(/aws/)
-  begin
-    require 'aws-sdk'
-  rescue LoadError
-    install_gem('aws-sdk')
-  end
-end
+require_or_install('aws-sdk') if values['vm'].to_s.match(/aws/)
 
 # Check directory permissions perms by default
 
@@ -865,10 +818,7 @@ values = handle_file_values(values)
 # Handle values and parameters
 
 if (values['param'] != values['empty']) && !values['action'].to_s.match(/get/)
-  if !values['value']
-    warning_message(values, 'Setting a parameter requires a value')
-    quit(values)
-  elsif !values['value']
+  if values['value'] == values['empty']
     warning_message(values, 'Setting a parameter requires a value')
     quit(values)
   end
@@ -885,7 +835,7 @@ values = handle_ldom_values(values)
 
 # Handle Packer and VirtualBox not supporting hostonly or bridged network
 
-if !values['vmnetwork'].to_s.match(/nat/) && values['vm'].to_s.match(/virtualbox|vbox/) && (values['type'].to_s.match(/packer/) || values['method'].to_s.match(/packer/) && !values['action'].to_s.match(/delete|import/))
+if !values['vmnetwork'].to_s.match(/nat/) && values['vm'].to_s.match(/virtualbox|vbox/) && (values['type'].to_s.match(/packer/) || values['method'].to_s.match(/packer/)) && !values['action'].to_s.match(/delete|import/)
   warning_message(values, 'Packer has a bug that causes issues with Hostonly and Bridged network on VirtualBox')
   warning_message(values, 'To deal with this an addition port may be added to the SSH daemon config file')
 end
@@ -957,9 +907,7 @@ values = handle_publisher_values(values)
 
 # If service is set, but method and os is not specified, try to set method from service name
 
-if values['service'] != values['empty'] && values['method'] == values['empty'] && values['os-type'] == values['empty']
-  values['method'] = get_install_method_from_service(values)
-elsif values['method'] == values['empty'] && values['os-type'] == values['empty']
+if values['method'] == values['empty'] && values['os-type'] == values['empty']
   values['method'] = get_install_method_from_service(values)
 end
 
@@ -993,22 +941,19 @@ if values['action'].to_s.match(/create/) && values['name'] == 'none' && values['
   quit(values)
 end
 
-# Handle multiple configs in one line if separated by a comma, or handle a sinlge config
+# Handle multiple configs in one line if separated by a comma, or handle a single config
 
 if values['name'].to_s.match(/,/)
   host_list = values['name'].to_s.split(',')
-  ip_list    = []
-  mac_list   = []
-  vcpus_list = []
-  mem_list   = []
-  disk_list = []
-  rel_list  = []
-  ip_list = values['ip'].to_s.split(',') if values['ip'].to_s.match(/,/)
-  mac_list = values['mac'].to_s.split(',') if values['mac'].to_s.match(/,/)
-  mem_list = values['memory'].to_s.split(',') if values['memory'].to_s.match(/,/)
-  vcpus_list = values['vcpus'].to_s.split(',') if values['vcpus'].to_s.match(/,/)
-  disk_list = values['disk'].to_s.split(',') if values['disk'].to_s.match(/,/)
-  rel_list = values['release'].to_s.split(',') if values['release'].to_s.match(/,/)
+  split_values = lambda do |key|
+    values[key].to_s.match(/,/) ? values[key].to_s.split(',') : []
+  end
+  ip_list    = split_values.call('ip')
+  mac_list   = split_values.call('mac')
+  mem_list   = split_values.call('memory')
+  vcpus_list = split_values.call('vcpus')
+  disk_list  = split_values.call('disk')
+  rel_list   = split_values.call('release')
   host_list.each_with_index do |host_name, counter|
     values['name'] = host_name
     values['ip'] = ip_list[counter] if ip_list[counter]
