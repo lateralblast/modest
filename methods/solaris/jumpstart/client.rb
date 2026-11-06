@@ -19,7 +19,7 @@ def create_js_sysid_file(values)
   end
   file.close
   message = "Information:\tCreating configuration file #{values['sysid']} for #{values['name']}"
-  command = "cp #{tmp_file} #{values['sysid']} ; rm #{tmp_file}"
+  command = "cp #{shell_arg(tmp_file)} #{shell_arg(values['sysid'])} ; rm #{shell_arg(tmp_file)}"
   execute_command(values, message, command)
   print_contents_of_file(values, '', values['sysid'])
   nil
@@ -42,7 +42,7 @@ def create_js_machine_file(values)
   end
   file.close
   message = "Information:\tCreating configuration file #{values['machine']} for #{values['name']}"
-  command = "cp #{tmp_file} #{values['machine']} ; rm #{tmp_file}"
+  command = "cp #{shell_arg(tmp_file)} #{shell_arg(values['machine'])} ; rm #{shell_arg(tmp_file)}"
   execute_command(values, message, command)
   print_contents_of_file(values, '', values['machine'])
   nil
@@ -65,16 +65,16 @@ def create_js_rules_file(values)
   file.write("#{karch_line}\n")
   file.close
   message = "Information:\tCreating configuration file #{values['rules']} for #{values['name']}"
-  command = "cp #{tmp_file1} #{values['rules']} ; rm #{tmp_file1}"
+  command = "cp #{shell_arg(tmp_file1)} #{shell_arg(values['rules'])} ; rm #{shell_arg(tmp_file1)}"
   execute_command(values, message, command)
   print_contents_of_file(values, '', values['rules'])
-  check_sum = `sum #{values['rules']} |awk '{print $1}'`.strip
+  check_sum = `sum #{shell_arg(values['rules'])} |awk '{print $1}'`.strip
   file = File.open(tmp_file2, 'w')
   file.write("#{karch_line}\n")
   file.write("# version=2 checksum=#{check_sum}\n")
   file.close
   message = "Information:\tCreating configuration file #{ok_file} for #{values['name']}"
-  command = "cp #{tmp_file2} #{ok_file} ; rm #{tmp_file2}"
+  command = "cp #{shell_arg(tmp_file2)} #{shell_arg(ok_file)} ; rm #{shell_arg(tmp_file2)}"
   execute_command(values, message, command)
   print_contents_of_file(values, '', ok_file)
   karch_line
@@ -114,7 +114,7 @@ def create_js_finish_file(values)
   file_array.push('chroot /a /usr/sbin/useradd -m -d /export/home/${ADMINUSER} -s /usr/bin/bash -g ${ADMINUSER} ${ADMINUSER}')
   file_array.push('')
   file_array.push('# Create password')
-  file_array.push("PASSWD=`perl -e 'print crypt($ARGV[0], substr(rand(data),2));' #{values['adminpassword']}`")
+  file_array.push("PASSWD=`perl -e 'print crypt($ARGV[0], substr(rand(data),2));' #{shell_arg(values['adminpassword'])}`")
   file_array.push("cat /a/etc/shadow | sed -e 's#^'${ADMINUSER}':UP:#'${ADMINUSER}':'${PASSWD}'#g'  > /tmp/shadow.$$")
   file_array.push('cat /tmp/shadow.$$ > /a/etc/shadow')
   file_array.push('')
@@ -143,7 +143,7 @@ def check_js_config(values)
   check_script  = "#{values['repodir']}/Solaris_#{values['version']}/Misc/jumpstart_sample/#{file_name}"
   unless File.exist?("#{values['clientdir']}/check")
     message = "Information:\tCopying check script #{check_script} to #{values['clientdir']}"
-    command = "cd #{values['clientdir']} ; cp -p #{check_script} ."
+    command = "cd #{shell_arg(values['clientdir'])} ; cp -p #{shell_arg(check_script)} ."
     execute_command(values, message, command)
   end
   nil
@@ -167,7 +167,7 @@ def configure_js_pxe_client(values)
     unless File.exist?(test_file)
       pxegrub_file = "#{values['service']}/boot/grub/pxegrub"
       message      = "Information:\tCreating PXE boot file for #{values['name']} with MAC address #{values['mac']}"
-      command      = "cd #{values['tftpdir']} ; ln -s #{pxegrub_file} #{tftp_pxe_file}"
+      command      = "cd #{shell_arg(values['tftpdir'])} ; ln -s #{shell_arg(pxegrub_file)} #{shell_arg(tftp_pxe_file)}"
       execute_command(values, message, command)
     end
     pxe_cfg_file = values['mac'].gsub(/:/, '')
@@ -194,7 +194,7 @@ def configure_js_pxe_client(values)
     file.write("\tmodule$ #{values['service']}/boot/$ISADIR/x86.miniroot\n")
     file.close
     message = "Information:\tCreating PXE boot config file #{pxe_cfg_file}"
-    command = "cp #{tmp_file} #{pxe_cfg_file} ; rm #{tmp_file}"
+    command = "cp #{shell_arg(tmp_file)} #{shell_arg(pxe_cfg_file)} ; rm #{shell_arg(tmp_file)}"
     execute_command(values, message, command)
     print_contents_of_file(values, '', pxe_cfg_file)
   end
@@ -253,7 +253,7 @@ end
 def add_install_client(values)
   tool_dir = "#{values['repodir']}/Solaris_*/Tools"
   message  = "Information:\tAdding jumpstart client #{values['name']}"
-  command  = "cd #{tool_dir} ; ./add_install_client -e #{values['mac']} -i #{values['ip']} -s #{values['hostip']}:#{values['repodir']} -c #{values['hostip']}:#{values['clientdir']} -p #{values['hostip']}:#{values['clientdir']} #{values['name']} #{values['karch']}"
+  command  = "cd #{shell_arg(tool_dir)} ; ./add_install_client -e #{shell_arg(values['mac'])} -i #{shell_arg(values['ip'])} -s #{shell_arg(values['hostip'])}:#{shell_arg(values['repodir'])} -c #{shell_arg(values['hostip'])}:#{shell_arg(values['clientdir'])} -p #{shell_arg(values['hostip'])}:#{shell_arg(values['clientdir'])} #{shell_arg(values['name'])} #{shell_arg(values['karch'])}"
   execute_command(values, message, command)
   nil
 end
@@ -283,7 +283,7 @@ def configure_js_client(values)
       quit(values)
     else
       message = "Information:\tMaking sure file is world readable"
-      command = "chmod 755 #{values['file']}"
+      command = "chmod 755 #{shell_arg(values['file'])}"
       execute_command(values, message, command)
     end
     export_dir = Pathname.new(values['file'])

@@ -112,20 +112,20 @@ def import_ai_manifest(output_file, values)
     lc_arch = sys_arch.downcase
     backup  = "#{values['workdir']}/#{base_name}_#{lc_arch}_orig_default.xml.#{date_string}"
     message = "Information:\tArchiving service configuration for #{base_name}_#{lc_arch} to #{backup}"
-    command = "installadm export -n #{base_name}_#{lc_arch} -m orig_default > #{backup}"
+    command = "installadm export -n #{shell_arg(base_name)}_#{shell_arg(lc_arch)} -m orig_default > #{shell_arg(backup)}"
     execute_command(values, message, command)
     message = "Information:\tValidating service configuration #{output_file}"
-    command = "AIM_MANIFEST=#{output_file} ; export AIM_MANIFEST ; aimanifest validate"
+    command = "AIM_MANIFEST=#{shell_arg(output_file)} ; export AIM_MANIFEST ; aimanifest validate"
     output  = execute_command(values, message, command)
     if output.match(/[a-z,A-Z,0-9]/)
       verbose_message(values, "AI manifest file #{output_file} does not contain a valid XML manifest")
       verbose_message(values, output)
     else
       message = "Information:\tImporting #{output_file} to service #{values['service']} as manifest named #{values['manifest']}"
-      command = "installadm create-manifest -n #{base_name}_#{lc_arch} -m #{values['manifest']} -f #{output_file}"
+      command = "installadm create-manifest -n #{shell_arg(base_name)}_#{shell_arg(lc_arch)} -m #{shell_arg(values['manifest'])} -f #{shell_arg(output_file)}"
       execute_command(values, message, command)
       message = "Information:\tSetting default manifest for service #{values['service']} to #{values['manifest']}"
-      command = "installadm set-service -o default-manifest=#{values['manifest']} #{base_name}_#{lc_arch}"
+      command = "installadm set-service -o default-manifest=#{shell_arg(values['manifest'])} #{shell_arg(base_name)}_#{shell_arg(lc_arch)}"
       execute_command(values, message, command)
     end
   end
@@ -136,7 +136,7 @@ end
 
 def import_ai_client_profile(values, output_file)
   message = "Information:\tCreating profile for client #{values['name']} with MAC address #{values['mac']}"
-  command = "installadm create-profile -n #{values['service']} -f #{output_file} -p #{values['name']} -c mac='#{values['mac']}'"
+  command = "installadm create-profile -n #{shell_arg(values['service'])} -f #{shell_arg(output_file)} -p #{shell_arg(values['name'])} -c mac='#{shell_sq(values['mac'])}'"
   execute_command(values, message, command)
   nil
 end
@@ -223,7 +223,7 @@ end
 def create_ai_client(values)
   values['ip'] = single_install_ip(values)
   message    = "Information:\tCreating client entry for #{values['name']} with architecture #{values['arch']} and MAC address #{values['mac']}"
-  command    = "installadm create-client -n #{values['service']} -e #{values['mac']}"
+  command    = "installadm create-client -n #{shell_arg(values['service'])} -e #{shell_arg(values['mac'])}"
   execute_command(values, message, command)
   if values['arch'].to_s.match(/i386/) || values['arch'].to_s.match(/i386/)
     update_ai_client_dhcpd_entry(values)
@@ -241,7 +241,7 @@ end
 def check_ai_client_doesnt_exist(values)
   values['mac'] = values['mac'].upcase
   message = "Information:\tChecking client #{values['name']} does not exist"
-  command = "installadm list -p |grep '#{values['mac']}'"
+  command = "installadm list -p |grep '#{shell_sq(values['mac'])}'"
   output  = execute_command(values, message, command)
   if output.match(/#{values['name']}/)
     warning_message(values, "Profile already exists for #{values['name']}")
@@ -308,11 +308,11 @@ def unconfigure_ai_client(values)
   if values['name'].to_s.match(/[a-z,A-Z]/)
     if values['service'].to_s.match(/[a-z,A-Z]/)
       message = "Information:\tDeleting client profile #{values['name']} from #{values['service']}"
-      command = "installadm delete-profile -p #{values['name']} -n #{values['service']}"
+      command = "installadm delete-profile -p #{shell_arg(values['name'])} -n #{shell_arg(values['service'])}"
       execute_command(values, message, command)
     elsif values['mac'].to_s.match(/[0-9]/)
       message = "Information:\tDeleting client #{values['name']} with from service #{values['service']}"
-      command = "installadm delete-client #{values['mac']}"
+      command = "installadm delete-client #{shell_arg(values['mac'])}"
       execute_command(values, message, command)
     end
   else

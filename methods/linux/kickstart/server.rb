@@ -22,7 +22,7 @@ end
 def set_zfs_mount(values)
   zfs_name = values['zpoolname'] + values['repodir']
   message  = "Information:\tSetting #{zfs_name} mount point to #{values['repodir']}"
-  command  = "zfs set mountpoint=#{values['netbootdir']} #{zfs_name}"
+  command  = "zfs set mountpoint=#{shell_arg(values['netbootdir'])} #{shell_arg(zfs_name)}"
   execute_command(values, message, command)
   nil
 end
@@ -74,7 +74,7 @@ def configure_ks_repo(values)
     file_name = "#{values['repodir']}/#{iso_file}"
     unless File.exist?(file_name)
       message = "Information:\tCopying ISO file #{orig_file} to #{file_name}"
-      command = "cp #{orig_file} #{file_name}"
+      command = "cp #{shell_arg(orig_file)} #{shell_arg(file_name)}"
       execute_command(values, message, command)
     end
   end
@@ -116,7 +116,7 @@ def configure_ks_pxe_boot(values)
       if File.directory?(rpm_dir)
         if !values['service'].to_s.match(/sl_|fedora_19|rhel_6/)
           message  = "Information:\tLocating syslinux package"
-          command  = "cd #{rpm_dir} ; find . -name 'syslinux-[0-9]*' |grep '#{iso_arch}'"
+          command  = "cd #{shell_arg(rpm_dir)} ; find . -name 'syslinux-[0-9]*' |grep '#{shell_sq(iso_arch)}'"
           output   = execute_command(values, message, command)
           rpm_file = output.chomp
           rpm_file = rpm_file.gsub(%r{\./}, '')
@@ -131,16 +131,16 @@ def configure_ks_pxe_boot(values)
         end
         check_dir_exists(values, values['pxebootdir'])
         message = "Information:\tCopying PXE boot files from #{rpm_file} to #{values['pxebootdir']}"
-        command = "cd #{values['pxebootdir']} ; #{values['rpm2cpiobin']} #{rpm_file} | cpio -iud"
+        command = "cd #{shell_arg(values['pxebootdir'])} ; #{shell_arg(values['rpm2cpiobin'])} #{shell_arg(rpm_file)} | cpio -iud"
         execute_command(values, message, command)
         if values['host-os-unamea'].match(/RedHat/) && values['host-os-unamer'].match(/^7/) && values['pxebootdir'].to_s.match(/[a-z]/)
           httpd_p = 'httpd_sys_rw_content_t'
           tftpd_p = 'unconfined_u:object_r:system_conf_t:s0'
           message = "Information:\tFixing permissions on #{values['pxebootdir']}"
-          command = "chcon -R -t #{httpd_p} #{values['pxebootdir']} ; chcon #{tftpd_p} #{values['pxebootdir']}"
+          command = "chcon -R -t #{shell_arg(httpd_p)} #{shell_arg(values['pxebootdir'])} ; chcon #{shell_arg(tftpd_p)} #{shell_arg(values['pxebootdir'])}"
           execute_command(values, message, command)
           message = "Information:\tFixing permissions on #{values['pxebootdir']}/usr and #{values['pxebootdir']}/images"
-          command = "chcon -R #{values['pxebootdir']}/usr ; chcon -R #{values['pxebootdir']}/images"
+          command = "chcon -R #{shell_arg(values['pxebootdir'])}/usr ; chcon -R #{shell_arg(values['pxebootdir'])}/images"
           execute_command(values, message, command)
         end
       else
@@ -160,7 +160,7 @@ def configure_ks_pxe_boot(values)
                         "#{values['baserepodir']}/#{values['service']}/images"
                       end
       message = "Information:\tCopying PXE boot images from #{iso_image_dir} to #{pxe_image_dir}"
-      command = "cp -r #{iso_image_dir} #{values['pxebootdir']}"
+      command = "cp -r #{shell_arg(iso_image_dir)} #{shell_arg(values['pxebootdir'])}"
       execute_command(values, message, command)
     end
   else
@@ -179,7 +179,7 @@ def configure_ks_pxe_boot(values)
     end
     unless File.exist?(test_file)
       message = "Information:\tCopying PXE boot files from #{iso_image_dir} to #{pxe_image_dir}"
-      command = "cd #{pxe_image_dir} ; cp -r #{iso_image_dir}/* . "
+      command = "cd #{shell_arg(pxe_image_dir)} ; cp -r #{shell_arg(iso_image_dir)}/* . "
       execute_command(values, message, command)
     end
   end
@@ -227,11 +227,11 @@ def configure_ks_vmware_repo(values)
   if (values['download'] == true) && !File.directory?(vmware_dir)
     check_dir_exists(values, vmware_dir)
     message = "Information:\tFetching VMware RPMs"
-    command = "cd #{vmware_dir} ; lftp -e 'mget * ; quit' #{vmware_url}"
+    command = "cd #{shell_arg(vmware_dir)} ; lftp -e 'mget * ; quit' #{shell_arg(vmware_url)}"
     execute_command(values, message, command)
     check_dir_exists(values, repodata_dir)
     message = "Information:\tFetching VMware RPM repodata"
-    command = "cd #{repodata_dir} ; lftp -e 'mget * ; quit' #{repodata_url}"
+    command = "cd #{shell_arg(repodata_dir)} ; lftp -e 'mget * ; quit' #{shell_arg(repodata_url)}"
     execute_command(values, message, command)
   end
   nil

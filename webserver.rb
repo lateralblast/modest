@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 # Name:         mode (Multi OS Deployment Engine) webserver
-# Version:      0.0.7
+# Version:      0.1.0
 # Release:      1
 # License:      CC BY-NC-SA (Creative Commons Attribution-NonCommercial-ShareAlike)
 #               http://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
@@ -20,10 +20,11 @@ require 'rubygems'
 require 'pathname'
 require 'etc'
 require 'date'
+require 'shellwords'
 
 def install_gem(gem_name)
   puts "Information:\tInstalling #{gem_name}"
-  `gem install #{gem_name}`
+  `gem install #{Shellwords.escape(gem_name)}`
   Gem.clear_paths
   nil
 end
@@ -132,7 +133,7 @@ if enable_ssl == true
     puts "Information: Creating #{ssl_dir}"
     Dir.mkdir(ssl_dir)
   end
-  `openssl req -x509 -nodes -days 365 -newkey rsa:1024 -keyout #{ssl_key} -out #{ssl_certificate}` if !File.exist?(ssl_certificate) || !File.exist?(ssl_key)
+  `openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout #{Shellwords.escape(ssl_key)} -out #{Shellwords.escape(ssl_certificate)}` if !File.exist?(ssl_certificate) || !File.exist?(ssl_key)
   set :ssl_certificate, ssl_certificate
   set :ssl_key, ssl_key
   set :ssl_password, nil
@@ -205,6 +206,21 @@ before do
   values['verbose'] = 0
   values['output']  = 'html'
   values['stdout']  = []
+  # Reject request values that would reach a shell command with unsafe characters
+  web_values = {
+    'name'       => params['client'],
+    'ip'         => params['ip'],
+    'method'     => params['method'],
+    'vm'         => params['vm'],
+    'os-type'    => params['os'],
+    'type'       => params['type'],
+    'service'    => params['service'],
+    'action'     => params['action'],
+    'search'     => params['search']
+  }
+  invalid = invalid_shell_values(web_values.transform_values(&:to_s))
+  invalid += ['url path'] unless Array(params[:splat]).all? { |part| part.to_s.match?(/\A[A-Za-z0-9._-]*\z/) }
+  halt 400, "Invalid value for #{invalid.join(', ')}" unless invalid.empty?
 end
 
 # handle error - redirect to help

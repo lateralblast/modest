@@ -217,11 +217,11 @@ end
 
 def enable_linux_ufw_nat(values, _gw_if_name, if_name)
   message = "Information:\tChecking ufw firewall is set to allow traffic to internal VM network #{if_name}"
-  command = "ufw status |grep out |grep '#{if_name}'"
+  command = "ufw status |grep out |grep '#{shell_sq(if_name)}'"
   output  = execute_command(values, message, command)
   unless output.match(/#{if_name}/)
     message = "Information:\tSetting ufw firewall to allow traffic to internal VM network #{if_name}"
-    command = "ufw allow out on #{if_name} ; ufw allow in on #{if_name}"
+    command = "ufw allow out on #{shell_arg(if_name)} ; ufw allow in on #{shell_arg(if_name)}"
     execute_command(values, message, command)
     message = "Information:\tRestarting UFW"
     command = 'ufw disable ; echo y |ufw enable'
@@ -234,11 +234,11 @@ def enable_linux_ufw_internal_network(values)
   install_ip  = single_install_ip(values)
   install_net = "#{install_ip.split('.')[0..2].join('.')}.0/24"
   message = "Information:\tChecking if internal network '#{install_net}' is able to access ports on server"
-  command = "ufw status |grep '#{install_net}'"
+  command = "ufw status |grep '#{shell_sq(install_net)}'"
   output  = execute_command(values, message, command)
   unless output.match(/#{install_net}/)
     message = "Information:\tSetting ufw firewal to allow internal network '#{install_net}' to access ports on server"
-    command = "ufw allow from '#{install_net}' to any"
+    command = "ufw allow from '#{shell_sq(install_net)}' to any"
     execute_command(values, message, command)
     message = "Information:\tRestarting UFW"
     command = 'ufw disable ; echo y |ufw enable'
@@ -252,7 +252,7 @@ end
 def enable_linux_iptables_nat(values, gw_if_name, if_name)
   install_package(values, 'iptables-persistent')
   message = "Information:\tSetting iptables firewall to allow traffic to internal VM network #{if_name}"
-  command = "iptables --table nat --append POSTROUTING --out-interface #{gw_if_name} -j MASQUERADE ; iptables --append FORWARD --in-interface #{if_name} -j ACCEPT ; iptables-save"
+  command = "iptables --table nat --append POSTROUTING --out-interface #{shell_arg(gw_if_name)} -j MASQUERADE ; iptables --append FORWARD --in-interface #{shell_arg(if_name)} -j ACCEPT ; iptables-save"
   execute_command(values, message, command)
   nil
 end
@@ -262,7 +262,7 @@ end
 def check_linux_nat(values, gw_if_name, if_name)
   if File.exist?('/etc/iptables/rules.v4')
     message = "Information:\tChecking iptables firewall allows traffic to internal VM network #{if_name}"
-    command = "cat /etc/iptables/rules.v4 |grep #{if_name}"
+    command = "cat /etc/iptables/rules.v4 |grep #{shell_arg(if_name)}"
     output  = execute_command(values, message, command)
     enable_linux_iptables_nat(values, gw_if_name, if_name) unless output.match(/#{if_name}/)
   end
@@ -359,6 +359,6 @@ end
 
 def install_snap_pkg(values, pkg_name)
   message = "Information:\tUsing Snap to install package #{pkg_name}"
-  command = "snap install #{pkg_name}"
+  command = "snap install #{shell_arg(pkg_name)}"
   execute_command(values, message, command)
 end

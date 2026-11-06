@@ -18,7 +18,7 @@ def check_solaris_install(values)
   pkgutil_conf = '/opt/csw/etc/pkgutil.conf'
   ['git", "autoconf", "automake", "libtool'].each do |pkg_name|
     message = "Information:\tChecking package #{pkg_name} is installed"
-    command = "which #{pkg}"
+    command = "which #{shell_arg(pkg)}"
     output  = execute_command(values, message, command)
     install_sol11_pkg(values, pkg_name) unless output.match(%r{^/})
   end
@@ -29,18 +29,18 @@ def check_solaris_install(values)
     wget_file(values, remote_file, local_file)
     if File.exist?(local_file)
       message = "Information:\tInstalling OpenCSW Package pkgutil"
-      command = "pkgadd -d #{local_file}"
+      command = "pkgadd -d #{shell_arg(local_file)}"
       execute_command(values, message, command)
     end
   end
   if File.exist?(pkgutil_conf)
     message = "Information:\tChecking mirror is set for OpenCSW"
-    command = "cat #{pkgutil_conf} |grep \"^mirror\" |grep -v \"^#\""
+    command = "cat #{shell_arg(pkgutil_conf)} |grep \"^mirror\" |grep -v \"^#\""
     output  = execute_command(values, message, command)
     unless output.match(/#{$local_opencsw_mirror}/)
       mirror  = "mirror=#{$local_opencsw_mirror}"
       message = "Information:\tAdding local OpenCSW Mirror"
-      command = "echo '#{mirror}' >> #{pkgutil_conf}"
+      command = "echo '#{shell_sq(mirror)}' >> #{shell_arg(pkgutil_conf)}"
       execute_command(values, message, command)
     end
   end
@@ -67,11 +67,11 @@ def check_solaris_nat(if_name)
     execute_command(values, message, command)
   end
   message = "Information:\tChecking DHCP Server is listening on #{if_name}"
-  command = "svccfg -s svc:/network/dhcp/server:ipv4 listprop config/listen_ifnames |grep #{if_name}"
+  command = "svccfg -s svc:/network/dhcp/server:ipv4 listprop config/listen_ifnames |grep #{shell_arg(if_name)}"
   output  = execute_command(values, message, command)
   unless output.match(/#{if_name}/)
     message = "Information:\tSetting DHCP Server to listen on #{if_name}"
-    command = "svccfg -s svc:/network/dhcp/server:ipv4 setprop config/listen_ifnames = astring: #{if_name} ; svcadm refresh svc:/network/dhcp/server:ipv4"
+    command = "svccfg -s svc:/network/dhcp/server:ipv4 setprop config/listen_ifnames = astring: #{shell_arg(if_name)} ; svcadm refresh svc:/network/dhcp/server:ipv4"
     execute_command(values, message, command)
   end
   nil
@@ -97,10 +97,10 @@ def check_local_publisher(values)
     copy_iso(values)
     if File.directory?(publisher_dir)
       message = "Information:\tRefreshing repository at #{values['repodir']}"
-      command = "pkgrepo -s #{values['repodir']} refresh"
+      command = "pkgrepo -s #{shell_arg(values['repodir'])} refresh"
       execute_command(values, message, command)
       message = "Information:\tEnabling repository at #{values['repodir']}"
-      command = "pkg set-publisher -G '*' -g #{values['repodir']} solaris"
+      command = "pkg set-publisher -G '*' -g #{shell_arg(values['repodir'])} solaris"
       execute_command(values, message, command)
     else
       warning_message(values, "No local publisher directory found at: #{publisher_dir}")
@@ -119,21 +119,21 @@ def handle_smf_service(values, function, smf_service)
     uc_function = function.capitalize
     if function.match(/enable/)
       message = "Information:\tChecking status of service #{smf_service}"
-      command = "svcs #{smf_service} |grep -v STATE"
+      command = "svcs #{shell_arg(smf_service)} |grep -v STATE"
       output  = execute_command(values, message, command)
       if output.match(/maintenance/)
         message = "#{uc_function}:\tService #{smf_service}"
-        command = "svcadm clear #{smf_service} ; sleep 5"
+        command = "svcadm clear #{shell_arg(smf_service)} ; sleep 5"
         output  = execute_command(values, message, command)
       end
       unless output.match(/online/)
         message = "#{uc_function}:\tService #{smf_service}"
-        command = "svcadm #{function} #{smf_service} ; sleep 5"
+        command = "svcadm #{shell_arg(function)} #{shell_arg(smf_service)} ; sleep 5"
         output  = execute_command(values, message, command)
       end
     else
       message = "#{uc_function}:\tService #{smf_service}"
-      command = "svcadm #{function} #{smf_service} ; sleep 5"
+      command = "svcadm #{shell_arg(function)} #{shell_arg(smf_service)} ; sleep 5"
       output  = execute_command(values, message, command)
     end
   end
@@ -166,7 +166,7 @@ end
 def check_smf_service(values, smf_service)
   if values['host-os-uname'].to_s.match(/SunOS/)
     message = "Information:\tChecking service #{smf_service}"
-    command = "svcs -a |grep #{smf_service}"
+    command = "svcs -a |grep #{shell_arg(smf_service)}"
     output  = execute_command(values, message, command)
   end
   output
@@ -175,10 +175,10 @@ end
 # Check Solaris 11 package
 
 def install_sol11_pkg(values, pkg_name)
-  pkg_test = `which #{pkg_name}`
+  pkg_test = `which #{shell_arg(pkg_name)}`
   if pkg_test.match(/no #{pkg_name}/)
     message = "Information:\tChecking Package #{pkg_name} is installed"
-    command = "pkg info #{pkg_name} 2>&1| grep \"Name:\" |awk \"{print \\\$3}\""
+    command = "pkg info #{shell_arg(pkg_name)} 2>&1| grep \"Name:\" |awk \"{print \\\$3}\""
     output  = execute_command(values, message, command)
     unless output.match(/#{pkg_name}/)
       message = "Information:\tChecking publisher is online"
@@ -186,7 +186,7 @@ def install_sol11_pkg(values, pkg_name)
       output  = execute_command(values, message, command)
       if output.match(/online/)
         message = "Information:\tInstalling Package #{pkg_name}"
-        command = "pkg install #{pkg_name}"
+        command = "pkg install #{shell_arg(pkg_name)}"
         execute_command(values, message, command)
       end
     end
@@ -201,26 +201,26 @@ def check_sol11_ntp(values)
   [0..3].each do |number|
     ntp_host = "#{number}.#{values['country'].downcase}.ntp.pool.org"
     message  = "Information:\tChecking NTP server #{ntp_host} is in #{ntp_file}"
-    command  = "cat #{ntp_file} | grep \"#{ntp_host}\""
+    command  = "cat #{shell_arg(ntp_file)} | grep \"#{shell_dq(ntp_host)}\""
     output   = execute_command(values, message, command)
     ntp_test = output.chomp
     next if ntp_test.match(/#ntp_test/)
 
     message = "Information:\tAdding NTP host #{ntp_host} to #{ntp_file}"
-    command = "echo '#{ntp_host}' >> #{ntp_file}"
+    command = "echo '#{shell_sq(ntp_host)}' >> #{shell_arg(ntp_file)}"
     execute_command(values, message, command)
   end
   ['driftfile /var/ntp/ntp.drift", "statsdir /var/ntp/ntpstats/",
     "filegen peerstats file peerstats type day enable",
    "filegen loopstats file loopstats type day enable'].each do |ntp_entry|
     message  = "Information:\tChecking NTP entry #{ntp_entry} is in #{ntp_file}"
-    command  = "cat #{ntp_file} | grep \"#{ntp_entry}\""
+    command  = "cat #{shell_arg(ntp_file)} | grep \"#{shell_dq(ntp_entry)}\""
     output   = execute_command(values, message, command)
     ntp_test = output.chomp
     next if ntp_test.match(/#{ntp_entry}/)
 
     message = "Information:\tAdding NTP entry #{ntp_entry} to #{ntp_file}"
-    command = "echo '#{ntp_entry}' >> #{ntp_file}"
+    command = "echo '#{shell_sq(ntp_entry)}' >> #{shell_arg(ntp_file)}"
     execute_command(values, message, command)
   end
   enable_smf_service(values, smf_service)
@@ -268,7 +268,7 @@ def create_named_conf(values)
     command = 'mkdir /var/dump ; mkdir /var/stats ; mkdir -p /var/run/namedb ; mkdir -p /etc/namedb/master ; mkdir -p /etc/namedb/working'
     execute_command(values, message, command)
     message = "Information:\tCreating named configuration file #{named_conf}"
-    command = "cp #{tmp_file} #{named_conf} ; rm #{tmp_file}"
+    command = "cp #{shell_arg(tmp_file)} #{shell_arg(named_conf)} ; rm #{shell_arg(tmp_file)}"
     execute_command(values, message, command)
     print_contents_of_file(values, '', named_conf)
   end
@@ -290,7 +290,7 @@ def create_named_conf(values)
     file.write("\n")
     file.close
     message = "Information:\tCreating named configuration file #{forward_file}"
-    command = "cp #{tmp_file} #{forward_file} ; rm #{tmp_file}"
+    command = "cp #{shell_arg(tmp_file)} #{shell_arg(forward_file)} ; rm #{shell_arg(tmp_file)}"
     execute_command(values, message, command)
     print_contents_of_file(values, '', forward_file)
   end
@@ -312,7 +312,7 @@ def create_named_conf(values)
     file.write("\n")
     file.close
     message = "Information:\tCreating named configuration file #{reverse_file}"
-    command = "cp #{tmp_file} #{reverse_file} ; rm #{tmp_file}"
+    command = "cp #{shell_arg(tmp_file)} #{shell_arg(reverse_file)} ; rm #{shell_arg(tmp_file)}"
     execute_command(values, message, command)
     print_contents_of_file(values, '', reverse_file)
   end
@@ -323,10 +323,10 @@ end
 
 def import_smf_manifest(values, service, xml_file)
   message = "Information:\tImporting service manifest for #{service}"
-  command = "svccfg import #{xml_file}"
+  command = "svccfg import #{shell_arg(xml_file)}"
   execute_command(values, message, command)
   message = "Information:\tStarting service manifest for #{service}"
-  command = "svcadm restart #{service}"
+  command = "svcadm restart #{shell_arg(service)}"
   execute_command(values, message, command)
   nil
 end

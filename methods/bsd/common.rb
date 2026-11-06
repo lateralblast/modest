@@ -44,7 +44,7 @@ def get_other_version_info(values)
   when /install/
     iso_distro = 'OpenBSD'
     if !values['file'].to_s.match(/i386|x86_64|amd64/)
-      iso_arch    = `strings #{values['file']} |head -2 |tail -1 |awk '{print $2}'`.split(%r{/})[1].chomp
+      iso_arch    = `strings #{shell_arg(values['file'])} |head -2 |tail -1 |awk '{print $2}'`.split(%r{/})[1].chomp
       iso_version = File.basename(values['file'], '.iso').gsub(/install/, '').split(//).join('.')
     else
       iso_arch = File.basename(values['file'], '.iso').split(/-/)[1]

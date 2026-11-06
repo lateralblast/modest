@@ -54,7 +54,7 @@ def delete_docker_image(values)
     quit(values)
   end
   message   = "Information:\tListing docker images"
-  command   = "docker image rm #{values['id']}"
+  command   = "docker image rm #{shell_arg(values['id'])}"
   output    = execute_command(values, message, command)
   verbose_message(values, output)
   nil

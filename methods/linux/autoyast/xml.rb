@@ -3025,7 +3025,7 @@ def output_ay_client_profile(values, output_file)
   end
   file.close
   message = "Information:\tValidating AutoYast XML configuration for #{values['name']}"
-  command = "xmllint #{output_file}"
+  command = "xmllint #{shell_arg(output_file)}"
   execute_command(values, message, command)
   print_contents_of_file(values, '', output_file)
   nil

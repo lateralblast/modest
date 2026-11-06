@@ -180,7 +180,7 @@ def build_ansible_aws_config(values)
     quit(values)
   end
   message = "Information:\tBuilding Ansible AWS instance using AMI name '#{values['name']}' using '#{yaml_file}'"
-  command = "cd #{values['clientdir']} ; ansible-playbook -i hosts #{yaml_file}"
+  command = "cd #{shell_arg(values['clientdir'])} ; ansible-playbook -i hosts #{shell_arg(yaml_file)}"
   execute_command(values, message, command)
   get_ansible_instance_info(values['name'])
   nil

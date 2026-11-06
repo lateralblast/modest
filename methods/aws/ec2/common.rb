@@ -796,7 +796,7 @@ def check_vagrant_is_installed(values, _osinfo)
     end
     if values['host-os-uname'].to_s.match(/Darwin/)
       message = "Information:\tMounting Vagrant Image"
-      command = "hdiutil attach #{vagrant_pkg}"
+      command = "hdiutil attach #{shell_arg(vagrant_pkg)}"
       execute_command(values, message, command)
       message = "Information:\tInstalling Vagrant Image"
       command = 'installer -package /Volumes/Vagrant/Vagrant.pkg -target /'
@@ -903,7 +903,7 @@ def create_aws_key_pair(values)
     file.write(key_pair)
     file.close
     message = "Information:\tSetting permissions on '#{key_file}' to 600"
-    command = "chmod 600 #{key_file}"
+    command = "chmod 600 #{shell_arg(key_file)}"
     execute_command(values, message, command)
   end
   values

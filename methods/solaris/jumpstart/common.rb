@@ -65,7 +65,7 @@ end
 
 def get_js_iso_version(values)
   message = "Checking:\tSolaris Version"
-  command = "ls #{values['repodir']} |grep Solaris"
+  command = "ls #{shell_arg(values['repodir'])} |grep Solaris"
   output  = execute_command(values, message, command)
   iso_version = output.chomp
   iso_version.split(/_/)[1]
@@ -81,7 +81,7 @@ def get_js_iso_update(values)
               "#{values['mountdir']}/Solaris_#{values['version']}/Product/SUNWsolnm/reloc/etc/release"
             end
   message = "Checking:\tSolaris release"
-  command = "cat #{release} |head -1 |awk \"{print \\\$4}\""
+  command = "cat #{shell_arg(release)} |head -1 |awk \"{print \\\$4}\""
   output  = execute_command(values, message, command)
   if output.match(/_/)
     update = output.split(/_/)[1].gsub(/[a-z]/, '')

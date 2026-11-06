@@ -515,7 +515,7 @@ def output_pe_client_profile(values, output_file)
   end
   file.close
   message = "Information:\tValidating Windows configuration for #{values['name']}"
-  command = "xmllint #{output_file}"
+  command = "xmllint #{shell_arg(output_file)}"
   execute_command(values, message, command)
   nil
 end

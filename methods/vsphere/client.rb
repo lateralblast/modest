@@ -73,10 +73,10 @@ def configure_vs_pxe_client(values)
     message = "Information:\tCreating PXE boot file for #{values['name']} with MAC address #{values['mac']}"
     if values['biostype'].to_s.match(/efi/)
       efi_boot_file = "#{values['service']}/efi/boot/bootx64.efi"
-      command = "cd #{values['tftpdir']} ; ln -s #{efi_boot_file} #{tftp_pxe_file}"
+      command = "cd #{shell_arg(values['tftpdir'])} ; ln -s #{shell_arg(efi_boot_file)} #{shell_arg(tftp_pxe_file)}"
     else
       pxelinux_file = "#{values['service']}/usr/share/syslinux/pxelinux.0"
-      command = "cd #{values['tftpdir']} ; ln -s #{pxelinux_file} #{tftp_pxe_file}"
+      command = "cd #{shell_arg(values['tftpdir'])} ; ln -s #{shell_arg(pxelinux_file)} #{shell_arg(tftp_pxe_file)}"
     end
     execute_command(values, message, command)
   end
@@ -168,7 +168,7 @@ def unconfigure_vs_pxe_client(values)
   tftp_pxe_file = "#{values['tftpdir']}/#{tftp_pxe_file}"
   if File.exist?(tftp_pxe_file)
     message = "Information:\tRemoving PXE boot file #{tftp_pxe_file} for #{values['name']}"
-    command = "rm #{tftp_pxe_file}"
+    command = "rm #{shell_arg(tftp_pxe_file)}"
     execute_command(values, message, command)
   end
   pxe_cfg_dir   = "#{values['tftpdir']}/pxelinux.cfg"
@@ -183,12 +183,12 @@ def unconfigure_vs_pxe_client(values)
   pxe_cfg_file2 = "#{pxe_cfg_dir}/#{pxe_cfg_file2}"
   if File.exist?(pxe_cfg_file1)
     message = "Information:\tRemoving PXE boot config file #{pxe_cfg_file1} for #{values['name']}"
-    command = "rm #{pxe_cfg_file1}"
+    command = "rm #{shell_arg(pxe_cfg_file1)}"
     execute_command(values, message, command)
   end
   if File.exist?(pxe_cfg_file2)
     message = "Information:\tRemoving PXE boot config file #{pxe_cfg_file2} for #{values['name']}"
-    command = "rm #{pxe_cfg_file2}"
+    command = "rm #{shell_arg(pxe_cfg_file2)}"
     execute_command(values, message, command)
   end
   client_info = get_vs_clients(values)
@@ -197,7 +197,7 @@ def unconfigure_vs_pxe_client(values)
   ks_cfg_file        = "#{ks_dir}/#{values['name']}.cfg"
   if File.exist?(ks_cfg_file)
     message = "Information:\tRemoving Kickstart boot config file #{ks_cfg_file} for #{values['name']}"
-    command = "rm #{ks_cfg_file}"
+    command = "rm #{shell_arg(ks_cfg_file)}"
     execute_command(values, message, command)
   end
   unconfigure_vs_dhcp_client(values)
@@ -238,7 +238,7 @@ def configure_vs_client(values)
   ks_file = values['Kickstartfile'].to_s
   if ks_file.match(/[a-z]/) && File.exist?(ks_file)
     message = "Information:\tCopying #{ks_file} to #{output_file}"
-    command = "cp #{ks_file} #{output_file}"
+    command = "cp #{shell_arg(ks_file)} #{shell_arg(output_file)}"
     execute_command(values, message, command)
   else
     output_vs_header(values, output_file)
@@ -249,7 +249,7 @@ def configure_vs_client(values)
     post_list = populate_vs_post_list(values)
     output_vs_post_list(post_list, output_file)
   end
-  `chmod 755 #{output_file}` if output_file
+  `chmod 755 #{shell_arg(output_file)}` if output_file
   print_contents_of_file(values, '', output_file)
   configure_vs_pxe_client(values)
   configure_vs_dhcp_client(values)

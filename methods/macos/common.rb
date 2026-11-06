@@ -46,7 +46,7 @@ def check_osx_pfctl(values, gw_if_name, if_name)
     command = 'sudo sh -c "pfctl -e"'
     execute_command(values, message, command)
     message = "Loading:\tFilters from #{pf_file}"
-    command = "sudo sh -c \"pfctl -F all -f #{pf_file}\""
+    command = "sudo sh -c \"pfctl -F all -f #{shell_dq(pf_file)}\""
     execute_command(values, message, command)
   end
   nil
@@ -60,7 +60,7 @@ def check_osx_nat(values, gw_if_name, if_name)
   unless output.match(/#{gw_if_name}/)
     message = "Information:\tEnabling NATd to forward traffic on #{gw_if_name}"
     if values['host-os-unamer'].split('.')[0].to_i < 14
-      command = "sudo sh -c \"ipfw add 100 divert natd ip from any to any via #{gw_if_name}\""
+      command = "sudo sh -c \"ipfw add 100 divert natd ip from any to any via #{shell_dq(gw_if_name)}\""
       execute_command(values, message, command)
     else
       check_osx_pfctl(values, gw_if_name, if_name)
@@ -68,11 +68,11 @@ def check_osx_nat(values, gw_if_name, if_name)
   end
   if values['host-os-unamer'].split(/\./)[0].to_i < 13
     message = "Information:\tChecking NATd is running"
-    command = "ps -ef |grep '#{gw_if_name}' |grep natd |grep 'same_ports'"
+    command = "ps -ef |grep '#{shell_sq(gw_if_name)}' |grep natd |grep 'same_ports'"
     output  = execute_command(values, message, command)
     unless output.match(/natd/)
       message = "Information:\tStarting NATd to foward packets between #{if_name} and #{gw_if_name}"
-      command = "sudo sh -c \"/usr/sbin/natd -interface #{gw_if_name} -use_sockets -same_ports -unregistered_only -dynamic -clamp_mss -enable_natportmap -natportmap_interface #{if_name}\""
+      command = "sudo sh -c \"/usr/sbin/natd -interface #{shell_dq(gw_if_name)} -use_sockets -same_ports -unregistered_only -dynamic -clamp_mss -enable_natportmap -natportmap_interface #{shell_dq(if_name)}\""
       execute_command(values, message, command)
     end
   end
@@ -87,13 +87,13 @@ def tune_osx_nfs(values)
   nfs_params.each do |nfs_tune|
     nfs_tune = 'nfs.client.nfsiod_thread_max = 64'
     message  = "Information:\tChecking NFS tuning"
-    command  = "cat #{nfs_file} |grep '#{nfs_tune}'"
+    command  = "cat #{shell_arg(nfs_file)} |grep '#{shell_sq(nfs_tune)}'"
     output   = execute_command(values, message, command)
     next if output.match(/#{nfs_tune}/)
 
     backup_file(values, nfs_file)
     message = "Information:\tTuning NFS"
-    command = "echo '#{nfs_tune}' >> #{nfs_file}"
+    command = "echo '#{shell_sq(nfs_tune)}' >> #{shell_arg(nfs_file)}"
     execute_command(values, message, command)
   end
   nil
@@ -103,11 +103,11 @@ end
 
 def get_osx_disk_name(values)
   message = "Information:\tGetting root disk device ID"
-  command = "df |grep '/$' |awk '{print \\$1}'"
+  command = "df |grep '/$' |awk '{print $1}'"
   output  = execute_command(values, message, command)
   disk_id = output.chomp
   message = "Information:\tGetting volume name for #{disk_id}"
-  command = "diskutil info #{disk_id} | grep 'Volume Name' |cut -f2 -d':'"
+  command = "diskutil info #{shell_arg(disk_id)} | grep 'Volume Name' |cut -f2 -d':'"
   output  = execute_command(values, message, command)
   output.chomp.gsub(/^\s+/, '')
 end
@@ -120,7 +120,7 @@ def check_osx_apache(values)
   server_key = "#{ssl_dir}/server.key"
   unless File.exist?(server_key)
     message = "information:\tGenerating Apache SSL Server Key #{server_key}"
-    command = "ssh-keygen -f #{server_key}"
+    command = "ssh-keygen -f #{shell_arg(server_key)}"
     execute_command(values, message, command)
   end
   nil
@@ -137,15 +137,15 @@ def check_osx_ips(values)
     command = '/usr/bin/easy_install --prefix=/usr pip'
     execute_command(values, message, command)
     message = "Information:\tUpdating Setuptools"
-    command = "wget #{setup_url} -O |sudo #{python_bin}"
+    command = "wget #{shell_arg(setup_url)} -O |sudo #{shell_arg(python_bin)}"
     execute_command(values, message, command)
     ['simplejson", "coverage", "pyOpenSSL", "mercurial'].each do |module_name|
       message = "information:\tInstalling Python module #{module_name}"
-      command = "#{pip_bin} install #{module_name}"
+      command = "#{shell_arg(pip_bin)} install #{shell_arg(module_name)}"
       execute_command(values, message, command)
     end
   end
-  python_ver = `#{python_bin} --version |awk '{print $2}'`
+  python_ver = `#{shell_arg(python_bin)} --version |awk '{print $2}'`
   python_ver = python_ver.chomp.split(/\./)[0..1].join('.')
   module_dir = "/usr/local/lin/python#{python_ver}/site-packages"
   pkg_dest_dir = "#{module_dir}/pkg"
@@ -160,7 +160,7 @@ def check_osx_ips(values)
   unless File.exist?(pkgrepo_bin)
     ips_url = 'https://hg.java.net/hg/ips~pkg-gate'
     message = "Information:\tDownloading IPS source code"
-    command = "cd #{values['workdir']} ; hg clone #{ips_url} ips"
+    command = "cd #{shell_arg(values['workdir'])} ; hg clone #{shell_arg(ips_url)} ips"
     execute_command(values, message, command)
   end
   nil
@@ -201,10 +201,10 @@ def check_osx_service_is_enabled(values, service)
     end
     File.open(tmp_file, 'w') { |file| file.puts copy }
     message = "Information:\tEnabling #{service}"
-    command = "cp #{tmp_file} #{plist_file} ; rm #{tmp_file}"
+    command = "cp #{shell_arg(tmp_file)} #{shell_arg(plist_file)} ; rm #{shell_arg(tmp_file)}"
     execute_command(values, message, command)
     message = "Information:\tLoading #{service} profile"
-    command = "launchctl load -w #{plist_file}"
+    command = "launchctl load -w #{shell_arg(plist_file)}"
     execute_command(values, message, command)
   end
   nil
@@ -222,7 +222,7 @@ end
 
 def check_brew_pkg(values, pkg_name)
   message = "Information:\tChecking Brew package #{pkg_name}"
-  command = "brew info #{pkg_name}"
+  command = "brew info #{shell_arg(pkg_name)}"
   execute_command(values, message, command)
 end
 
@@ -239,7 +239,7 @@ def install_brew_pkg(values, pkg_name)
   pkg_status = check_brew_pkg(values, pkg_name)
   if pkg_status.match(/Not installed/)
     message = "Information:\tInstalling Package #{pkg_name}"
-    command = "brew install #{pkg_name}"
+    command = "brew install #{shell_arg(pkg_name)}"
     execute_command(values, message, command)
   end
   nil
@@ -257,10 +257,10 @@ def check_osx_dnsmasq(values)
     command = 'cp -fv /usr/local/opt/dnsmasq/*.plist /Library/LaunchDaemons'
     execute_command(values, message, command)
     message = "Information:\tCreating Configuration file #{plist_file}"
-    command = "cp #{dnsmasq_file}.example #{dnsmasq_file}"
+    command = "cp #{shell_arg(dnsmasq_file)}.example #{shell_arg(dnsmasq_file)}"
     execute_command(values, message, command)
     message = "Information:\tLoading Configuration for #{pkg_name}"
-    command = "launchctl load -w #{plist_file}"
+    command = "launchctl load -w #{shell_arg(plist_file)}"
     execute_command(values, message, command)
   end
   nil
@@ -284,14 +284,14 @@ def check_osx_dhcpd_installed(values)
     if output.match(/10\.9/)
       if File.exist?(brew_file)
         message = "Information:\tChecking version of ISC DHCPd"
-        command = "cat #{brew_file} | grep url"
+        command = "cat #{shell_arg(brew_file)} | grep url"
         output  = execute_command(values, message, command)
         if output.match(/4\.2\.5-P1/)
           message = "Information:\tArchiving Brew file #{brew_file} to #{backup_file}"
-          command = "cp #{brew_file} #{backup_file}"
+          command = "cp #{shell_arg(brew_file)} #{shell_arg(backup_file)}"
           execute_command(values, message, command)
           message = "Information:\tFixing Brew configuration file #{brew_file}"
-          command = "cat #{backup_file} | grep -v sha1 | sed 's/4\.2\.5\-P1/4\.3\.0rc1/g' > #{brew_file}"
+          command = "cat #{shell_arg(backup_file)} | grep -v sha1 | sed 's/4\.2\.5\-P1/4\.3\.0rc1/g' > #{shell_arg(brew_file)}"
           execute_command(values, message, command)
         end
         pkg_name = 'isc-dhcp'
@@ -303,7 +303,7 @@ def check_osx_dhcpd_installed(values)
     end
     unless File.exist?(values['dhcpdfile'])
       message = "Information:\tCreating DHCPd configuration file #{values['dhcpdfile']}"
-      command = "touch #{values['dhcpdfile']}"
+      command = "touch #{shell_arg(values['dhcpdfile'])}"
       execute_command(values, message, command)
     end
   end
@@ -320,7 +320,7 @@ def create_osx_dhcpd_plist(values)
   dhcpd_bin  = '/usr/local/sbin/dhcpd'
   if File.exist?(plist_file)
     message = "Information:\tChecking DHCPd configruation"
-    command = "cat #{plist_file} | grep '#{values['nic']}'"
+    command = "cat #{shell_arg(plist_file)} | grep '#{shell_sq(values['nic'])}'"
     output  = execute_command(values, message, command)
   else
     output = "Information:\tCreating #{plist_file}"
@@ -357,7 +357,7 @@ def create_osx_dhcpd_plist(values)
     end
     file.close
     message = "Information:\tCreating service file #{plist_file}"
-    command = "cp #{tmp_file} #{plist_file} ; rm #{tmp_file}"
+    command = "cp #{shell_arg(tmp_file)} #{shell_arg(plist_file)} ; rm #{shell_arg(tmp_file)}"
     execute_command(values, message, command)
   end
   nil
@@ -393,7 +393,7 @@ end
 def enable_osx_service(service_name)
   check_osx_service_is_enabled(values, service_name)
   message = "Information:\tEnabling service #{service_name}"
-  command = "launchctl start #{service_name}"
+  command = "launchctl start #{shell_arg(service_name)}"
   execute_command(values, message, command)
 end
 
@@ -401,6 +401,6 @@ end
 
 def disable_osx_service(service_name)
   message = "Information:\tDisabling service #{service_name}"
-  command = "launchctl stop #{service_name}"
+  command = "launchctl stop #{shell_arg(service_name)}"
   execute_command(values, message, command)
 end

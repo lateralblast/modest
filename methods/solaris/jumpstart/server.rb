@@ -32,22 +32,22 @@ def configure_js_tftp_service(values)
   if values['host-os-uname'].to_s.match(/SunOS/) && values['host-os-unamer'].match(/11/)
     pkg_name = 'system/boot/network'
     message  = "Information:\tChecking boot server package is installed"
-    command  = "pkg info #{pkg_name} |grep Name |awk \"{print \\\$2}\""
+    command  = "pkg info #{shell_arg(pkg_name)} |grep Name |awk \"{print \\\$2}\""
     output   = execute_command(values, message, command)
     unless output.match(/#{pkg_name}/)
       message = "Information:\tInstalling boot server package"
-      command = "pkg install #{pkg_name}"
+      command = "pkg install #{shell_arg(pkg_name)}"
       execute_command(values, message, command)
     end
     old_tftp_dir = '/tftpboot'
     unless File.symlink?(values['tftpdir'])
       message = "Information:\tSymlinking directory #{old_tftp_dir} to #{values['tftpdir']}"
-      command = "ln -s #{old_tftp_dir} #{values['tftpdir']}"
+      command = "ln -s #{shell_arg(old_tftp_dir)} #{shell_arg(values['tftpdir'])}"
       execute_command(values, message, command)
     end
     smf_install_service = 'svc:/network/tftp/udp6:default'
     message = "Information:\tChecking TFTP service is installed"
-    command = "svcs -a |grep '#{smf_install_service}'"
+    command = "svcs -a |grep '#{shell_sq(smf_install_service)}'"
     output  = execute_command(values, message, command)
     unless output.match(/#{smf_install_service}/)
       message = "Information:\tCreating TFTP service information"
@@ -65,7 +65,7 @@ def configure_js_tftp_service(values)
   unless File.directory?(boot_dir)
     check_dir_exists(values, boot_dir)
     message = "Information:\tCopying boot files from #{source_dir} to #{boot_dir}"
-    command = "cp -r #{source_dir}/* #{boot_dir}"
+    command = "cp -r #{shell_arg(source_dir)}/* #{shell_arg(boot_dir)}"
     execute_command(values, message, command)
   end
   nil
@@ -90,7 +90,7 @@ def copy_js_sparc_boot_images(values)
     next if File.exist?(boot_file)
 
     message = "Information:\tCopying boot image #{boot_file} to #{tftp_file}"
-    command = "cp #{boot_file} #{tftp_file}"
+    command = "cp #{shell_arg(boot_file)} #{shell_arg(tftp_file)}"
     execute_command(values, message, command)
   end
   nil
@@ -132,12 +132,12 @@ def configure_js_repo(values)
         message = "Information:\tCopying ISO file #{values['file']} contents to #{values['repodir']}"
         if values['host-os-uname'].to_s.match(/SunOS/)
           if values['file'].to_s.match(/sol-10/)
-            command = "cd /cdrom/Solaris_#{values['version']}/Tools ; ./setup_install_server #{values['repodir']}"
+            command = "cd /cdrom/Solaris_#{shell_arg(values['version'])}/Tools ; ./setup_install_server #{shell_arg(values['repodir'])}"
           else
             ufs_file = values['file'].gsub(/-ga-/, '-s0-')
             unless File.exist?(ufs_file)
               dd_message = "Extracting VTOC from #{values['file']}"
-              dd_command = "dd if=#{values['file']} of=/tmp/vtoc bs=512 count=1"
+              dd_command = "dd if=#{shell_arg(values['file'])} of=/tmp/vtoc bs=512 count=1"
               execute_command(values, dd_message, dd_command)
               dd_message = "Processing VTOC information for #{values['file']}"
               dd_command = 'od -D -j 452 -N 8 < /tmp/vtoc |head -1'
@@ -148,13 +148,13 @@ def configure_js_repo(values)
               start_block = start_block.to_s
               no_blocks   = no_blocks(/^0/, '')
               dd_message  = "Extracting UFS partition from #{values['file']} to #{ufs_file}"
-              dd_command  = "dd if=#{iso_info} of=#{ufs_file} bs=512 skip=#{start_block} count=#{no_blocks}"
-              execute_command(dd_message, dd_command)
+              dd_command  = "dd if=#{shell_arg(iso_info)} of=#{shell_arg(ufs_file)} bs=512 skip=#{shell_arg(start_block)} count=#{shell_arg(no_blocks)}"
+              execute_command(values, dd_message, dd_command)
             end
-            command = "(cd /cdrom ; tar -cpf - . ) | (cd #{values['repodir']} ; tar -xpf - )"
+            command = "(cd /cdrom ; tar -cpf - . ) | (cd #{shell_arg(values['repodir'])} ; tar -xpf - )"
           end
         else
-          command = "(cd /cdrom ; tar -cpf - . ) | (cd #{values['repodir']} ; tar -xpf - )"
+          command = "(cd /cdrom ; tar -cpf - . ) | (cd #{shell_arg(values['repodir'])} ; tar -xpf - )"
         end
         execute_command(values, message, command)
       else
@@ -166,10 +166,10 @@ def configure_js_repo(values)
         check_dir = "#{values['repodir']}/boot"
         unless File.directory?(check_dir)
           message = "Mounting UFS partition from #{ufs_file}"
-          command = "mount -F ufs -o ro #{ufs_file} /cdrom"
+          command = "mount -F ufs -o ro #{shell_arg(ufs_file)} /cdrom"
           execute_command(values, message, command)
           message = "Copying ISO file #{ufs_file} contents to #{values['repodir']}"
-          command = "(cd /cdrom ; tar -cpf - . ) | (cd #{values['repodir']} ; tar -xpf - )"
+          command = "(cd /cdrom ; tar -cpf - . ) | (cd #{shell_arg(values['repodir'])} ; tar -xpf - )"
           execute_command(values, message, command)
           message = "Unmounting #{ufs_file} from /cdrom"
           command = 'umount /cdrom'
@@ -192,7 +192,7 @@ def fix_js_rm_client(values)
   check_file_owner(values, rm_script, values['uid'])
   unless File.exist?(backup_file)
     message = "Information:\tArchiving remove install script #{rm_script} to #{backup_file}"
-    command = "cp #{rm_script} #{backup_file}"
+    command = "cp #{shell_arg(rm_script)} #{shell_arg(backup_file)}"
     execute_command(values, message, command)
     text = IO.readlines(rm_script)
     copy = []
@@ -228,7 +228,7 @@ def fix_js_check(values)
   backup_file  = "#{check_script}.modest"
   unless File.exist?(backup_file)
     message = "Information:\tArchiving check script #{check_script} to #{backup_file}"
-    command = "cp #{check_script} #{backup_file}"
+    command = "cp #{shell_arg(check_script)} #{shell_arg(backup_file)}"
     execute_command(values, message, command)
     text     = File.read(check_script)
     copy     = text
@@ -236,7 +236,7 @@ def fix_js_check(values)
     tmp_file = '/tmp/check_script'
     File.open(tmp_file, 'w') { |file| file.puts copy }
     message  = "Information:\tUpdating check script"
-    command  = "cp #{tmp_file} #{check_script} ; chmod +x #{check_script} ; rm #{tmp_file}"
+    command  = "cp #{shell_arg(tmp_file)} #{shell_arg(check_script)} ; chmod +x #{shell_arg(check_script)} ; rm #{shell_arg(tmp_file)}"
     execute_command(values, message, command)
   end
   nil

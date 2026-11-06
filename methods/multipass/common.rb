@@ -110,7 +110,7 @@ def multipass_post_install(values)
     exec_data.push("echo '        addresses: [#{nameservers}]' >> #{netplan_file}")
   end
   exec_data.each do |shell_command|
-    exec_command = "multipass exec #{host_name} -- sudo sh -c \"#{shell_command}\""
+    exec_command = "multipass exec #{shell_arg(host_name)} -- sudo sh -c \"#{shell_command}\""
     if values['nobuild'] == true
       verbose_message(values, exec_command)
     else
@@ -129,7 +129,7 @@ def list_multipass_vms(values)
   end
   if (values['search'] != values['empty']) || values['search'].to_s.match(/all/)
     search_string = values['search'].to_s
-    command = "multipass list |grep #{search_string} |grep -v ^Name"
+    command = "multipass list |grep #{shell_arg(search_string)} |grep -v ^Name"
   else
     command = 'multipass list |grep -v ^Name'
   end
@@ -149,7 +149,7 @@ end
 def get_multipass_iso_list(values)
   if (values['search'] != values['empty']) || values['search'].to_s.match(/all/)
     search_string = values['search'].to_s
-    command = "multipass find |grep #{search_string} |grep -v ^Image"
+    command = "multipass find |grep #{shell_arg(search_string)} |grep -v ^Image"
   else
     command = 'multipass find |grep -v ^Image'
   end
@@ -165,7 +165,7 @@ def get_multipass_service_from_release(values)
   machine = values['host-os-unamem'].to_s
   if values['service'] == values['empty']
     message = "Information:\tDetermining service name"
-    command = "multipass find |grep '^#{release}'"
+    command = "multipass find |grep '^#{shell_sq(release)}'"
     output  = execute_command(values, message, command)
     output.chomp.gsub(/ LTS/, '')
   elsif release.match(/^[0-9]/)
@@ -184,7 +184,7 @@ def check_multipass_vm_exists(values)
   end
   vm_name = values['name'].to_s
   message = "Information:\tChecking if VM #{vm_name} exists"
-  command = "multipass list |grep #{vm_name}"
+  command = "multipass list |grep #{shell_arg(vm_name)}"
   output  = execute_command(values, message, command)
   exists = true if output.match(/#{vm_name}/)
   exists
@@ -196,7 +196,7 @@ def execute_multipass_command(values)
   command = values['command'].to_s
   exists = check_multipass_vm_exists(values)
   if exists == true
-    command = "multipass exec #{values['name']} -- bash -c \"#{command}\""
+    command = "multipass exec #{shell_arg(values['name'])} -- bash -c \"#{command}\""
     output = `#{command}`
     verbose_message(values, output)
   else
@@ -218,7 +218,7 @@ def configure_multipass_vm(values)
     message = "Information:\tCreating Multipass VM #{vm_name}"
     if values['method'].to_s.match(/ci/)
       if values['file'] != values['empty']
-        command = "cat #{values['file']} |multipass launch --name #{vm_name} --cloud-init -"
+        command = "cat #{shell_arg(values['file'])} |multipass launch --name #{shell_arg(vm_name)} --cloud-init -"
       else
         values = configure_ps_client(values)
         values = get_multipass_service_from_release(values)
@@ -226,15 +226,15 @@ def configure_multipass_vm(values)
         no_cpus = values['vcpu'].to_s
         vm_size = values['size'].to_s
         memory  = values['memory'].to_s
-        command = "cat #{values['file']} |multipass launch --cpus #{no_cpus} --disk #{vm_size} --mem #{memory} --name #{vm_name} --cloud-init -"
+        command = "cat #{shell_arg(values['file'])} |multipass launch --cpus #{shell_arg(no_cpus)} --disk #{shell_arg(vm_size)} --mem #{shell_arg(memory)} --name #{shell_arg(vm_name)} --cloud-init -"
       end
     else
       no_cpus = values['vcpu'].to_s
       vm_size = values['size'].to_s
       memory  = values['memory'].to_s
-      command = "multipass launch --cpus #{no_cpus} --disk #{vm_size} --mem #{memory} --name #{vm_name}"
+      command = "multipass launch --cpus #{shell_arg(no_cpus)} --disk #{shell_arg(vm_size)} --mem #{shell_arg(memory)} --name #{shell_arg(vm_name)}"
     end
-    command = "#{command} #{values['release']}" unless values['release'] == values['empty']
+    command = "#{command} #{shell_arg(values['release'])}" unless values['release'] == values['empty']
     if values['nobuild'] == false
       execute_command(values, message, command)
     else
@@ -255,7 +255,7 @@ def get_multipass_vm_info(values)
     warning_message(values, "Multipass VM #{vm_name} already exists")
   else
     message = "Information:\Getting information for Multipass VM #{vm_name}"
-    command = "multipass info #{vm_name}"
+    command = "multipass info #{shell_arg(vm_name)}"
     output  = execute_command(values, message, command)
     lines   = output.split("\n")
     lines.each do |line|
@@ -281,7 +281,7 @@ def unconfigure_multipass_vm(values)
   vm_name = values['name'].to_s
   if exists == true
     message = "Information:\tDeleting Mulipass VM #{vm_name}"
-    command = "multipass delete #{vm_name}; multipass purge"
+    command = "multipass delete #{shell_arg(vm_name)}; multipass purge"
     execute_command(values, message, command)
   else
     warning_message(values, "Multipass VM #{vm_name} does not exist")
@@ -296,7 +296,7 @@ def boot_multipass_vm(values)
   vm_name = values['name'].to_s
   if exists == true
     message = "Information:\tStarting Mulipass VM #{vm_name}"
-    command = "multipass start #{vm_name}"
+    command = "multipass start #{shell_arg(vm_name)}"
     execute_command(values, message, command)
   else
     verbose_message("Warning:\tMultipass VM #{vm_name} does not exist")
@@ -311,7 +311,7 @@ def stop_multipass_vm(values)
   vm_name = values['name'].to_s
   if exists == true
     message = "Information:\tStopping Mulipass VM #{vm_name}"
-    command = "multipass stop #{vm_name}"
+    command = "multipass stop #{shell_arg(vm_name)}"
     execute_command(values, message, command)
   else
     verbose_message("Warning:\tMultipass VM #{vm_name} does not exist")

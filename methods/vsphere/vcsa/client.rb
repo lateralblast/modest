@@ -134,7 +134,7 @@ def create_vcsa_deploy_script(values)
   file.write("\"--prop:guestinfo.cis.appliance.ntp.servers=${NTP_SERVERS}\" \\\n")
   file.write("${VCSA_OVA} \"vi://${ESXI_USERNAME}:${ESXI_PASSWORD}@${ESXI_HOST}/\"\n")
   file.close
-  `chmod +x #{output_file}` if File.exist?(output_file)
+  `chmod +x #{shell_arg(output_file)}` if File.exist?(output_file)
   output_file
 end
 

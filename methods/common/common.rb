@@ -2,6 +2,27 @@
 
 # Code common to all services
 
+require 'shellwords'
+require 'tmpdir'
+
+# Escape a value as one shell word; an empty value produces nothing, as it did before escaping
+
+def shell_arg(value)
+  value.to_s.empty? ? '' : Shellwords.escape(value.to_s)
+end
+
+# Escape a value for use inside a single-quoted shell string
+
+def shell_sq(value)
+  value.to_s.gsub("'") { "'\\''" }
+end
+
+# Escape a value for use inside a double-quoted shell string
+
+def shell_dq(value)
+  value.to_s.gsub(/(["\\$`])/) { "\\#{Regexp.last_match(1)}" }
+end
+
 # Set SSH port
 
 def set_ssh_port(values)
@@ -258,7 +279,7 @@ end
 
 def set_file_perms(file_name, file_perms)
   message = "Information:\tSetting permissions on file '#{file_name}' to '#{file_perms}'"
-  command = "chmod #{file_perms} \"#{file_name}\""
+  command = "chmod #{shell_arg(file_perms)} \"#{shell_dq(file_name)}\""
   execute_command(values, message, command)
   nil
 end
@@ -369,7 +390,7 @@ def check_vnc_install(values)
   return if File.directory?(values['novncdir'])
 
   message = "Information:\tCloning noVNC from #{$novnc_url}"
-  command = "git clone #{$novnc_url}"
+  command = "git clone #{shell_arg($novnc_url)}"
   execute_command(values, message, command)
 end
 
@@ -392,7 +413,7 @@ def get_win_if_mac(values, if_name)
     if_name = "%#{if_name}%"
   end
   message = "Information:\tDeterming MAC address for '#{if_name}'"
-  command = "wmic nic where \"netconnectionid like '#{if_name}'\" get macaddress"
+  command = "wmic nic where \"netconnectionid like '#{shell_sq(if_name)}'\" get macaddress"
   nic_mac = execute_command(values, message, command)
   nic_mac = nic_mac.strip_control_and_extended_characters
   nic_mac = nic_mac.split(/\s+/)[1]
@@ -403,7 +424,7 @@ end
 
 def get_win_ip_form_mac(values, nic_mac)
   message = "Information:\tDeterming IP address from MAC address '#{nic_mac}'"
-  command = "wmic nicconfig get macaddress,ipaddress |grep \"#{nic_mac}\""
+  command = "wmic nicconfig get macaddress,ipaddress |grep \"#{shell_dq(nic_mac)}\""
   host_ip = execute_command(values, message, command)
   host_ip = host_ip.strip_control_and_extended_characters
   host_ip = host_ip.split(/\s+/)[0]
@@ -438,9 +459,9 @@ def get_default_host(values)
       when /SunOS/
         command = "/usr/sbin/ifconfig -a | awk \"BEGIN { count=0; } { if ( \\\$1 ~ /inet/ ) { count++; if( count==2 ) { print \\\$2; } } }\""
       when /Darwin/
-        command = "ifconfig #{values['nic']} |grep inet |grep -v inet6"
+        command = "ifconfig #{shell_arg(values['nic'])} |grep inet |grep -v inet6"
       when /Linux/
-        command = "ifconfig #{values['nic']} |grep inet |grep -v inet6"
+        command = "ifconfig #{shell_arg(values['nic'])} |grep inet |grep -v inet6"
       end
       host_ip = execute_command(values, message, command)
       host_ip = host_ip.gsub(/^\s+/, '').split(/\s+/)[1] if host_ip.match(/inet/)
@@ -708,7 +729,7 @@ end
 def check_file_executable(values, file_name)
   if File.exist?(file_name) && !File.executable?(file_name)
     message = "Information:\tMaking '#{file_name}' executable"
-    command = "chmod +x '#{file_name}'"
+    command = "chmod +x '#{shell_sq(file_name)}'"
     execute_command(values, message, command)
   end
   nil
@@ -748,7 +769,7 @@ end
 
 def check_dpool(values)
   message = "Information:\tChecking for alternate pool for LDoms"
-  command = "zfs list |grep \"^#{values['dpool']}\""
+  command = "zfs list |grep \"^#{shell_dq(values['dpool'])}\""
   output  = execute_command(values, message, command)
   values['dpool'] = 'rpool' unless output.match(/dpool/)
   nil
@@ -760,7 +781,7 @@ def download_pkg(values, remote_file)
   local_file = File.basename(remote_file)
   unless File.exist?(local_file)
     message = "Information:\tFetching #{remote_file} to #{local_file}"
-    command = "wget #{remote_file} -O #{local_file}"
+    command = "wget #{shell_arg(remote_file)} -O #{shell_arg(local_file)}"
     execute_command(values, message, command)
   end
   nil
@@ -802,16 +823,16 @@ end
 # Detach DMG
 
 def detach_dmg(tmp_dir)
-  `sudo hdiutil detach "#{tmp_dir}'`
+  `sudo hdiutil detach "#{shell_dq(tmp_dir)}'`
   nil
 end
 
 # Attach DMG
 
 def attach_dmg(pkg_file, app_name)
-  tmp_dir = `sudo sh -c 'echo Y | hdiutil attach "#{pkg_file}" |tail -1 |cut -f3-'`.chomp
+  tmp_dir = `sudo sh -c 'echo Y | hdiutil attach "#{shell_sq(pkg_file)}" |tail -1 |cut -f3-'`.chomp
   unless tmp_dir.match(/[a-z,A-Z]/)
-    tmp_dir = `ls -rt /Volumes |grep "#{app_name}" |tail -1`.chomp
+    tmp_dir = `ls -rt /Volumes |grep "#{shell_dq(app_name)}" |tail -1`.chomp
     tmp_dir = "/Volumes/#{tmp_dir}"
   end
   information_message(values, "DMG mounted on #{tmp_dir}")
@@ -832,7 +853,7 @@ def check_osx_ovftool(values)
     tmp_dir  = attach_dmg(ovftool_dmg, app_name)
     pkg_file = "#{tmp_dir}/VMware OVF Tool.pkg"
     message  = "Information:\tInstalling package #{pkg_file}"
-    command  = "/usr/sbin/installer -pkg #{pkg_bin} -target /"
+    command  = "/usr/sbin/installer -pkg #{shell_arg(pkg_bin)} -target /"
     execute_command(values, message, command)
     detach_dmg(tmp_dir)
   end
@@ -1224,7 +1245,7 @@ def get_install_service_from_file(values)
     end
     values['service'] = 'oel'
     values['method']  = 'ks'
-    volume_id_info  = `isoinfo -d -i "#{values['file']}" |grep "^Volume id" |awk '{print $3}'`.chomp
+    volume_id_info  = `isoinfo -d -i "#{shell_dq(values['file'])}" |grep "^Volume id" |awk '{print $3}'`.chomp
     service_arch    = volume_id_info.split(/-/)[-1]
     service_version = volume_id_info.split(/-/)[1..2].join('_')
     service_version = "#{service_version}-#{service_arch}"
@@ -1250,13 +1271,13 @@ def get_install_service_from_file(values)
         end
       end
       message = "Information:\tDeterming version of Windows from: #{wim_file}"
-      command = "wiminfo \"#{wim_file}\" 1| grep ^Description"
+      command = "wiminfo \"#{shell_dq(wim_file)}\" 1| grep ^Description"
       output  = execute_command(values, message, command)
       values['label'] = output.chomp.split(/:/)[1].gsub(/^\s+/, '').gsub(/CORE/, '')
       service_version = output.split(/Description:/)[1].gsub(/^\s+|SERVER|Server/, '').downcase.gsub(/\s+/,
                                                                                                      '_').split(/_/)[1..].join('_')
       message = "Information:\tDeterming architecture of Windows from: #{wim_file}"
-      command = "wiminfo \"#{wim_file}\" 1| grep ^Architecture"
+      command = "wiminfo \"#{shell_dq(wim_file)}\" 1| grep ^Architecture"
       output  = execute_command(values, message, command)
       values['arch'] = output.chomp.split(/:/)[1].gsub(/^\s+/, '')
       umount_iso(values)
@@ -1749,7 +1770,7 @@ end
 def get_install_service_from_client_name(values)
   values['service'] = ''
   message = "Information:\tFinding client configuration directory for #{values['name']}"
-  command = "find #{values['clientdir']} -name #{values['name']} |grep '#{values['name']}$'"
+  command = "find #{shell_arg(values['clientdir'])} -name #{shell_arg(values['name'])} |grep '#{shell_sq(values['name'])}$'"
   values['clientdir'] = execute_command(values, message, command)
   values['clientdir'] = values['clientdir'].chomp
   if File.directory?(values['clientdir'])
@@ -1765,7 +1786,7 @@ end
 
 def get_client_dir(values)
   message = "Information:\tFinding client configuration directory for #{values['name']}"
-  command = "find #{values['clientdir']} -name #{values['name']} |grep '#{values['name']}$'"
+  command = "find #{shell_arg(values['clientdir'])} -name #{shell_arg(values['name'])} |grep '#{shell_sq(values['name'])}$'"
   values['clientdir'] = execute_command(values, message, command).chomp
   if File.directory?(values['clientdir'])
     information_message(values, "No client directory found for #{values['name']}")
@@ -1784,10 +1805,10 @@ def delete_client_dir(values)
       destroy_zfs_fs(values['clientdir'])
     else
       message = "Information:\tRemoving client configuration files for #{values['name']}"
-      command = "rm #{values['clientdir']}/*"
+      command = "rm #{shell_arg(values['clientdir'])}/*"
       execute_command(values, message, command)
       message = "Information:\tRemoving client configuration directory #{values['clientdir']}"
-      command = "rmdir #{values['clientdir']}"
+      command = "rmdir #{shell_arg(values['clientdir'])}"
       execute_command(values, message, command)
     end
   end
@@ -2062,7 +2083,7 @@ def check_group_member(values, user_name, group_name)
   output = execute_command(values, message, command)
   unless output.match(/#{user_name}/)
     message = "Information:\tAdding user #{user_name} to group #{group_name}"
-    command = "usermod -a -G #{group_name} #{user_name}"
+    command = "usermod -a -G #{shell_arg(group_name)} #{shell_arg(user_name)}"
     execute_command(values, message, command)
   end
   nil
@@ -2081,7 +2102,7 @@ def check_file_perms(values, file_name, file_perms)
     test_perms = execute_command(values, message, command)
     unless test_perms.match(/#{file_perms}$/)
       message = "Information:\tSetting permissions of file #{file_name} to #{file_perms}"
-      command = "sudo chmod #{file_perms} #{file_name}"
+      command = "sudo chmod #{shell_arg(file_perms)} #{shell_arg(file_name)}"
       execute_command(values, message, command)
     end
   else
@@ -2101,7 +2122,7 @@ end
 def check_file_owner(values, file_name, file_uid)
   message = "Information:\tChecking file #{file_name} is owned by user #{file_uid}"
   verbose_message(values, message)
-  file_uid = `id -u #{file_uid}` if file_uid.to_s.match(/[a-z]/)
+  file_uid = `id -u #{shell_arg(file_uid)}` if file_uid.to_s.match(/[a-z]/)
   if File.exist?(file_name)
     test_uid = File.stat(file_name).uid
     if test_uid != file_uid.to_i
@@ -2124,7 +2145,7 @@ end
 
 def get_group_gid(values, group)
   message = "Information:\tGetting GID of #{group}"
-  command = "getent group #{group} |cut -f3 -d:"
+  command = "getent group #{shell_arg(group)} |cut -f3 -d:"
   output  = execute_command(values, message, command)
   output.chomp
 end
@@ -2139,7 +2160,7 @@ def check_file_group(values, file_name, file_gid)
     test_gid = File.stat(file_name).gid
     if test_gid != file_gid.to_i
       message = "Information:\tChanging group ownership of #{file_name} to #{file_gid}"
-      command = "chgrp #{file_gid} \"#{file_name}\""
+      command = "chgrp #{shell_arg(file_gid)} \"#{shell_dq(file_name)}\""
       execute_command(values, message, command)
     end
   else
@@ -2159,7 +2180,7 @@ def check_python_module_is_installed(install_module)
   end
   if exists == false
     message = "Information:\tInstalling python model '#{install_module}'"
-    command = "pip install #{install_module}"
+    command = "pip install #{shell_arg(install_module)}"
     execute_command(values, message, command)
   end
   nil
@@ -2263,7 +2284,7 @@ def check_tftp_server(values)
     output  = execute_command(values, message, command)
     unless output.match(/tftp/)
       message = "Information:\tCreating TFTP inetd entry"
-      command = "echo \"tftp dgram udp wait root /usr/sbin/in.tftpd in.tftpd -s #{values['tftpdir']}\" >> /etc/inetd.conf"
+      command = "echo \"tftp dgram udp wait root /usr/sbin/in.tftpd in.tftpd -s #{shell_dq(values['tftpdir'])}\" >> /etc/inetd.conf"
       execute_command(values, message, command)
       message = "Information:\tImporting TFTP inetd entry into service manifest"
       command = 'inetconv -i /etc/inet/inetd.conf'
@@ -2283,7 +2304,7 @@ def add_bootparams_entry(values)
   boot_info = "root=#{values['hostip']}:#{values['repodir']}/Solaris_#{values['release']}/Tools/Boot install=#{values['hostip']}:#{values['repodir']} boottype=:in sysid_config=#{values['clientdir']} install_config=#{values['clientdir']} rootopts=:rsize=8192"
   if !File.exist?(file_name)
     message = "Information:\tCreating #{file_name}"
-    command = "touch #{file_name}"
+    command = "touch #{shell_arg(file_name)}"
     execute_command(values, message, command)
     check_file_owner(values, file_name, values['uid'])
     File.open(file_name, 'w') { |f| f.write "#{values['mac']} #{values['name']}\n" }
@@ -2341,21 +2362,21 @@ def add_nfs_export(values, export_name, export_dir)
   if values['host-os-uname'].to_s.match(/SunOS/)
     if values['host-os-unamer'].match(/11/)
       message = "Enabling:\tNFS share on #{export_dir}"
-      command = "zfs set sharenfs=on #{values['zpoolname']}#{export_dir}"
+      command = "zfs set sharenfs=on #{shell_arg(values['zpoolname'])}#{shell_arg(export_dir)}"
       execute_command(values, message, command)
       message = "Information:\tSetting NFS access rights on #{export_dir}"
-      command = "zfs set share=name=#{export_name},path=#{export_dir},prot=nfs,anon=0,sec=sys,ro=@#{network_address}/24 #{values['zpoolname']}#{export_dir}"
+      command = "zfs set share=name=#{shell_arg(export_name)},path=#{shell_arg(export_dir)},prot=nfs,anon=0,sec=sys,ro=@#{shell_arg(network_address)}/24 #{shell_arg(values['zpoolname'])}#{shell_arg(export_dir)}"
       execute_command(values, message, command)
     else
       dfs_file = '/etc/dfs/dfstab'
       message  = "Checking:\tCurrent NFS exports for #{export_dir}"
-      command  = "cat #{dfs_file} |grep '#{export_dir}' |grep -v '^#'"
+      command  = "cat #{shell_arg(dfs_file)} |grep '#{shell_sq(export_dir)}' |grep -v '^#'"
       output   = execute_command(values, message, command)
       unless output.match(/#{export_dir}/)
         backup_file(values, dfs_file)
         export  = "share -F nfs -o ro=@#{network_address},anon=0 #{export_dir}"
         message = "Adding:\tNFS export for #{export_dir}"
-        command = "echo '#{export}' >> #{dfs_file}"
+        command = "echo '#{shell_sq(export)}' >> #{shell_arg(dfs_file)}"
         execute_command(values, message, command)
         message = "Refreshing:\tNFS exports"
         command = 'shareall -F nfs'
@@ -2365,7 +2386,7 @@ def add_nfs_export(values, export_name, export_dir)
   else
     dfs_file = '/etc/exports'
     message  = "Checking:\tCurrent NFS exports for #{export_dir}"
-    command  = "cat #{dfs_file} |grep '#{export_dir}' |grep -v '^#'"
+    command  = "cat #{shell_arg(dfs_file)} |grep '#{shell_sq(export_dir)}' |grep -v '^#'"
     output   = execute_command(values, message, command)
     unless output.match(/#{export_dir}/)
       export = if values['host-os-uname'].to_s.match(/Darwin/)
@@ -2374,7 +2395,7 @@ def add_nfs_export(values, export_name, export_dir)
                  "#{export_dir} #{network_address}/24(ro,no_root_squash,async,no_subtree_check)"
                end
       message = "Adding:\tNFS export for #{export_dir}"
-      command = "echo '#{export}' >> #{dfs_file}"
+      command = "echo '#{shell_sq(export)}' >> #{shell_arg(dfs_file)}"
       execute_command(values, message, command)
       message = "Refreshing:\tNFS exports"
       command = if values['host-os-uname'].to_s.match(/Darwin/)
@@ -2392,10 +2413,10 @@ end
 
 def remove_nfs_export(export_dir)
   if values['host-os-uname'].to_s.match(/SunOS/)
-    zfs_test = `zfs list |grep #{export_dir}`.chomp
+    zfs_test = `zfs list |grep #{shell_arg(export_dir)}`.chomp
     if zfs_test.match(/#{export_dir}/)
       message = "Disabling:\tNFS share on #{export_dir}"
-      command = "zfs set sharenfs=off #{values['zpoolname']}#{export_dir}"
+      command = "zfs set sharenfs=off #{shell_arg(values['zpoolname'])}#{shell_arg(export_dir)}"
       execute_command(values, message, command)
     else
       information_message(values, "ZFS filesystem #{values['zpoolname']}#{export_dir} does not exist")
@@ -2403,13 +2424,13 @@ def remove_nfs_export(export_dir)
   else
     dfs_file = '/etc/exports'
     message  = "Checking:\tCurrent NFS exports for #{export_dir}"
-    command  = "cat #{dfs_file} |grep '#{export_dir}' |grep -v '^#'"
+    command  = "cat #{shell_arg(dfs_file)} |grep '#{shell_sq(export_dir)}' |grep -v '^#'"
     output   = execute_command(values, message, command)
     if output.match(/#{export_dir}/)
       backup_file(values, dfs_file)
       tmp_file = '/tmp/dfs_file'
       message  = "Removing:\tExport #{export_dir}"
-      command  = "cat #{dfs_file} |grep -v '#{export_dir}' > #{tmp_file} ; cat #{tmp_file} > #{dfs_file} ; rm #{tmp_file}"
+      command  = "cat #{shell_arg(dfs_file)} |grep -v '#{shell_sq(export_dir)}' > #{shell_arg(tmp_file)} ; cat #{shell_arg(tmp_file)} > #{shell_arg(dfs_file)} ; rm #{shell_arg(tmp_file)}"
       execute_command(values, message, command)
       message = "Restarting:\tNFS daemons"
       command = if values['host-os-uname'].to_s.match(/Darwin/)
@@ -2439,7 +2460,7 @@ def delete_file(values, file_name)
   return unless File.exist?(file_name)
 
   message = "Removing:\tFile #{file_name}"
-  command = "rm #{file_name}"
+  command = "rm #{shell_arg(file_name)}"
   execute_command(values, message, command)
 end
 
@@ -2465,7 +2486,7 @@ def check_ssh_keys(values)
   ssh_key_bits = values['sshkeybits'].to_s
   unless File.exist?(ssh_key_file)
     verbose_message(values, "Generating:\tPublic SSH key file #{ssh_key_file}")
-    command = "ssh-keygen -t #{ssh_key_type} -b #{ssh_key_bits} -f #{ssh_key_file}"
+    command = "ssh-keygen -t #{shell_arg(ssh_key_type)} -b #{shell_arg(ssh_key_bits)} -f #{shell_arg(ssh_key_file)}"
     system(command)
   end
   nil
@@ -2497,7 +2518,7 @@ def check_dhcpd_config(values)
   output = ''
   if File.exist?(values['dhcpdfile'])
     message = "Checking:\tDHCPd config for subnet entry"
-    command = "cat #{values['dhcpdfile']} | grep -v '^#' |grep 'subnet #{network_address}'"
+    command = "cat #{shell_arg(values['dhcpdfile'])} | grep -v '^#' |grep 'subnet #{shell_sq(network_address)}'"
     output  = execute_command(values, message, command)
   end
   if !output.match(/subnet/) && !output.match(/#{network_address}/)
@@ -2570,15 +2591,15 @@ def check_dhcpd_config(values)
     file.close
     if File.exist?(values['dhcpdfile'])
       message = "Information:\tArchiving DHCPd configuration file #{values['dhcpdfile']} to #{backup_file}"
-      command = "cp #{values['dhcpdfile']} #{backup_file}"
+      command = "cp #{shell_arg(values['dhcpdfile'])} #{shell_arg(backup_file)}"
       execute_command(values, message, command)
     end
     message = "Information:\tCreating DHCPd configuration file #{values['dhcpdfile']}"
-    command = "cp #{tmp_file} #{values['dhcpdfile']}"
+    command = "cp #{shell_arg(tmp_file)} #{shell_arg(values['dhcpdfile'])}"
     execute_command(values, message, command)
     if values['host-os-uname'].to_s.match(/SunOS/) && values['host-os-unamer'].match(/5\.11/)
       message = "Information:\tSetting DHCPd listening interface to #{values['nic']}"
-      command = "svccfg -s svc:/network/dhcp/server:ipv4 setprop config/listen_ifnames = astring: #{values['nic']}"
+      command = "svccfg -s svc:/network/dhcp/server:ipv4 setprop config/listen_ifnames = astring: #{shell_arg(values['nic'])}"
       execute_command(values, message, command)
       message = "Information:\tRefreshing DHCPd service"
       command = 'svcadm refresh svc:/network/dhcp/server:ipv4'
@@ -2593,7 +2614,7 @@ end
 
 def check_rhel_service(values, service)
   message = "Information:\tChecking #{service} is installed"
-  command = "service #{service} status |grep dead"
+  command = "service #{shell_arg(service)} status |grep dead"
   output  = execute_command(values, message, command)
   if output.match(/dead/)
     message = "Enabling:\t#{service}"
@@ -2612,31 +2633,31 @@ end
 def check_rhel_firewall(values, service, port_info)
   if values['host-os-unamer'].match(/^7/)
     message = "Information:\tChecking firewall configuration for #{service}"
-    command = "firewall-cmd --list-services |grep #{service}"
+    command = "firewall-cmd --list-services |grep #{shell_arg(service)}"
     output  = execute_command(values, message, command)
     unless output.match(/#{service}/)
       message = "Information:\tAdding firewall rule for #{service}"
-      command = "firewall-cmd --add-service=#{service} --permanent"
+      command = "firewall-cmd --add-service=#{shell_arg(service)} --permanent"
       execute_command(values, message, command)
     end
     if port_info.match(/[0-9]/)
       message = "Information:\tChecking firewall configuration for #{port_info}"
-      command = "firewall-cmd --list-all |grep #{port_info}"
+      command = "firewall-cmd --list-all |grep #{shell_arg(port_info)}"
       output  = execute_command(values, message, command)
       unless output.match(/#{port_info}/)
         message = "Information:\tAdding firewall rule for #{port_info}"
-        command = "firewall-cmd --zone=public --add-port=#{port_info} --permanent"
+        command = "firewall-cmd --zone=public --add-port=#{shell_arg(port_info)} --permanent"
         execute_command(values, message, command)
       end
     end
   elsif port_info.match(/[0-9]/)
     (port_no, protocol) = port_info.split(%r{/})
     message = "Information:\tChecking firewall configuration for #{service} on #{port_info}"
-    command = "iptables --list-rules |grep #{protocol} |grep #{port_no}"
+    command = "iptables --list-rules |grep #{shell_arg(protocol)} |grep #{shell_arg(port_no)}"
     output  = execute_command(values, message, command)
     unless output.match(/#{protocol}/)
       message = "Information:\tAdding firewall rule for #{service}"
-      command = "iptables -I INPUT -p #{protocol} --dport #{port_no} -j ACCEPT ; iptables save"
+      command = "iptables -I INPUT -p #{shell_arg(protocol)} --dport #{shell_arg(port_no)} -j ACCEPT ; iptables save"
       execute_command(values, message, command)
     end
   end
@@ -2685,11 +2706,11 @@ end
 def check_apt_firewall(values, service, port_info)
   if File.exist?('/usr/bin/ufw')
     message = "Information:\tChecking #{service} is allowed by firewall"
-    command = "ufw status |grep #{service} |grep ALLOW"
+    command = "ufw status |grep #{shell_arg(service)} |grep ALLOW"
     output = execute_command(values, message, command)
     unless output.match(/ALLOW/)
       message = "Information:\tAdding #{service} to firewall allow rules"
-      command = "ufw allow #{service} #{port_info}"
+      command = "ufw allow #{shell_arg(service)} #{shell_arg(port_info)}"
       execute_command(values, message, command)
     end
   end
@@ -2700,14 +2721,14 @@ end
 
 def check_apt_service(values, service)
   message = "Information:\tChecking #{service} is installed"
-  command = "service #{service} status |grep dead"
+  command = "service #{shell_arg(service)} status |grep dead"
   output  = execute_command(values, message, command)
   if output.match(/dead/)
     message = "Information:\tEnabling: #{service}"
-    command = "systemctl enable #{service}.service"
+    command = "systemctl enable #{shell_arg(service)}.service"
     execute_command(values, message, command)
     message = "Information:\tStarting: #{service}"
-    command = "systemctl start #{service}.service"
+    command = "systemctl start #{shell_arg(service)}.service"
     execute_command(values, message, command)
   end
   nil
@@ -2799,7 +2820,7 @@ def check_tftpd_config(values)
       values = install_package(values, 'pxelinux') unless File.exist?(pxelinux_file)
       if File.exist?(pxelinux_file)
         message = "Information:\tCopying '#{pxelinux_file}' to '#{pxelinux_tftp}'"
-        command = "cp #{pxelinux_file} #{pxelinux_tftp}"
+        command = "cp #{shell_arg(pxelinux_file)} #{shell_arg(pxelinux_tftp)}"
         execute_command(values, message, command)
       else
         warning_message(values, 'TFTP boot file pxelinux.0 does not exist')
@@ -2809,7 +2830,7 @@ def check_tftpd_config(values)
       values = install_package(values, 'syslinux') unless File.exist?(syslinux_tftp)
       if File.exist?(syslinux_file)
         message = "Information:\tCopying '#{syslinux_file}' to '#{syslinux_tftp}'"
-        command = "cp #{syslinux_file} #{syslinux_tftp}"
+        command = "cp #{shell_arg(syslinux_file)} #{shell_arg(syslinux_tftp)}"
         execute_command(values, message, command)
       else
         warning_message(values, 'TFTP boot file ldlinux.c32 does not exist')
@@ -2847,7 +2868,7 @@ def check_tftpd_dir(values)
     check_dir_owner(values, values['tftpdir'], values['uid'])
     unless File.symlink?(old_tftp_dir)
       message = "Information:\tSymlinking #{old_tftp_dir} to #{values['tftpdir']}}"
-      command = "ln -s #{values['tftpdir']} #{old_tftp_dir}"
+      command = "ln -s #{shell_arg(values['tftpdir'])} #{shell_arg(old_tftp_dir)}"
       execute_command(values, message, command)
       #      File.symlink(values['tftpdir'], old_tftp_dir)
     end
@@ -2869,7 +2890,7 @@ def check_network_device_exists(values)
   exists  = false
   net_dev = values['network'].to_s
   message = "Information:\tChecking network device #{net_dev} exists"
-  command = "ifconfig #{net_dev} |grep ether"
+  command = "ifconfig #{shell_arg(net_dev)} |grep ether"
   output  = execute_command(values, message, command)
   exists = true if output.match(/ether/)
   exists
@@ -2881,7 +2902,7 @@ def check_network_bridge_exists(values)
   exists  = false
   net_dev = values['bridge'].to_s
   message = "Information:\tChecking network device #{net_dev} exists"
-  command = "ifconfig -a |grep #{net_dev}:"
+  command = "ifconfig -a |grep #{shell_arg(net_dev)}:"
   output  = execute_command(values, message, command)
   exists = true if output.match(/#{net_dev}/)
   exists
@@ -2961,21 +2982,21 @@ def add_dnsmasq_entry(values)
   config_file = '/etc/dnsmasq.conf'
   hosts_file  = "/etc/hosts.#{values['scriptname']}"
   message = "Checking:\tChecking DNSmasq config file for hosts.#{values['scriptname']}"
-  command = "cat #{config_file} |grep -v '^#' |grep '#{values['scriptname']}' |grep 'addn-hosts'"
+  command = "cat #{shell_arg(config_file)} |grep -v '^#' |grep '#{shell_sq(values['scriptname'])}' |grep 'addn-hosts'"
   output  = execute_command(values, message, command)
   unless output.match(/#{values['scriptname']}/)
     backup_file(values, config_file)
     message = "Information:\tAdding hosts file #{hosts_file} to #{config_file}"
-    command = "echo \"addn-hosts=#{hosts_file}\" >> #{config_file}"
+    command = "echo \"addn-hosts=#{shell_dq(hosts_file)}\" >> #{shell_arg(config_file)}"
     execute_command(values, message, command)
   end
   message = "Checking:\tHosts file #{hosts_file}for #{values['name']}"
-  command = "cat #{hosts_file} |grep -v '^#' |grep '#{values['name']}' |grep '#{values['ip']}'"
+  command = "cat #{shell_arg(hosts_file)} |grep -v '^#' |grep '#{shell_sq(values['name'])}' |grep '#{shell_sq(values['ip'])}'"
   output  = execute_command(values, message, command)
   unless output.match(/#{values['name']}/)
     backup_file(values, hosts_file)
     message = "Adding:\t\tHost #{values['name']} to #{hosts_file}"
-    command = "echo \"#{values['ip']}\\t#{values['name']}.local\\t#{values['name']}\\t# #{values['adminuser']}\" >> #{hosts_file}"
+    command = "echo \"#{shell_dq(values['ip'])}\\t#{shell_dq(values['name'])}.local\\t#{shell_dq(values['name'])}\\t# #{shell_dq(values['adminuser'])}\" >> #{shell_arg(hosts_file)}"
     execute_command(values, message, command)
     if values['host-os-uname'].to_s.match(/Darwin/)
       pfile = '/Library/LaunchDaemons/homebrew.mxcl.dnsmasq.plist'
@@ -2998,12 +3019,12 @@ end
 def add_hosts_entry(values)
   hosts_file = '/etc/hosts'
   message    = "Checking:\tHosts file for #{values['name']}"
-  command    = "cat #{hosts_file} |grep -v '^#' |grep '#{values['name']}' |grep '#{values['ip']}'"
+  command    = "cat #{shell_arg(hosts_file)} |grep -v '^#' |grep '#{shell_sq(values['name'])}' |grep '#{shell_sq(values['ip'])}'"
   output     = execute_command(values, message, command)
   unless output.match(/#{values['name']}/)
     backup_file(values, hosts_file)
     message = "Adding:\t\tHost #{values['name']} to #{hosts_file}"
-    command = "echo \"#{values['ip']}\\t#{values['name']}.local\\t#{values['name']}\\t# #{values['adminuser']}\" >> #{hosts_file}"
+    command = "echo \"#{shell_dq(values['ip'])}\\t#{shell_dq(values['name'])}.local\\t#{shell_dq(values['name'])}\\t# #{shell_dq(values['adminuser'])}\" >> #{shell_arg(hosts_file)}"
     execute_command(values, message, command)
   end
   add_dnsmasq_entry(values) if values['dnsmasq'] == true
@@ -3078,7 +3099,7 @@ def add_dhcp_client(values)
     tftp_pxe_file = "http://#{values['publisherhost'].to_s.strip}:5555/cgi-bin/wanboot-cgi"
   end
   message = "Checking:\fIf DHCPd configuration contains #{values['name']}"
-  command = "cat #{values['dhcpdfile']} | grep '#{values['name']}'"
+  command = "cat #{shell_arg(values['dhcpdfile'])} | grep '#{shell_sq(values['name'])}'"
   output  = execute_command(values, message, command)
   unless output.match(/#{values['name']}/)
     backup_file(values, values['dhcpdfile'])
@@ -3105,7 +3126,7 @@ def add_dhcp_client(values)
     file.write("}\n")
     file.close
     message = "Updating:\tDHCPd file #{values['dhcpdfile']}"
-    command = "cp #{tmp_file} #{values['dhcpdfile']} ; rm #{tmp_file}"
+    command = "cp #{shell_arg(tmp_file)} #{shell_arg(values['dhcpdfile'])} ; rm #{shell_arg(tmp_file)}"
     execute_command(values, message, command)
     restart_dhcpd(values)
   end
@@ -3141,7 +3162,7 @@ def backup_file(values, file_name)
   backup_file = "#{File.basename(file_name)}.#{date_string}"
   backup_file = "#{values['backupdir']}/#{backup_file}"
   message     = "Archiving:\tFile #{file_name} to #{backup_file}"
-  command     = "cp #{file_name} #{backup_file}"
+  command     = "cp #{shell_arg(file_name)} #{shell_arg(backup_file)}"
   execute_command(values, message, command)
   nil
 end
@@ -3171,7 +3192,7 @@ def add_to_ethers_file(values)
   file_name = '/etc/ethers'
   if !File.exist?(file_name)
     message = "Information:\tCreating #{file_name}"
-    command = "touch #{file_name}"
+    command = "touch #{shell_arg(file_name)}"
     execute_command(values, message, command)
     check_file_owner(values, file_name, values['uid'])
     File.open(file_name, 'w') { |f| f.write "#{values['mac']} #{values['name']}\n" }
@@ -3214,7 +3235,7 @@ def get_install_mac(values)
   found       = 0
   if File.exist?(ethers_file)
     message = "Checking:\tFile #{ethers_file} for #{values['name']} MAC address"
-    command = "cat #{ethers_file} |grep '#{values['name']} '|awk \"{print \\$2}\""
+    command = "cat #{shell_arg(ethers_file)} |grep '#{shell_sq(values['name'])} '|awk \"{print \\$2}\""
     mac_add = execute_command(values, message, command)
     mac_add = mac_add.chomp
   end
@@ -3288,11 +3309,11 @@ def check_zfs_fs_exists(values, dir_name)
         mount_dir = dir_name
       end
       message = "Information:\tCreating #{dir_name} with mount point #{mount_dir}"
-      command = "zfs create -o mountpoint=#{mount_dir} #{zfs_name}"
+      command = "zfs create -o mountpoint=#{shell_arg(mount_dir)} #{shell_arg(zfs_name)}"
       execute_command(values, message, command)
       if dir_name.match(/vmware_|openbsd_|coreos_/) || (values['host-os-unamer'].to_i > 10)
         message = "Information:\tSymlinking #{mount_dir} to #{dir_name}"
-        command = "ln -s #{mount_dir} #{dir_name}"
+        command = "ln -s #{shell_arg(mount_dir)} #{shell_arg(dir_name)}"
         execute_command(values, message, command)
       end
     else
@@ -3306,16 +3327,16 @@ end
 
 def destroy_zfs_fs(values, dir_name)
   output = ''
-  zfs_list = `zfs list |grep -v NAME |awk '{print $5}' |grep "^#{dir_name}$'`.chomp
+  zfs_list = `zfs list |grep -v NAME |awk '{print $5}' |grep "^#{shell_dq(dir_name)}$'`.chomp
   if zfs_list.match(/#{dir_name}/)
-    zfs_name = `zfs list |grep -v NAME |grep "#{dir_name}$" |awk '{print $1}'`.chomp
+    zfs_name = `zfs list |grep -v NAME |grep "#{shell_dq(dir_name)}$" |awk '{print $1}'`.chomp
     if (values['yes'] == true) && File.directory?(dir_name)
       if dir_name.match(/netboot/)
         service = 'svc:/network/tftp/udp:default'
         disable_service(service)
       end
       message = "Warning:\tDestroying #{dir_name}"
-      command = "zfs destroy -r -f #{zfs_name}"
+      command = "zfs destroy -r -f #{shell_arg(zfs_name)}"
       output  = execute_command(values, message, command)
       enable_service(service) if dir_name.match(/netboot/)
     end
@@ -3344,7 +3365,7 @@ def execute_command(values, message, command)
   execute = false
   verbose_message(values, message) if (values['verbose'] == true) && message.match(/[a-z,A-Z,0-9]/)
   if values['dryrun'] == true
-    execute = true unless command.match(/create|id|groups|update|import|delete|svccfg|rsync|cp|touch|svcadm|VBoxManage|vboxmanage|vmrun|docker|rm|cp|convert|cloud-localds|chown|chmod|restart|stop|start|resize/)
+    execute = true unless command.match(/\b(create|id|groups|update|import|delete|svccfg|rsync|cp|touch|svcadm|VBoxManage|vboxmanage|vmrun|docker|rm|convert|cloud-localds|chown|chmod|restart|stop|start|resize|mkdir|mv|ln|umount|mount|apt-get|yum|tar|tee|kill|pkill|dd|install|reboot|shutdown|halt|poweroff|mkisofs|genisoimage)\b|sed -i/)
   else
     execute = true
   end
@@ -3353,30 +3374,30 @@ def execute_command(values, message, command)
       if !command.match(/brew |sw_vers|id |groups|hg|pip|VBoxManage|vboxmanage|netstat|df|vmrun|noVNC|docker|packer|ansible-playbook|^ls|multipass/) && !values['host-os-uname'].to_s.match(/NT/)
         if values['sudo'] == true
           if command.match(/virsh/)
-            command = "sudo sh -c '#{command}'" if values['host-os-uname'].to_s.match(/Linux/)
+            command = "sudo sh -c #{shell_arg(command)}" if values['host-os-uname'].to_s.match(/Linux/)
           else
-            command = "sudo sh -c '#{command}'"
+            command = "sudo sh -c #{shell_arg(command)}"
           end
         elsif command.match(/ufw|chown|chmod/)
-          command = "sudo sh -c '#{command}'"
+          command = "sudo sh -c #{shell_arg(command)}"
         elsif command.match(/ifconfig/) && command.match(/up$/)
-          command = "sudo sh -c '#{command}'"
+          command = "sudo sh -c #{shell_arg(command)}"
         end
       else
-        command = "sudo sh -c '#{command}'" if command.match(/ifconfig/) && command.match(/up$/)
-        command = "sudo sh -c '#{command}'" if command.match(/virt-install/)
+        command = "sudo sh -c #{shell_arg(command)}" if command.match(/ifconfig/) && command.match(/up$/)
+        command = "sudo sh -c #{shell_arg(command)}" if command.match(/virt-install/)
         if command.match(/snap/)
           check_apt_package(values, 'snapd') unless File.exist?('/usr/bin/snap')
-          command = "sudo sh -c '#{command}'"
+          command = "sudo sh -c #{shell_arg(command)}"
         end
-        command = "sudo sh -c '#{command}'" if command.match(/qemu/) && command.match(/chmod|chgrp/)
-        command = "sudo sh -c '#{command}'" if values['vm'].to_s.match(/kvm/) && command.match(/libvirt/) && command.match(/ls/) && values['host-os-uname'].to_s.match(/Linux/)
+        command = "sudo sh -c #{shell_arg(command)}" if command.match(/qemu/) && command.match(/chmod|chgrp/)
+        command = "sudo sh -c #{shell_arg(command)}" if values['vm'].to_s.match(/kvm/) && command.match(/libvirt/) && command.match(/ls/) && values['host-os-uname'].to_s.match(/Linux/)
       end
       if values['host-os-uname'].to_s.match(/NT/) && command.match(/netsh/)
-        batch_file = '/tmp/script.bat'
-        File.write(batch_file, command)
+        batch_file = File.join(Dir.tmpdir, "modest-#{Process.pid}-#{rand(1_000_000)}.bat")
+        File.open(batch_file, File::WRONLY | File::CREAT | File::EXCL, 0o600) { |file| file.write(command) }
         information_message(values, "Creating batch file '#{batch_file}' to run command '#{command}")
-        command = "cygstart --action=runas #{batch_file}"
+        command = "cygstart --action=runas #{shell_arg(batch_file)}"
       end
     end
     if command.match(/^sudo/)
@@ -3385,7 +3406,7 @@ def execute_command(values, message, command)
         sudo_check = if values['host-os-uname'].to_s.match(/Darwin/)
                        `dscacheutil -q group -a name admin |grep users`
                      else
-                       `getent group #{values['sudogroup']}`.chomp
+                       `getent group #{shell_arg(values['sudogroup'])}`.chomp
                      end
         unless sudo_check.match(/#{values['user']}/)
           warning_message(values, "User #{values['user']} is not in sudoers group #{values['sudogroup']}")
@@ -3397,7 +3418,7 @@ def execute_command(values, message, command)
     if values['executehost'].to_s.match(/localhost/)
       if (values['dryrun'] == true) && (execute == true)
         output = `#{command}`
-      elsif values['drydun'] == false
+      elsif values['dryrun'] == false
         output = `#{command}`
       end
     else
@@ -3719,13 +3740,13 @@ def add_apache_proxy(values, service_base_name)
     apache_config_file = "#{values['apachedir']}/conf/httpd.conf"
     values = install_package(values, 'apache2') unless File.exist?(apache_config_file)
   end
-  a_check = `cat #{apache_config_file} |grep #{service_base_name}`
+  a_check = `cat #{shell_arg(apache_config_file)} |grep #{shell_arg(service_base_name)}`
   unless a_check.match(/#{service_base_name}/)
     message = "Information:\tArchiving #{apache_config_file} to #{apache_config_file}.no_#{service_base_name}"
-    command = "cp #{apache_config_file} #{apache_config_file}.no_#{service_base_name}"
+    command = "cp #{shell_arg(apache_config_file)} #{shell_arg(apache_config_file)}.no_#{shell_arg(service_base_name)}"
     execute_command(values, message, command)
     message = "Adding:\t\tProxy entry to #{apache_config_file}"
-    command = "echo 'ProxyPass /#{service_base_name} http://#{values['publisherhost']}:#{values['publisherport']} nocanon max=200' >>#{apache_config_file}"
+    command = "echo 'ProxyPass /#{shell_sq(service_base_name)} http://#{shell_sq(values['publisherhost'])}:#{shell_sq(values['publisherport'])} nocanon max=200' >>#{shell_arg(apache_config_file)}"
     execute_command(values, message, command)
     enable_service(values, service)
     refresh_service(values, service)
@@ -3748,7 +3769,7 @@ def remove_apache_proxy(service_base_name)
   apache_config_file = "#{values['apachedir']}/httpd.conf" if values['host-os-uname'].to_s.match(/Darwin/)
   apache_config_file = "#{values['apachedir']}/conf/httpd.conf" if values['host-os-uname'].to_s.match(/Linux/)
   message = "Checking:\tApache confing file #{apache_config_file} for #{service_base_name}"
-  command = "cat #{apache_config_file} |grep '#{service_base_name}'"
+  command = "cat #{shell_arg(apache_config_file)} |grep '#{shell_sq(service_base_name)}'"
   a_check = execute_command(values, message, command)
   return unless a_check.match(/#{service_base_name}/)
 
@@ -3756,7 +3777,7 @@ def remove_apache_proxy(service_base_name)
   return unless File.exist?(restore_file)
 
   message = "Restoring:\t#{restore_file} to #{apache_config_file}"
-  command = "cp #{restore_file} #{apache_config_file}"
+  command = "cp #{shell_arg(restore_file)} #{shell_arg(apache_config_file)}"
   execute_command(values, message, command)
   service = 'apache'
   refresh_service(values, service)
@@ -3792,18 +3813,18 @@ def add_apache_alias(values, service_base_name)
   if values['host-os-uname'].to_s.match(/SunOS|Linux/)
     tmp_file = '/tmp/httpd.conf'
     message  = "Checking:\tApache confing file #{apache_config_file} for #{service_base_name}"
-    command  = "cat #{apache_config_file} |grep '/#{service_base_name}'"
+    command  = "cat #{shell_arg(apache_config_file)} |grep '/#{shell_sq(service_base_name)}'"
     a_check  = execute_command(values, message, command)
     message  = "Information:\tChecking Apache Version"
     command  = 'apache2 -V 2>&1 |grep version |tail -1'
     a_vers   = execute_command(values, message, command)
     unless a_check.match(/#{service_base_name}/)
       message = "Information:\tArchiving Apache config file #{apache_config_file} to #{apache_config_file}.no_#{service_base_name}"
-      command = "cp #{apache_config_file} #{apache_config_file}.no_#{service_base_name}"
+      command = "cp #{shell_arg(apache_config_file)} #{shell_arg(apache_config_file)}.no_#{shell_arg(service_base_name)}"
       execute_command(values, message, command)
       verbose_message(values, "Adding:\t\tDirectory and Alias entry to #{apache_config_file}")
       message = "Copying:\tApache config file so it can be edited"
-      command = "cp #{apache_config_file} #{tmp_file} ; chown #{values['uid']} #{tmp_file}"
+      command = "cp #{shell_arg(apache_config_file)} #{shell_arg(tmp_file)} ; chown #{shell_arg(values['uid'])} #{shell_arg(tmp_file)}"
       execute_command(values, message, command)
       output = File.open(tmp_file, 'a')
       output.write("<Directory #{apache_alias_dir}>\n")
@@ -3817,7 +3838,7 @@ def add_apache_alias(values, service_base_name)
       output.write("Alias /#{service_base_name} #{apache_alias_dir}\n")
       output.close
       message = "Updating:\tApache config file"
-      command = "cp #{tmp_file} #{apache_config_file} ; rm #{tmp_file}"
+      command = "cp #{shell_arg(tmp_file)} #{shell_arg(apache_config_file)} ; rm #{shell_arg(tmp_file)}"
       execute_command(values, message, command)
     end
     if values['host-os-uname'].to_s.match(/SunOS|Linux/)
@@ -3842,7 +3863,7 @@ def add_apache_alias(values, service_base_name)
     if values['host-os-uname'].to_s.match(/Linux/) && values['host-os-unamea'].match(/RedHat/) && values['host-os-version'].match(/^7|^6\.7/)
       httpd_p = 'httpd_sys_rw_content_t'
       message = "Information:\tFixing permissions on #{values['clientdir']}"
-      command = "chcon -R -t #{httpd_p} #{values['clientdir']}"
+      command = "chcon -R -t #{shell_arg(httpd_p)} #{shell_arg(values['clientdir'])}"
       execute_command(values, message, command)
     end
   end
@@ -3871,21 +3892,21 @@ def mount_iso(values)
   information_message(values, "Processing: #{values['file']}")
   check_dir_exists(values, values['mountdir'])
   message = "Checking:\tExisting mounts"
-  command = "df |awk '{print $NF}' |grep '^#{values['mountdir']}$'"
+  command = "df |awk '{print $NF}' |grep '^#{shell_sq(values['mountdir'])}$'"
   output  = execute_command(values, message, command)
   if output.match(/[a-z,A-Z]/)
     message = "Information:\tUnmounting: #{values['mountdir']}"
-    command = "umount #{values['mountdir']}"
+    command = "umount #{shell_arg(values['mountdir'])}"
     execute_command(values, message, command)
   end
   message = "Information:\tMounting ISO #{values['file']} on #{values['mountdir']}"
-  command = "mount -F hsfs #{values['file']} #{values['mountdir']}" if values['host-os-uname'].to_s.match(/SunOS/)
+  command = "mount -F hsfs #{shell_arg(values['file'])} #{shell_arg(values['mountdir'])}" if values['host-os-uname'].to_s.match(/SunOS/)
   if values['host-os-uname'].to_s.match(/Darwin/)
-    command = "hdiutil attach -nomount \"#{values['file']}\" |head -1 |awk \"{print \\\$1}\""
+    command = "hdiutil attach -nomount \"#{shell_dq(values['file'])}\" |head -1 |awk \"{print \\\$1}\""
     execute_message(values, command)
     disk_id = `#{command}`
     disk_id = disk_id.chomp
-    file_du = `du "#{values['file']}" |awk '{print $1}'`
+    file_du = `du "#{shell_dq(values['file'])}" |awk '{print $1}'`
     file_du = file_du.chomp.to_i
     command = if file_du < 700_000
                 "mount -t cd9660 -o ro #{disk_id} #{values['mountdir']}"
@@ -3894,7 +3915,7 @@ def mount_iso(values)
               end
   end
   if values['host-os-uname'].to_s.match(/Linux/)
-    file_du = `du "#{values['file']}" |awk '{print $1}'`
+    file_du = `du "#{shell_dq(values['file'])}" |awk '{print $1}'`
     file_du = file_du.chomp.to_i
     command = if file_du < 700_000
                 "mount -t iso9660 -o loop #{values['file']} #{values['mountdir']}"
@@ -3910,11 +3931,11 @@ def mount_iso(values)
     if text.grep(/UDF/)
       umount_iso(values)
       if values['host-os-uname'].to_s.match(/Darwin/)
-        command = "hdiutil attach -nomount \"#{values['file']}\" |head -1 |awk \"{print \\\$1}\""
+        command = "hdiutil attach -nomount \"#{shell_dq(values['file'])}\" |head -1 |awk \"{print \\\$1}\""
         execute_message(values, command)
         disk_id = `#{command}`
         disk_id = disk_id.chomp
-        command = "sudo mount -t udf -o ro #{disk_id} #{values['mountdir']}"
+        command = "sudo mount -t udf -o ro #{shell_arg(disk_id)} #{shell_arg(values['mountdir'])}"
         execute_command(values, message, command)
       end
     end
@@ -3987,7 +4008,7 @@ def check_osx_iso_mount(values)
   test_dir = "#{values['mountdir']}/boot"
   unless File.directory?(test_dir)
     message = "Mounting:ISO #{values['file']} on #{values['mountdir']}"
-    command = "hdiutil mount #{values['file']} -mountpoint #{values['mountdir']}"
+    command = "hdiutil mount #{shell_arg(values['file'])} -mountpoint #{shell_arg(values['mountdir'])}"
     output  = execute_command(values, message, command)
   end
   output
@@ -4041,17 +4062,17 @@ def copy_iso(values)
         quit(values) if values['dryrun'] != true
       end
       message = "Copying:\t#{iso_repo_dir} contents to #{values['repodir']}"
-      command = "rsync -a #{iso_repo_dir}/. #{values['repodir']}"
+      command = "rsync -a #{shell_arg(iso_repo_dir)}/. #{shell_arg(values['repodir'])}"
       execute_command(values, message, command)
       if values['host-os-uname'].to_s.match(/SunOS/)
         message = "Rebuilding:\tRepository in #{values['repodir']}"
-        command = "pkgrepo -s #{values['repodir']} rebuild"
+        command = "pkgrepo -s #{shell_arg(values['repodir'])} rebuild"
         execute_command(values, message, command)
       end
     else
       check_dir_exists(values, test_dir)
       message = "Copying:\t#{iso_repo_dir} contents to #{values['repodir']}"
-      command = "rsync -a #{iso_repo_dir}/. #{values['repodir']}"
+      command = "rsync -a #{shell_arg(iso_repo_dir)}/. #{shell_arg(values['repodir'])}"
       if values['repodir'].to_s.match(/sles_12/)
         execute_command(values, message, command) unless values['file'].to_s.match(/2\.iso/)
       else
@@ -4149,17 +4170,17 @@ end
 
 def umount_iso(values)
   if values['host-os-uname'].to_s.match(/Darwin/)
-    command = "df |grep \"#{values['mountdir']}$\" |head -1 |awk \"{print \\\$1}\""
+    command = "df |grep \"#{shell_dq(values['mountdir'])}$\" |head -1 |awk \"{print \\\$1}\""
     execute_message(values, command)
     disk_id = `#{command}`
     disk_id = disk_id.chomp
   end
   if values['host-os-uname'].to_s.match(/Darwin/)
     message = "Detaching:\tISO device #{disk_id}"
-    command = "sudo hdiutil detach #{disk_id}"
+    command = "sudo hdiutil detach #{shell_arg(disk_id)}"
   else
     message = "Unmounting:\tISO mounted on #{values['mountdir']}"
-    command = "umount #{values['mountdir']}"
+    command = "umount #{shell_arg(values['mountdir'])}"
   end
   execute_command(values, message, command)
   nil
@@ -4169,11 +4190,11 @@ end
 
 def clear_service(values, smf_service)
   message = "Checking:\tStatus of service #{smf_service}"
-  command = "sleep 5 ; svcs -a |grep \"#{values['service']}\" |awk \"{print \\\$1}\""
+  command = "sleep 5 ; svcs -a |grep \"#{shell_dq(values['service'])}\" |awk \"{print \\\$1}\""
   output  = execute_command(values, message, command)
   if output.match(/maintenance/)
     message = "Clearing:\tService #{smf_service}"
-    command = "svcadm clear #{smf_service}"
+    command = "svcadm clear #{shell_arg(smf_service)}"
     execute_command(values, message, command)
   end
   nil
@@ -4191,7 +4212,7 @@ end
 # Brew install a package on OS X
 
 def brew_install(values, pkg_name)
-  command = "brew install #{pkg_name}"
+  command = "brew install #{shell_arg(pkg_name)}"
   message = "Information:\tInstalling #{pkg_name}"
   execute_command(values, message, command)
   nil

@@ -24,7 +24,7 @@ def check_kvm_network_bridge_exists(values)
   net_dev = values['bridge'].to_s
   message = "Information:\tChecking KVM network device #{net_dev} exists"
   if values['vmnetwork'].to_s.match(/bridge/)
-    command = "ip link show #{net_dev}"
+    command = "ip link show #{shell_arg(net_dev)}"
     output  = execute_command(values, message, command)
     exists = if output.match(/does not exist/)
                false
@@ -32,17 +32,17 @@ def check_kvm_network_bridge_exists(values)
                true
              end
   else
-    command = "virsh net-list --all |grep #{net_dev}"
+    command = "virsh net-list --all |grep #{shell_arg(net_dev)}"
     output  = execute_command(values, message, command)
     if output.match(/#{net_dev}/)
       if output.match(/inactive/)
         warning_message(values, "Default KVM network #{net_dev}is not active")
         execute_command(values, message, command)
         message = "Information:\tSetting KVM default network to autostart"
-        command = "virsh net-autostart #{net_dev}"
+        command = "virsh net-autostart #{shell_arg(net_dev)}"
         execute_command(values, message, command)
         message = "Information:\tStarting KVM default network"
-        command = "virsh net-start #{net_dev}"
+        command = "virsh net-start #{shell_arg(net_dev)}"
         execute_command(values, message, command)
       end
       exists = true
@@ -115,7 +115,7 @@ def check_kvm_permissions(values)
   unless File.exist?(file_name)
     message = "Information:\tCreating file #{file_name}"
     verbose_message(values, message)
-    `sudo sh -c "echo 'KERNEL==\"kvm\", GROUP=\"kvm\", MODE=\"0660\"' > #{file_name}"`
+    `sudo sh -c "echo 'KERNEL==\"kvm\", GROUP=\"kvm\", MODE=\"0660\"' > #{shell_dq(file_name)}"`
   end
   check_file_owner(values, file_name, file_owner)
   check_file_group(values, file_name, file_group)
@@ -127,15 +127,15 @@ def check_kvm_permissions(values)
     value = 'iptables'
     message = "Information:\tChecking #{param} is set to #{value} in #{file_name}"
     verbose_message(values, message)
-    check = `cat #{file_name} |grep ^FirewallBackend`.chomp
+    check = `cat #{shell_arg(file_name)} |grep ^FirewallBackend`.chomp
     unless check.match(/#{value}/)
       message = "Warning:\tParameter #{param} is no set to #{value} in #{file_name}"
       verbose_message(values, message)
       message = "Information:\tSetting parameter #{param} to #{value} in #{file_name}"
       verbose_message(values, message)
-      `sudo cp #{file_name} #{file_name}.orig`
-      `sudo sh -c 'cat #{file_name} | grep -v "^#{param}=nftables" >> #{temp_name}'`
-      `sudo sh -c 'echo "#{param}=#{value}" >> #{temp_name}'`
+      `sudo cp #{shell_arg(file_name)} #{shell_arg(file_name)}.orig`
+      `sudo sh -c 'cat #{shell_sq(file_name)} | grep -v "^#{shell_sq(param)}=nftables" >> #{shell_sq(temp_name)}'`
+      `sudo sh -c 'echo "#{shell_sq(param)}=#{shell_sq(value)}" >> #{shell_sq(temp_name)}'`
       %s(sudo sh -c 'cat #{temp_name} > #{file_name}')
     end
   end
@@ -145,8 +145,8 @@ def check_kvm_permissions(values)
     verbose_message(values, message)
     message = "Information:\tCreating #{file_name}"
     verbose_message(values, message)
-    `sudo sh -c "echo \"values kvm ignore_msrs=1 report_ignored_msrs=0\" >> #{file_name}"`
-    `sudo sh -c "echo \"values kvm_intel nested=1 enable_apicv=0 ept=1\" >> #{file_name}"`
+    `sudo sh -c "echo \"values kvm ignore_msrs=1 report_ignored_msrs=0\" >> #{shell_dq(file_name)}"`
+    `sudo sh -c "echo \"values kvm_intel nested=1 enable_apicv=0 ept=1\" >> #{shell_dq(file_name)}"`
   end
   nil
 end
@@ -195,7 +195,7 @@ def check_kvm_is_installed(values)
   end
   gw_if_name = get_gw_if_name(values)
   message = "Information:\tChecking KVM is installed"
-  command = "ifconfig -a |grep #{gw_if_name}"
+  command = "ifconfig -a |grep #{shell_arg(gw_if_name)}"
   execute_command(values, message, command)
   if_name = get_vm_if_name(values)
   check_nat(values, gw_if_name, if_name)
@@ -209,7 +209,7 @@ def check_kvm_is_installed(values)
     output  = execute_command(values, message, command)
     unless output.match(/kvm/)
       message = "Information:\tAdding user to kvm group"
-      command = "usermod -a -G #{values['kvmgroup']} #{values['user']}"
+      command = "usermod -a -G #{shell_arg(values['kvmgroup'])} #{shell_arg(values['user'])}"
       execute_command(values, message, command)
     end
     information_message(values, 'Checking QEMU configuration directory')
@@ -243,7 +243,7 @@ def check_kvm_is_installed(values)
     bridge_helper = '/usr/lib/qemu/qemu-bridge-helper'
     unless FileTest.setuid?(bridge_helper)
       message = "Information:\tSetting setuid bit on #{bridge_helper}"
-      command = "chmod u+s #{bridge_helper}"
+      command = "chmod u+s #{shell_arg(bridge_helper)}"
       execute_command(values, message, command)
     end
   end
@@ -260,7 +260,7 @@ def resize_kvm_image(values)
     quit(values)
   end
   message = "Information:\tResizing disk #{output} to #{size}"
-  command = "qemu-img resize #{output} #{size}"
+  command = "qemu-img resize #{shell_arg(output)} #{shell_arg(size)}"
   execute_command(values, message, command)
   nil
 end
@@ -291,7 +291,7 @@ def convert_kvm_image(values)
   end
   if !File.exist?(output_file) || (values['force'] == true)
     message = "Information:\tCreating VM disk #{output_file} from #{input_file}"
-    command = "qemu-img convert -O qcow2 -f qcow2 #{input_file} #{output_file}"
+    command = "qemu-img convert -O qcow2 -f qcow2 #{shell_arg(input_file)} #{shell_arg(output_file)}"
     execute_command(values, message, command)
   else
     warning_message(values, "File #{output_file} already exists")
@@ -302,7 +302,7 @@ def convert_kvm_image(values)
   size = size.gsub(/g/, 'G')
   size += 'G' unless size.match(/G$/)
   message = "Information:\tResizing disk #{output_file} to #{size}"
-  command = "qemu-img resize #{output_file} #{size}"
+  command = "qemu-img resize #{shell_arg(output_file)} #{shell_arg(size)}"
   execute_command(values, message, command)
   nil
 end
@@ -353,13 +353,13 @@ def check_kvm_network_bridge(values)
     print_contents_of_file(values, '', bridge_file)
     if File.exist?(bridge_file)
       message = "Information:\tImporting KVM bridge config for #{kvm_bridge}"
-      command = "virsh net-define #{bridge_file}"
+      command = "virsh net-define #{shell_arg(bridge_file)}"
       execute_command(values, message, command)
       message = "Information:\tSetting KVM bridge #{kvm_bridge} config to autostart"
-      command = "virsh net-autostart #{kvm_bridge}"
+      command = "virsh net-autostart #{shell_arg(kvm_bridge)}"
       execute_command(values, message, command)
       message = "Information:\tStarting KVM bridge #{kvm_bridge} config"
-      command = "virsh net-start #{kvm_bridge}"
+      command = "virsh net-start #{shell_arg(kvm_bridge)}"
       execute_command(values, message, command)
     end
   end
@@ -416,7 +416,7 @@ def create_kvm_disk(values)
                 "#{values['virtdir']}/#{values['name']}.qcow2"
               end
   message = "Information:\tCreating KVM disk #{disk_file} of size #{disk_size}"
-  command = "sudo qemu-img create -O qcow2 -f qcow2 #{disk_file} #{disk_size}"
+  command = "sudo qemu-img create -O qcow2 -f qcow2 #{shell_arg(disk_file)} #{shell_arg(disk_size)}"
   execute_command(values, message, command)
   nil
 end
@@ -634,11 +634,11 @@ def configure_kvm_import_client(values)
       file.close
       print_contents_of_file(values, '', network_file)
       check_file_owner(values, network_file, values['uid'])
-      command = "cloud-localds --network-config #{network_file} #{values['cloudfile']} #{config_file}"
+      command = "cloud-localds --network-config #{shell_arg(network_file)} #{shell_arg(values['cloudfile'])} #{shell_arg(config_file)}"
     else
       input_file = File.basename(values['inputfile'].to_s)
       input_file = "#{values['imagedir']}/#{input_file}"
-      command = "cloud-localds #{input_file} #{config_file}"
+      command = "cloud-localds #{shell_arg(input_file)} #{shell_arg(config_file)}"
     end
     message = "Information:\tConfiguring image file #{values['inputfile']}"
     execute_command(values, message, command)
@@ -667,16 +667,16 @@ def configure_kvm_import_client(values)
   params.each do |param|
     if values[param] != values['empty'] && values[param] != 'text'
       if values[param] != true && values[param] != false
-        command = "#{command} --#{param} #{values[param]}"
+        command = "#{command} --#{shell_arg(param)} #{shell_arg(values[param])}"
         unless values['param'].to_s.match(/[0-9]|[a-z]|[A-Z]/)
           warning_message(values, "Option #{param} not set")
           quit(values)
         end
       elsif values[param] != false
-        command = "#{command} --#{param}"
+        command = "#{command} --#{shell_arg(param)}"
       end
     elsif param.match(/graphics/)
-      command = "#{command} --#{param} #{values[param]}"
+      command = "#{command} --#{shell_arg(param)} #{shell_arg(values[param])}"
     end
   end
   command += ' --noreboot' if values['reboot'] == false

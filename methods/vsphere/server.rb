@@ -30,7 +30,7 @@ def unconfigure_vs_repo(values)
   if values['host-os-uname'].to_s.match(/SunOS/)
     if File.symlink?(values['repodir'])
       message = "Information:\tRemoving symlink #{values['repodir']}"
-      command = "rm #{values['repodir']}"
+      command = "rm #{shell_arg(values['repodir'])}"
       execute_command(values, message, command)
     else
       destroy_zfs_fs(values['repodir'])
@@ -38,12 +38,12 @@ def unconfigure_vs_repo(values)
     values['netbootdir'] = "#{values['tftpdir']}/#{values['service']}"
     if File.directory?(values['netbootdir'])
       message = "Information:\tRemoving directory #{values['netbootdir']}"
-      command = "rmdir #{values['netbootdir']}"
+      command = "rmdir #{shell_arg(values['netbootdir'])}"
       execute_command(values, message, command)
     end
   elsif File.directory?(values['repodir'])
     message = "Information:\tRemoving directory #{values['repodir']}"
-    command = "rm #{values['repodir']}"
+    command = "rm #{shell_arg(values['repodir'])}"
     execute_command(values, message, command)
   end
   nil
@@ -84,7 +84,7 @@ def configure_vs_repo(values)
     wget_file(values, values['ovftarurl'], ovf_file)
     if values['host-os-unamea'].match(/RedHat/) && values['host-os-version'].match(/^7|^6\.7/)
       message = "Information:\tFixing permission on #{ovf_file}"
-      command = "chcon -R -t httpd_sys_rw_content_t #{ovf_file}"
+      command = "chcon -R -t httpd_sys_rw_content_t #{shell_arg(ovf_file)}"
       execute_command(values, message, command)
     end
   end
@@ -107,7 +107,7 @@ def configure_vs_pxe_boot(values)
     check_dir_exists(values, rpm_dir)
     if File.directory?(rpm_dir)
       message  = "Information:\tLocating syslinux package"
-      command  = "ls #{rpm_dir} |grep 'syslinux-[0-9]'"
+      command  = "ls #{shell_arg(rpm_dir)} |grep 'syslinux-[0-9]'"
       output   = execute_command(values, message, command)
       rpm_file = output.chomp
       if !rpm_file.match(/syslinux/)
@@ -120,7 +120,7 @@ def configure_vs_pxe_boot(values)
       end
       check_dir_exists(values, values['pxebootdir'])
       message = "Information:\tCopying PXE boot files from #{rpm_file} to #{values['pxebootdir']}"
-      command = "cd #{values['pxebootdir']} ; #{values['rpm2cpiobin']} #{rpm_file} | cpio -iud"
+      command = "cd #{shell_arg(values['pxebootdir'])} ; #{shell_arg(values['rpm2cpiobin'])} #{shell_arg(rpm_file)} | cpio -iud"
       execute_command(values, message, command)
     else
       warning_message(values, "Source directory #{rpm_dir} does not exist")
@@ -132,7 +132,7 @@ def configure_vs_pxe_boot(values)
     unless File.directory?(pxe_image_dir)
       iso_dir = "#{values['baserepodir']}/#{values['service']}/images"
       message = "Information:\tCopying PXE boot images from #{iso_dir} to #{pxe_image_dir}"
-      command = "cp -r #{iso_dir} #{values['pxebootdir']}"
+      command = "cp -r #{shell_arg(iso_dir)} #{shell_arg(values['pxebootdir'])}"
       execute_command(values, message, command)
     end
   end

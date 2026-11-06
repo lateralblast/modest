@@ -167,7 +167,7 @@ end
 
 def kill_packer_processes(values)
   information_message(values, "Making sure no existing Packer processes are running for #{values['name']}")
-  `ps -ef |grep packer |grep "#{values['name']}.json" |awk '{print $2}' |xargs kill`
+  `ps -ef |grep packer |grep "#{shell_dq(values['name'])}.json" |awk '{print $2}' |xargs kill`
   nil
 end
 
@@ -201,7 +201,7 @@ def check_packer_vbox_disk_exists(values)
   exists   = false
   vdi_file = "#{values['clientdir']}/packer/#{values['vm']}/#{values['name']}/images/#{values['name']}.vdi"
   message  = "Information:\tChecking if VDI file exists for #{values['name']}"
-  command  = "#{values['vboxmanage']} list hdds |grep ^Location"
+  command  = "#{shell_arg(values['vboxmanage'])} list hdds |grep ^Location"
   output   = execute_command(values, message, command)
   puts 'got here' if output.match(/#{vdi_file}/)
   exists
@@ -212,12 +212,12 @@ end
 def delete_packer_vbox_disk(values)
   vdi_file = "#{values['clientdir']}/packer/#{values['vm']}/#{values['name']}/images/#{values['name']}.vdi"
   message  = "Information:\tDetermining UUID for VDI file for #{values['name']}"
-  command  = "#{values['vboxmanage']} list hdds |egrep '^Location|^UUID' |grep -2 '#{vdi_file}'"
+  command  = "#{shell_arg(values['vboxmanage'])} list hdds |egrep '^Location|^UUID' |grep -2 '#{shell_sq(vdi_file)}'"
   output   = execute_command(values, message, command)
   if output.match(/#{vdi_file}/)
     disk_uuid = output.split("\n")[0].split(':')[1].gsub(/\s+/, '')
     message   = "Information:\tDeleting VDI file for #{values['name']}"
-    command   = "#{values['vboxmanage']} closemedium disk #{disk_uuid} --delete"
+    command   = "#{shell_arg(values['vboxmanage'])} closemedium disk #{shell_arg(disk_uuid)} --delete"
     execute_command(values, message, command)
   end
   nil
@@ -390,8 +390,8 @@ def create_packer_pe_install_files(values)
   print_contents_of_file(values, '', output_file)
   output_file = "#{values['clientdir']}/packer/#{values['vm']}/#{values['name']}/post_install.ps1"
   if File.exist?(output_file)
-    `rm #{output_file}`
-    `touch #{output_file}`
+    `rm #{shell_arg(output_file)}`
+    `touch #{shell_arg(output_file)}`
   end
   if values['winshell'].to_s.match(/ssh/)
     download_pkg(values, values['opensshwinurl'])
@@ -576,7 +576,7 @@ def create_packer_aws_install_files(values)
   key_file = "#{values['clientdir']}/#{values['name']}.key.pub"
   unless File.exist?(key_file)
     message  = "Copying Key file '#{values['keyfile']}' to '#{key_file}' ; chmod 600 #{key_file}"
-    command  = "cp #{values['keyfile']} #{key_file}"
+    command  = "cp #{shell_arg(values['keyfile'])} #{shell_arg(key_file)}"
     execute_command(values, message, command)
   end
   values
@@ -597,7 +597,7 @@ def copy_pkg_to_packer_client(pkg_name, values)
   unless File.exist?(dest_pkg)
     dest_pkg = "#{values['clientdir']}/#{pkg_name}"
     message  = "Information:\tCopying '#{source_pkg}' to '#{dest_pkg}'"
-    command  = "cp #{source_pkg} #{dest_pkg}"
+    command  = "cp #{shell_arg(source_pkg)} #{shell_arg(dest_pkg)}"
     execute_command(values, message, command)
   end
   nil
@@ -640,7 +640,7 @@ def build_packer_aws_config(values)
   command = '/usr/bin/codesign --verify /usr/local/bin/packer'
   execute_command(values, message, command)
   message = "Information:\tBuilding Packer AWS instance using AMI name '#{values['name']}' using '#{json_file}'"
-  command = "cd #{values['clientdir']} ; /usr/local/bin/packer build #{json_file}"
+  command = "cd #{shell_arg(values['clientdir'])} ; /usr/local/bin/packer build #{shell_arg(json_file)}"
   execute_command(values, message, command)
   nil
 end

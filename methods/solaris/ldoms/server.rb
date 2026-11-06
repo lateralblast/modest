@@ -104,7 +104,7 @@ def check_cdom_config(values)
   if output.match(/factory-default/)
     config  = values['answers']['cdom_name'].value
     message = "Information:\tChecking LDom configuration #{config} does not exist"
-    command = "ldm list-config |grep #{config}"
+    command = "ldm list-config |grep #{shell_arg(config)}"
     output  = execute_command(values, message, command)
     if output.match(/#{config}/)
       warning_message(values, "LDom configuration #{config} already exists")
@@ -113,22 +113,22 @@ def check_cdom_config(values)
     if values['host-os-unamea'].match(/T5[0-9]|T3/)
       mau     = values['answers']['cdom_mau'].value
       message = "Information:\tAllocating #{mau}Crypto unit(s) to primary domain"
-      command = "ldm set-mau #{mau} primary"
+      command = "ldm set-mau #{shell_arg(mau)} primary"
       execute_command(values, message, command)
     end
     vcpu    = values['answers']['cdom_vcpu'].value
     message = "Information:\tAllocating #{vcpu}vCPU unit(s) to primary domain"
-    command = "ldm set-vcpu #{vcpu} primary"
+    command = "ldm set-vcpu #{shell_arg(vcpu)} primary"
     execute_command(values, message, command)
     message = "Information:\tStarting reconfiguration of primary domain"
     command = 'ldm start-reconf primary'
     execute_command(values, message, command)
     memory  = values['answers']['cdom_memory'].value
     message = "Information:\tAllocating #{memory}to primary domain"
-    command = "ldm set-memory #{memory} primary"
+    command = "ldm set-memory #{shell_arg(memory)} primary"
     execute_command(values, message, command)
     message = "Information:\tSaving LDom configuration of primary domain as #{config}"
-    command = "ldm add-config #{config}"
+    command = "ldm add-config #{shell_arg(config)}"
     execute_command(values, message, command)
     command = 'shutdown -y -g0 -i6'
     if values['yes'] == true

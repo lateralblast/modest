@@ -6,7 +6,7 @@
 
 def check_gdom_is_running(values)
   message = "Information:\tChecking Guest Domain #{values['name']} is running"
-  command = "ldm list-bindings #{values['name']} |grep '^#{values['name']}'"
+  command = "ldm list-bindings #{shell_arg(values['name'])} |grep '^#{shell_sq(values['name'])}'"
   output  = execute_command(values, message, command)
   unless output.match(/active/)
     warning_message(values, "Guest Domain #{values['name']} is not running")
@@ -19,7 +19,7 @@ end
 
 def check_gdom_isnt_running(values)
   message = "Information:\tChecking Guest Domain #{values['name']} is running"
-  command = "ldm list-bindings #{values['name']} |grep '^#{values['name']}'"
+  command = "ldm list-bindings #{shell_arg(values['name'])} |grep '^#{shell_sq(values['name'])}'"
   output  = execute_command(values, message, command)
   if output.match(/active/)
     warning_message(values, "Guest Domain #{values['name']} is already running")
@@ -32,7 +32,7 @@ end
 
 def get_gdom_mac(values)
   message = "Information:\tGetting guest domain #{values['name']} MAC address"
-  command = "ldm list-bindings #{values['name']} |grep '#{values['vmnic']}' |awk '{print $5}'"
+  command = "ldm list-bindings #{shell_arg(values['name'])} |grep '#{shell_sq(values['vmnic'])}' |awk '{print $5}'"
   output  = execute_command(values, message, command)
   values['mac'] = output.chomp
   values['mac']
@@ -84,15 +84,15 @@ def create_gdom_disk(values)
   vds_disk    = "#{values['name']}_vdisk0"
   if !client_disk.match(%r{/dev}) && !File.exist?(client_disk)
     message = "Information:\tCreating guest domain disk #{client_disk} for client #{values['name']}"
-    command = "mkfile -n #{disk_size} #{client_disk}"
+    command = "mkfile -n #{shell_arg(disk_size)} #{shell_arg(client_disk)}"
     execute_command(values, message, command)
   end
   message = "Information:\tChecking Virtual Disk Server device does not already exist"
-  command = "ldm list-services |grep 'primary-vds0' |grep '#{vds_disk}'"
+  command = "ldm list-services |grep 'primary-vds0' |grep '#{shell_sq(vds_disk)}'"
   output = execute_command(values, message, command)
   unless output.match(/#{values['name']}/)
     message = "Information:\tAdding disk device to Virtual Disk Server"
-    command = "ldm add-vdsdev #{client_disk} #{vds_disk}@primary-vds0"
+    command = "ldm add-vdsdev #{shell_arg(client_disk)} #{shell_arg(vds_disk)}@primary-vds0"
     execute_command(values, message, command)
   end
   nil
@@ -102,7 +102,7 @@ end
 
 def check_gdom_doesnt_exist(values)
   message = "Information:\tChecking guest domain #{values['name']} does not exist"
-  command = "ldm list |grep #{values['name']}"
+  command = "ldm list |grep #{shell_arg(values['name'])}"
   output  = execute_command(values, message, command)
   if output.match(/#{values['name']}/)
     warning_message(values, "Guest domain #{values['name']} already exists")
@@ -115,7 +115,7 @@ end
 
 def check_gdom_exists(values)
   message = "Information:\tChecking guest domain #{values['name']} exist"
-  command = "ldm list |grep #{values['name']}"
+  command = "ldm list |grep #{shell_arg(values['name'])}"
   output  = execute_command(values, message, command)
   unless output.match(/#{values['name']}/)
     warning_message(values, "Guest domain #{values['name']} does not exist")
@@ -128,7 +128,7 @@ end
 
 def start_gdom(values)
   message = "Information:\tStarting guest domain #{values['name']}"
-  command = "ldm start-domain #{values['name']}"
+  command = "ldm start-domain #{shell_arg(values['name'])}"
   execute_command(values, message, command)
   nil
 end
@@ -137,7 +137,7 @@ end
 
 def stop_gdom(values)
   message = "Information:\tStopping guest domain #{values['name']}"
-  command = "ldm stop-domain #{values['name']}"
+  command = "ldm stop-domain #{shell_arg(values['name'])}"
   execute_command(values, message, command)
   nil
 end
@@ -146,7 +146,7 @@ end
 
 def bind_gdom(values)
   message = "Information:\tBinding guest domain #{values['name']}"
-  command = "ldm bind-domain #{values['name']}"
+  command = "ldm bind-domain #{shell_arg(values['name'])}"
   execute_command(values, message, command)
   nil
 end
@@ -155,7 +155,7 @@ end
 
 def unbind_gdom(values)
   message = "Information:\tUnbinding guest domain #{values['name']}"
-  command = "ldm unbind-domain #{values['name']}"
+  command = "ldm unbind-domain #{shell_arg(values['name'])}"
   execute_command(values, message, command)
   nil
 end
@@ -164,7 +164,7 @@ end
 
 def remove_gdom(values)
   message = "Information:\tRemoving guest domain #{values['name']}"
-  command = "ldm remove-domain #{values['name']}"
+  command = "ldm remove-domain #{shell_arg(values['name'])}"
   execute_command(values, message, command)
   nil
 end
@@ -174,7 +174,7 @@ end
 def remove_gdom_disk(values)
   vds_disk = "#{values['name']}_vdisk0"
   message = "Information:\tRemoving disk #{vds_disk} from Virtual Disk Server"
-  command = "ldm remove-vdisk #{vds_disk} #{values['name']}"
+  command = "ldm remove-vdisk #{shell_arg(vds_disk)} #{shell_arg(values['name'])}"
   execute_command(values, message, command)
   nil
 end
@@ -185,7 +185,7 @@ def delete_gdom_disk(values)
   gdom_dir    = "#{$ldom_base_dir}/#{values['name']}"
   client_disk = "#{gdom_dir}/vdisk0"
   message = "Information:\tRemoving disk #{client_disk}"
-  command = "rm #{client_disk}"
+  command = "rm #{shell_arg(client_disk)}"
   execute_command(values, message, command)
   nil
 end
@@ -205,19 +205,19 @@ def create_gdom(values)
   vcpu     = values['answers']['gdom_vcpu'].value
   vds_disk = "#{values['name']}_vdisk0"
   message  = "Information:\tCreating guest domain #{values['name']}"
-  command  = "ldm add-domain #{values['name']}"
+  command  = "ldm add-domain #{shell_arg(values['name'])}"
   execute_command(values, message, command)
   message = "Information:\tAdding vCPUs to Guest domain #{values['name']}"
-  command = "ldm add-vcpu #{vcpu} #{values['name']}"
+  command = "ldm add-vcpu #{shell_arg(vcpu)} #{shell_arg(values['name'])}"
   execute_command(values, message, command)
   message = "Information:\tAdding memory to Guest domain #{values['name']}"
-  command = "ldm add-memory #{memory} #{values['name']}"
+  command = "ldm add-memory #{shell_arg(memory)} #{shell_arg(values['name'])}"
   execute_command(values, message, command)
   message = "Information:\tAdding network to Guest domain #{values['name']}"
-  command = "ldm add-vnet #{values['vmnic']} primary-vsw0 #{values['name']}"
+  command = "ldm add-vnet #{shell_arg(values['vmnic'])} primary-vsw0 #{shell_arg(values['name'])}"
   execute_command(values, message, command)
   message = "Information:\tAdding isk to Guest domain #{values['name']}"
-  command = "ldm add-vdisk vdisk0 #{vds_disk}@primary-vds0 #{values['name']}"
+  command = "ldm add-vdisk vdisk0 #{shell_arg(vds_disk)}@primary-vds0 #{shell_arg(values['name'])}"
   execute_command(values, message, command)
   nil
 end
@@ -231,14 +231,14 @@ def configure_gdom(values)
   unless File.directory?($ldom_base_dir)
     check_fs_exists(values, $ldom_base_dir)
     message = "Information:\tSetting mount point for #{$ldom_base_dir}"
-    command = "zfs set mountpoint=#{$ldom_base_dir} #{values['zpoolname']}#{$ldom_base_dir}"
+    command = "zfs set mountpoint=#{shell_arg($ldom_base_dir)} #{shell_arg(values['zpoolname'])}#{shell_arg($ldom_base_dir)}"
     execute_command(values, message, command)
   end
   gdom_dir = "#{$ldom_base_dir}/#{values['name']}"
   unless File.directory?(gdom_dir)
     check_fs_exists(values, gdom_dir)
     message = "Information:\tSetting mount point for #{gdom_dir}"
-    command = "zfs set mountpoint=#{gdom_dir} #{values['zpoolname']}#{gdom_dir}"
+    command = "zfs set mountpoint=#{shell_arg(gdom_dir)} #{shell_arg(values['zpoolname'])}#{shell_arg(gdom_dir)}"
     execute_command(values, message, command)
   end
   values = populate_gdom_questions(values)
@@ -296,7 +296,7 @@ end
 
 def get_gdom_console_port(values)
   message  = "Information:\tDetermining Virtual Console Port for Guest Domain #{values['name']}"
-  command  = "ldm list-bindings #{values['name']} |grep vcc |awk '{print $3}'"
+  command  = "ldm list-bindings #{shell_arg(values['name'])} |grep vcc |awk '{print $3}'"
   execute_command(values, message, command)
 end
 
@@ -322,7 +322,7 @@ def set_gdom_value(values)
   check_gdom_exists(values)
   message = "Information:\tSetting #{values['param']} for Guest Domain #{values['name']} to #{values['value']}"
   values['param'] = "auto-boot\?" if values['param'].to_s.match(/autoboot|auto-boot/)
-  command = "ldm set-variable #{values['param']}=#{values['value']} #{values['name']}"
+  command = "ldm set-variable #{shell_arg(values['param'])}=#{shell_arg(values['value'])} #{shell_arg(values['name'])}"
   execute_command(values, message, command)
   nil
 end

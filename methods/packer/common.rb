@@ -5,7 +5,7 @@
 # Get packer version
 
 def get_packer_version(values)
-  `#{values['packer']} --version`.chomp
+  `#{shell_arg(values['packer'])} --version`.chomp
 end
 
 # Check packer is installed
@@ -37,7 +37,7 @@ def check_packer_is_installed(values)
         execute_command(values, message, command)
       end
       message = "Information:\tExtracting and installing Packer"
-      command = "sudo sh -c 'cd /tmp ; unzip -o #{tmp_file} ; cp /tmp/packer /usr/local/bin ; chmod +x /usr/local/bin/packer'"
+      command = "sudo sh -c 'cd /tmp ; unzip -o #{shell_sq(tmp_file)} ; cp /tmp/packer /usr/local/bin ; chmod +x /usr/local/bin/packer'"
       execute_command(values, message, command)
     end
   end

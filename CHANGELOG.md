@@ -6,6 +6,38 @@ newest first.
 
 ## modest.rb
 
+### [8.4.9] - 2026-11-06
+- Fixed the `docker-machine ssh` command in `methods/docker/client.rb`, which had an unmatched `'` and could not run
+- Fixed the Solaris UFS extraction in `methods/solaris/jumpstart/server.rb`, which called `execute_command` without the `values` argument and raised an error
+
+### [8.4.8] - 2026-11-06
+- Fixed values interpolated unescaped into shell command strings and backtick commands: each value is now escaped for its quoting context, with `shell_arg` (unquoted), `shell_sq` (single-quoted) or the new `shell_dq` (double-quoted), all defined in `methods/common/common.rb`
+- Shell fragments that are passed through on purpose are not escaped: the `sudo sh -c` wrapper, Packer `boot_command` keystrokes, and the already-built `exec_command` and `ssh_command` strings
+
+### [8.4.7] - 2026-11-06
+- Added validation of the values that become shell arguments (`--name`, `--clone`, `--ip`, `--mac`, `--nic`, `--vm`, `--method`, `--os-type` and others). A value with characters outside its allowed set is rejected with an error before any command runs, including under `--dryrun`
+
+### [8.4.6] - 2026-11-06
+- Fixed the Windows `netsh` batch file being written to a fixed `/tmp/script.bat`; it is now created with a unique name and `0600` permissions
+
+### [8.4.5] - 2026-11-06
+- Fixed shell commands that put user-supplied values inside single quotes (such as `--name`, `--ip`, `--nic`, `--vmrun`) without escaping, so a value containing `'` could inject shell commands; values are now escaped with `shell_sq` in `methods/common/common.rb`
+
+### [8.4.4] - 2026-11-06
+- Fixed a stray quote in the VirtualBox `snapshot ... restorecurrent` command, which made it fail
+
+### [8.4.3] - 2026-11-06
+- Fixed `sudo sh -c` wrapping, which broke when the wrapped command contained single quotes; the command is now escaped with `Shellwords.escape`
+
+### [8.4.2] - 2026-11-06
+- Fixed the macOS root disk lookup (`get_osx_disk_name`), whose awk command received a literal `\$1` and failed with a syntax error
+
+### [8.4.1] - 2026-11-06
+- Fixed `--dryrun` executing mutating commands (`mkdir`, `mv`, `ln`, `umount`, `mount`, `apt-get`, `yum`, `tar`, `tee`, `kill`, `dd`, `install`, `reboot` and others) that were missing from the dry-run denylist; the denylist now matches whole words, so `uid` and similar names are no longer skipped
+
+### [8.4.0] - 2026-11-06
+- Fixed local commands never running outside `--dryrun`: the execution branch checked a misspelled `drydun` key, so every non-dry-run command on localhost returned an empty result
+
 ### [8.3.9] - 2026-10-03
 - Fixed typos in comments (initial, information, handle, single)
 
@@ -2535,6 +2567,15 @@ newest first.
 - Fixed Dir.* usage to be compatible on ruby 1.8
 
 ## webserver.rb
+
+### [0.1.0] - 2026-11-06
+- Fixed the `gem install` and `openssl req` backticks in `webserver.rb`, which used unescaped values; the gem name and SSL paths are now escaped with `Shellwords.escape`
+
+### [0.0.9] - 2026-11-06
+- Added validation of request parameters (client name, IP, method, VM, OS, type, service, action, search and URL path segments). Unsafe values are rejected with HTTP 400 before they reach a shell command
+
+### [0.0.8] - 2026-11-06
+- Fixed the self-signed SSL certificate being generated with a 1024-bit RSA key; it is now 2048-bit
 
 ### [0.0.7] - 2026-09-28
 - Changed license to CC BY-NC-SA

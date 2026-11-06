@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      8.3.9
+# Version:      8.4.9
 # Release:      1
 # License:      CC BY-NC-SA (Creative Commons Attribution-NonCommercial-ShareAlike)
 #               http://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
@@ -603,6 +603,10 @@ if values['usage'] && (values['usage'] != values['empty'])
   quit(values)
 end
 
+# Reject unsafe shell-bound values before defaults or normalisers run any command with them
+
+validate_shell_values(values)
+
 # Set up some initial defaults
 
 values['stdout'] = []
@@ -962,9 +966,11 @@ if values['name'].to_s.match(/,/)
     values['vcpus'] = vcpus_list[counter] if vcpus_list[counter]
     values['release'] = rel_list[counter] if rel_list[counter]
     values['disk'] = (disk_list[counter] || values['empty'])
+    validate_shell_values(values)
     handle_action(values)
   end
 else
+  validate_shell_values(values)
   values = handle_action(values)
 end
 

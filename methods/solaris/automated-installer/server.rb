@@ -9,22 +9,22 @@ def unconfigure_ai_server(values)
   if values['host-os-uname'].to_s.match(/SunOS/)
     service_base_name   = get_service_base_name(values['service'])
     smf_install_service = "svc:/application/pkg/server:#{service_base_name}"
-    smf_service_test    = `svcs -a |grep "#{smf_install_service}'`
+    smf_service_test    = `svcs -a |grep "#{shell_dq(smf_install_service)}'`
     unconfigure_ai_pkg_repo(smf_install_service) if smf_service_test.match(/pkg/)
     if !values['service'].to_s.match(/i386|sparc/)
       ['i386", "sparc'].each do |sys_arch|
-        service_test = `installadm list |grep #{values['service']} |grep #{sys_arch}`
+        service_test = `installadm list |grep #{shell_arg(values['service'])} |grep #{shell_arg(sys_arch)}`
         next unless service_test.match(/[a-z,A-Z,0-9]/)
 
         message = "Information:\tDeleting service #{values['service']}_#{sys_arch} and all clients under it"
-        command = "installadm delete-service #{values['service']}_#{sys_arch} -r -y"
+        command = "installadm delete-service #{shell_arg(values['service'])}_#{shell_arg(sys_arch)} -r -y"
         execute_command(values, message, command)
       end
     else
-      service_test = `installadm list |grep #{values['service']}`
+      service_test = `installadm list |grep #{shell_arg(values['service'])}`
       if service_test.match(/[a-z,A-Z,0-9]/)
         message = "Information:\tDeleting service #{values['service']} and all clients under it"
-        command = "installadm delete-service #{values['service']} -r -y"
+        command = "installadm delete-service #{shell_arg(values['service'])} -r -y"
         execute_command(values, message, command)
       end
     end
@@ -32,7 +32,7 @@ def unconfigure_ai_server(values)
     if File.exist?(file)
       bu_file = "#{file}.preai"
       message = "Information:\tRestoring file #{bu_file} to #{file}"
-      command = "cp #{bu_file} #{file}"
+      command = "cp #{shell_arg(bu_file)} #{shell_arg(file)}"
       execute_command(values, message, command)
       smf_install_service = 'svc:/network/dhcp/server:ipv4'
       refresh_smf_service(smf_install_service)
@@ -70,11 +70,11 @@ def check_dhcpd4_conf(values)
     verbose_message(values, "Checking:\t#{file} exists") if values['verbose'] == true
     if !File.exist?(file)
       message = "Information:\tCreating #{file}"
-      command = "touch #{file}"
+      command = "touch #{shell_arg(file)}"
     else
       bu_file = "#{file}.preai"
       message = "Information:\tArchiving file #{file} to #{bu_file}"
-      command = "cp #{file} #{bu_file}"
+      command = "cp #{shell_arg(file)} #{shell_arg(bu_file)}"
     end
     execute_command(values, message, command)
   end
@@ -141,7 +141,7 @@ def configure_ai_services(values, iso_repo_version)
       service_check = check_ai_service(values, service_name)
       unless service_check.match(/#{service_name}/)
         message = "Information:\tCreating AI service for #{lc_arch}"
-        command = "installadm create-service -a #{lc_arch} -n #{service_name} -p solaris=#{values['publisherurl']} -d #{ai_dir}"
+        command = "installadm create-service -a #{shell_arg(lc_arch)} -n #{shell_arg(service_name)} -p solaris=#{shell_arg(values['publisherurl'])} -d #{shell_arg(ai_dir)}"
         execute_command(values, message, command)
       end
     else
@@ -205,14 +205,14 @@ def get_ai_solaris_release(values)
   manifest_dir     = "#{values['repodir']}/publisher/solaris/pkg/release%2Fname"
   if File.directory?(manifest_dir)
     message      = "Locating:\tRelease file"
-    command      = "cat #{manifest_dir}/* |grep release |grep \"^file\" |head -1 |awk \"{print \\\$2}\""
+    command      = "cat #{shell_arg(manifest_dir)}/* |grep release |grep \"^file\" |head -1 |awk \"{print \\\$2}\""
     output       = execute_command(values, message, command)
     release_file = output.chomp
     release_dir  = release_file[0..1]
     release_file = "#{values['repodir']}publisher/solaris/file/#{release_dir}/#{release_file}"
     if File.exist?(release_file)
       message          = "Getting\tRelease information"
-      command          = "gzcat #{release_file} |head -1 |awk \"{print \\\$3}\""
+      command          = "gzcat #{shell_arg(release_file)} |head -1 |awk \"{print \\\$3}\""
       output           = execute_command(values, message, command)
       iso_repo_version = output.chomp.gsub(/\./, '_')
     else

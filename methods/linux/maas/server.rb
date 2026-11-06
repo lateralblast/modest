@@ -27,7 +27,7 @@ def configure_maas_server(values)
       service = 'avahi-daemon'
       restart_service(values, service)
       message = "Information:\tCreating MAAS Admin"
-      command = "maas createadmin --username = #{values['maasadmin']} --email=#{values['maasemail']} --password=#{values['maaspassword']}"
+      command = "maas createadmin --username = #{shell_arg(values['maasadmin'])} --email=#{shell_arg(values['maasemail'])} --password=#{shell_arg(values['maaspassword'])}"
       execute_command(values, message, command)
       verbose_message(values, '')
       information_message(values, "Log into #{maas_url} and continue configuration")

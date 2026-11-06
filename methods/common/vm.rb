@@ -150,11 +150,11 @@ def vnc_to_vm(values)
       end
       if remote_vnc_port.match(/[0-9]/)
         message = "Information:\tChecking noVNC is not already running"
-        command = "ps -ef |grep noVNC |grep #{values['ip']} | grep -v grep"
+        command = "ps -ef |grep noVNC |grep #{shell_arg(values['ip'])} | grep -v grep"
         output  = execute_command(values, message, command)
         if !output.match(/noVNC/)
           message = "Information:\tStarting noVNC web proxy on port #{local_vnc_port} and redirecting to #{remote_vnc_port}"
-          command = "cd '#{novnc_dir}' ; ./utils/launch.sh --listen #{local_vnc_port} --vnc #{values['ip']}:#{remote_vnc_port} &"
+          command = "cd '#{shell_sq(novnc_dir)}' ; ./utils/launch.sh --listen #{shell_arg(local_vnc_port)} --vnc #{shell_arg(values['ip'])}:#{shell_arg(remote_vnc_port)} &"
           execute_command(values, message, command)
           information_message(values, "NoVNC started on port #{local_vnc_port}")
         else
@@ -211,7 +211,7 @@ def check_vm_network(values)
     output = get_win_ip_from_if_name(vm_if_name)
   else
     message = "Information:\tChecking #{vm_if_name} is configured"
-    command = "ifconfig #{vm_if_name} |grep inet"
+    command = "ifconfig #{shell_arg(vm_if_name)} |grep inet"
     output  = execute_command(values, message, command)
   end
   unless output.match(/#{values['hostonlyip']}/)

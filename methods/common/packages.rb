@@ -15,7 +15,7 @@ def get_pkg_source(values, source_url, source_file)
     execute_command(values, message, command)
   end
   message = "Information:\tFetching source #{source_url} to #{source_file}"
-  command = "wget #{source_url} -O #{source_file}"
+  command = "wget #{shell_arg(source_url)} -O #{shell_arg(source_file)}"
   execute_command(values, message, command)
   nil
 end
@@ -24,7 +24,7 @@ end
 
 def check_installed_pkg(values, pkg_name)
   message = "Information:\tChecking if package #{pkg_name} is installed"
-  command = "pkg info #{pkg_name} |grep Version |awk \"{print \\\$2}\""
+  command = "pkg info #{shell_arg(pkg_name)} |grep Version |awk \"{print \\\$2}\""
   ins_ver = execute_command(values, message, command)
   ins_ver.chomp
 end
@@ -36,7 +36,7 @@ def install_pkg(values, pkg_name, pkg_repo_dir)
   ins_ver = check_installed_pkg(values, pkg_name)
   unless ins_ver.match(/#{pkg_ver}/)
     message = "Information:\tInstalling Package #{pkg_name}"
-    command = "pkg install -g #{pkg_repo_dir} #{pkg_name}"
+    command = "pkg install -g #{shell_arg(pkg_repo_dir)} #{shell_arg(pkg_name)}"
     execute_command(values, message, command)
   end
   nil
@@ -121,11 +121,11 @@ end
 
 def uninstall_pkg(pkg_name)
   message = "Information:\tChecking if package #{pkg_name} is installed"
-  command = "pkg info #{pkg_name} |grep Version |awk \"{print \\\$2}\""
+  command = "pkg info #{shell_arg(pkg_name)} |grep Version |awk \"{print \\\$2}\""
   output  = execute_command(values, message, command)
   if output.match(/[0-9]/)
     message = "Information:\tUninstalling Package #{pkg_name}"
-    command = "pkg uninstall #{pkg_name}"
+    command = "pkg uninstall #{shell_arg(pkg_name)}"
     execute_command(values, message, command)
   end
   nil
@@ -135,12 +135,12 @@ end
 
 def check_rhel_package(values, package)
   message = "Information\tChecking #{package} is installed"
-  command = "rpm -q #{package}"
+  command = "rpm -q #{shell_arg(package)}"
   output  = execute_command(values, message, command)
   output ||= ''
   unless output.match(/#{package}/)
     message = "installing:\t#{package}"
-    command = "yum -y install #{package}"
+    command = "yum -y install #{shell_arg(package)}"
     execute_command(values, message, command)
   end
   nil
@@ -150,13 +150,13 @@ end
 
 def check_arch_package(values, package)
   message = "Information\tChecking #{package} is installed"
-  command = "pacman -Q #{package}"
+  command = "pacman -Q #{shell_arg(package)}"
   output  = execute_command(values, message, command)
   output  = output.chomp.split(' ')[0]
   output ||= ''
   unless output.match(/#{package}/)
     message = "installing:\t#{package}"
-    command = "echo Y |pacman -Sy #{package}"
+    command = "echo Y |pacman -Sy #{shell_arg(package)}"
     execute_command(values, message, command)
   end
   nil
@@ -166,12 +166,12 @@ end
 
 def check_apt_package(values, package)
   message = "Information:\tChecking #{package} is installed"
-  command = "dpkg -l | grep '#{package}' |grep 'ii'"
+  command = "dpkg -l | grep '#{shell_sq(package)}' |grep 'ii'"
   output  = execute_command(values, message, command)
   output ||= ''
   unless output.match(/#{package}/)
     message = "Information:\tInstalling #{package}"
-    command = "apt-get -y -o Dpkg::values::=--force-confdef -o Dpkg::values::=--force-confnew install #{package}"
+    command = "apt-get -y -o Dpkg::values::=--force-confdef -o Dpkg::values::=--force-confnew install #{shell_arg(package)}"
     execute_command(values, message, command)
   end
   nil

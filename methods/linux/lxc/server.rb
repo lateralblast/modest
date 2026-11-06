@@ -69,7 +69,7 @@ def configure_ubuntu_lxc_server(values, server_type)
   config_file = '/etc/network/interfaces'
   if server_type.match(/public/)
     message = "Checking:\tLXC network configuration"
-    command = "cat #{config_file} |grep 'bridge_ports eth0'"
+    command = "cat #{shell_arg(config_file)} |grep 'bridge_ports eth0'"
     output  = execute_command(values, message, command)
     unless output.match(/bridge_ports/)
       tmp_file   = '/tmp/interfaces'
@@ -105,10 +105,10 @@ def configure_ubuntu_lxc_server(values, server_type)
       file.close
       backup_file = "#{config_file}.nolxc"
       message = "Information:\tArchiving network configuration file #{config_file} to #{backup_file}"
-      command = "cp #{config_file} #{backup_file}"
+      command = "cp #{shell_arg(config_file)} #{shell_arg(backup_file)}"
       execute_command(values, message, command)
       message = "Information:\tCreating network configuration file #{config_file}"
-      command = "cp #{tmp_file} #{config_file} ; rm #{tmp_file}"
+      command = "cp #{shell_arg(tmp_file)} #{shell_arg(config_file)} ; rm #{shell_arg(tmp_file)}"
       execute_command(values, message, command)
       service = 'networking'
       restart_service(values, service)

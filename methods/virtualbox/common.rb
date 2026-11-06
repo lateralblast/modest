@@ -4,7 +4,7 @@
 
 def fix_vbox_mouse_integration(values)
   message = "Information:\tDisabling VirtualBox Mouse Integration Message"
-  command = "#{values['vboxmanage']} setextradata global GUI/SuppressMessages remindAboutAutoCapture,confirmInputCapture,remindAboutMouseIntegrationOn,remindAboutWrongColorDepth,confirmGoingFullscreen,remindAboutMouseIntegrationOff,remindAboutMouseIntegration"
+  command = "#{shell_arg(values['vboxmanage'])} setextradata global GUI/SuppressMessages remindAboutAutoCapture,confirmInputCapture,remindAboutMouseIntegrationOn,remindAboutWrongColorDepth,confirmGoingFullscreen,remindAboutMouseIntegrationOff,remindAboutMouseIntegration"
   execute_command(values, message, command)
   nil
 end
@@ -55,7 +55,7 @@ end
 def show_vbox_vm(values)
   exists = check_vbox_vm_exists(values)
   if exists == true
-    output = `#{values['vboxmanage']} showvminfo '#{values['name']}'`
+    output = `#{shell_arg(values['vboxmanage'])} showvminfo '#{shell_sq(values['name'])}'`
     show_output_of_command('VirtualBox VM configuration', output)
   else
     warning_message(values, "VirtualBox VM #{values['name']} does not exist")
@@ -73,7 +73,7 @@ end
 def set_vbox_value(values)
   exists = check_vbox_vm_exists(values)
   if exists == true
-    `#{values['vboxmanage']} modifyvm '#{values['name']}' --#{values['param']} #{values['value']}`
+    `#{shell_arg(values['vboxmanage'])} modifyvm '#{shell_sq(values['name'])}' --#{shell_arg(values['param'])} #{shell_arg(values['value'])}`
   else
     warning_message(values, "VirtualBox VM #{values['name']} does not exist")
   end
@@ -85,7 +85,7 @@ end
 def set_vbox_value(values)
   exists = check_vbox_vm_exists(values)
   if exists == true
-    `#{values['vboxmanage']} showvminfo '#{values['name']}' | grep '#{values['param']}'`
+    `#{shell_arg(values['vboxmanage'])} showvminfo '#{shell_sq(values['name'])}' | grep '#{shell_sq(values['param'])}'`
   else
     warning_message(values, "VirtualBox VM #{values['name']} does not exist")
   end
@@ -96,7 +96,7 @@ end
 
 def add_shared_folder_to_vbox_vm(values)
   message = "Information:\tSharing \"#{values['share']}\" to VM #{values['name']} as #{values['mount']}"
-  command = "#{values['vboxmanage']} sharedfolder add '#{values['name']}' --name '#{values['mount']}' --hostpath '#{values['share']}'"
+  command = "#{shell_arg(values['vboxmanage'])} sharedfolder add '#{shell_sq(values['name'])}' --name '#{shell_sq(values['mount'])}' --hostpath '#{shell_sq(values['share'])}'"
   execute_command(values, message, command)
   nil
 end
@@ -106,10 +106,10 @@ end
 def restore_vbox_vm_snapshot(values)
   if values['clone'].to_s.match(/[a-z,A-Z]/)
     message = "Information:\tRestoring snapshot #{values['clone']} for #{values['name']}"
-    command = "#{values['vboxmanage']} snapshot '#{values['name']}' restore '#{values['clone']}'"
+    command = "#{shell_arg(values['vboxmanage'])} snapshot '#{shell_sq(values['name'])}' restore '#{shell_sq(values['clone'])}'"
   else
     message = "Information:\tRestoring latest snapshot for #{values['name']}"
-    command = "#{values['vboxmanage']} snapshot '#{values['name']}'' restorecurrent"
+    command = "#{shell_arg(values['vboxmanage'])} snapshot '#{shell_sq(values['name'])}' restorecurrent"
   end
   execute_command(values, message, command)
   nil
@@ -128,7 +128,7 @@ def delete_vbox_vm_snapshot(values)
   clone_list.each do |clone_name|
     get_fusion_vm_vmx_file(values)
     message = "Information:\tDeleting snapshot #{clone_name} for Fusion VM #{values['name']}"
-    command = "#{values['vboxmanage']} snapshot '#{values['name']}' delete '#{clone_name}'"
+    command = "#{shell_arg(values['vboxmanage'])} snapshot '#{shell_sq(values['name'])}' delete '#{shell_sq(clone_name)}'"
     execute_command(values, message, command)
   end
   nil
@@ -138,7 +138,7 @@ end
 
 def get_vbox_vm_snapshots(values)
   message = "Information:\tGetting a list of snapshots for VirtualBox VM #{values['name']}"
-  command = "#{values['vboxmanage']} snapshot '#{values['name']}' list |cut -f2 -d: |cut -f1 -d'(' |sed 's/^ //g' |sed 's/ $//g'"
+  command = "#{shell_arg(values['vboxmanage'])} snapshot '#{shell_sq(values['name'])}' list |cut -f2 -d: |cut -f1 -d'(' |sed 's/^ //g' |sed 's/ $//g'"
   execute_command(values, message, command)
 end
 
@@ -175,7 +175,7 @@ def snapshot_vbox_vm(values)
     return exists
   end
   message = "Information:\tCloning VirtualBox VM #{values['name']} to #{values['clone']}"
-  command = "#{values['vboxmanage']} snapshot '#{values['name']}' take '#{values['clone']}'"
+  command = "#{shell_arg(values['vboxmanage'])} snapshot '#{shell_sq(values['name'])}' take '#{shell_sq(values['clone'])}'"
   execute_command(values, message, command)
   exists
 end
@@ -185,7 +185,7 @@ end
 def get_available_vbox_vms(values)
   vm_list = []
   message = "Information:\tGetting list of VirtualBox VMs"
-  command = "#{values['vboxmanage']} list vms |grep -v 'inaccessible'"
+  command = "#{shell_arg(values['vboxmanage'])} list vms |grep -v 'inaccessible'"
   output  = execute_command(values, message, command)
   vm_list = output.split("\n") if output.match(/[a-z]/)
   vm_list
@@ -222,7 +222,7 @@ end
 # Get list of running VMs
 
 def get_running_vbox_vms(values)
-  `#{values['vboxmanage']} list runningvms`.split("\n")
+  `#{shell_arg(values['vboxmanage'])} list runningvms`.split("\n")
 end
 
 # List running VMs
@@ -236,7 +236,7 @@ def list_running_vbox_vms(values)
     verbose_message('')
     vm_list.each do |vm_name|
       vm_name = vm_name.split(/"/)[1]
-      os_info = `#{values['vboxmanage']} showvminfo "#{vm_name}" |grep '^Guest OS' |cut -f2 -d:`.chomp.gsub(/^\s+/,
+      os_info = `#{shell_arg(values['vboxmanage'])} showvminfo "#{shell_dq(vm_name)}" |grep '^Guest OS' |cut -f2 -d:`.chomp.gsub(/^\s+/,
                                                                                                             '')
       verbose_message(values, "#{vm_name}\t#{os_info}")
     end
@@ -300,7 +300,7 @@ def clone_vbox_vm(values)
     return exists
   end
   message = "Information:\tCloning VM #{values['name']} to #{values['clone']}"
-  command = "#{values['vboxmanage']} clonevm #{values['name']} --name #{values['clone']} --register"
+  command = "#{shell_arg(values['vboxmanage'])} clonevm #{shell_arg(values['name'])} --name #{shell_arg(values['clone'])} --register"
   execute_command(values, message, command)
   add_hosts_entry(values['clone'], values['ip']) if values['ip'].to_s.match(/[0-9]/)
   change_vbox_vm_mac(values['clone'], values['mac']) if values['mac'].to_s.match(/[0-9,a-z,A-Z]/)
@@ -320,7 +320,7 @@ def export_vbox_ova(values)
     end
     values['file'] = "#{values['file']}.ova" unless values['file'].to_s.match(/\.ova$/)
     message = "Information:\tExporting VirtualBox VM #{values['name']} to #{values['file']}"
-    command = "#{values['vboxmanage']} export \"#{values['name']}\" -o \"#{values['file']}\""
+    command = "#{shell_arg(values['vboxmanage'])} export \"#{shell_dq(values['name'])}\" -o \"#{shell_dq(values['file'])}\""
     execute_command(values, message, command)
   else
     warning_message(values, "VirtualBox VM #{values['name']} does not exist")
@@ -339,20 +339,20 @@ def import_vbox_ova(values)
     if values['name'].to_s.match(/[0-9,a-z,A-Z]/)
       values['vmdir'] = get_vbox_vm_dir(values)
       message = "Information:\tImporting VirtualBox VM #{values['name']} from #{values['file']}"
-      command = "#{values['vboxmanage']} import \"#{values['file']}\" --vsys 0 --vmname \"#{values['name']}\" --unit 20 --disk \"#{values['vmdir']}\""
+      command = "#{shell_arg(values['vboxmanage'])} import \"#{shell_dq(values['file'])}\" --vsys 0 --vmname \"#{shell_dq(values['name'])}\" --unit 20 --disk \"#{shell_dq(values['vmdir'])}\""
       execute_command(values, message, command)
     else
       set_vbox_bin(values)
       if values['vboxmanage'].to_s.match(/[a-z]/)
         values['name'] =
-          `#{values['vboxmanage']} import -n #{values['file']} |grep "Suggested VM name'`.split(/\n/)[-1]
+          `#{shell_arg(values['vboxmanage'])} import -n #{shell_arg(values['file'])} |grep "Suggested VM name'`.split(/\n/)[-1]
         if !values['name'].to_s.match(/[0-9,a-z,A-Z]/)
           warning_message(values, "Could not determine VM name for Virtual Appliance #{values['file']}")
           quit(values)
         else
           values['name'] = values['name'].split(/Suggested VM name /)[1].chomp
           message = "Information:\tImporting VirtualBox VM #{values['name']} from #{values['file']}"
-          command = "#{values['vboxmanage']} import \"#{values['file']}\""
+          command = "#{shell_arg(values['vboxmanage'])} import \"#{shell_dq(values['file'])}\""
           execute_command(values, message, command)
         end
       end
@@ -463,7 +463,7 @@ end
 
 def check_vbox_vm_exists(values)
   message   = "Information:\tChecking VM #{values['name']} exists"
-  command   = "#{values['vboxmanage']} list vms |grep -v 'inaccessible'"
+  command   = "#{shell_arg(values['vboxmanage'])} list vms |grep -v 'inaccessible'"
   host_list = execute_command(values, message, command)
   if !host_list.match(values['name'])
     warning_message(values, "VirtualBox VM #{values['name']} does not exist")
@@ -478,7 +478,7 @@ end
 
 def get_bridged_vbox_nic(values)
   message  = "Information:\tChecking Bridged interfaces"
-  command  = "#{values['vboxmanage']} list bridgedifs |grep '^Name' |head -1"
+  command  = "#{shell_arg(values['vboxmanage'])} list bridgedifs |grep '^Name' |head -1"
   nic_list = execute_command(values, message, command)
   if !nic_list.match(/[a-z,A-Z]/)
     nic_name = values['nic']
@@ -498,7 +498,7 @@ end
 
 def add_bridged_network_to_vbox_vm(values, nic_name)
   message = "Information:\tAdding bridged network #{nic_name} to #{values['name']}"
-  command = "#{values['vboxmanage']} modifyvm #{values['name']} --nic1 bridged --bridgeadapter1 #{nic_name}"
+  command = "#{shell_arg(values['vboxmanage'])} modifyvm #{shell_arg(values['name'])} --nic1 bridged --bridgeadapter1 #{shell_arg(nic_name)}"
   execute_command(values, message, command)
   nil
 end
@@ -520,7 +520,7 @@ end
 
 def set_vbox_vm_boot_priority(values)
   message = "Information:\tSetting boot priority for #{values['name']} to disk then network"
-  command = "#{values['vboxmanage']} modifyvm #{values['name']} --boot1 disk --boot2 net"
+  command = "#{shell_arg(values['vboxmanage'])} modifyvm #{shell_arg(values['name'])} --boot1 disk --boot2 net"
   execute_command(values, message, command)
   nil
 end
@@ -529,7 +529,7 @@ end
 
 def set_vbox_boot_device(values)
   message = "Information:\tSetting boot device for #{values['name']} to #{values['boot']}"
-  command = "#{values['vboxmanage']} modifyvm #{values['name']} --boot1 #{values['boot']}"
+  command = "#{shell_arg(values['vboxmanage'])} modifyvm #{shell_arg(values['name'])} --boot1 #{shell_arg(values['boot'])}"
   execute_command(values, message, command)
   nil
 end
@@ -538,7 +538,7 @@ end
 
 def get_vbox_vm_os(values)
   message = "Information:\tGetting VirtualBox VM OS for #{values['name']}"
-  command = "#{values['vboxmanage']} showvminfo #{values['name']} |grep Guest |grep OS |head -1 |cut -f2 -d:"
+  command = "#{shell_arg(values['vboxmanage'])} showvminfo #{shell_arg(values['name'])} |grep Guest |grep OS |head -1 |cut -f2 -d:"
   vm_os   = execute_command(values, message, command)
   vm_os   = vm_os.gsub(/^\s+/, '')
   vm_os.chomp
@@ -600,7 +600,7 @@ end
 
 def get_vbox_vm_dir(values)
   message = "Information:\tGetting VirtualBox VM directory"
-  command = "#{values['vboxmanage']} list systemproperties |grep 'Default machine folder' |cut -f2 -d':' |sed 's/^[         ]*//g'"
+  command = "#{shell_arg(values['vboxmanage'])} list systemproperties |grep 'Default machine folder' |cut -f2 -d':' |sed 's/^[         ]*//g'"
   vbox_vm_base_dir = execute_command(values, message, command)
   vbox_vm_base_dir = vbox_vm_base_dir.chomp
   vbox_vm_base_dir = "#{values['home']}/VirtualBox VMs" unless vbox_vm_base_dir.match(/[a-z,A-Z]/)
@@ -614,13 +614,13 @@ def delete_vbox_vm_config(values)
   config_file = "#{values['vmdir']}/#{values['name']}.vbox"
   if File.exist?(config_file)
     message = "Information:\tRemoving Virtualbox configuration file #{config_file}"
-    command = "rm \"#{config_file}\""
+    command = "rm \"#{shell_dq(config_file)}\""
     execute_command(values, message, command)
   end
   config_file = "#{values['vmdir']}/#{values['name']}.vbox-prev"
   if File.exist?(config_file)
     message = "Information:\tRemoving Virtualbox configuration file #{config_file}"
-    command = "rm \"#{config_file}\""
+    command = "rm \"#{shell_dq(config_file)}\""
     execute_command(values, message, command)
   end
   nil
@@ -643,7 +643,7 @@ end
 
 def check_vbox_vm_doesnt_exist(values)
   message   = "Checking:\tVM #{values['name']} does not exist"
-  command   = "#{values['vboxmanage']} list vms"
+  command   = "#{shell_arg(values['vboxmanage'])} list vms"
   host_list = execute_command(values, message, command)
   if host_list.match(values)
     information_message(values, "VirtualBox VM #{values['name']} already exists")
@@ -656,7 +656,7 @@ end
 
 def register_vbox_vm(values)
   message = "Information:\tRegistering VM #{values['name']}"
-  command = "#{values['vboxmanage']} createvm --name \"#{values['name']}\" --ostype \"#{values['os-type']}\" --register"
+  command = "#{shell_arg(values['vboxmanage'])} createvm --name \"#{shell_dq(values['name'])}\" --ostype \"#{shell_dq(values['os-type'])}\" --register"
   execute_command(values, message, command)
   nil
 end
@@ -675,7 +675,7 @@ end
 
 def add_controller_to_vbox_vm(values)
   message = "Information:\tAdding controller to VirtualBox VM"
-  command = "#{values['vboxmanage']} storagectl \"#{values['name']}\" --name \"#{defaults['controller']}\" --add \"#{defaults['controller']}\" --controller \"#{values['controller']}\""
+  command = "#{shell_arg(values['vboxmanage'])} storagectl \"#{shell_dq(values['name'])}\" --name \"#{shell_dq(defaults['controller'])}\" --add \"#{shell_dq(defaults['controller'])}\" --controller \"#{shell_dq(values['controller'])}\""
   execute_command(values, message, command)
   nil
 end
@@ -684,7 +684,7 @@ end
 
 def create_vbox_hdd(values)
   message = "Information:\tCreating VM hard disk for #{values['name']}"
-  command = "#{values['vboxmanage']} createhd --filename \"#{values['disk']}\" --size \"#{values['size']}\""
+  command = "#{shell_arg(values['vboxmanage'])} createhd --filename \"#{shell_dq(values['disk'])}\" --size \"#{shell_dq(values['size'])}\""
   execute_command(values, message, command)
   nil
 end
@@ -692,7 +692,7 @@ end
 def detach_file_from_vbox_vm(values)
   if values['file'].to_s.match(/iso$/) || values['type'].to_s.match(/iso|cdrom/)
     message = "Information:\tDetaching CDROM from #{values['name']}"
-    command = "#{values['vboxmanage']} storageattach \"#{values['name']}\" --storagectl \"cdrom\" --port 0 --device 0 --type dvddrive --medium none"
+    command = "#{shell_arg(values['vboxmanage'])} storageattach \"#{shell_dq(values['name'])}\" --storagectl \"cdrom\" --port 0 --device 0 --type dvddrive --medium none"
     execute_command(values, message, command)
   end
   nil
@@ -702,7 +702,7 @@ end
 
 def add_hdd_to_vbox_vm(values)
   message = "Information:\tAttaching storage \"#{values['disk']}\" of type \"#{defaults['controller']}\" to VM " + values['name']
-  command = "#{values['vboxmanage']} storageattach \"#{values['name']}\" --storagectl \"#{defaults['controller']}\" --port 0 --device 0 --type hdd --medium \"#{values['disk']}\""
+  command = "#{shell_arg(values['vboxmanage'])} storageattach \"#{shell_dq(values['name'])}\" --storagectl \"#{shell_dq(defaults['controller'])}\" --port 0 --device 0 --type hdd --medium \"#{shell_dq(values['disk'])}\""
   execute_command(values, message, command)
   nil
 end
@@ -711,11 +711,11 @@ end
 
 def add_tools_to_vbox_vm(values)
   message = "Information:\tAttaching CDROM \"#{values['vboxadditions']}\" to VM #{values['name']}"
-  command = "#{values['vboxmanage']} storagectl \"#{values['name']}\" --name \"cdrom\" --add \"sata\" --controller \"IntelAHCI\""
+  command = "#{shell_arg(values['vboxmanage'])} storagectl \"#{shell_dq(values['name'])}\" --name \"cdrom\" --add \"sata\" --controller \"IntelAHCI\""
   execute_command(values, message, command)
   if File.exist?(values['vboxadditions'])
     message = "Information:\tAttaching ISO #{values['vboxadditions']} to VM #{values['name']}"
-    command = "#{values['vboxmanage']} storageattach \"#{values['name']}\" --storagectl \"cdrom\" --port 1 --device 0 --type dvddrive --medium \"#{values['vboxadditions']}\""
+    command = "#{shell_arg(values['vboxmanage'])} storageattach \"#{shell_dq(values['name'])}\" --storagectl \"cdrom\" --port 1 --device 0 --type dvddrive --medium \"#{shell_dq(values['vboxadditions'])}\""
     execute_command(values, message, command)
   end
   nil
@@ -725,11 +725,11 @@ end
 
 def add_cdrom_to_vbox_vm(values)
   message = "Information:\tAttaching CDROM \"#{values['file']}\" to VM #{values['name']}"
-  command = "#{values['vboxmanage']} storagectl \"#{values['name']}\" --name \"cdrom\" --add \"sata\" --controller \"IntelAHCI\""
+  command = "#{shell_arg(values['vboxmanage'])} storagectl \"#{shell_dq(values['name'])}\" --name \"cdrom\" --add \"sata\" --controller \"IntelAHCI\""
   execute_command(values, message, command)
   if File.exist?(values['vboxadditions'])
     message = "Information:\tAttaching ISO #{values['vboxadditions']} to VM #{values['name']}"
-    command = "#{values['vboxmanage']} storageattach \"#{values['name']}\" --storagectl \"cdrom\" --port 0 --device 0 --type dvddrive --medium \"#{values['file']}\""
+    command = "#{shell_arg(values['vboxmanage'])} storageattach \"#{shell_dq(values['name'])}\" --storagectl \"cdrom\" --port 0 --device 0 --type dvddrive --medium \"#{shell_dq(values['file'])}\""
     execute_command(values, message, command)
   end
   nil
@@ -739,7 +739,7 @@ end
 
 def add_memory_to_vbox_vm(values)
   message = "Information:\tAdding memory to VM #{values['name']}"
-  command = "#{values['vboxmanage']} modifyvm \"#{values['name']}\" --memory \"#{values['memory']}\""
+  command = "#{shell_arg(values['vboxmanage'])} modifyvm \"#{shell_dq(values['name'])}\" --memory \"#{shell_dq(values['memory'])}\""
   execute_command(values, message, command)
   nil
 end
@@ -749,7 +749,7 @@ end
 def add_socket_to_vbox_vm(values)
   socket_name = "/tmp/#{values['name']}"
   message     = "Information:\tAdding serial controller to #{values['name']}"
-  command     = "#{values['vboxmanage']} modifyvm \"#{values['name']}\" --uartmode1 server #{socket_name}"
+  command     = "#{shell_arg(values['vboxmanage'])} modifyvm \"#{shell_dq(values['name'])}\" --uartmode1 server #{shell_arg(socket_name)}"
   execute_command(values, message, command)
   socket_name
 end
@@ -758,7 +758,7 @@ end
 
 def add_serial_to_vbox_vm(values)
   message = "Information:\tAdding serial Port to #{values['name']}"
-  command = "#{values['vboxmanage']} modifyvm \"#{values['name']}\" --uart1 0x3F8 4"
+  command = "#{shell_arg(values['vboxmanage'])} modifyvm \"#{shell_dq(values['name'])}\" --uart1 0x3F8 4"
   execute_command(values, message, command)
   nil
 end
@@ -958,14 +958,14 @@ end
 
 def modify_vbox_vm(values)
   message = "Information:\tSetting VirtualBox Parameter #{values['param']} to #{values['value']}"
-  command = "#{values['vboxmanage']} modifyvm #{values['name']} --#{values['param']} #{values['value']}"
+  command = "#{shell_arg(values['vboxmanage'])} modifyvm #{shell_arg(values['name'])} --#{shell_arg(values['param'])} #{shell_arg(values['value'])}"
   execute_command(values, message, command)
   nil
 end
 
 def setextradata_vbox_vm(values)
   message = "Information:\tSetting VirtualBox Extradata #{values['param']} to #{values['value']}"
-  command = "#{values['vboxmanage']} setextradata #{values['name']} \"#{values['param']}\" \"#{values['value']}\""
+  command = "#{shell_arg(values['vboxmanage'])} setextradata #{shell_arg(values['name'])} \"#{shell_dq(values['param'])}\" \"#{shell_dq(values['value'])}\""
   execute_command(values, message, command)
   nil
 end
@@ -974,7 +974,7 @@ end
 
 def change_vbox_vm_cpu(values)
   message = "Information:\tSetting VirtualBox VM #{values['name']} CPUs to #{values['vcpus']}"
-  command = "#{values['vboxmanage']} modifyvm #{values['name']} --cpus #{values['vcpus']}"
+  command = "#{shell_arg(values['vboxmanage'])} modifyvm #{shell_arg(values['name'])} --cpus #{shell_arg(values['vcpus'])}"
   execute_command(values, message, command)
   nil
 end
@@ -983,7 +983,7 @@ end
 
 def change_vbox_vm_utc(values)
   message = "Information:\tSetting VirtualBox VM #{values['name']} RTC to #{values['utc']}"
-  command = "#{values['vboxmanage']} modifyvm #{values['name']} --rtcuseutc #{values['utc']}"
+  command = "#{shell_arg(values['vboxmanage'])} modifyvm #{shell_arg(values['name'])} --rtcuseutc #{shell_arg(values['utc'])}"
   execute_command(values, message, command)
   nil
 end
@@ -993,7 +993,7 @@ end
 def change_vbox_vm_mac(values)
   message = "Information:\tSetting VirtualBox VM #{values['name']} MAC address to #{values['mac']}"
   values['mac'] = values['mac'].gsub(/:/, '') if values['mac'].to_s.match(/:/)
-  command = "#{values['vboxmanage']} modifyvm #{values['name']} --macaddress1 #{values['mac']}"
+  command = "#{shell_arg(values['vboxmanage'])} modifyvm #{shell_arg(values['name'])} --macaddress1 #{shell_arg(values['mac'])}"
   execute_command(values, message, command)
   nil
 end
@@ -1012,7 +1012,7 @@ def boot_vbox_vm(values)
   end
   message = "Starting:\tVM #{values['name']}"
   if (values['text'] == true) || (values['serial'] == true) || (values['headless'] == true)
-    command = "#{values['vboxmanage']} startvm #{values['name']} --type headless ; sleep 1"
+    command = "#{shell_arg(values['vboxmanage'])} startvm #{shell_arg(values['name'])} --type headless ; sleep 1"
     verbose_message(values, '')
     information_message(values, "Booting and connecting to virtual serial port of #{values['name']}")
     verbose_message(values, '')
@@ -1026,9 +1026,9 @@ def boot_vbox_vm(values)
     execute_message(values, command)
     verbose_message(values, '')
     set_vbox_bin(values)
-    `#{values['vboxmanage']} startvm #{values['name']} --type headless ; sleep 1` if values['vboxmanage'].to_s.match(/[a-z]/)
+    `#{shell_arg(values['vboxmanage'])} startvm #{shell_arg(values['name'])} --type headless ; sleep 1` if values['vboxmanage'].to_s.match(/[a-z]/)
   else
-    command = "#{values['vboxmanage']} startvm #{values['name']}"
+    command = "#{shell_arg(values['vboxmanage'])} startvm #{shell_arg(values['name'])}"
     execute_command(values, message, command)
   end
   if values['serial'] == true
@@ -1053,7 +1053,7 @@ def stop_vbox_vm(values)
   exists = check_vbox_vm_exists(values)
   if exists == true
     message = "Stopping:\tVM #{values['name']}"
-    command = "#{values['vboxmanage']} controlvm #{values['name']} poweroff"
+    command = "#{shell_arg(values['vboxmanage'])} controlvm #{shell_arg(values['name'])} poweroff"
     execute_command(values, message, command)
   end
   nil
@@ -1074,7 +1074,7 @@ def get_vbox_hostonly_interface(values)
   if_name = ''
   if values['vboxmanage'].match(/[a-z]/)
     message = "Information:\tFinding VirtualBox hostonly network name"
-    command = "#{values['vboxmanage']} list hostonlyifs |grep '^Name' |head -1"
+    command = "#{shell_arg(values['vboxmanage'])} list hostonlyifs |grep '^Name' |head -1"
     if_name = execute_command(values, message, command)
     if_name = if_name.split(':')[1]
     if if_name
@@ -1099,25 +1099,25 @@ def check_vbox_hostonly_network(values)
            end
   unless if_check.match(/#{string}/)
     message = "information:\tPlumbing VirtualBox hostonly network"
-    command = "#{values['vboxmanage']} hostonlyif create"
+    command = "#{shell_arg(values['vboxmanage'])} hostonlyif create"
     execute_command(values, message, command)
     if values['vmnetdhcp'] == false
       message = "Information:\tDisabling DHCP on #{if_name}"
-      command = "#{values['vboxmanage']} dhcpserver remove --ifname \"#{if_name}\""
+      command = "#{shell_arg(values['vboxmanage'])} dhcpserver remove --ifname \"#{shell_dq(if_name)}\""
       execute_command(values, message, command)
     end
   end
   message = "Information:\tChecking VirtualBox hostonly network #{if_name} has address #{values['hostonlyip']}"
-  command = "#{values['vboxmanage']} list hostonlyifs |grep 'IPAddress' |awk '{print $2}' |head -1"
+  command = "#{shell_arg(values['vboxmanage'])} list hostonlyifs |grep 'IPAddress' |awk '{print $2}' |head -1"
   host_ip = execute_command(values, message, command)
   host_ip = host_ip.chomp
   unless host_ip.match(/#{values['hostonlyip']}/)
     message = "Information:\tConfiguring VirtualBox hostonly network #{if_name} with IP #{values['hostonlyip']}"
-    command = "#{values['vboxmanage']} hostonlyif ipconfig \"#{if_name}\" --ip #{values['hostonlyip']} --netmask #{values['netmask']}"
+    command = "#{shell_arg(values['vboxmanage'])} hostonlyif ipconfig \"#{shell_dq(if_name)}\" --ip #{shell_arg(values['hostonlyip'])} --netmask #{shell_arg(values['netmask'])}"
     execute_command(values, message, command)
   end
   message = "Information:\tChecking VirtualBox DHCP Server is Disabled"
-  command = "#{values['vboxmanage']} list dhcpservers"
+  command = "#{shell_arg(values['vboxmanage'])} list dhcpservers"
   output  = execute_command(values, message, command)
   "#{values['vboxmanage']} dhcpserver remove --ifname \"#{if_name}\"" if output.match(/Enabled/)
   gw_if_name = get_gw_if_name(values)
@@ -1156,7 +1156,7 @@ end
 def add_cpu_to_vbox_vm(values)
   if values['vcpus'].to_i > 1
     message = "Information:\tSetting number of CPUs to #{values['vcpus']}"
-    command = "#{values['vboxmanage']} modifyvm \"#{values['name']}\" --cpus #{values['vcpus']}"
+    command = "#{shell_arg(values['vboxmanage'])} modifyvm \"#{shell_dq(values['name'])}\" --cpus #{shell_arg(values['vcpus'])}"
     execute_command(values, message, command)
   end
   nil
@@ -1166,10 +1166,10 @@ end
 
 def configure_vbox_vnc(values)
   message = "Information:\tEnabling VNC for VirtualBox"
-  command = "#{values['vboxmanage']} setproperty vrdeextpack VNC"
+  command = "#{shell_arg(values['vboxmanage'])} setproperty vrdeextpack VNC"
   execute_command(values, message, command)
   message = "Information:\tEnabling VNC for VirtualBox VM #{values['name']}"
-  command = "#{values['vboxmanage']} modifyvm '#{values['name']}' --vrdeproperty VNCPassword=#{values['vncpassword']}"
+  command = "#{shell_arg(values['vboxmanage'])} modifyvm '#{shell_sq(values['name'])}' --vrdeproperty VNCPassword=#{shell_arg(values['vncpassword'])}"
   execute_command(values, message, command)
   nil
 end
@@ -1242,7 +1242,7 @@ def unconfigure_vbox_vm(values)
   stop_vbox_vm(values)
   sleep(5)
   message = "Information:\tDeleting VirtualBox VM #{values['name']}"
-  command = "#{values['vboxmanage']} unregistervm #{values['name']} --delete"
+  command = "#{shell_arg(values['vboxmanage'])} unregistervm #{shell_arg(values['name'])} --delete"
   execute_command(values, message, command)
   delete_vbox_vm_config(values)
   exists

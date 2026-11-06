@@ -30,7 +30,7 @@ def output_ps_header(values, output_file)
   ps_file = values['preseedfile'].to_s
   if ps_file.match(/[a-z]/) && File.exist?(ps_file)
     message = "Information:\tCopying preseed file #{cc_file} to #{output_file}"
-    command = "cp #{cc_file} #{output_file}"
+    command = "cp #{shell_arg(cc_file)} #{shell_arg(output_file)}"
   else
     tmp_file = "/tmp/preseed_#{values['name']}"
     file = File.open(tmp_file, 'w')
@@ -42,7 +42,7 @@ def output_ps_header(values, output_file)
     end
     file.close
     message = "Information:\tCreating preseed file #{output_file} for #{values['name']}"
-    command = "cp #{tmp_file} #{output_file} ; rm #{tmp_file}"
+    command = "cp #{shell_arg(tmp_file)} #{shell_arg(output_file)} ; rm #{shell_arg(tmp_file)}"
   end
   execute_command(values, message, command)
   print_contents_of_file(values, '', output_file)
@@ -64,7 +64,7 @@ def populate_ps_first_boot_list(values)
   if values['copykeys'] == true
     ssh_keyfile = values['sshkeyfile']
     if File.exist?(ssh_keyfile)
-      ssh_key = `cat #{ssh_keyfile}`.chomp
+      ssh_key = `cat #{shell_arg(ssh_keyfile)}`.chomp
       ssh_dir = "#{install_target}/home/#{admin_user}/.ssh"
     end
   end

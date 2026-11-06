@@ -159,7 +159,7 @@ def set_vm_defaults(values, defaults)
                               end
       hv_check = `cat /proc/cpuinfo |grep -i hypervisor`.downcase
       defaults['host-os-platform'] = if hv_check.match(/hyper/)
-                                       `sudo #{defaults['dmidecode']} |grep 'Product Name'`.chomp
+                                       `sudo #{shell_arg(defaults['dmidecode'])} |grep 'Product Name'`.chomp
                                      else
                                        `cat /proc/cpuinfo |grep -i "model name" |head -1`.chomp
                                      end
@@ -168,13 +168,13 @@ def set_vm_defaults(values, defaults)
                         else
                           '/usr/bin/lsb_release'
                         end
-      defaults['host-lsb-all']         = `#{defaults['lsb']} -a`.chomp
-      defaults['host-lsb-id']          = `#{defaults['lsb']} -i -s`.chomp
-      defaults['host-lsb-release']     = `#{defaults['lsb']} -r -s`.chomp
-      defaults['host-lsb-version']     = `#{defaults['lsb']} -v -s`.chomp
-      defaults['host-lsb-codename']    = `#{defaults['lsb']} -c -s`.chomp
-      defaults['host-lsb-distributor'] = `#{defaults['lsb']} -i -s`.chomp
-      defaults['host-lsb-description'] = `#{defaults['lsb']} -d -s`.chomp.gsub(/"/, '')
+      defaults['host-lsb-all']         = `#{shell_arg(defaults['lsb'])} -a`.chomp
+      defaults['host-lsb-id']          = `#{shell_arg(defaults['lsb'])} -i -s`.chomp
+      defaults['host-lsb-release']     = `#{shell_arg(defaults['lsb'])} -r -s`.chomp
+      defaults['host-lsb-version']     = `#{shell_arg(defaults['lsb'])} -v -s`.chomp
+      defaults['host-lsb-codename']    = `#{shell_arg(defaults['lsb'])} -c -s`.chomp
+      defaults['host-lsb-distributor'] = `#{shell_arg(defaults['lsb'])} -i -s`.chomp
+      defaults['host-lsb-description'] = `#{shell_arg(defaults['lsb'])} -d -s`.chomp.gsub(/"/, '')
     when /Darwin/
       defaults['nic']      = 'en0'
       defaults['ovfbin']   = '/Applications/VMware OVF Tool/ovftool'

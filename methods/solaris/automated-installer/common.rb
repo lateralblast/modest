@@ -12,7 +12,7 @@ def get_ai_repo_version(values)
     version = '0.175.1'
   else
     message = "Information:\tDetermining if available repository version from #{values['publisherurl']}"
-    command = "pkg info -g #{values['publisherurl']} entire |grep Branch |awk \"{print \\\$2}\""
+    command = "pkg info -g #{shell_arg(values['publisherurl'])} entire |grep Branch |awk \"{print \\\$2}\""
     version = execute_command(values, message, command)
     version = version.chomp
     version = version.split(/\./)[0..2].join('.')
@@ -24,7 +24,7 @@ end
 
 def check_ai_publisherport(values)
   message = "Information:\tDetermining if publisher port #{values['publisherport']} is in use"
-  command = "svcprop -a pkg/server |grep \"port count\" |grep -v #{values['service']}"
+  command = "svcprop -a pkg/server |grep \"port count\" |grep -v #{shell_arg(values['service'])}"
   in_use  = execute_command(values, message, command)
   if in_use.match(/#{values['publisherport']}/) && (values['verbose'] == true)
     warning_message(values, "Publisher port #{values['publisherport']} is in use")
@@ -132,7 +132,7 @@ def unconfigure_ai_pkg_repo(values, smf_install_service)
     if output.match(/#{smf_install_service}/)
       disable_smf_service(smf_install_service)
       message = "Removing\tPackage repository service #{smf_install_service}"
-      command = "svccfg -s pkg/server delete #{smf_install_service}"
+      command = "svccfg -s pkg/server delete #{shell_arg(smf_install_service)}"
       execute_command(values, message, command)
       service_base_name = get_ai_service_base_name(values)
       remove_apache_proxy(values, service_base_name)

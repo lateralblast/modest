@@ -8,7 +8,7 @@ def execute_docker_command(values)
   command = values['command'].to_s
   exists = check_docker_vm_exists(values)
   if exists == true
-    output = `docker-machine ssh #{values['name']} "#{command}'`
+    output = `docker-machine ssh #{shell_arg(values['name'])} "#{command}"`
     verbose_message(values, output)
   else
     information_message(values, "Docker instance #{values['name']} does not exist")
@@ -62,7 +62,7 @@ def unconfigure_docker_client(values)
   exists = check_docker_vm_exists(values)
   if exists == true
     message = "Information:\tDeleting docker instance #{values['name']}"
-    command = "docker-machine rm --force #{values['name']}"
+    command = "docker-machine rm --force #{shell_arg(values['name'])}"
     execute_command(values, message, command)
   else
     information_message(values, "Docker instance #{values['name']} does not exist")

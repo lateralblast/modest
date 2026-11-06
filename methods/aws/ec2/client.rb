@@ -40,7 +40,7 @@ def build_aws_config(values)
   client_dir = "#{values['clientdir']}/packer/aws/#{values['name']}"
   json_file  = "#{client_dir}/#{values['name']}.json"
   message    = "Information:\tBuilding Packer AWS instance using AMI name '#{values['name']}' using '#{json_file}'"
-  command    = "packer build #{json_file}"
+  command    = "packer build #{shell_arg(json_file)}"
   execute_command(values, message, command)
   nil
 end
@@ -82,7 +82,7 @@ def connect_to_aws_vm(values)
     warning_message(values, "Could not find AWS SSH Key file '#{values['keyfile']}'")
     quit(values)
   end
-  command = "#{ssh_command} -i #{values['keyfile']} #{values['adminuser']}@#{values['ip']}"
+  command = "#{ssh_command} -i #{shell_arg(values['keyfile'])} #{shell_arg(values['adminuser'])}@#{shell_arg(values['ip'])}"
   update_user_ssh_config(values)
   information_message(values, "Executing '#{command}'") if values['verbose'] == true
   exec command.to_s

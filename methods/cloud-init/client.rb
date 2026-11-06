@@ -70,7 +70,7 @@ def populate_cc_user_data(values)
   if values['copykeys'] == true
     ssh_keyfile = values['sshkeyfile']
     if File.exist?(ssh_keyfile)
-      ssh_key = `cat #{ssh_keyfile}`.chomp
+      ssh_key = `cat #{shell_arg(ssh_keyfile)}`.chomp
       ssh_dir = "#{install_target}/home/#{admin_user}/.ssh"
     end
   end
@@ -261,7 +261,7 @@ def output_cc_user_data(values, user_data, early_exec_data, late_exec_data, outp
   check_dir_exists(values, check_dir)
   if cc_file.match(/[a-z]/) && File.exist?(cc_file)
     message = "Information:\tCopying #{cc_file} to #{output_file}"
-    command = "cp #{cc_file} #{output_file}"
+    command = "cp #{shell_arg(cc_file)} #{shell_arg(output_file)}"
   else
     tmp_file  = "/tmp/user_data_#{values['name']}"
     file      = File.open(tmp_file, 'w')
@@ -303,7 +303,7 @@ def output_cc_user_data(values, user_data, early_exec_data, late_exec_data, outp
     end
     file.close
     message = "Information:\tCreating cloud user-data file #{output_file}"
-    command = "cat #{tmp_file} >> #{output_file} ; rm #{tmp_file}"
+    command = "cat #{shell_arg(tmp_file)} >> #{shell_arg(output_file)} ; rm #{shell_arg(tmp_file)}"
   end
   execute_command(values, message, command)
   print_contents_of_file(values, '', output_file)

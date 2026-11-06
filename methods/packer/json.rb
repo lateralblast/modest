@@ -241,7 +241,7 @@ def create_packer_json(values)
   values['guest'] = values['guest'].join if values['guest'].instance_of?(Array)
   if values['service'].to_s.match(/sol/)
     if values['copykeys'] == true && File.exist?(values['sshkeyfile'].to_s)
-      ssh_key = `cat #{values['sshkeyfile']}`.chomp
+      ssh_key = `cat #{shell_arg(values['sshkeyfile'])}`.chomp
       ssh_dir = "/export/home/#{values['answers']['admin_username'].value}/.ssh"
       ssh_com = "<wait>mkdir -p #{ssh_dir}<enter>" \
                 "<wait>chmod 700 #{ssh_dir}<enter>" \
@@ -555,10 +555,10 @@ def create_packer_json(values)
       quit(values)
     else
       message = "Information:\tCopying '#{values['setup']}' to '#{script_file}'"
-      command = "cp '#{values['setup']}' '#{script_file}'"
+      command = "cp '#{shell_sq(values['setup'])}' '#{shell_sq(script_file)}'"
       execute_command(values, message, command)
-      user = `cat '#{script_file}' |grep Username |awk '{print $3}'`.chomp
-      pass = `cat '#{script_file}' |grep Password |awk '{print $3}'`.chomp
+      user = `cat '#{shell_sq(script_file)}' |grep Username |awk '{print $3}'`.chomp
+      pass = `cat '#{shell_sq(script_file)}' |grep Password |awk '{print $3}'`.chomp
     end
     other_ips = ''
     other_net = ''
@@ -759,7 +759,7 @@ def create_packer_json(values)
                        boot_footer
       end
     end
-    shutdown_command = "echo 'shutdown -P now' > /tmp/shutdown.sh ; echo '#{install_password}'|sudo -S sh '/tmp/shutdown.sh'"
+    shutdown_command = "echo 'shutdown -P now' > /tmp/shutdown.sh ; echo '#{shell_sq(install_password)}'|sudo -S sh '/tmp/shutdown.sh'"
   when /vsphere|esx|vmware/
     boot_wait = '2s'
     virtual_dev = 'pvscsi' if values['vm'].to_s.match(/fusion/)
@@ -832,7 +832,7 @@ def create_packer_json(values)
     install_md5 = if File.exist?(md5_file)
                     File.readlines(md5_file)[0]
                   else
-                    `md5 "#{values['file']}" |awk '{print $4}'`.chomp
+                    `md5 "#{shell_dq(values['file'])}" |awk '{print $4}'`.chomp
                   end
     install_checksum      = install_md5
     install_checksum_type = 'md5'

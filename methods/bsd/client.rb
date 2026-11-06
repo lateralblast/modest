@@ -27,18 +27,18 @@ def configure_xb_pxe_client(values)
   end
   if File.symlink?(test_file)
     message = "Information:\tRemoving old PXE boot file #{test_file}"
-    command = "rm #{test_file}"
+    command = "rm #{shell_arg(test_file)}"
     execute_command(values, message, command)
   end
   message = "Information:\tCreating PXE boot file for #{values['name']} with MAC address #{values['mac']}"
-  command = "cd #{values['tftpdir']} ; ln -s #{pxeboot_file} #{tftp_pxe_file}"
+  command = "cd #{shell_arg(values['tftpdir'])} ; ln -s #{shell_arg(pxeboot_file)} #{shell_arg(tftp_pxe_file)}"
   execute_command(values, message, command)
   if values['service'].to_s.match(/coreos/)
     ldlinux_file = "#{values['tftpdir']}/#{values['service']}/isolinux/ldlinux.c32"
     ldlinux_link = "#{values['tftpdir']}/ldlinux.c32"
     unless File.exist?(ldlinux_link)
       message = "Information:\tCopying file #{ldlinux_file} #{ldlinux_link}"
-      command = "cp #{ldlinux_file} #{ldlinux_link}"
+      command = "cp #{shell_arg(ldlinux_file)} #{shell_arg(ldlinux_link)}"
       execute_command(values, message, command)
     end
     values['clientdir'] = "#{values['clientdir']}/#{values['service']}/#{values['name']}"
@@ -62,7 +62,7 @@ def configure_xb_pxe_client(values)
     file.write("  append initrd=#{initrd_file} cloud-config-url=#{client_url}\n")
     file.close
     message = "Information:\tCreating PXE configuration file #{pxe_cfg_file}"
-    command = "cp #{tmp_file} #{pxe_cfg_file} ; rm #{tmp_file}"
+    command = "cp #{shell_arg(tmp_file)} #{shell_arg(pxe_cfg_file)} ; rm #{shell_arg(tmp_file)}"
     execute_command(values, message, command)
     print_contents_of_file(values, '', pxe_cfg_file)
   end
@@ -105,7 +105,7 @@ def unconfigure_xb_pxe_client(values)
   tftp_pxe_file = "#{values['tftpdir']}/#{tftp_pxe_file}"
   if File.exist?(tftp_pxe_file)
     message = "Information:\tRemoving PXE boot file #{tftp_pxe_file} for #{values['name']}"
-    command = "rm #{tftp_pxe_file}"
+    command = "rm #{shell_arg(tftp_pxe_file)}"
     execute_command(values, message, command)
   end
   unconfigure_xb_dhcp_client(values)

@@ -9,7 +9,7 @@ def import_esx_disk(values)
   new_vmdk_file = File.basename(values['vmdkfile'], '.old')
   new_vmdk_dir  = Pathname.new(values['vmdkfile'])
   new_vmdk_dir  = new_vmdk_dir.dirname.to_s
-  command = "cd #{new_vmdk_dir} ; vmkfstools -i #{values['vmdkfile']} -d thin #{new_vmdk_file}"
+  command = "cd #{shell_arg(new_vmdk_dir)} ; vmkfstools -i #{shell_arg(values['vmdkfile'])} -d thin #{shell_arg(new_vmdk_file)}"
   execute_ssh_command(values, command)
   nil
 end
@@ -17,7 +17,7 @@ end
 # Import vmx file to ESX inventory
 
 def import_esx_vm(values)
-  command = "vim-cmd solo/registervm #{values['vmxfile']}"
+  command = "vim-cmd solo/registervm #{shell_arg(values['vmxfile'])}"
   execute_ssh_command(values, command)
   nil
 end

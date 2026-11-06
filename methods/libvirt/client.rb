@@ -48,7 +48,7 @@ end
 # Get KVM interface Information
 
 def get_kvm_vm_if_info(values)
-  `virsh domifaddr #{values['name']} |grep #{values['name']}`.chomp
+  `virsh domifaddr #{shell_arg(values['name'])} |grep #{shell_arg(values['name'])}`.chomp
 end
 
 # Configure KVM VM
@@ -64,14 +64,14 @@ def unconfigure_kvm_vm(values)
   if exists == true
     stop_kvm_vm(values)
     message = "Warning:\tDeleting KVM VM \"#{values['name']}\""
-    command = "virsh undefine --domain \"#{values['name']}\""
+    command = "virsh undefine --domain \"#{shell_dq(values['name'])}\""
     execute_command(values, message, command)
   else
     disk_file = "#{values['imagedir']}/#{values['name']}.qcow2"
     if File.exist?(disk_file)
       if values['force'] == true
         message = "Information:\tDeleting VM disk #{disk_file}"
-        command = "rm #{disk_file}"
+        command = "rm #{shell_arg(disk_file)}"
         execute_command(values, message, command)
       else
         warning_message(values, "File #{disk_file} already exists")
@@ -91,7 +91,7 @@ def get_kvm_vm_ip(values)
   if !values['mac'].to_s.match(/[0-9]|[A-Z]|[a-z]/)
     values['mac'] = ''
   else
-    values['ip']  = `arp -an |grep "#{values['mac']}" |awk '{print $2}' |tr -d '()'|head -1`.chomp
+    values['ip']  = `arp -an |grep "#{shell_dq(values['mac'])}" |awk '{print $2}' |tr -d '()'|head -1`.chomp
   end
   values
 end
@@ -100,7 +100,7 @@ end
 
 def get_kvm_vm_mac(values)
   message = "Information:\tGetting MAC address for #{values['name']}"
-  command = "virsh domiflist \"#{values['name']}\" |grep network"
+  command = "virsh domiflist \"#{shell_dq(values['name'])}\" |grep network"
   output  = execute_command(values, message, command)
   values['mac'] = output.chomp.split[4]
   values
@@ -114,7 +114,7 @@ def boot_kvm_vm(values)
     message = "Starting:\tVM #{values['name']}"
     if (values['text'] == true) || (values['headless'] == true)
     end
-    command = "virsh start #{values['name']}"
+    command = "virsh start #{shell_arg(values['name'])}"
     execute_command(values, message, command)
     if values['serial'] == true
       information_message(values, "Connecting to serial port of #{values['name']}") if values['verbose'] == true
@@ -142,7 +142,7 @@ def destroy_kvm_vm(values)
     message = "Starting:\tVM #{values['name']}"
     if (values['text'] == true) || (values['headless'] == true)
     end
-    command = "virsh destroy --domain #{values['name']}"
+    command = "virsh destroy --domain #{shell_arg(values['name'])}"
     execute_command(values, message, command)
   else
     string = "Information:\tKVM client #{values['name']} does not exist"
@@ -159,7 +159,7 @@ def stop_kvm_vm(values)
     running = check_kvm_vm_is_running(values)
     if running.match(/yes/)
       message = "Stopping:\tVM #{values['name']}"
-      command = "virsh shutdown #{values['name']}"
+      command = "virsh shutdown #{shell_arg(values['name'])}"
       execute_command(values, message, command)
     else
       string = "Information:\tKVM client #{values['name']} is not running"
@@ -185,32 +185,32 @@ def import_kvm_ova(values)
   qcow_file = "#{image_dir}/#{values['name']}.qcow2"
   if File.exist?(values['file'])
     message  = "Information:\tDetermining name of vmdk disk image"
-    command  = "tar -tf \"#{values['file']}\" |grep \"vmdk$\""
+    command  = "tar -tf \"#{shell_dq(values['file'])}\" |grep \"vmdk$\""
     output   = execute_command(values, message, command)
     v_disk   = output.chomp
     v_disk   = "#{image_dir}/#{v_disk}"
     message  = "Information:\tDetermining name of ovf file"
-    command  = "tar -tf \"#{values['file']}\" |grep \"ovf$\""
+    command  = "tar -tf \"#{shell_dq(values['file'])}\" |grep \"ovf$\""
     output   = execute_command(values, message, command)
     ovf_file = output.chomp
     ovf_file = "#{image_dir}/#{ovf_file}"
     unless File.exist?(v_disk)
       message = "Information:\tExtracting image file \"#{values['file']}\""
-      command = "cd \"#{image_dir}\" ; tar -xf \"#{values['file']}\""
+      command = "cd \"#{shell_dq(image_dir)}\" ; tar -xf \"#{shell_dq(values['file'])}\""
       execute_command(values, message, command)
     end
     if File.exist?(v_disk)
       check_file_owner(values, v_disk, values['uid'])
       unless File.exist?(qcow_file)
         message = "Information:\tConverting vmdk disk file \"#{v_disk}\" to qcow2 disk file \"#{qcow_file}\""
-        command = "qemu-img convert -O qcow2 \"#{v_disk}\" \"#{qcow_file}\""
+        command = "qemu-img convert -O qcow2 \"#{shell_dq(v_disk)}\" \"#{shell_dq(qcow_file)}\""
         execute_command(values, message, command)
       end
       check_file_owner(values, qcow_file, values['uid'])
       check_file_owner(values, ovf_file, values['uid'])
       if File.exist?(ovf_file)
         message = "Information:\tGetting memory information from OVF file \"ovf_file\""
-        command = "cat \"#{ovf_file}\" |grep \"Memory RAMSize\" |awk \"{print $2}\" |cut -f2 -d= |cut -f1 -d/"
+        command = "cat \"#{shell_dq(ovf_file)}\" |grep \"Memory RAMSize\" |awk \"{print $2}\" |cut -f2 -d= |cut -f1 -d/"
         output  = execute_command(values, message, command)
         values['memory'] = output.gsub(/"/, '').chomp
       else
@@ -240,7 +240,7 @@ def list_kvm_images(values)
   img_dir = values['imagedir'].to_s
   message = "Information:\tKVM images:"
   verbose_message(values, message)
-  command = "find #{img_dir} -name \"*.img\""
+  command = "find #{shell_arg(img_dir)} -name \"*.img\""
   output  = execute_command(values, message, command)
   verbose_message(values, output)
   nil

@@ -15,11 +15,11 @@ end
 
 def boot_lxc(values)
   message = "Information:\tChecking status of #{values['name']}"
-  command = "lxc-list |grep '^#{values['name']}'"
+  command = "lxc-list |grep '^#{shell_sq(values['name'])}'"
   output  = execute_command(values, message, command)
   unless output.match(/RUNNING/)
     message = "Information:\tStarting client #{values['name']}"
-    command = "lxc-start -n #{values['name']} -d"
+    command = "lxc-start -n #{shell_arg(values['name'])} -d"
     execute_command(values, message, command)
     system("lxc-console -n #{values['name']}") if values['serial'] == true
   end
@@ -30,11 +30,11 @@ end
 
 def stop_lxc(values)
   message = "Information:\tChecking status of #{values['name']}"
-  command = "lxc-list |grep '^#{values['name']}'"
+  command = "lxc-list |grep '^#{shell_sq(values['name'])}'"
   output  = execute_command(values, message, command)
   if output.match(/RUNNING/)
     message = "Information:\tStopping client #{values['name']}"
-    command = "lxc-stop -n #{values['name']}"
+    command = "lxc-stop -n #{shell_arg(values['name'])}"
     execute_command(values, message, command)
   end
   nil
@@ -58,7 +58,7 @@ def create_ubuntu_lxc_config(values)
   values['clientdir'] = "#{values['lxcdir']}/#{values['name']}"
   config_file = "#{values['clientdir']}/config"
   message = "Information:\tCreating configuration for #{values['name']}"
-  command = "cp #{config_file} #{tmp_file}"
+  command = "cp #{shell_arg(config_file)} #{shell_arg(tmp_file)}"
   execute_command(values, message, command)
   copy = []
   info = IO.readlines(config_file)
@@ -79,7 +79,7 @@ def create_ubuntu_lxc_config(values)
   copy = copy.join
   File.open(tmp_file, 'w') { |file| file.write(copy) }
   message = "Information:\tCreating network configuration file #{config_file}"
-  command = "cp #{tmp_file} #{config_file} ; rm #{tmp_file}"
+  command = "cp #{shell_arg(tmp_file)} #{shell_arg(config_file)} ; rm #{shell_arg(tmp_file)}"
   execute_command(values, message, command)
   print_contents_of_file(values, '', config_file)
   file = File.open(tmp_file, 'w')
@@ -106,7 +106,7 @@ def create_ubuntu_lxc_config(values)
   values['clientdir'] = "#{values['clientdir']}/rootfs"
   net_file = "#{values['clientdir']}/etc/network/interfaces"
   message  = "Information:\tCreating network interface file #{net_file}"
-  command  = "cp #{tmp_file} #{net_file} ; rm #{tmp_file}"
+  command  = "cp #{shell_arg(tmp_file)} #{shell_arg(net_file)} ; rm #{shell_arg(tmp_file)}"
   execute_command(values, message, command)
   user_username = values['answers']['user_username'].value
   user_uid      = values['answers']['user_uid'].value
@@ -128,7 +128,7 @@ def create_ubuntu_lxc_config(values)
   file.write(output)
   file.close
   message = "Information:\tCreating password file"
-  command = "cat #{tmp_file} > #{passwd_file} ; rm #{tmp_file}"
+  command = "cat #{shell_arg(tmp_file)} > #{shell_arg(passwd_file)} ; rm #{shell_arg(tmp_file)}"
   execute_command(values, message, command)
   print_contents_of_file(values, '', passwd_file)
   info = IO.readlines(shadow_file)
@@ -146,12 +146,12 @@ def create_ubuntu_lxc_config(values)
   file.write(output)
   file.close
   message = "Information:\tCreating shadow file"
-  command = "cat #{tmp_file} > #{shadow_file} ; rm #{tmp_file}"
+  command = "cat #{shell_arg(tmp_file)} > #{shell_arg(shadow_file)} ; rm #{shell_arg(tmp_file)}"
   execute_command(values, message, command)
   print_contents_of_file(values, '', shadow_file)
   client_home = values['clientdir'] + user_home
   message = "Information:\tCreating SSH directory for #{user_username}"
-  command = "mkdir -p #{client_home}/.ssh ; cd #{values['clientdir']}/home ; chown -R #{user_uid}:#{user_gid} #{user_username}"
+  command = "mkdir -p #{shell_arg(client_home)}/.ssh ; cd #{shell_arg(values['clientdir'])}/home ; chown -R #{shell_arg(user_uid)}:#{shell_arg(user_gid)} #{shell_arg(user_username)}"
   execute_command(values, message, command)
   # Copy admin user keys
   rsa_file = "#{user_home}/.ssh/id_rsa.pub"
@@ -162,11 +162,11 @@ def create_ubuntu_lxc_config(values)
     next unless File.exist?(pub_file)
 
     message = "Information:\tCopying SSH public key #{pub_file} to #{key_file}"
-    command = "cat #{pub_file} >> #{key_file}"
+    command = "cat #{shell_arg(pub_file)} >> #{shell_arg(key_file)}"
     execute_command(values, message, command)
   end
   message = "Information:\tCreating SSH directory for root"
-  command = "mkdir -p #{values['clientdir']}/root/.ssh ; cd #{values['clientdir']} ; chown -R 0:0 root"
+  command = "mkdir -p #{shell_arg(values['clientdir'])}/root/.ssh ; cd #{shell_arg(values['clientdir'])} ; chown -R 0:0 root"
   execute_command(values, message, command)
   # Copy root keys
   rsa_file = '/root/.ssh/id_rsa.pub'
@@ -177,20 +177,20 @@ def create_ubuntu_lxc_config(values)
     next unless File.exist?(pub_file)
 
     message = "Information:\tCopying SSH public key #{pub_file} to #{key_file}"
-    command = "cat #{pub_file} >> #{key_file}"
+    command = "cat #{shell_arg(pub_file)} >> #{shell_arg(key_file)}"
     execute_command(values, message, command)
   end
   # Fix permissions
   message = "Information:\tFixing SSH permissions for #{user_username}"
-  command = "cd #{values['clientdir']}/home ; chown -R #{user_uid}:#{user_gid} #{user_username}"
+  command = "cd #{shell_arg(values['clientdir'])}/home ; chown -R #{shell_arg(user_uid)}:#{shell_arg(user_gid)} #{shell_arg(user_username)}"
   execute_command(values, message, command)
   message = "Information:\tFixing SSH permissions for root "
-  command = "cd #{values['clientdir']} ; chown -R 0:0 root"
+  command = "cd #{shell_arg(values['clientdir'])} ; chown -R 0:0 root"
   execute_command(values, message, command)
   # Add sudoers entry
   sudoers_file = "#{values['clientdir']}/etc/sudoers.d/#{user_username}"
   message = "Information:\tCreating sudoers file #{sudoers_file}"
-  command = "echo 'administrator ALL=(ALL) NOPASSWD:ALL' > #{sudoers_file}"
+  command = "echo 'administrator ALL=(ALL) NOPASSWD:ALL' > #{shell_arg(sudoers_file)}"
   execute_command(values, message, command)
   # Add default route
   rc_file = "#{values['clientdir']}/etc/rc.local"
@@ -205,7 +205,7 @@ def create_ubuntu_lxc_config(values)
   end
   file.close
   message = "Information:\tAdding default route to #{rc_file}"
-  command = "cp #{tmp_file} #{rc_file} ; rm #{tmp_file}"
+  command = "cp #{shell_arg(tmp_file)} #{shell_arg(rc_file)} ; rm #{shell_arg(tmp_file)}"
   execute_command(values, message, command)
   nil
 end
@@ -214,7 +214,7 @@ end
 
 def create_standard_lxc(values)
   message = "Information:\tCreating standard container #{values['name']}"
-  command = "lxc-create -t ubuntu -n #{values['name']}" if values['host-os-unamea'].match(/Ubuntu/)
+  command = "lxc-create -t ubuntu -n #{shell_arg(values['name'])}" if values['host-os-unamea'].match(/Ubuntu/)
   execute_command(values, message, command)
   nil
 end
@@ -224,7 +224,7 @@ end
 def unconfigure_lxc(values)
   stop_lxc(values)
   message = "Information:\tDeleting client #{values['name']}"
-  command = "lxc-destroy -n #{values['name']}"
+  command = "lxc-destroy -n #{shell_arg(values['name'])}"
   execute_command(values, message, command)
   values['ip'] = get_install_ip(values)
   remove_hosts_entry(values['name'], values['ip'])
@@ -235,7 +235,7 @@ end
 
 def check_lxc_exists(values)
   message = "Information:\tChecking LXC #{values['name']} exists"
-  command = "lxc-ls |grep '#{values['name']}'"
+  command = "lxc-ls |grep '#{shell_sq(values['name'])}'"
   output  = execute_command(values, message, command)
   unless output.match(/#{values['name']}/)
     warning_message(values, "Client #{values['name']} does not exist")
@@ -248,7 +248,7 @@ end
 
 def check_lxc_doesnt_exist(values)
   message = "Information:\tChecking LXC #{values['name']} does not exist"
-  command = "lxc-ls |grep '#{values['name']}'"
+  command = "lxc-ls |grep '#{shell_sq(values['name'])}'"
   output  = execute_command(values, message, command)
   if output.match(/#{values['name']}/)
     warning_message(values, "Client #{values['name']} already exists")
@@ -304,7 +304,7 @@ def create_lxc_post(values, post_list)
   end
   file.close
   message = "Information:\tCreating post install script"
-  command = "cp #{tmp_file} #{post_file} ; chmod +x #{post_file} ; rm #{tmp_file}"
+  command = "cp #{shell_arg(tmp_file)} #{shell_arg(post_file)} ; chmod +x #{shell_arg(post_file)} ; rm #{shell_arg(tmp_file)}"
   execute_command(values, message, command)
   nil
 end
@@ -321,7 +321,7 @@ def execute_lxc_post(values)
   boot_lxc(values)
   post_file = '/root/post_install.sh'
   message   = "Information:\tExecuting post install script on #{values['name']}"
-  command   = "ssh -o 'StrictHostKeyChecking no' #{values['name']} '#{post_file}'"
+  command   = "ssh -o 'StrictHostKeyChecking no' #{shell_arg(values['name'])} '#{shell_sq(post_file)}'"
   execute_command(values, message, command)
   nil
 end

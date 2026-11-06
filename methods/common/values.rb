@@ -1,5 +1,54 @@
 # frozen_string_literal: true
 
+# Values that end up as arguments in shell commands, with the characters each may contain.
+# Empty values and the 'none' sentinel are always allowed.
+
+def shell_value_patterns
+  {
+    'name'       => /\A[A-Za-z0-9][A-Za-z0-9._@+:-]*\z/,
+    'clone'      => /\A[A-Za-z0-9][A-Za-z0-9._@+:-]*\z/,
+    'ip'         => /\A[0-9A-Fa-f.:\/]+\z/,
+    'hostip'     => /\A[0-9A-Fa-f.:\/]+\z/,
+    'hostonlyip' => /\A[0-9A-Fa-f.:\/]+\z/,
+    'vmgateway'  => /\A[0-9A-Fa-f.:\/]+\z/,
+    'netmask'    => /\A[0-9A-Fa-f.:\/]+\z/,
+    'mac'        => /\A[0-9A-Fa-f:-]+\z/,
+    'nic'        => /\A[A-Za-z0-9 ._:-]+\z/,
+    'vmnic'      => /\A[A-Za-z0-9 ._:-]+\z/,
+    'memory'     => /\A[0-9A-Za-z.]+\z/,
+    'vcpus'      => /\A[0-9]+\z/,
+    'size'       => /\A[0-9A-Za-z.]+\z/,
+    'disk'       => /\A[0-9A-Za-z.]+\z/,
+    'vm'         => /\A[A-Za-z0-9_-]+\z/,
+    'method'     => /\A[A-Za-z0-9._-]+\z/,
+    'os-type'    => /\A[A-Za-z0-9._-]+\z/,
+    'service'    => /\A[A-Za-z0-9._-]+\z/,
+    'action'     => /\A[A-Za-z0-9_-]+\z/,
+    'type'       => /\A[A-Za-z0-9_-]+\z/,
+    'search'     => /\A[A-Za-z0-9._-]+\z/
+  }
+end
+
+# Return the keys whose values contain characters not allowed in shell arguments
+
+def invalid_shell_values(values, patterns = shell_value_patterns)
+  patterns.keys.select do |key|
+    value = values[key].to_s
+    !(value.empty? || value == 'none' || value.match?(patterns[key]))
+  end
+end
+
+# Stop before any command runs if a shell-bound value contains unsafe characters.
+# Exits regardless of --dryrun and does not depend on the silent flag, which is not set yet.
+
+def validate_shell_values(values)
+  invalid = invalid_shell_values(values)
+  return values if invalid.empty?
+
+  $stderr.puts "Error:\tInvalid value for #{invalid.join(', ')}: contains characters not allowed in shell arguments"
+  exit 1
+end
+
 # Post process values after handling defaults
 
 def post_process_values(values)

@@ -72,7 +72,7 @@ end
 
 def publish_ai_ips_pkg(values, pkg_name, spool_dir, install_dir, pkg_repo_dir)
   message = "Information:\tPublishing package #{pkg_name} to #{pkg_repo_dir}"
-  command = "cd #{install_dir} ; pkgsend publish -s #{pkg_repo_dir} -d . #{spool_dir}/#{pkg_name}.p5m.res"
+  command = "cd #{shell_arg(install_dir)} ; pkgsend publish -s #{shell_arg(pkg_repo_dir)} -d . #{shell_arg(spool_dir)}/#{shell_arg(pkg_name)}.p5m.res"
   execute_command(values, message, command)
   nil
 end
@@ -100,18 +100,18 @@ def build_ai_pkg(values, pkg_name, build_type, pkg_repo_dir)
     dir_list.each do |dir_name|
       if File.directory?(dir_name)
         message = "Cleaning:\tDirectory #{dir_name}"
-        command = "cd #{dir_name} ; rm -rf *"
+        command = "cd #{shell_arg(dir_name)} ; rm -rf *"
         execute_command(values, message, command)
       end
       check_dir_exists(values, dir_name)
     end
     message = "Information:\tExtracting source #{source_file} to #{extract_dir}"
-    command = "cd #{extract_dir} ; gcat #{source_file} |tar -xpf -"
+    command = "cd #{shell_arg(extract_dir)} ; gcat #{shell_arg(source_file)} |tar -xpf -"
     execute_command(values, message, command)
     compile_dir = "#{extract_dir}/#{pkg_name}-#{pkg_version}"
     if values['pkgs'][pkg_name].type.match(/ruby/)
       message = "Compling:\t#{pkg_name}"
-      command = "cd #{compile_dir} ; ./install.rb --destdir=#{install_dir} --full"
+      command = "cd #{shell_arg(compile_dir)} ; ./install.rb --destdir=#{shell_arg(install_dir)} --full"
       execute_command(values, message, command)
     end
     if build_type.match(/ips/)
@@ -129,7 +129,7 @@ end
 def check_ai_pkg_repo(values, pkg_name, pkg_repo_dir)
   pkg_version = values['pkgs'][pkg_name].version
   message = "Information:\tChecking if repository contains #{pkg_name} #{pkg_version}"
-  command = "pkg info -g #{pkg_repo_dir} -r #{pkg_name} |grep Version |awk \"{print \\\$2}\""
+  command = "pkg info -g #{shell_arg(pkg_repo_dir)} -r #{shell_arg(pkg_name)} |grep Version |awk \"{print \\\$2}\""
   output  = execute_command(values, message, command)
   output.chomp
 end

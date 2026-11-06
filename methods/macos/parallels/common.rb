@@ -6,7 +6,7 @@
 
 def attach_file_to_parallels_vm(values)
   message = "Information:\tAttaching Image #{values['file']} to #{values['name']}"
-  command = "prlctl set \"#{values['name']}\" --device-set cdrom0 --image \"#{values['file']}\""
+  command = "prlctl set \"#{shell_dq(values['name'])}\" --device-set cdrom0 --image \"#{shell_dq(values['file'])}\""
   execute_command(values, message, command)
   nil
 end
@@ -15,7 +15,7 @@ end
 
 def detach_file_from_parallels_vm(values)
   message = "Information:\tAttaching Image #{values['file']} to #{values['name']}"
-  command = "prlctl set \"#{values['name']}\" --device-set cdrom0 --disable\""
+  command = "prlctl set \"#{shell_dq(values['name'])}\" --device-set cdrom0 --disable\""
   execute_command(values, message, command)
   nil
 end
@@ -24,7 +24,7 @@ end
 
 def get_parallels_os(values, vm_name)
   message = "Information:\tDetermining OS for #{vm_name}"
-  command = "prlctl list --info \"#{vm_name}\" |grep '^OS' |cut -f2 -d:"
+  command = "prlctl list --info \"#{shell_dq(vm_name)}\" |grep '^OS' |cut -f2 -d:"
   os_info = execute_command(values, message, command)
   case os_info
   when /rhel/
@@ -37,7 +37,7 @@ end
 
 def get_parallels_vm_status(values)
   message = "Information:\tDetermining status of Parallels VM #{values['name']}"
-  command = "prlctl list \"#{values['name']}\" --info |grep '^Status' |grep ^State |cut -f2 -d:"
+  command = "prlctl list \"#{shell_dq(values['name'])}\" --info |grep '^Status' |grep ^State |cut -f2 -d:"
   status  = execute_command(values, message, command)
   status.chomp.gsub(/\s+/, '')
 end
@@ -59,7 +59,7 @@ def list_all_parallels_vms(values)
   verbose_message(values, 'Parallels VMS:')
   verbose_message(values, '')
   vm_list.each do |vm_name|
-    os_info = `prlctl list --info "#{vm_name}" |grep '^OS' |cut -f2 -d:`.chomp.gsub(/^\s+/, '')
+    os_info = `prlctl list --info "#{shell_dq(vm_name)}" |grep '^OS' |cut -f2 -d:`.chomp.gsub(/^\s+/, '')
     case os_info
     when /rhel/
       os_info = 'RedHat Enterprise Linux'
@@ -116,7 +116,7 @@ def list_parallels_vms(values)
       dom_command = "prlctl list --all |grep -v UUID |awk '{print $4}'"
     else
       search_string = values['search'].to_s
-      dom_command   = "prlctl list --all |grep -v UUID |awk '{print $4}' |grep '#{search_string}'"
+      dom_command   = "prlctl list --all |grep -v UUID |awk '{print $4}' |grep '#{shell_sq(search_string)}'"
     end
   else
     dom_command = "prlctl list --all |grep -v UUID |awk '{print $4}'"
@@ -134,7 +134,7 @@ def clone_parallels_vm(values)
     quit(values)
   end
   message = "Information:\tCloning Parallels VM #{values['name']} to #{values['clone']}"
-  command = "prlctl clone \"#{values['name']}\" --name \"#{values['clone']}\""
+  command = "prlctl clone \"#{shell_dq(values['name'])}\" --name \"#{shell_dq(values['clone'])}\""
   execute_command(values, message, command)
   add_hosts_entry(values['clone'], values['ip']) if values['ip'].to_s.match(/[0-9]/)
   change_parallels_vm_mac(values['clone'], values['mac']) if values['mac'].to_s.match(/[0-9,a-z,A-Z]/)
@@ -145,7 +145,7 @@ end
 
 def get_parallels_disk(values)
   message = "Information:\tDetermining directory for Parallels VM #{values['name']}"
-  command = "prlctl list #{values['name']} --info |grep image |awk '{print $4}' |cut -f2 -d="
+  command = "prlctl list #{shell_arg(values['name'])} --info |grep image |awk '{print $4}' |cut -f2 -d="
   vm_dir  = execute_command(values, message, command)
   vm_dir.chomp.gsub(/'/, '')
 end
@@ -154,7 +154,7 @@ end
 
 def get_parallels_vm_uuid(values)
   message = "Information:\tDetermining UUID for Parallels VM #{values['name']}"
-  command = "prlctl list --info \"#{values['name']}\" |grep '^ID' |cut -f2 -d:"
+  command = "prlctl list --info \"#{shell_dq(values['name'])}\" |grep '^ID' |cut -f2 -d:"
   vm_uuid.chomp.gsub(/^\s+/, '')
   execute_command(values, message, command)
 end
@@ -173,20 +173,20 @@ def check_parallels_hostonly_network(values)
     if_count = if_count.grep(/prls/).count.to_s
     if_name  = "prlsnet#{if_count}"
     message = "Information:\tPlumbing Parallels hostonly network #{if_name}"
-    command = "prlsrvctl net add #{if_name} --type host-only"
+    command = "prlsrvctl net add #{shell_arg(if_name)} --type host-only"
     execute_command(values, message, command)
   end
   message  = "Information:\tDetermining Parallels network interface name"
-  command  = "prlsrvctl net list |grep ^#{if_name} |awk '{print $3}'"
+  command  = "prlsrvctl net list |grep ^#{shell_arg(if_name)} |awk '{print $3}'"
   nic_name = execute_command(values, message, command)
   nic_name = nic_name.chomp
   message = "Information:\tChecking Parallels hostonly network #{nic_name} has address #{values['hostonlyip']}"
-  command = "ifconfig #{nic_name} |grep inet |awk '{print $2}"
+  command = "ifconfig #{shell_arg(nic_name)} |grep inet |awk '{print $2}"
   host_ip = execute_command(values, message, command)
   host_ip = host_ip.chomp
   unless host_ip.match(/#{values['hostonlyip']}/)
     message = "Information:\tConfiguring Parallels hostonly network #{nic_name} with IP #{values['hostonlyip']}"
-    command = "sudo sh -c 'ifconfig #{nic_name} inet #{values['hostonlyip']} netmask #{values['netmask']} up'"
+    command = "sudo sh -c 'ifconfig #{shell_sq(nic_name)} inet #{shell_sq(values['hostonlyip'])} netmask #{shell_sq(values['netmask'])} up'"
     execute_command(values, message, command)
   end
   gw_if_name = get_gw_if_name(values)
@@ -241,7 +241,7 @@ end
 
 def add_serial_to_parallels_vm(values)
   message = "Information:\tAdding Serial Port to #{values['name']}"
-  command = "prlctl set \"#{values['name']}\" --add-device serial --ouput /tmp/#{values['name']}"
+  command = "prlctl set \"#{shell_dq(values['name'])}\" --add-device serial --ouput /tmp/#{shell_arg(values['name'])}"
   execute_command(values, message, command)
   nil
 end
@@ -322,7 +322,7 @@ end
 
 def change_parallels_vm_mem(values)
   message = "Information:\tSetting Parallels VM #{values['name']} RAM to #{values['memory']}"
-  command = "prlctl set #{values['name']} --memsize #{values['memory']}"
+  command = "prlctl set #{shell_arg(values['name'])} --memsize #{shell_arg(values['memory'])}"
   execute_command(values, message, command)
   nil
 end
@@ -331,7 +331,7 @@ end
 
 def change_parallels_vm_cpu(values)
   message = "Information:\tSetting Parallels VM #{values['name']} CPUs to #{values['vcpus']}"
-  command = "prlctl set #{values['name']} --cpus #{values['vcpus']}"
+  command = "prlctl set #{shell_arg(values['name'])} --cpus #{shell_arg(values['vcpus'])}"
   execute_command(values, message, command)
   nil
 end
@@ -341,7 +341,7 @@ end
 def change_parallels_vm_mac(values)
   message = "Information:\tSetting Parallels VM #{values['name']} MAC address to #{values['mac']}"
   values['mac'] = values['mac'].gsub(/:/, '') if values['mac'].to_s.match(/:/)
-  command = "prlctl set #{values['name']} --device-set net0 #{values['mac']}"
+  command = "prlctl set #{shell_arg(values['name'])} --device-set net0 #{shell_arg(values['mac'])}"
   execute_command(values, message, command)
   nil
 end
@@ -350,7 +350,7 @@ end
 
 def get_parallels_vm_mac(values)
   message = "Information:\tGetting MAC address for #{values['name']}"
-  command = "prlctl list --info #{values['name']} |grep net0 |grep mac |awk '{print $4}' |cut -f2 -d="
+  command = "prlctl list --info #{shell_arg(values['name'])} |grep net0 |grep mac |awk '{print $4}' |cut -f2 -d="
   vm_mac  = execute_command(values, message, command)
   vm_mac  = vm_mac.chomp
   vm_mac.gsub(/,/, '')
@@ -397,9 +397,9 @@ def boot_parallels_vm(values)
     verbose_message(values, '')
     verbose_message(values, "socat UNIX-CONNECT:/tmp/#{values['name']} STDIO,raw,echo=0,escape=0x11,icanon=0")
     verbose_message(values, '')
-    `prlctl start #{values['name']}`
+    `prlctl start #{shell_arg(values['name'])}`
   else
-    command = "prlctl start #{values['name']} ; open \"/Applications/Parallels Desktop.app\" &"
+    command = "prlctl start #{shell_arg(values['name'])} ; open \"/Applications/Parallels Desktop.app\" &"
     execute_command(values, message, command)
   end
   if values['serial'] == true
@@ -422,7 +422,7 @@ end
 
 def register_parallels_vm(values)
   message = "Registering Parallels VM #{values['name']}"
-  command = "prlctl create \"#{values['name']}\" --ostype \"#{values['os-type']}\""
+  command = "prlctl create \"#{shell_dq(values['name'])}\" --ostype \"#{shell_dq(values['os-type'])}\""
   execute_command(values, message, command)
   nil
 end
@@ -533,10 +533,10 @@ def unconfigure_parallels_vm(values)
   stop_parallels_vm(values)
   sleep(5)
   message = "Deleting Parallels VM #{values['name']}"
-  command = "prlctl delete #{values['name']}"
+  command = "prlctl delete #{shell_arg(values['name'])}"
   execute_command(values, message, command)
   message = "Unregistering Parallels VM #{values['name']}"
-  command = "prlctl unregister #{values['name']}"
+  command = "prlctl unregister #{shell_arg(values['name'])}"
   execute_command(values, message, command)
   nil
 end

@@ -156,11 +156,11 @@ def standard_zone_post_install(values)
     passwd_file    = "#{values['clientdir']}/etc/passwd"
     shadow_file    = "#{values['clientdir']}/etc/shadow"
     message = "Checking:\tUser #{admin_username} does not exist"
-    command = "cat #{passwd_file} | grep -v '#{admin_username}' > #{tmp_file}"
+    command = "cat #{shell_arg(passwd_file)} | grep -v '#{shell_sq(admin_username)}' > #{shell_arg(tmp_file)}"
     execute_command(values, message, command)
     message    = "Adding:\tUser #{admin_username} to #{passwd_file}"
     admin_info = "#{admin_username}:x:#{admin_uid}:#{admin_gid}:#{admin_fullname}:#{admin_home}:#{admin_shell}"
-    command    = "echo '#{admin_info}' >> #{tmp_file} ; cat #{tmp_file} > #{passwd_file} ; rm #{tmp_file}"
+    command    = "echo '#{shell_sq(admin_info)}' >> #{shell_arg(tmp_file)} ; cat #{shell_arg(tmp_file)} > #{shell_arg(passwd_file)} ; rm #{shell_arg(tmp_file)}"
     execute_command(values, message, command)
     print_contents_of_file(values, '', passwd_file)
     info = IO.readlines(shadow_file)
@@ -178,12 +178,12 @@ def standard_zone_post_install(values)
     file.write(output)
     file.close
     message = "Information:\tCreating shadow file"
-    command = "cat #{tmp_file} > #{shadow_file} ; rm #{tmp_file}"
+    command = "cat #{shell_arg(tmp_file)} > #{shell_arg(shadow_file)} ; rm #{shell_arg(tmp_file)}"
     execute_command(values, message, command)
     print_contents_of_file(values, '', shadow_file)
     client_home = values['clientdir'] + admin_home
     message = "Information:\tCreating SSH directory for #{admin_username}"
-    command = "mkdir -p #{client_home}/.ssh ; cd #{values['clientdir']}/export/home ; chown -R #{admin_uid}:#{admin_gid} #{admin_username}"
+    command = "mkdir -p #{shell_arg(client_home)}/.ssh ; cd #{shell_arg(values['clientdir'])}/export/home ; chown -R #{shell_arg(admin_uid)}:#{shell_arg(admin_gid)} #{shell_arg(admin_username)}"
     execute_command(values, message, command)
     # Copy admin user keys
     rsa_file = "#{admin_home}/.ssh/id_rsa.pub"
@@ -194,11 +194,11 @@ def standard_zone_post_install(values)
       next unless File.exist?(pub_file)
 
       message = "Information:\tCopying SSH public key #{pub_file} to #{key_file}"
-      command = "cat #{pub_file} >> #{key_file}"
+      command = "cat #{shell_arg(pub_file)} >> #{shell_arg(key_file)}"
       execute_command(values, message, command)
     end
     message = "Information:\tCreating SSH directory for root"
-    command = "mkdir -p #{values['clientdir']}/root/.ssh ; cd #{values['clientdir']} ; chown -R 0:0 root"
+    command = "mkdir -p #{shell_arg(values['clientdir'])}/root/.ssh ; cd #{shell_arg(values['clientdir'])} ; chown -R 0:0 root"
     execute_command(values, message, command)
     # Copy root keys
     rsa_file = '/root/.ssh/id_rsa.pub'
@@ -209,29 +209,29 @@ def standard_zone_post_install(values)
       next unless File.exist?(pub_file)
 
       message = "Information:\tCopying SSH public key #{pub_file} to #{key_file}"
-      command = "cat #{pub_file} >> #{key_file}"
+      command = "cat #{shell_arg(pub_file)} >> #{shell_arg(key_file)}"
       execute_command(values, message, command)
     end
     # Fix permissions
     message = "Information:\tFixing SSH permissions for #{admin_username}"
-    command = "cd #{values['clientdir']}/export/home ; chown -R #{admin_uid}:#{admin_gid} #{admin_username}"
+    command = "cd #{shell_arg(values['clientdir'])}/export/home ; chown -R #{shell_arg(admin_uid)}:#{shell_arg(admin_gid)} #{shell_arg(admin_username)}"
     execute_command(values, message, command)
     message = "Information:\tFixing SSH permissions for root "
-    command = "cd #{values['clientdir']} ; chown -R 0:0 root"
+    command = "cd #{shell_arg(values['clientdir'])} ; chown -R 0:0 root"
     execute_command(values, message, command)
     # Add sudoers entry
     sudoers_file = "#{values['clientdir']}/etc/sudoers"
     message = "Information:\tCreating sudoers file #{sudoers_file}"
-    command = "cat #{sudoers_file} |grep -v '^#includedir' > #{tmp_file} ; cat #{tmp_file} > #{sudoers_file}"
+    command = "cat #{shell_arg(sudoers_file)} |grep -v '^#includedir' > #{shell_arg(tmp_file)} ; cat #{shell_arg(tmp_file)} > #{shell_arg(sudoers_file)}"
     execute_command(values, message, command)
     message = "Information:\tAdding sudoers include to #{sudoers_file}"
-    command = "echo '#includedir /etc/sudoers.d' >> #{sudoers_file} ; rm #{tmp_file}"
+    command = "echo '#includedir /etc/sudoers.d' >> #{shell_arg(sudoers_file)} ; rm #{shell_arg(tmp_file)}"
     execute_command(values, message, command)
     sudoers_dir = "#{values['clientdir']}/etc/sudoers.d"
     check_dir_exists(values, sudoers_dir)
     sudoers_file = "#{sudoers_dir}/#{admin_username}"
     message = "Information:\tCreating sudoers file #{sudoers_file}"
-    command = "echo '#{admin_username} ALL=(ALL) NOPASSWD:ALL' > #{sudoers_file}"
+    command = "echo '#{shell_sq(admin_username)} ALL=(ALL) NOPASSWD:ALL' > #{shell_arg(sudoers_file)}"
     execute_command(values, message, command)
   else
     warning_message(values, "Zone #{values['name']} does not exist")
@@ -265,7 +265,7 @@ def branded_zone_post_install(values)
     file.write("\n")
     file.close
     message = "Information:\tCreating post install script #{post_file}"
-    command = "cp #{tmp_file} #{post_file} ; rm #{tmp_file}"
+    command = "cp #{shell_arg(tmp_file)} #{shell_arg(post_file)} ; rm #{shell_arg(tmp_file)}"
     execute_command(values, message, command)
   else
     warning_message(values, "Zone #{values['name']} does not exist")
@@ -280,7 +280,7 @@ def create_branded_zone(_option)
   check_branded_zone_pkg(values)
   if Files.exists?(values['image'])
     message = "Information:\tInstalling Branded Zone #{values['name']}"
-    command = "cd /tmp ; #{values['image']} -p #{values['zonedir']} -i #{values['vmnic']} -z #{values['name']} -f"
+    command = "cd /tmp ; #{shell_arg(values['image'])} -p #{shell_arg(values['zonedir'])} -i #{shell_arg(values['vmnic'])} -z #{shell_arg(values['name'])} -f"
     execute_command(values, message, command)
   else
     warning_message(values, "Image file #{values['image']} does not exist")
@@ -294,7 +294,7 @@ end
 
 def check_zone_doesnt_exist(values)
   message = "Information:\tChecking Zone #{values['name']} does not exist"
-  command = "zoneadm list -cv |awk '{print $2}' |grep '#{values['name']}'"
+  command = "zoneadm list -cv |awk '{print $2}' |grep '#{shell_sq(values['name'])}'"
   execute_command(values, message, command)
 end
 
@@ -347,10 +347,10 @@ end
 
 def install_zone(values)
   message = "Information:\tCreating Solaris #{values['release']} Zone #{values['name']} in #{values['zonedir']}"
-  command = "zonecfg -z #{values['name']} -f #{values['zone']}"
+  command = "zonecfg -z #{shell_arg(values['name'])} -f #{shell_arg(values['zone'])}"
   execute_command(values, message, command)
   message = "Information:\tInstalling Zone #{values['name']}"
-  command = "zoneadm -z #{values['name']} install"
+  command = "zoneadm -z #{shell_arg(values['name'])} install"
   execute_command(values, message, command)
   system("rm #{values['zone']}")
   nil
@@ -404,7 +404,7 @@ end
 
 def halt_zone(values)
   message = "Information:\tHalting Zone #{values['name']}"
-  command = "zoneadm -z #{values['name']} halt"
+  command = "zoneadm -z #{shell_arg(values['name'])} halt"
   execute_command(values, message, command)
   nil
 end
@@ -414,10 +414,10 @@ end
 def unconfigure_zone(values)
   halt_zone(values)
   message = "Information:\tUninstalling Zone #{values['name']}"
-  command = "zoneadm -z #{values['name']} uninstall -F"
+  command = "zoneadm -z #{shell_arg(values['name'])} uninstall -F"
   execute_command(values, message, command)
   message = "Information:\tDeleting Zone #{values['name']} configuration"
-  command = "zonecfg -z #{values['name']} delete -F"
+  command = "zonecfg -z #{shell_arg(values['name'])} delete -F"
   execute_command(values, message, command)
   if values['yes'] == true
     values['zonedir'] = "#{values['zonedir']}/#{values['name']}"
@@ -432,7 +432,7 @@ end
 
 def get_zone_status(values)
   message = "Information:\tChecking Zone #{values['name']} is not running"
-  command = "zoneadm list -cv |grep ' #{values['name']} ' |awk '{print $3}'"
+  command = "zoneadm list -cv |grep ' #{shell_sq(values['name'])} ' |awk '{print $3}'"
   execute_command(values, message, command)
 end
 
@@ -440,7 +440,7 @@ end
 
 def boot_zone(values)
   message = "Information:\tBooting Zone #{values['name']}"
-  command = "zoneadm -z #{values['name']} boot"
+  command = "zoneadm -z #{shell_arg(values['name'])} boot"
   execute_command(values, message, command)
   system("zlogin #{values['name']}") if values['serial'] == true
   nil
@@ -452,7 +452,7 @@ def stop_zone(values)
   status = get_zone_status(values)
   unless status.match(/running/)
     message = "Information:\tStopping Zone #{values['name']}"
-    command = "zlogin #{values['name']} shutdown -y -g0 -i 0"
+    command = "zlogin #{shell_arg(values['name'])} shutdown -y -g0 -i 0"
     execute_command(values, message, command)
   end
   nil
@@ -478,7 +478,7 @@ def configure_zone(values)
   unless File.directory?(values['zonedir'])
     check_fs_exists(values, values['zonedir'])
     message = "Information:\tSetting mount point for #{values['zonedir']}"
-    command = "zfs set #{values['zpoolname']}#{values['zonedir']} mountpoint=#{values['zonedir']}"
+    command = "zfs set #{shell_arg(values['zpoolname'])}#{shell_arg(values['zonedir'])} mountpoint=#{shell_arg(values['zonedir'])}"
     execute_command(values, message, command)
   end
   values['zonedir'] = "#{values['zonedir']}/#{values['name']}"

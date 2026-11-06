@@ -20,17 +20,17 @@ def configure_ks_pxe_client(values)
   tmp_file      = '/tmp/pxecfg'
   if File.symlink?(test_file)
     message = "Information:\tRemoving old PXE boot file #{test_file}"
-    command = "rm #{test_file}"
+    command = "rm #{shell_arg(test_file)}"
     execute_command(values, message, command)
   end
   pxelinux_file = 'pxelinux.0'
   message = "Information:\tCreating PXE boot file for #{values['name']} with MAC address #{values['mac']}"
-  command = "cd #{values['tftpdir']} ; ln -s #{pxelinux_file} #{tftp_pxe_file}"
+  command = "cd #{shell_arg(values['tftpdir'])} ; ln -s #{shell_arg(pxelinux_file)} #{shell_arg(tftp_pxe_file)}"
   execute_command(values, message, command)
   if values['service'].to_s.match(/live/)
     iso_dir  = "#{values['tftpdir']}/#{values['service']}"
     message  = "Information:\tDetermining install ISO location"
-    command  = "ls #{iso_dir}/*.iso"
+    command  = "ls #{shell_arg(iso_dir)}/*.iso"
     iso_file = execute_command(values, message, command)
     iso_file = iso_file.chomp
     install_iso = File.basename(iso_file)
@@ -48,13 +48,13 @@ def configure_ks_pxe_client(values)
     install_package(values, 'grub-efi-amd64-signed') unless File.exist?(net_efi_file)
     unless File.exist?(shim_grub_file)
       message = "Information:\tCopying #{shim_efi_file} to #{shim_grub_file}"
-      command = "cp #{shim_efi_file} #{shim_grub_file}"
+      command = "cp #{shell_arg(shim_efi_file)} #{shell_arg(shim_grub_file)}"
       execute_command(values, message, command)
       check_file_owner(values, shim_grub_file, values['uid'])
     end
     unless File.exist?(net_grub_file)
       message = "Information:\tCopying #{net_efi_file} to #{net_grub_file}"
-      command = "cp #{net_efi_file} #{net_grub_file}"
+      command = "cp #{shell_arg(net_efi_file)} #{shell_arg(net_grub_file)}"
       execute_command(values, message, command)
       check_file_owner(values, net_grub_file, values['uid'])
     end
@@ -97,7 +97,7 @@ def configure_ks_pxe_client(values)
     if !File.exist?(ldlinux_link) && !File.symlink?(ldlinux_link)
       ldlinux_file = "#{values['service']}/images/pxeboot/netboot/ldlinux.c32"
       message = "Information:\tCreating symlink for ldlinux.c32"
-      command = "ln -s #{ldlinux_file} #{ldlinux_link}"
+      command = "ln -s #{shell_arg(ldlinux_file)} #{shell_arg(ldlinux_link)}"
       execute_command(values, message, command)
     end
   else
@@ -242,7 +242,7 @@ def configure_ks_pxe_client(values)
     print_contents_of_file(values, '', grub_file)
   end
   message = "Information:\tCreating PXE configuration file #{pxe_cfg_file}"
-  command = "cp #{tmp_file} #{pxe_cfg_file} ; rm #{tmp_file}"
+  command = "cp #{shell_arg(tmp_file)} #{shell_arg(pxe_cfg_file)} ; rm #{shell_arg(tmp_file)}"
   execute_command(values, message, command)
   print_contents_of_file(values, '', pxe_cfg_file)
   nil
@@ -281,7 +281,7 @@ def unconfigure_ks_pxe_client(values)
   if File.exist?(tftp_pxe_file)
     check_file_owner(values, ttftp_pxe_file, values['uid'])
     message = "Information:\tRemoving PXE boot file #{tftp_pxe_file} for #{values['name']}"
-    command = "rm #{tftp_pxe_file}"
+    command = "rm #{shell_arg(tftp_pxe_file)}"
     execute_command(values, message, command)
   end
   pxe_cfg_dir  = "#{values['tftpdir']}/pxelinux.cfg"
@@ -291,7 +291,7 @@ def unconfigure_ks_pxe_client(values)
   pxe_cfg_file = "#{pxe_cfg_dir}/#{pxe_cfg_file}"
   if File.exist?(pxe_cfg_file)
     message = "Information:\tRemoving PXE boot config file #{pxe_cfg_file} for #{values['name']}"
-    command = "rm #{pxe_cfg_file}"
+    command = "rm #{shell_arg(pxe_cfg_file)}"
     execute_command(values, message, command)
     if values['biostype'].to_s.match(/efi/)
       grub_file = "#{pxe_cfg_dir}/grub.cfg"
@@ -369,7 +369,7 @@ def configure_ks_client(values)
     input_file = values['kickstartfile'].to_s
     if input_file.match(/[a-z]/) && File.exist(input_file)
       message = "Information:\tCopying #{input_file} to #{output_file}"
-      command = "cp #{input_file} #{output_file}"
+      command = "cp #{shell_arg(input_file)} #{shell_arg(output_file)}"
       execute_command(values, message, command)
     else
       values = populate_ks_questions(values)
@@ -384,7 +384,7 @@ def configure_ks_client(values)
     input_file = values['autoyastfile'].to_s
     if input_file.match(/[a-z]/) && File.exist(input_file)
       message = "Information:\tCopying #{input_file} to #{output_file}"
-      command = "cp #{input_file} #{output_file}"
+      command = "cp #{shell_arg(input_file)} #{shell_arg(output_file)}"
       execute_command(values, message, command)
     else
       values = populate_ks_questions(values)
@@ -606,7 +606,7 @@ def populate_ks_post_list(values)
     check_dir_exists(values, key_dir)
     auth_file = "#{key_dir}/authorized_keys"
     message   = "Copying:\tSSH keys"
-    command   = "cp #{ssh_key} #{auth_file}"
+    command   = "cp #{shell_arg(ssh_key)} #{shell_arg(auth_file)}"
     execute_command(values, message, command)
     ssh_dir   = "#{admin_home}/.ssh"
     ssh_url   = "http://#{values['publisherhost']}/#{values['service']}/keys/authorized_keys"
@@ -764,7 +764,7 @@ def output_ks_header(values, output_file)
   end
   file.close
   message = "Creating:\tKickstart file #{output_file}"
-  command = "cp #{tmp_file} #{output_file} ; rm #{tmp_file}"
+  command = "cp #{shell_arg(tmp_file)} #{shell_arg(output_file)} ; rm #{shell_arg(tmp_file)}"
   execute_command(values, message, command)
   nil
 end
@@ -786,7 +786,7 @@ def output_ks_pkg_list(values, pkg_list, output_file)
   end
   file.close
   message = "Updating:\tKickstart file #{output_file}"
-  command = "cat #{tmp_file} >> #{output_file} ; rm #{tmp_file}"
+  command = "cat #{shell_arg(tmp_file)} >> #{shell_arg(output_file)} ; rm #{shell_arg(tmp_file)}"
   execute_command(values, message, command)
   nil
 end
@@ -798,11 +798,11 @@ def output_ks_post_list(values, post_list, output_file)
   if values['service'].to_s.match(/centos|fedora|rhel|sl_|oel|rocky|alma/)
     file = File.open(tmp_file, 'a')
     output = "\n%post\n"
-    command = "cat #{tmp_file} >> #{output_file} ; rm #{tmp_file}"
+    command = "cat #{shell_arg(tmp_file)} >> #{shell_arg(output_file)} ; rm #{shell_arg(tmp_file)}"
   else
     file = File.open(tmp_file, 'w')
     output  = "#!/bin/sh\n"
-    command = "cp #{tmp_file} #{output_file} ; rm #{tmp_file}"
+    command = "cp #{shell_arg(tmp_file)} #{shell_arg(output_file)} ; rm #{shell_arg(tmp_file)}"
   end
   file.write(output)
   post_list.each do |line|

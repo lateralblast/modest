@@ -149,7 +149,7 @@ def create_zone_profile_xml(output_file)
   end
   file.close
   message = "Checking:\tClient profile #{output_file}"
-  command = "xmllint #{output_file}"
+  command = "xmllint #{shell_arg(output_file)}"
   execute_command(values, message, command)
   nil
 end
@@ -275,7 +275,7 @@ def create_ai_client_profile(values, output_file)
   end
   file.close
   message = "Checking:\tClient profile #{output_file}"
-  command = "xmllint #{output_file}"
+  command = "xmllint #{shell_arg(output_file)}"
   execute_command(values, message, command)
   nil
 end
@@ -403,7 +403,7 @@ def create_ai_manifest(values, output_file)
   end
   file.close
   message = "Information:\tChecking service profile #{output_file}"
-  command = "xmllint #{output_file}"
+  command = "xmllint #{shell_arg(output_file)}"
   execute_command(values, message, command)
   nil
 end
