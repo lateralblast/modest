@@ -444,13 +444,13 @@ def set_vbox_bin(values)
         values['vm'] = 'none'
       end
     end
-    values['vboxmanage'] = `which VBoxManage`.chomp
+    values['vboxmanage'] = which_program('VBoxManage')
     if !values['vboxmanage'].to_s.match(/VBoxManage/) || values['vboxmanage'].to_s.match(/no VBoxManage/)
       warning_message(values, 'Could not find VBoxManage')
       values['vm'] = 'none'
     end
   else
-    values['vboxmanage'] = `which vboxmanage`.chomp
+    values['vboxmanage'] = which_program('vboxmanage')
     if !values['vboxmanage'].to_s.match(/vboxmanage/) || values['vboxmanage'].to_s.match(/no vboxmanage/)
       warning_message(values, 'Could not find vboxmanage')
       values['vm'] = 'none'

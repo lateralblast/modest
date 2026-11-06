@@ -556,16 +556,16 @@ def handle_admin_user_values(values)
                                 if values['vm'].to_s.match(/aws/)
                                   values['awsuser']
                                 else
-                                  `whoami`.chomp
+                                  host_user
                                 end
                               elsif values['id']
                                 values['awsuser']
                               else
-                                `whoami`.chomp
+                                host_user
                               end
       end
     else
-      values['adminuser'] = `whoami`.chomp
+      values['adminuser'] = host_user
     end
   end
   values
@@ -629,7 +629,7 @@ end
 def handle_clone_values(values)
   if values['clone'] == values['empty']
     if values['action'] == 'snapshot'
-      clone_date = `date`.chomp.downcase.gsub(/ |:/, '_')
+      clone_date = host_date.downcase.gsub(/ |:/, '_')
       values['clone'] = "#{values['name']}-#{clone_date}"
     end
     information_message(values, "Setting clone name to #{values['clone']}") if values['verbose'] == true && values['clone']

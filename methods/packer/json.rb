@@ -241,7 +241,7 @@ def create_packer_json(values)
   values['guest'] = values['guest'].join if values['guest'].instance_of?(Array)
   if values['service'].to_s.match(/sol/)
     if values['copykeys'] == true && File.exist?(values['sshkeyfile'].to_s)
-      ssh_key = `cat #{shell_arg(values['sshkeyfile'])}`.chomp
+      ssh_key = file_command_output("cat #{shell_arg(values['sshkeyfile'])}").chomp
       ssh_dir = "/export/home/#{values['answers']['admin_username'].value}/.ssh"
       ssh_com = "<wait>mkdir -p #{ssh_dir}<enter>" \
                 "<wait>chmod 700 #{ssh_dir}<enter>" \

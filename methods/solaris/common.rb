@@ -272,7 +272,7 @@ def create_named_conf(values)
     execute_command(values, message, command)
     print_contents_of_file(values, '', named_conf)
   end
-  serial_no = "#{`date +%Y%m%d`.chomp}01"
+  serial_no = "#{host_date('%Y%m%d')}01"
   tmp_file  = '/tmp/forward'
   unless File.exist?(forward_file)
     file = File.open(tmp_file, 'w')

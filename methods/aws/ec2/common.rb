@@ -777,7 +777,7 @@ end
 # Check vagrant is installed
 
 def check_vagrant_is_installed(values, _osinfo)
-  $vagrant_bin = `which vagrant`.chomp
+  $vagrant_bin = which_program('vagrant')
   unless $vagrant_bin.match(/vagrant/)
     vagrant_pkg = if values['host-os-uname'].to_s.match(/Darwin/)
                     "vagrant_#{values['vagrantversion']}_#{values['host-os-uname'].downcase}.dmg"
@@ -833,7 +833,7 @@ end
 # Check AWS CLI is installed
 
 def check_if_aws_cli_is_installed(values)
-  aws_cli = `which aws`
+  aws_cli = which_program('aws')
   unless aws_cli.match(/aws/)
     warning_message(values, 'AWS CLI not installed')
     if values['host-os-uname'].to_s.match(/Darwin/)

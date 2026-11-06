@@ -64,7 +64,7 @@ def populate_ps_first_boot_list(values)
   if values['copykeys'] == true
     ssh_keyfile = values['sshkeyfile']
     if File.exist?(ssh_keyfile)
-      ssh_key = `cat #{shell_arg(ssh_keyfile)}`.chomp
+      ssh_key = file_command_output("cat #{shell_arg(ssh_keyfile)}").chomp
       ssh_dir = "#{install_target}/home/#{admin_user}/.ssh"
     end
   end

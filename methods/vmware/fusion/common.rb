@@ -1419,7 +1419,7 @@ def check_fusion_is_installed(values)
     end
   else
     values['vmapp'] = 'VMware Workstation'
-    values['vmrun'] = `which vmrun`.chomp
+    values['vmrun'] = which_program('vmrun')
     if !values['vmrun'].to_s.match(/vmrun/) && !values['vmrun'].to_s.match(/no vmrun/)
       warning_message(values, "#{values['vmapp']} not installed")
       quit(values)

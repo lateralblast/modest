@@ -6,6 +6,23 @@ newest first.
 
 ## modest.rb
 
+### [8.7.0] - 2026-11-06
+- Changed compound file operations to Ruby code: `cp`, `rm`, `mkdir`, `touch`, `rmdir`, `chmod` (numeric or `+x`), `ln -s`, `cat` and `echo` joined by `;` and written with `>` or `>>` now run in Ruby (see `methods/common/files.rb`)
+- A compound command is only run in Ruby if every part is supported and the current user can write its targets; otherwise the whole command runs in the shell, including `sudo`
+- Pipelines, `chown`, `cd`, globs, shell expansion, and quoted text containing `(`, `#` or `*` still run in the shell
+- Commands that write with `>` or `>>` are now skipped under `--dryrun`, except error redirects such as `2>` and `2>&1`
+
+### [8.6.0] - 2026-11-06
+- Changed simple file operations to Ruby code instead of shell commands: `cp`, `rm`, `rm -f`, `mkdir`, `mkdir -p`, `touch`, `rmdir`, `chmod` with a numeric mode, `ln -s` and `cat` on one file now use `FileUtils`, `Dir`, `File` (see `methods/common/files.rb`)
+- A simple file operation that needs privileges (`EACCES` or `EPERM`) still runs the existing shell command, including the `sudo` wrapper
+- Compound commands, pipelines, globs and quoted arguments still run in the shell
+- `rmdir` is now skipped under `--dryrun`
+
+### [8.5.0] - 2026-11-06
+- Changed host probes to Ruby code instead of shell commands: `uname`, `hostname`, `whoami`, `id -u`, `getent group`, `sysctl hw.ncpu`, `free -g`, `date` and `which` now use `Etc`, `Socket`, `ENV["PATH"]` and `/proc/meminfo` (see `methods/common/host.rb`)
+- `uname -p`, Solaris `which`, and the `ifconfig`, `netstat`, `lsb_release`, `dmidecode`, `sw_vers` and package-list probes still run their commands
+- Clone names built from the date now use the C locale date format rather than the shell `date` output for the current locale
+
 ### [8.4.9] - 2026-11-06
 - Fixed the `docker-machine ssh` command in `methods/docker/client.rb`, which had an unmatched `'` and could not run
 - Fixed the Solaris UFS extraction in `methods/solaris/jumpstart/server.rb`, which called `execute_command` without the `values` argument and raised an error

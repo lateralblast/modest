@@ -6,16 +6,16 @@ def set_os_defaults(values, defaults)
   defaults['strict'] = false
   defaults['home'] = ENV['HOME']
   defaults['user'] = ENV['USER']
-  defaults['host-os-uname']  = `uname`.chomp
+  defaults['host-os-uname']  = host_uname(:sysname)
   defaults['host-os-unamep'] = `uname -p`.chomp
-  defaults['host-os-unamem'] = `uname -m`.chomp
-  defaults['host-os-unamea'] = `uname -a`.chomp
-  defaults['host-os-unamer'] = `uname -r`.chomp
+  defaults['host-os-unamem'] = host_uname(:machine)
+  defaults['host-os-unamea'] = host_uname_all
+  defaults['host-os-unamer'] = host_uname(:release)
   defaults['host-os-packages'] = []
   if defaults['host-os-uname'].to_s.match(/Darwin/)
-    defaults['host-os-unamep'] = `uname -m`.chomp
+    defaults['host-os-unamep'] = host_uname(:machine)
     defaults['host-os-memory'] = `system_profiler SPHardwareDataType |grep Memory |awk '{print $2}'`.chomp
-    defaults['host-os-cpu'] = `sysctl hw.ncpu |awk '{print $2}'`
+    defaults['host-os-cpu'] = host_cpu_count
     defaults['host-os-packages'] = `/usr/local/bin/brew list`.split(/\s+|\n/) if File.exist?('/usr/local/bin/brew')
   elsif defaults['host-os-uname'].to_s.match(/Linux/)
     if defaults['host-os-unamea'].to_s.match(/Ubuntu/)
@@ -23,7 +23,7 @@ def set_os_defaults(values, defaults)
     elsif defaults['host-os-unamea'].to_s.match(/arch/)
       defaults['host-os-packages'] = `pacman -Q |awk '{print $1}'`.split(/\s+|\n/)
     end
-    defaults['host-os-memory'] = `free -g |grep ^Mem |awk '{print $2}'`.chomp
+    defaults['host-os-memory'] = host_memory_gb
     defaults['host-os-cpu']    = `cat /proc/cpuinfo |grep processor |wc -l`.chomp
   else
     defaults['host-os-memory'] = '1'
@@ -45,7 +45,7 @@ def set_os_defaults(values, defaults)
       if defaults['host-os-unamer'].to_s.match(/\./)
         defaults['host-os-version'] = defaults['host-os-unamer'].to_s.split(/\./)[1] if defaults['host-os-unamer'].to_s.match(/^5/)
         if defaults['host-os-version'].to_s.match(/^11/)
-          os_version_string = `uname -v`.chomp
+          os_version_string = host_uname(:version)
           defaults['host-os-update'] = os_version_string.split(/\./)[1] if os_version_string.match(/\./)
         end
       elsif defaults['host-os-revision'].to_s.match(/Oracle/)
@@ -139,7 +139,7 @@ end
 
 def set_vm_defaults(values, defaults)
   if defaults['host-os-unamep'].to_s.match(/sparc/)
-    defaults['valid-vm'] = %w[zone cdom gdom aws] if (defaults['host-os-major'] = `uname -r`.split(/\./)[1].to_i > 9)
+    defaults['valid-vm'] = %w[zone cdom gdom aws] if (defaults['host-os-major'] = host_uname(:release).split(/\./)[1].to_i > 9)
   else
     case defaults['host-os-uname']
     when /not recognised/
@@ -524,10 +524,10 @@ end
 # Set user defaults
 
 def set_user_defaults(values, defaults)
-  defaults['uid']  = `/usr/bin/id -u`.chomp
+  defaults['uid']  = host_uid
   defaults['uid']  = Integer(defaults['uid'])
   defaults['uuid'] = ''
-  defaults['user'] = `whoami`.chomp
+  defaults['user'] = host_user
   [values, defaults]
 end
 
@@ -622,7 +622,7 @@ def set_ip_defaults(values, defaults)
   defaults['netmask']     = '255.255.255.0'
   defaults['domainname']  = 'lab.net'
   defaults['environment'] = 'en_US.UTF-8'
-  defaults['hostname']    = `'hostname'`.chomp
+  defaults['hostname']    = host_hostname
   defaults['hostnet']     = '192.168.1.0'
   defaults['hosts']       = 'files dns'
   defaults['nameserver']  = '8.8.8.8'

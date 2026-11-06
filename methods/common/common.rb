@@ -128,7 +128,7 @@ end
 
 def get_my_ip(values)
   message = "Information:\tDetermining IP of local machine"
-  values['host-os-uname'] = `uname` unless values['host-os-uname'].to_s.match(/[a-z]/)
+  values['host-os-uname'] = host_uname(:sysname) unless values['host-os-uname'].to_s.match(/[a-z]/)
   command = if values['host-os-uname'].to_s.match(/Darwin/)
               'ipconfig getifaddr en0'
             elsif values['host-os-uname'].to_s.match(/SunOS/)
@@ -1237,7 +1237,7 @@ def get_install_service_from_file(values)
     isofile_bin = %(which isofile).chomp
     if isofile_bin.match(/not found/)
       values = install_package('cdrtools')
-      isofile_bin = `which isofile`.chomp
+      isofile_bin = which_program('isofile')
       if isofile_bin.match(/not found/)
         warning_message(values, 'Utility isofile not found')
         quit(values)
@@ -1255,7 +1255,7 @@ def get_install_service_from_file(values)
     mount_iso(values)
     wim_file = "#{values['mountdir']}/sources/install.wim"
     if File.exist?(wim_file)
-      wiminfo_bin = `which wiminfo`
+      wiminfo_bin = which_program('wiminfo')
       unless wiminfo_bin.match(/wiminfo/)
         if values['host-os-uname'].to_s.match(/Darwin/)
           install_package(values, 'wimlib')
@@ -1264,7 +1264,7 @@ def get_install_service_from_file(values)
         else
           install_package(values, 'wimtools')
         end
-        wiminfo_bin = `which wiminfo`
+        wiminfo_bin = which_program('wiminfo')
         unless wiminfo_bin.match(/wiminfo/)
           warning_message(values, 'Cannnot find wiminfo (required to determine version of windows from ISO)')
           quit(values)
@@ -2122,7 +2122,7 @@ end
 def check_file_owner(values, file_name, file_uid)
   message = "Information:\tChecking file #{file_name} is owned by user #{file_uid}"
   verbose_message(values, message)
-  file_uid = `id -u #{shell_arg(file_uid)}` if file_uid.to_s.match(/[a-z]/)
+  file_uid = host_user_id(file_uid) if file_uid.to_s.match(/[a-z]/)
   if File.exist?(file_name)
     test_uid = File.stat(file_name).uid
     if test_uid != file_uid.to_i
@@ -2145,9 +2145,8 @@ end
 
 def get_group_gid(values, group)
   message = "Information:\tGetting GID of #{group}"
-  command = "getent group #{shell_arg(group)} |cut -f3 -d:"
-  output  = execute_command(values, message, command)
-  output.chomp
+  verbose_message(values, message)
+  host_group_id(group)
 end
 
 # Check file group ownership
@@ -3357,7 +3356,7 @@ def execute_command(values, message, command)
   return if command.match(/prlctl/) && !values['host-os-uname'].to_s.match(/Darwin/)
 
   if command.match(/prlctl/)
-    parallels_test = `which prlctl`.chomp
+    parallels_test = which_program('prlctl')
     return unless parallels_test.match(/prlctl/)
   end
 
@@ -3365,7 +3364,7 @@ def execute_command(values, message, command)
   execute = false
   verbose_message(values, message) if (values['verbose'] == true) && message.match(/[a-z,A-Z,0-9]/)
   if values['dryrun'] == true
-    execute = true unless command.match(/\b(create|id|groups|update|import|delete|svccfg|rsync|cp|touch|svcadm|VBoxManage|vboxmanage|vmrun|docker|rm|convert|cloud-localds|chown|chmod|restart|stop|start|resize|mkdir|mv|ln|umount|mount|apt-get|yum|tar|tee|kill|pkill|dd|install|reboot|shutdown|halt|poweroff|mkisofs|genisoimage)\b|sed -i/)
+    execute = true unless command.match(/\b(create|id|groups|update|import|delete|svccfg|rsync|cp|touch|svcadm|VBoxManage|vboxmanage|vmrun|docker|rm|rmdir|convert|cloud-localds|chown|chmod|restart|stop|start|resize|mkdir|mv|ln|umount|mount|apt-get|yum|tar|tee|kill|pkill|dd|install|reboot|shutdown|halt|poweroff|mkisofs|genisoimage)\b|sed -i|(?<![0-9&])>/)
   else
     execute = true
   end
@@ -3406,7 +3405,7 @@ def execute_command(values, message, command)
         sudo_check = if values['host-os-uname'].to_s.match(/Darwin/)
                        `dscacheutil -q group -a name admin |grep users`
                      else
-                       `getent group #{shell_arg(values['sudogroup'])}`.chomp
+                       host_group_line(values['sudogroup'])
                      end
         unless sudo_check.match(/#{values['user']}/)
           warning_message(values, "User #{values['user']} is not in sudoers group #{values['sudogroup']}")
@@ -3417,9 +3416,9 @@ def execute_command(values, message, command)
     execute_message(values, command)
     if values['executehost'].to_s.match(/localhost/)
       if (values['dryrun'] == true) && (execute == true)
-        output = `#{command}`
+        output = file_command_output(command)
       elsif values['dryrun'] == false
-        output = `#{command}`
+        output = file_command_output(command)
       end
     else
       #      Net::SSH.start(values['server'], values['serveradmin'], :password => values['serverpassword'], :verify_host_key => "never") do |ssh_session|

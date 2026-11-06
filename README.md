@@ -4,7 +4,7 @@
 MODEST
 ======
 
-Version: 8.4.9
+Version: 8.7.0
 
 License
 -------

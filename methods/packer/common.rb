@@ -12,7 +12,7 @@ end
 
 def check_packer_is_installed(values)
   packer_bin = if values['packer'] == values['empty']
-                 `which packer`.chomp
+                 which_program('packer')
                else
                  values['packer'].to_s
                end
@@ -20,7 +20,7 @@ def check_packer_is_installed(values)
   if !packer_bin.match(/packer/) || !File.exist?(packer_bin)
     if values['host-os-uname'].to_s.match(/Darwin/)
       install_osx_package(values, 'packer')
-      packer_bin = `which packer`.chomp
+      packer_bin = which_program('packer')
     else
       if values['host-os-unamem'].to_s.match(/64/)
         packer_bin = "packer_#{packer_version}_#{values['host-os-uname'].downcase}_amd64.zip"

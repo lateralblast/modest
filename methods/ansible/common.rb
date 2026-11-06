@@ -12,7 +12,7 @@ end
 
 def check_ansible_is_installed(_values)
   check_python_module_is_installed('boto')
-  ansible_bin = `which ansible`.chomp
+  ansible_bin = which_program('ansible')
   install_package('ansible') if !ansible_bin.match(/ansible/) || ansible_bin.match(/no /)
   nil
 end
