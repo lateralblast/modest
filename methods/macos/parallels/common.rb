@@ -540,3 +540,43 @@ def unconfigure_parallels_vm(values)
   execute_command(values, message, command)
   nil
 end
+
+# Check Parallels Desktop is installed on macOS, reporting its version and whether prlctl is present
+
+def check_parallels(values)
+  information_message(values, 'Checking Parallels Desktop is installed')
+  unless values['host-os-uname'].to_s.match(/Darwin/)
+    warning_message(values, 'Parallels Desktop runs on macOS only')
+    return nil
+  end
+  app = '/Applications/Parallels Desktop.app'
+  unless File.directory?(app)
+    warning_message(values, 'Parallels Desktop is not installed (no /Applications/Parallels Desktop.app)')
+    install_parallels(values)
+    return nil
+  end
+  version = `defaults read "#{app}/Contents/Info.plist" CFBundleShortVersionString`.strip
+  information_message(values, "Parallels Desktop #{version} is installed at #{app}")
+  warning_message(values, 'prlctl not found on PATH') if which_program('prlctl').empty?
+  nil
+end
+
+# Install Parallels Desktop with Homebrew (used by --check parallels --install).
+# Parallels is commercial software, so activation and licensing are left to the user after install.
+
+def install_parallels(values)
+  return nil unless values['install-check'] == true
+
+  if which_program('brew').empty?
+    warning_message(values, 'Cannot install Parallels Desktop: Homebrew (brew) is not installed')
+    return nil
+  end
+  if values['dryrun'] == true
+    information_message(values, 'Dry run: would install Parallels Desktop with Homebrew (brew install --cask parallels)')
+    return nil
+  end
+  message = "Information:\tInstalling Parallels Desktop with Homebrew"
+  command = 'brew install --cask parallels'
+  execute_command(values, message, command)
+  nil
+end

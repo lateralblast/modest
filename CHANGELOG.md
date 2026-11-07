@@ -6,6 +6,74 @@ newest first.
 
 ## modest.rb
 
+### [9.1.1] - 2026-11-07
+- Added `--check parallels` (macOS): reports whether Parallels Desktop is installed at `/Applications/Parallels Desktop.app`, its version, and whether `prlctl` is on the PATH
+- `--check parallels --install` installs Parallels Desktop with `brew install --cask parallels`. Parallels is commercial software, so licensing and activation are left to the user. Under `--dryrun` it reports what would be installed
+
+### [9.1.0] - 2026-11-07
+- The `Executing: ipconfig getifaddr en0` line is no longer printed on every run. The local IP probe that makes it still runs, and it is no longer echoed as a command
+
+### [9.0.9] - 2026-11-07
+- `--help` shows `--check` and `--install` without the option type (`OPTIONAL]`), as it already did for required and boolean switches
+
+### [9.0.8] - 2026-11-07
+- Added `--check fusion` (macOS): reports whether VMware Fusion is installed at `/Applications/VMware Fusion.app`, its version, and whether `vmrun` is present. On Linux it explains that Fusion runs on macOS only
+- Added `--check workstation` (Linux): reports whether VMware Workstation (`vmware`) is installed, its version, and whether `vmrun` is on the PATH. On macOS it explains that Workstation runs on Linux only
+- `--install` with either check does not install the product, because VMware does not publish it through Homebrew or apt. It prints where to download it
+
+### [9.0.7] - 2026-11-07
+- `--check virtualbox` recognises the Extension Pack under its current name, `Oracle VirtualBox Extension Pack` (VirtualBox 7.2 drops the `VM`), as well as the older `Oracle VM VirtualBox Extension Pack`. Previously a successful install was reported as not installed
+
+### [9.0.6] - 2026-11-07
+- The VirtualBox Extension Pack install now runs in the terminal, not with captured input. The Oracle licence is shown and answered by the user there, and `sudo` can ask for a password. Previously the tool answered the licence prompt for the user, and that input clashed with `sudo`
+- The install no longer answers the Oracle licence for the user on macOS and other hosts. On Debian and Ubuntu it still pre-accepts the licence through debconf, so the package install can run unattended
+
+### [9.0.5] - 2026-11-07
+- The VirtualBox Extension Pack install reports each step: the download, then the install with `sudo` (which may ask for a password), so it is visible when the install is waiting for input
+
+### [9.0.4] - 2026-11-07
+- Fixed the VirtualBox Extension Pack install failing with a name mismatch: the download is now saved under its official file name (`Oracle_VirtualBox_Extension_Pack-<version>.vbox-extpack`), which VBoxManage checks against the pack's internal name
+- The Extension Pack install now runs VBoxManage with `sudo` unless the tool is already root, because it writes under `/Library`
+
+### [9.0.3] - 2026-11-07
+- When the VirtualBox Extension Pack install fails, the warning now includes the last lines of VBoxManage's own output and its exit status, instead of only saying that it failed
+
+### [9.0.2] - 2026-11-07
+- `--check virtualbox` now reports whether the Oracle VM VirtualBox Extension Pack is installed (`VBoxManage list extpacks`)
+- `--check virtualbox --install` installs the Extension Pack matching the installed VirtualBox version. On Debian and Ubuntu it installs `virtualbox-ext-pack`; elsewhere (macOS) it downloads the pack from virtualbox.org and installs it with `VBoxManage extpack install`. If the download fails, a warning gives the manual install page. Under `--dryrun` it reports what would be installed
+- Installing the Extension Pack accepts its licence (the Oracle VM VirtualBox Extension Pack licence) on the user's behalf
+
+### [9.0.1] - 2026-11-07
+- Added `--install`. Given with `--check` and no value, it installs what the check finds missing. `--install VALUE` keeps its existing meaning (the install type, for example `--install none`)
+- `--check virtualbox --install` installs VirtualBox: with `brew install --cask virtualbox` on macOS, and the `virtualbox` package through the Linux package manager. Solaris and Windows are reported as unsupported. Under `--dryrun` it reports what would be installed
+- `--install` with no value and no `--check` is an error
+
+### [9.0.0] - 2026-11-07
+- Added `--check virtualbox` (also accepted: `--check vbox`). It reports whether VBoxManage (or `vboxmanage` on Windows) is on the PATH, and if so the VirtualBox version and location. The version is read even under `--dryrun`, since it is read-only
+- `--check` with no parameter lists `virtualbox` with the other parameters
+
+### [8.9.9] - 2026-11-07
+- `--check` with no parameter now prints that no parameter was given, with the available parameters (`perms` also accepted as `dir`, `dnsmasq`, `dhcp`, `tftp`), and exits with status 1, instead of running the permissions check
+
+### [8.9.8] - 2026-11-07
+- Fixed the macOS service helpers (`refresh_osx_service`, `enable_osx_service`, `disable_osx_service`) being called with `values` but defined without it. `--check dhcp` and `--check tftp` now run to the end instead of raising an error
+
+### [8.9.7] - 2026-11-07
+- `--check perms` names the client directory it checks, and `--check dnsmasq` announces the dnsmasq check before running it
+
+### [8.9.6] - 2026-11-07
+- Changed the `Setting value for ...` messages for default values to verbose-only, so they show with `--verbose` and not on every run. `--check` now shows only the check it is running
+
+### [8.9.5] - 2026-11-07
+- Fixed `--dryrun` running mutating commands that were missing from the denylist, including `launchctl load`, `hdiutil`, `pfctl`, `ipfw`, `natd`, `chcon`, `chgrp`, and the platform CLIs that change state (`virsh`, `prlctl`, `multipass`, `zfs`, `ldm` and others). Under `--dryrun` these calls are now skipped, which also skips their read-only calls
+- `ifconfig ... up` and `sysctl -w` are skipped under `--dryrun`
+
+### [8.9.4] - 2026-11-07
+- Fixed the macOS dnsmasq, DHCP and TFTP checks calling `install_brew_pkg` with one argument instead of `values` and a package name, which raised an `ArgumentError`
+
+### [8.9.3] - 2026-11-07
+- Changed `--check` to take an optional value. A bare `--check` checks permissions (`perms`), and `--check` with a value selects the check action unless `--action` is given, so `--check dnsmasq` runs the dnsmasq check. Previously a bare `--check` printed the help
+
 ### [8.9.2] - 2026-11-07
 - Fixed `--version`, `--help`, `--changelog` and `--usage` printing every default setting and `Executing:` line before their output. These switches are now answered before defaults are worked out, and they exit directly
 - Fixed an invalid option printing the help and then carrying on with an empty configuration. It now exits with status 1

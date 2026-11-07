@@ -140,7 +140,10 @@ def get_my_ip(values)
             else
               "hostname -I |awk \"{print \\\$1}\""
             end
-  output = execute_command(values, message, command)
+  # Read-only probe run on every start: report it with --verbose only, rather than echoing it as Executing
+  verbose_message(values, message)
+  verbose_message(values, "Executing:\t#{command}")
+  output = `#{command}`
   output = output.chomp
   output = output.strip
   output = output.gsub(/\s+|\n/, '')
@@ -224,7 +227,7 @@ def print_help(values)
     switches     = line.split(/,/)
     long_switch  = switches[0].gsub(/\[/, '').gsub(/\s+/, '')
     short_switch = switches[1].gsub(/\s+/, '')
-    short_switch = '' if short_switch.match(/REQ|BOOL/)
+    short_switch = '' if short_switch.match(/REQ|BOOL|OPT/)
     if long_switch.gsub(/\s+/, '').length < 7
       verbose_message(values, "#{long_switch},\t\t\t#{short_switch}\t#{help_info}")
     elsif long_switch.gsub(/\s+/, '').length < 15
@@ -2968,6 +2971,7 @@ end
 # Check dnsmasq
 
 def check_dnsmasq(values)
+  information_message(values, 'Checking dnsmasq')
   check_linux_dnsmasq(values) if values['host-os-uname'].to_s.match(/Linux/)
   check_osx_dnsmasq(values) if values['host-os-uname'].to_s.match(/Darwin/)
   nil
@@ -3363,7 +3367,7 @@ def execute_command(values, message, command)
   execute = false
   verbose_message(values, message) if (values['verbose'] == true) && message.match(/[a-z,A-Z,0-9]/)
   if values['dryrun'] == true
-    execute = true unless command.match(/\b(create|id|groups|update|import|delete|svccfg|rsync|cp|touch|svcadm|VBoxManage|vboxmanage|vmrun|docker|rm|rmdir|convert|cloud-localds|chown|chmod|restart|stop|start|resize|mkdir|mv|ln|umount|mount|apt-get|yum|tar|tee|kill|pkill|dd|install|reboot|shutdown|halt|poweroff|mkisofs|genisoimage)\b|sed -i|(?<![0-9&])>/)
+    execute = true unless command.match(/\b(create|id|groups|update|import|delete|svccfg|rsync|cp|touch|svcadm|VBoxManage|vboxmanage|vmrun|docker|rm|rmdir|convert|cloud-localds|chown|chgrp|chmod|restart|stop|start|resize|mkdir|mv|ln|umount|mount|apt-get|yum|tar|tee|kill|pkill|dd|install|reboot|shutdown|halt|poweroff|mkisofs|genisoimage|launchctl|hdiutil|pfctl|ipfw|natd|setsebool|chcon|dscl|vim-cmd|zfs|zpool|ldm|virsh|virt-install|prlctl|prlsrvctl|multipass|installadm|pkgadd|pkgrepo|zoneadm|zonecfg|zlogin|useradd|usermod|groupadd|passwd|lftp|wget|git|cygstart|netsh|mkfile)\b|sed -i|sysctl -w|ifconfig.* up$|(?<![0-9&])>/)
   else
     execute = true
   end
@@ -4241,7 +4245,7 @@ def get_method_from_service(service)
 end
 
 def check_perms(values)
-  information_message(values, 'Checking client directory')
+  information_message(values, "Checking permissions of client directory #{values['clientdir']}")
   check_dir_exists(values, values['clientdir'])
   check_dir_owner(values, values['clientdir'], values['uid'])
   nil

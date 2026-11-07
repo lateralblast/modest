@@ -216,7 +216,7 @@ def process_values(values, defaults)
                           end
     end
     values['output'] = 'text'
-    information_message(values, "Setting value for #{raw_param} to #{values[raw_param]}")
+    verbose_message(values, "Setting value for #{raw_param} to #{values[raw_param]}")
   end
   # Do a final check through defaults
   defaults.each_key do |param|
@@ -224,7 +224,7 @@ def process_values(values, defaults)
 
     values[param] = defaults[param]
     values['output'] = 'text'
-    information_message(values, "Setting value for #{param} to #{values[param]}")
+    verbose_message(values, "Setting value for #{param} to #{values[param]}")
   end
   if (values['action'] == 'info') && values['info'].match(/os/) && param.match(/^os/)
     values['output'] = 'text'

@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      8.9.2
+# Version:      9.1.1
 # Release:      1
 # License:      CC BY-NC-SA (Creative Commons Attribution-NonCommercial-ShareAlike)
 #               http://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
@@ -220,7 +220,7 @@ begin
     ['--changelog', BOOLEAN],           # Print changelog
     ['--channel', BOOLEAN],             # Channel (KVM)
     ['--nochannel', BOOLEAN],           # No channel (KVM)
-    ['--check', REQUIRED],              # Check
+    ['--check', OPTIONAL],              # Check: perms, dir, dnsmasq, dhcp or tftp (bare --check checks permissions)
     ['--checknat', BOOLEAN],            # Check NAT configuration
     ['--checksum', BOOLEAN],            # Do checksums
     ['--nochecksum', BOOLEAN],          # Do not do checksums
@@ -337,7 +337,7 @@ begin
     ['--info', REQUIRED],               # Used with info option
     ['--initrd-inject', REQUIRED],      # Inject initrd (KVM)
     ['--inputfile', REQUIRED],          # Input file (KVM)
-    ['--install', REQUIRED],            # Install (KVM)
+    ['--install', OPTIONAL],            # Install (KVM); given alone with --check, installs what the check finds missing
     ['--installdrivers', BOOLEAN],      # Install Drivers
     ['--dontinstalldrivers', BOOLEAN],  # Do not install Drivers
     ['--installsecurity', BOOLEAN],     # Install Security Updates
@@ -627,6 +627,36 @@ if values['usage'].to_s.match?(/\S/) && (values['usage'] != 'none')
   values['output'] = 'text'
   print_usage(values)
   exit
+end
+
+# --check selects the check action unless an action was given. --check needs a parameter; without one, list the choices.
+
+# A bare --install (no value) installs what --check finds missing. --install VALUE keeps its install-type meaning.
+
+if values.key?('install') && values['install'].to_s.empty?
+  values.delete('install')
+  values['install-check'] = true
+end
+
+if values['install-check'] == true && !values.key?('check')
+  $stderr.puts 'Error:  --install with no value needs --check, for example: --check virtualbox --install'
+  exit 1
+end
+
+if values.key?('check')
+  if values['check'].to_s.empty?
+    puts 'No parameter given to --check. Available parameters:'
+    puts '  perms       check client directory permissions (also accepted: dir)'
+    puts '  dnsmasq     check dnsmasq configuration'
+    puts '  dhcp        check DHCP server configuration'
+    puts '  tftp        check TFTP server configuration'
+    puts '  virtualbox  check VirtualBox is installed (also accepted: vbox)'
+    puts '  fusion      check VMware Fusion is installed (macOS)'
+    puts '  workstation check VMware Workstation is installed (Linux)'
+    puts '  parallels   check Parallels Desktop is installed (macOS)'
+    exit 1
+  end
+  values['action'] = 'check' if values['action'].nil?
 end
 
 # Reject unsafe shell-bound values before defaults or normalisers run any command with them

@@ -1247,3 +1247,116 @@ def unconfigure_vbox_vm(values)
   delete_vbox_vm_config(values)
   exists
 end
+
+# Check VirtualBox is installed, reporting the location and version of VBoxManage
+
+def check_virtualbox(values)
+  information_message(values, 'Checking VirtualBox is installed')
+  vboxmanage = find_vboxmanage
+  if vboxmanage.empty?
+    warning_message(values, 'VirtualBox is not installed (VBoxManage not found on PATH)')
+    install_virtualbox(values) if values['install-check'] == true
+    vboxmanage = find_vboxmanage
+    return nil if vboxmanage.empty?
+  end
+  # Read-only, so it runs under --dryrun too (execute_command would skip it as a VBoxManage call)
+  version = `#{shell_arg(vboxmanage)} --version`.strip
+  information_message(values, "VirtualBox #{version} is installed at #{vboxmanage}")
+  if extension_pack_installed?(values, vboxmanage)
+    information_message(values, 'VirtualBox Extension Pack is installed')
+  else
+    warning_message(values, 'VirtualBox Extension Pack is not installed')
+    install_virtualbox_extension_pack(values, version) if values['install-check'] == true
+  end
+  nil
+end
+
+# Return true if the Oracle VM VirtualBox Extension Pack is listed by VBoxManage (read-only, so it runs under --dryrun)
+
+def extension_pack_installed?(_values, vboxmanage)
+  # VirtualBox has used both "Oracle VM VirtualBox Extension Pack" and "Oracle VirtualBox Extension Pack"
+  `#{shell_arg(vboxmanage)} list extpacks`.match?(/Oracle (VM )?VirtualBox Extension Pack/)
+end
+
+# Install the VirtualBox Extension Pack matching the installed version.
+# Installing it accepts the Oracle VM VirtualBox Extension Pack licence (PUEL) on the user's behalf.
+
+def install_virtualbox_extension_pack(values, version)
+  if values['dryrun'] == true
+    information_message(values, 'Dry run: would install the VirtualBox Extension Pack (accepting its licence)')
+    return nil
+  end
+  if File.exist?('/etc/debian_version')
+    # Pre-accept the licence so apt does not stop to ask
+    message = "Information:\tAccepting the VirtualBox Extension Pack licence"
+    command = "echo 'virtualbox-ext-pack virtualbox-ext-pack/license select true' | debconf-set-selections"
+    execute_command(values, message, command)
+    install_linux_package(values, 'virtualbox-ext-pack')
+  else
+    install_extension_pack_download(values, version)
+  end
+  nil
+end
+
+# Download the extension pack for this version from virtualbox.org and install it with VBoxManage
+
+def install_extension_pack_download(values, version)
+  require 'open3'
+  base_version = version.split('r').first.to_s
+  url = "https://download.virtualbox.org/virtualbox/#{base_version}/Oracle_VirtualBox_Extension_Pack-#{base_version}.vbox-extpack"
+  dir = Dir.mktmpdir('modest-extpack')
+  # VBoxManage checks the pack's internal name against the file name, so keep the official file name
+  file = File.join(dir, File.basename(url))
+  information_message(values, "Downloading the VirtualBox Extension Pack from #{url}")
+  unless system('curl', '-fsSL', '-o', file, url)
+    warning_message(values, "Could not download #{url}. Install the Extension Pack manually from https://www.virtualbox.org/wiki/Downloads")
+    return nil
+  end
+  vboxmanage = find_vboxmanage
+  # Installing writes under /Library, so run VBoxManage with sudo unless this process is already root.
+  # Run in the terminal (stdin and stdout are not captured) so the Oracle licence is shown and answered
+  # by the user, and sudo can ask for a password.
+  command = Process.euid.zero? ? [vboxmanage] : ['sudo', vboxmanage]
+  information_message(values, 'Installing the VirtualBox Extension Pack: you will be shown its licence to accept, and sudo may ask for your password')
+  system(*command, 'extpack', 'install', '--replace', file)
+  status = $?
+  warning_message(values, "Installing the VirtualBox Extension Pack failed (exit #{status.exitstatus})") unless status.success?
+  nil
+ensure
+  FileUtils.rm_rf(dir) if dir
+end
+
+# Find VBoxManage on the PATH, or an empty string
+
+def find_vboxmanage
+  vboxmanage = which_program('VBoxManage')
+  vboxmanage.empty? ? which_program('vboxmanage') : vboxmanage
+end
+
+# Install VirtualBox with the package manager for the host (used by --check virtualbox --install)
+
+def install_virtualbox(values)
+  case values['host-os-uname'].to_s
+  when /Darwin/
+    if which_program('brew').empty?
+      warning_message(values, 'Cannot install VirtualBox: Homebrew (brew) is not installed')
+      return nil
+    end
+    if values['dryrun'] == true
+      information_message(values, 'Dry run: would install VirtualBox with Homebrew (brew install --cask virtualbox)')
+      return nil
+    end
+    message = "Information:\tInstalling VirtualBox with Homebrew"
+    command = 'brew install --cask virtualbox'
+    execute_command(values, message, command)
+  when /Linux/
+    if values['dryrun'] == true
+      information_message(values, 'Dry run: would install the virtualbox package with the system package manager')
+      return nil
+    end
+    install_linux_package(values, 'virtualbox')
+  else
+    warning_message(values, "Cannot install VirtualBox automatically on #{values['host-os-uname']}")
+  end
+  nil
+end

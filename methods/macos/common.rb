@@ -249,7 +249,7 @@ end
 
 def check_osx_dnsmasq(values)
   pkg_name = 'dnsmasq'
-  install_brew_pkg(pkg_name)
+  install_brew_pkg(values, pkg_name)
   plist_file   = '/Library/LaunchDaemons/homebrew.mxcl.dnsmasq.plist'
   dnsmasq_file = '/usr/local/etc/dnsmasq.conf'
   unless File.exist?(plist_file)
@@ -274,7 +274,7 @@ def check_osx_dhcpd_installed(values)
   dhcpd_bin   = '/usr/local/sbin/dhcpd'
   unless File.symlink?(dhcpd_bin)
     pkg_name = 'bind'
-    install_brew_pkg(pkg_name)
+    install_brew_pkg(values, pkg_name)
     message  = "Information:\tUpdating Brew sources list"
     command  = 'brew update'
     execute_command(values, message, command)
@@ -295,7 +295,7 @@ def check_osx_dhcpd_installed(values)
           execute_command(values, message, command)
         end
         pkg_name = 'isc-dhcp'
-        install_brew_pkg(pkg_name)
+        install_brew_pkg(values, pkg_name)
       end
       message = "Information:\tCreating Launchd service for ISC DHCPd"
       command = 'cp -fv /usr/local/opt/isc-dhcp/*.plist /Library/LaunchDaemons'
@@ -375,7 +375,7 @@ end
 
 # Enable OS X service
 
-def refresh_osx_service(service_name)
+def refresh_osx_service(values, service_name)
   unless service_name.match(/\./)
     service_name = if service_name.match(/dhcp/)
                      "homebrew.mxcl.isc-#{service_name}"
@@ -383,14 +383,14 @@ def refresh_osx_service(service_name)
                      "com.apple.#{service_name}d"
                    end
   end
-  disable_osx_service(service_name)
-  enable_osx_service(service_name)
+  disable_osx_service(values, service_name)
+  enable_osx_service(values, service_name)
   nil
 end
 
 # Enable OS X service
 
-def enable_osx_service(service_name)
+def enable_osx_service(values, service_name)
   check_osx_service_is_enabled(values, service_name)
   message = "Information:\tEnabling service #{service_name}"
   command = "launchctl start #{shell_arg(service_name)}"
@@ -399,7 +399,7 @@ end
 
 # Enable OS X service
 
-def disable_osx_service(service_name)
+def disable_osx_service(values, service_name)
   message = "Information:\tDisabling service #{service_name}"
   command = "launchctl stop #{shell_arg(service_name)}"
   execute_command(values, message, command)
