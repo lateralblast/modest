@@ -55,3 +55,37 @@ def handle_install_method(values)
   end
   values
 end
+
+# Install methods and what each one installs (the codes are the values of --method)
+
+INSTALL_METHODS = {
+  'ai' => 'Solaris 11 Automated Installer (AI)',
+  'js' => 'Solaris 2.6-10 Jumpstart',
+  'ks' => 'Kickstart (RHEL, CentOS, Fedora, Scientific Linux)',
+  'ay' => 'AutoYaST (SUSE, SLES)',
+  'ps' => 'Preseed (Debian, Ubuntu)',
+  'ci' => 'cloud-init',
+  'vs' => 'vSphere / ESXi',
+  'xb' => 'BSD',
+  'pe' => 'WinPE (Windows)',
+  'lxc' => 'Linux containers',
+  'mp' => 'Multipass (Ubuntu VMs)',
+  'image' => 'vCenter Server Appliance (VCSA) image',
+  'ldom' => 'Solaris LDoms',
+  'cdom' => 'Solaris control domain',
+  'gdom' => 'Solaris guest domain'
+}.freeze
+
+# List items for --action list --list <item>
+
+def list_items(values)
+  case values['list'].to_s.downcase
+  when /method/
+    handle_output(values, 'Install methods (use with --method):')
+    INSTALL_METHODS.each { |code, description| handle_output(values, format("  %-7s %s", code, description)) }
+  else
+    warning_message(values, "Option --list has an unrecognised value: #{values['list']}")
+    information_message(values, 'Valid values for --list are: method')
+  end
+  nil
+end

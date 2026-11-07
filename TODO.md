@@ -4,6 +4,7 @@ Status: `[ ]` open, `[~]` in progress, `[x]` done.
 
 ## Open
 
+- [ ] `--action create --vm fusion --os-type ubuntu --release 2204` fails under `--dryrun` writing the VMX file, because the VM directory is created by a `mkdir` that dry-run skips (`methods/vmware/fusion/common.rb` around line 1478). The VM network is also not configured here, because Fusion host-only networking is not set up on this Mac. A real Fusion create has not been run.
 - [ ] Systemic arity mismatches: a whole-tree check finds about 150 call sites whose argument count does not match the definition. Many are false positives (the same name is defined per platform), but the Solaris zone code, LDom and Jumpstart code, and most of the VirtualBox create path (`add_nonbridged_network_to_vbox_vm`, `modify_vbox_vm`, `setextradata_vbox_vm`, `add_hosts_entry`, `change_vbox_vm_mac`) are affected. VirtualBox create in dry-run still fails. Fix as a dedicated pass, with a test per function.
 - [ ] Docker server side is not finished: `methods/docker/server.rb` calls `create_docker_file` with one argument (it takes two), uses undefined `$docker_host_*` globals, writes a Dockerfile with no newlines and an invalid `FROM:` line, and `build_docker_file` does nothing.
 - [ ] Add `execute` to the valid `--action` values (and `--command`), so `methods/docker/client.rb`'s exec path can be run from the command line. Also decide the Docker delete check: `--action delete --vm docker` has not been run for real.
@@ -40,6 +41,7 @@ Status: `[ ]` open, `[~]` in progress, `[x]` done.
 
 ## Done
 
+- [x] Read-only and no-OS creates no longer run `ifconfig` or `grep` with empty names; the no-OS create stops with status 1 (9.4.8, 9.4.9, 9.5.0)
 - [x] Add: `--action create --vm docker --os ubuntu --release <release>` creates an Ubuntu Docker instance with the `docker` CLI for the host architecture, falling back to the release line when the exact tag is not published. Created `ubuntu26041` from `ubuntu:26.04` (9.3.7 to 9.4.3)
 - [x] Normal runs are quiet: startup and `Setting ...` messages and `Executing:` lines show only with `--verbose` (or `Executing:` under `--dryrun`), and list results print without `--verbose` (9.3.4 to 9.3.6)
 - [x] Read-only actions such as `--action list --vm docker` no longer configure the host-only network with `sudo ifconfig ... up` (9.3.3)

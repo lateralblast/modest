@@ -1054,14 +1054,14 @@ end
 
 def describe_file(values)
   values = get_install_service_from_file(values)
-  verbose_message(values, '')
-  verbose_message(values, "Install File:\t\t#{values['file']}")
-  verbose_message(values, "Install Service:\t#{values['service']}")
-  verbose_message(values, "Install OS:\t\t#{values['os-type']}")
-  verbose_message(values, "Install Method:\t\t#{values['method']}")
-  verbose_message(values, "Install Release:\t#{values['release']}")
-  verbose_message(values, "Install Architecture:\t#{values['arch']}")
-  verbose_message(values, "Install Label:\t#{values['label']}")
+  handle_output(values, '')
+  handle_output(values, "Install File:\t\t#{values['file']}")
+  handle_output(values, "Install Service:\t#{values['service']}")
+  handle_output(values, "Install OS:\t\t#{values['os-type']}")
+  handle_output(values, "Install Method:\t\t#{values['method']}")
+  handle_output(values, "Install Release:\t#{values['release']}")
+  handle_output(values, "Install Architecture:\t#{values['arch']}")
+  handle_output(values, "Install Label:\t#{values['label']}")
   nil
 end
 

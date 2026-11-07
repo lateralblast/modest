@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      9.4.7
+# Version:      9.5.3
 # Release:      1
 # License:      CC BY-NC-SA (Creative Commons Attribution-NonCommercial-ShareAlike)
 #               http://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
@@ -368,7 +368,7 @@ begin
     ['--kvmgroup', REQUIRED],           # Set KVM group
     ['--launchSecurity', REQUIRED],     # Launch Security (KVM)
     ['--license', REQUIRED],            # License key (e.g. ESX)
-    ['--list', BOOLEAN],                # List items
+    ['--list', REQUIRED],               # List items (with --action list), e.g. --list method
     ['--livecd', BOOLEAN],              # Specify Live CD (Changes install method)
     ['--locale', REQUIRED],             # Select language/language (e.g. en_US)
     ['--localfs', REQUIRED],            # Set local fs
@@ -669,6 +669,12 @@ end
 
 # Remember an architecture given on the command line, as the default architecture is set later
 values['requested-arch'] = values['arch'] if values['arch'].to_s.match?(/\S/)
+
+# A create needs an OS or an install method. Check the options as given, before any network setup
+if values['action'].to_s.match?(/add|create/) && !values['vm'].to_s.empty? && !values.key?('os-type') && !values.key?('method') && !values['vm'].to_s.match?(/ldom|cdom|gdom|aws|mp|multipass/) && !values['type'].to_s.match?(/network/)
+  puts "Warning:\tNo OS or install method specified when creating VM"
+  exit 1
+end
 
 # Reject unsafe shell-bound values before defaults or normalisers run any command with them
 

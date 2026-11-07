@@ -877,6 +877,10 @@ end
 # Check Fusion hostonly networking
 
 def check_fusion_hostonly_network(values, if_name)
+  if values['vmnet'].to_s.empty?
+    warning_message(values, 'No VMware host-only network interface was found, so the network is not configured. Create the host-only network in VMware Fusion first')
+    return values
+  end
   case values['host-os-uname']
   when /Darwin/
     config_file = '/Library/Preferences/VMware Fusion/networking'

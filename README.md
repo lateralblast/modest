@@ -4,7 +4,7 @@
 MODEST
 ======
 
-Version: 9.4.7
+Version: 9.5.3
 
 License
 -------

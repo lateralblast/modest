@@ -194,6 +194,10 @@ def check_vm_network(values)
   check_local_config(values)
   get_default_host(values)
   vm_if_name = get_vm_if_name(values)
+  if vm_if_name.to_s.empty?
+    warning_message(values, "No network interface is known for #{values['vm']}, so the VM network is not configured")
+    return values
+  end
   if values['vmnetwork'].to_s.match(/nat/)
     gw_if_name = get_gw_if_name(values)
     gw_if_ip   = get_gw_if_ip(values, gw_if_name)

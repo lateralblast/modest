@@ -6,6 +6,24 @@ newest first.
 
 ## modest.rb
 
+### [9.5.3] - 2026-11-08
+- `--action info --file <iso>` (and the file description used by `list`) prints the install file details without `--verbose`
+
+### [9.5.2] - 2026-11-08
+- Added `--list <item>` for `--action list`. `--action list --list method` lists the install methods (the values of `--method`) with what each one installs. `--list` with an unrecognised value says which values are valid
+
+### [9.5.1] - 2026-11-08
+- A create with no OS or install method is refused before any network setup, so only the OS warning is shown
+
+### [9.5.0] - 2026-11-08
+- A create that has no OS or install method (for example `--action create --vm fusion --name x`) stops with the warning and exit status 1 under `--dryrun` too. Previously the run carried on into the network setup
+
+### [9.4.9] - 2026-11-08
+- VMware Fusion host-only network setup is skipped, with a warning, when no host-only interface was found. Previously it ran `grep` and `ifconfig` with an empty interface name, and could bring up an interface with `sudo`
+
+### [9.4.8] - 2026-11-08
+- The VM network is not configured when no network interface is known for the VM type, with a warning. Previously `ifconfig` ran with an empty interface name, and could bring up an interface with `sudo`
+
 ### [9.4.7] - 2026-11-08
 - For Docker instances, an architecture given with `--arch` is used for the image platform. Without `--arch`, the host architecture is used
 

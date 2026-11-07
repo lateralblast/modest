@@ -433,7 +433,7 @@ end
 def handle_os_values(values)
   if (values['os-type'] == values['empty']) && (values['vm'] != values['empty']) && values['action'].to_s.match(/add|create/) && (values['method'] == values['empty']) && !values['vm'].to_s.match(/ldom|cdom|gdom|aws|mp|multipass/) && !values['type'].to_s.match(/network/)
     warning_message(values, 'No OS or install method specified when creating VM')
-    quit(values)
+    exit 1
   end
   values
 end

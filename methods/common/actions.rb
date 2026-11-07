@@ -85,6 +85,10 @@ def handle_action(values)
         list_kvm_vms(values)
       end
     when /list/
+      if values['list'] != values['empty'] && values['list'].to_s.match?(/\S/)
+        list_items(values)
+        return values
+      end
       describe_file(values) if values['file'] != values['empty']
       case values['type']
       when /service/
