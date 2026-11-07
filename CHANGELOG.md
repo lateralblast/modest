@@ -6,6 +6,15 @@ newest first.
 
 ## modest.rb
 
+### [9.1.4] - 2026-11-08
+- Fixed `--action create --vm parallels` failing when counting existing Parallels host-only networks: the output of `prlsrvctl net list` is a string and was treated as a list
+
+### [9.1.3] - 2026-11-08
+- Fixed the Parallels helpers that set the MAC address, RAM, CPUs, register the VM and attach the ISO being called with the wrong arguments. They now take `values` first, with the VM name and value as optional arguments, which lets clones be configured
+
+### [9.1.2] - 2026-11-08
+- Fixed `--vm parallels` failing with `undefined local variable or method defaults` when choosing the Parallels network address. It now reads the host details from `values`
+
 ### [9.1.1] - 2026-11-07
 - Added `--check parallels` (macOS): reports whether Parallels Desktop is installed at `/Applications/Parallels Desktop.app`, its version, and whether `prlctl` is on the PATH
 - `--check parallels --install` installs Parallels Desktop with `brew install --cask parallels`. Parallels is commercial software, so licensing and activation are left to the user. Under `--dryrun` it reports what would be installed

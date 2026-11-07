@@ -4,6 +4,12 @@ Status: `[ ]` open, `[~]` in progress, `[x]` done.
 
 ## Open
 
+- [ ] `--action create --vm zone` runs the LXC questions: `methods/linux/lxc/questions.rb:130` uses an undefined `qs`, and the zone path is routed through LXC. Solaris zones need their own page once this works.
+- [ ] Linux containers (LXC) fail at `methods/linux/lxc/questions.rb:130` (undefined `qs`). The wiki has no LXC page yet.
+- [ ] Wiki pages still missing for Docker (create runs cleanly in dry-run), Ansible, cloud-init, BSD, WinPE, QEMU and Solaris zones. Parallels now has a page, verified for create and checks only.
+- [ ] `--action list --vm vbox`, `--vm fusion`, `--vm parallels` and `--action boot` without `--method` fail: `values['method']` is nil when `--method` is not given, so `methods/common/values.rb` (around line 93) calls `downcase` on nil. Guarding it exposes more nil values in `methods/common/common.rb` (around line 1439), `methods/common/host.rb` and the setup check in `modest.rb`. Fix them together, with a test for each action.
+- [ ] Parallels `--action boot`, `stop`, `delete` and `connect` have not been run for a real VM. Create, list and check are verified in dry-run only.
+- [ ] Dry-run runs `sudo sh -c` on read-only probes, for example `ifconfig prlsnet0` in the Parallels create path, which can prompt for a password under `--dryrun`.
 - [ ] Test `--check parallels --install` for real on a Mac without Parallels, and check that the Homebrew cask install completes. The installed path has been run (Parallels 27.1.0).
 - [x] `--check fusion` confirmed on macOS with VMware Fusion 25.0.1 installed (version and location reported). Still untested: `--check workstation` on a Linux host with VMware Workstation installed.
 - [ ] Decide what `--install` should do for VMware. Fusion and Workstation are not in Homebrew or apt, so `--install` only prints the download page for now.

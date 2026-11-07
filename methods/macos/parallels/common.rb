@@ -4,9 +4,9 @@
 
 # Add CDROM to Parallels VM
 
-def attach_file_to_parallels_vm(values)
-  message = "Information:\tAttaching Image #{values['file']} to #{values['name']}"
-  command = "prlctl set \"#{shell_dq(values['name'])}\" --device-set cdrom0 --image \"#{shell_dq(values['file'])}\""
+def attach_file_to_parallels_vm(values, name = values['name'], file = values['file'])
+  message = "Information:\tAttaching Image #{file} to #{name}"
+  command = "prlctl set \"#{shell_dq(name)}\" --device-set cdrom0 --image \"#{shell_dq(file)}\""
   execute_command(values, message, command)
   nil
 end
@@ -137,7 +137,7 @@ def clone_parallels_vm(values)
   command = "prlctl clone \"#{shell_dq(values['name'])}\" --name \"#{shell_dq(values['clone'])}\""
   execute_command(values, message, command)
   add_hosts_entry(values['clone'], values['ip']) if values['ip'].to_s.match(/[0-9]/)
-  change_parallels_vm_mac(values['clone'], values['mac']) if values['mac'].to_s.match(/[0-9,a-z,A-Z]/)
+  change_parallels_vm_mac(values, values['clone'], values['mac']) if values['mac'].to_s.match(/[0-9,a-z,A-Z]/)
   nil
 end
 
@@ -170,7 +170,7 @@ def check_parallels_hostonly_network(values)
     message  = "Information:\tDetermining possible Parallels host-only network interface name"
     command  = 'prlsrvctl net list |grep ^prls'
     if_count = execute_command(values, message, command)
-    if_count = if_count.grep(/prls/).count.to_s
+    if_count = if_count.lines.grep(/prls/).count.to_s
     if_name  = "prlsnet#{if_count}"
     message = "Information:\tPlumbing Parallels hostonly network #{if_name}"
     command = "prlsrvctl net add #{shell_arg(if_name)} --type host-only"
@@ -320,28 +320,28 @@ end
 
 # Change Parallels VM Memory
 
-def change_parallels_vm_mem(values)
-  message = "Information:\tSetting Parallels VM #{values['name']} RAM to #{values['memory']}"
-  command = "prlctl set #{shell_arg(values['name'])} --memsize #{shell_arg(values['memory'])}"
+def change_parallels_vm_mem(values, name = values['name'], memory = values['memory'])
+  message = "Information:\tSetting Parallels VM #{name} RAM to #{memory}"
+  command = "prlctl set #{shell_arg(name)} --memsize #{shell_arg(memory)}"
   execute_command(values, message, command)
   nil
 end
 
 # Change Parallels VM Cores
 
-def change_parallels_vm_cpu(values)
-  message = "Information:\tSetting Parallels VM #{values['name']} CPUs to #{values['vcpus']}"
-  command = "prlctl set #{shell_arg(values['name'])} --cpus #{shell_arg(values['vcpus'])}"
+def change_parallels_vm_cpu(values, name = values['name'], vcpus = values['vcpus'])
+  message = "Information:\tSetting Parallels VM #{name} CPUs to #{vcpus}"
+  command = "prlctl set #{shell_arg(name)} --cpus #{shell_arg(vcpus)}"
   execute_command(values, message, command)
   nil
 end
 
 # Change Parallels VM MAC address
 
-def change_parallels_vm_mac(values)
-  message = "Information:\tSetting Parallels VM #{values['name']} MAC address to #{values['mac']}"
-  values['mac'] = values['mac'].gsub(/:/, '') if values['mac'].to_s.match(/:/)
-  command = "prlctl set #{shell_arg(values['name'])} --device-set net0 #{shell_arg(values['mac'])}"
+def change_parallels_vm_mac(values, name = values['name'], mac = values['mac'])
+  message = "Information:\tSetting Parallels VM #{name} MAC address to #{mac}"
+  mac = mac.to_s.gsub(/:/, '')
+  command = "prlctl set #{shell_arg(name)} --device-set net0 #{shell_arg(mac)}"
   execute_command(values, message, command)
   nil
 end
@@ -420,9 +420,9 @@ end
 
 # Routine to register a Parallels VM
 
-def register_parallels_vm(values)
-  message = "Registering Parallels VM #{values['name']}"
-  command = "prlctl create \"#{shell_dq(values['name'])}\" --ostype \"#{shell_dq(values['os-type'])}\""
+def register_parallels_vm(values, name = values['name'], os_type = values['os-type'])
+  message = "Registering Parallels VM #{name}"
+  command = "prlctl create \"#{shell_dq(name)}\" --ostype \"#{shell_dq(os_type)}\""
   execute_command(values, message, command)
   nil
 end
@@ -434,13 +434,13 @@ def configure_parallels_vm(values)
   check_parallels_hostonly_network(values) if values['vmnet'].to_s.match(/hostonly/)
   get_parallels_disk(values)
   check_parallels_vm_doesnt_exist(values)
-  register_parallels_vm(values['name'], values['os-type'])
+  register_parallels_vm(values, values['name'], values['os-type'])
   add_serial_to_parallels_vm(values)
-  change_parallels_vm_mem(values['name'], values['memory'])
-  change_parallels_vm_cpu(values['name'], values['vcpus'])
-  attach_file_to_parallels_vm(values['name'], values['file']) if values['file'].to_s.match(/[0-9]|[a-z]/)
+  change_parallels_vm_mem(values, values['name'], values['memory'])
+  change_parallels_vm_cpu(values, values['name'], values['vcpus'])
+  attach_file_to_parallels_vm(values, values['name'], values['file']) if values['file'].to_s.match(/[0-9]|[a-z]/)
   if values['mac'].to_s.match(/[0-9]/)
-    change_parallels_vm_mac(values['name'], values['mac'])
+    change_parallels_vm_mac(values, values['name'], values['mac'])
   else
     values['mac'] = get_parallels_vm_mac(values)
   end

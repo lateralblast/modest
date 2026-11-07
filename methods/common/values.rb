@@ -306,7 +306,7 @@ def handle_vm_values(values)
       values['vm']   = 'parallels'
       values['sudo'] = false
       values['size'] = values['size'].gsub(/G/, '000')
-      if defaults['host-os-uname'].to_s.match(/Darwin/) && defaults['host-os-version'].to_i > 10
+      if values['host-os-uname'].to_s.match(/Darwin/) && values['host-os-version'].to_i > 10
         values['hostonlyip'] = '10.211.55.1'
         values['vmgateway']  = '10.211.55.1'
       else
