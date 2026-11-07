@@ -270,8 +270,7 @@ end
 
 def print_version(values)
   (version, packager, name) = get_version(values)
-  values['verbose'] = true
-  verbose_message(values, "#{name} v. #{version} #{packager}")
+  handle_output(values, "#{name} v. #{version} #{packager}")
   nil
 end
 

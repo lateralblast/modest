@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      8.9.1
+# Version:      8.9.2
 # Release:      1
 # License:      CC BY-NC-SA (Creative Commons Attribution-NonCommercial-ShareAlike)
 #               http://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
@@ -592,15 +592,41 @@ begin
 rescue StandardError
   values['output'] = 'text'
   values['stdout'] = []
+  values['script'] = $PROGRAM_NAME
   print_help(values)
-  quit(values)
+  # Exit directly: quit does not exit when dryrun has not been set, which is the case here
+  exit 1
 end
 
 # Handle usage
 
-if values['usage'] && (values['usage'] != values['empty'])
+# Informational switches are answered here, before defaults are worked out, so they print only their own output.
+# They exit directly rather than through quit, which does not exit under --dryrun.
+
+values['script'] = $PROGRAM_NAME
+
+if values['help'] == true
+  values['output'] = 'text'
+  print_help(values)
+  exit
+end
+
+if values['version'] == true
+  values['output'] = 'text'
+  print_version(values)
+  exit
+end
+
+if values['changelog'] == true
+  values['output'] = 'text'
+  print_changelog(values)
+  exit
+end
+
+if values['usage'].to_s.match?(/\S/) && (values['usage'] != 'none')
+  values['output'] = 'text'
   print_usage(values)
-  quit(values)
+  exit
 end
 
 # Reject unsafe shell-bound values before defaults or normalisers run any command with them

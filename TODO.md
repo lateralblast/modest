@@ -14,10 +14,12 @@ Status: `[ ]` open, `[~]` in progress, `[x]` done.
 - [ ] Extend the file-operation router to the cases it still sends to the shell: `cp -r` and `cp -p`, glob arguments, quoted text containing `(`, `#` or `*`, and `echo` text containing a backslash.
 - [ ] Decide whether the packer `awk '{print $3}'` pipelines should move to Ruby. Their `$` is unescaped, which the router rejects by design, so they would need an explicit parser.
 - [ ] Review the dry-run denylist in `execute_command` (`methods/common/common.rb`). It is a regex of command words, so it is easy to get wrong. Consider replacing it with an explicit list of mutating commands per call site.
-- [ ] Commit the uncommitted work. Versions 8.4.0 to 8.9.1 (modest.rb) and 0.0.8 to 0.1.0 (webserver.rb) are not yet in git history.
+- [ ] Decide whether normal runs should print the 509 `Setting value for ...` lines from `process_values` (`methods/common/values.rb`). They are logged as Information on every run, not only with `--verbose`. The informational switches are already clean.
+- [ ] Check the `quit` helper in `methods/common/common.rb`. It only exits when `values['dryrun'] == false`, so it returns silently in any path where `dryrun` was never set. Several call sites depend on it, so any change needs a review of each one.
 
 ## Done
 
+- [x] Fix: `--version`, `--help`, `--changelog` and `--usage` print only their own output, and an invalid option exits with status 1 (8.9.2)
 - [x] Fix: `cd DIR ; ...` sequences and `chown`/`chgrp` run in Ruby when the commands that follow are supported file operations; `chown`/`chgrp` only as root (8.9.1)
 - [x] Fix: `cat FILE | ... > DEST` and `>> DEST` pipelines, and compound commands that chain them with file operations, run in Ruby (8.9.0)
 - [x] Fix: glob characters in file operations are left to the shell, so `rm DIR/*` is never handled in Ruby (8.9.0)

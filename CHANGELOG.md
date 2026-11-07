@@ -6,6 +6,11 @@ newest first.
 
 ## modest.rb
 
+### [8.9.2] - 2026-11-07
+- Fixed `--version`, `--help`, `--changelog` and `--usage` printing every default setting and `Executing:` line before their output. These switches are now answered before defaults are worked out, and they exit directly
+- Fixed an invalid option printing the help and then carrying on with an empty configuration. It now exits with status 1
+- `--version` prints only the version line, and `--help` shows the script name in its usage header
+
 ### [8.9.1] - 2026-11-07
 - Changed `cd DIR ; ...` sequences to Ruby code when the commands that follow are supported file operations: relative paths are resolved against DIR, as the shell does, without changing the process directory (see `methods/common/files.rb`)
 - Added `chown` and `chgrp` with numeric owners and groups, including `-R`. These run in Ruby only when the tool runs as root; otherwise the shell path, including its `sudo` wrapper, is used
