@@ -173,11 +173,11 @@ def handle_aws_values(values)
       values['key'] = File.basename(values['keyfile'])
       values['key'] = values['key'].split(/\./)[0..-2].join
     end
-    information_message(values, "Setting key pair to #{values['key']}")
+    verbose_message(values, "Setting key pair to #{values['key']}")
   end
   if values['group'].to_s.match(/^default$/)
     values['group'] = values['key']
-    information_message(values, "Setting security group to #{values['group']}")
+    verbose_message(values, "Setting security group to #{values['group']}")
   end
   if values['nosuffix'] == false
     values['name'] = get_aws_uniq_name(values)
@@ -186,7 +186,7 @@ def handle_aws_values(values)
   if values['keyfile'] == values['empty']
     values = set_aws_key_file(values)
     puts values['keyfile']
-    information_message(values, "Setting key file to #{values['keyfile']}")
+    verbose_message(values, "Setting key file to #{values['keyfile']}")
   end
   values = create_aws_key_pair(values) unless File.exist?(values['keyfile'])
   unless File.exist?(values['keyfile'])
@@ -244,9 +244,9 @@ def list_aws_snapshots(values)
     snapshot_owner = snapshot.owner_id
     if snapshot_owner == owner_id
       if values['snapshot'].to_s.match(/[0-9]/)
-        verbose_message(values, snapshot_id.to_s) if snapshot_id.match(/^#{values['snapshot']}$/)
+        handle_output(values, snapshot_id.to_s) if snapshot_id.match(/^#{values['snapshot']}$/)
       else
-        verbose_message(values, snapshot_id.to_s)
+        handle_output(values, snapshot_id.to_s)
       end
     end
   end
@@ -635,7 +635,7 @@ def list_aws_security_groups(values)
     next unless values['group'].to_s.match(/^all$|^#{group_name}$/)
 
     description = group.description
-    verbose_message(values, "#{group_name} desc=\"#{description}\"")
+    handle_output(values, "#{group_name} desc=\"#{description}\"")
     ip_perms = group.ip_permissions
     handle_ip_perms(values, ip_perms, 'Ingress', group_name)
     ip_perms = group.ip_permissions_egress
@@ -707,7 +707,7 @@ def list_aws_images(values)
   images.each do |image|
     image_name = image.name
     image_id   = image.image_id
-    verbose_message(values, "#{image_name} id=#{image_id}")
+    handle_output(values, "#{image_name} id=#{image_id}")
   end
   nil
 end

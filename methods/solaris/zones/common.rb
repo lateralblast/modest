@@ -19,10 +19,10 @@ def list_zone_services(values)
     values['version'] = values['host-os-unamer'].split(/\./)[1]
     os_branded = values['version'].to_i - 1
     os_branded = os_branded.to_s
-    verbose_message(values, 'Supported containers:')
-    verbose_message(values, '')
-    verbose_message(values, "Solaris #{values['version']} (native)")
-    verbose_message(values, "Solaris #{os_branded} (branded)")
+    handle_output(values, 'Supported containers:')
+    handle_output(values, '')
+    handle_output(values, "Solaris #{values['version']} (native)")
+    handle_output(values, "Solaris #{os_branded} (branded)")
   end
   nil
 end
@@ -43,17 +43,17 @@ def list_zone_isos(values)
   iso_list = Dir.entries(values['isodir']).grep(/solaris/)
   if iso_list.length.positive?
     if values['output'].to_s.match(/html/)
-      verbose_message(values, '<h1>Available branded zone images:</h1>')
-      verbose_message(values, '<table border="1">')
-      verbose_message(values, '<tr>')
-      verbose_message(values, '<th>Image File</th>')
-      verbose_message(values, '<th>Distribution</th>')
-      verbose_message(values, '<th>Architecture</th>')
-      verbose_message(values, '<th>Service Name</th>')
-      verbose_message(values, '</tr>')
+      handle_output(values, '<h1>Available branded zone images:</h1>')
+      handle_output(values, '<table border="1">')
+      handle_output(values, '<tr>')
+      handle_output(values, '<th>Image File</th>')
+      handle_output(values, '<th>Distribution</th>')
+      handle_output(values, '<th>Architecture</th>')
+      handle_output(values, '<th>Service Name</th>')
+      handle_output(values, '</tr>')
     else
-      verbose_message(values, 'Available branded zone images:')
-      verbose_message(values, '')
+      handle_output(values, 'Available branded zone images:')
+      handle_output(values, '')
     end
     search_arch = if values['host-os-unamep'].to_s.match(/sparc/)
                     values['host-os-unamep']
@@ -68,24 +68,24 @@ def list_zone_isos(values)
 
       (image_version, image_arch, values['service']) = get_zone_image_info(image_file)
       if values['output'].to_s.match(/html/)
-        verbose_message(values, '<tr>')
-        verbose_message(values, "<td>#{values['isodir']}/#{values['image']}</td>")
-        verbose_message(values, '<td>Solaris</td>')
-        verbose_message(values, "<td>#{image_version}</td>")
-        verbose_message(values, "<td>#{values['service']}</td>")
-        verbose_message(values, '</tr>')
+        handle_output(values, '<tr>')
+        handle_output(values, "<td>#{values['isodir']}/#{values['image']}</td>")
+        handle_output(values, '<td>Solaris</td>')
+        handle_output(values, "<td>#{image_version}</td>")
+        handle_output(values, "<td>#{values['service']}</td>")
+        handle_output(values, '</tr>')
       else
-        verbose_message(values, "Image file:\t#{values['isodir']}/#{values['image']}")
-        verbose_message(values, "Distribution:\tSolaris")
-        verbose_message(values, "Version:\t#{image_version}")
-        verbose_message(values, "Architecture:\t#{image_arch}")
-        verbose_message(values, "Service Name\t#{values['service']}")
+        handle_output(values, "Image file:\t#{values['isodir']}/#{values['image']}")
+        handle_output(values, "Distribution:\tSolaris")
+        handle_output(values, "Version:\t#{image_version}")
+        handle_output(values, "Architecture:\t#{image_arch}")
+        handle_output(values, "Service Name\t#{values['service']}")
       end
     end
     if values['output'].to_s.match(/html/)
-      verbose_message(values, '</table>')
+      handle_output(values, '</table>')
     else
-      verbose_message(values, '')
+      handle_output(values, '')
     end
   end
   nil
@@ -94,12 +94,12 @@ end
 # List available zones
 
 def list_zones(values)
-  verbose_message(values, 'Available Zones:')
-  verbose_message(values, '')
+  handle_output(values, 'Available Zones:')
+  handle_output(values, '')
   message = ''
   command = 'zoneadm list |grep -v global'
   output  = execute_command(values, message, command)
-  verbose_message(values, output)
+  handle_output(values, output)
   nil
 end
 

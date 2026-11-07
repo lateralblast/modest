@@ -194,7 +194,12 @@ def handle_action(values)
       end
       if values['name'] != values['empty']
         if values['vm'].to_s.match(/docker/)
-          delete_docker_image(values)
+          # Deleting a Docker instance removes the container; --type image removes an image
+          if values['type'].to_s.match(/image/)
+            delete_docker_image(values)
+          else
+            unconfigure_docker_client(values)
+          end
           return values
         end
         if values['service'] == values['empty'] && values['vm'] == values['empty']
@@ -388,7 +393,7 @@ def handle_action(values)
         end
         return values
       end
-      if values['type'].to_s.match(/docker/)
+      if values['type'].to_s.match(/docker/) || values['vm'].to_s.match(/docker/)
         configure_docker_client(values)
         return values
       end

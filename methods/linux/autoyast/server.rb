@@ -22,11 +22,11 @@ def list_ay_services(values)
   values['method'] = 'ay'
   dir_list = get_dir_item_list(values)
   message  = 'AutoYast Services:'
-  verbose_message(values, message)
+  handle_output(values, message)
   dir_list.each do |service|
-    verbose_message(values, service)
+    handle_output(values, service)
   end
-  verbose_message(values, '')
+  handle_output(values, '')
   nil
 end
 

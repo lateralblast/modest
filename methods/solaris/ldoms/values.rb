@@ -11,14 +11,14 @@ def handle_ldom_values(values)
         values['vm']   = 'cdom'
         if values['verbose'] == true
           varbose_output(values, "Information:\tSetting mode to server")
-          information_message(values, 'Setting vm to cdrom')
+          verbose_message(values, 'Setting vm to cdrom')
         end
       when /gdom/
         values['mode'] = 'client'
         values['vm'] = 'gdom'
         if values['verbose'] == true
-          information_message(values, 'Setting mode to client')
-          information_message(values, 'Setting vm to gdom')
+          verbose_message(values, 'Setting mode to client')
+          verbose_message(values, 'Setting vm to gdom')
         end
       when /ldom/
         if values['name'] != values['empty']
@@ -26,9 +26,9 @@ def handle_ldom_values(values)
           values['vm']     = 'gdom'
           values['mode']   = 'client'
           if values['verbose'] == true
-            information_message(values, 'Setting mode to client')
-            information_message(values, 'Setting method to gdom')
-            information_message(values, 'Setting vm to gdom')
+            verbose_message(values, 'Setting mode to client')
+            verbose_message(values, 'Setting method to gdom')
+            verbose_message(values, 'Setting vm to gdom')
           end
         else
           warning_message(values, 'Could not determine whether to run in server of client mode')
@@ -46,16 +46,16 @@ def handle_ldom_values(values)
         values['vm']     = 'gdom'
         values['method'] = 'gdom'
         if values['verbose'] == true
-          information_message(values, 'Setting method to gdom')
-          information_message(values, 'Setting vm to gdom')
+          verbose_message(values, 'Setting method to gdom')
+          verbose_message(values, 'Setting vm to gdom')
         end
       end
       if values['mode'].to_s.match(/server/)
         values['vm']     = 'cdom'
         values['method'] = 'cdom'
         if values['verbose'] == true
-          information_message(values, 'Setting method to cdom')
-          information_message(values, 'Setting vm to cdom')
+          verbose_message(values, 'Setting method to cdom')
+          verbose_message(values, 'Setting vm to cdom')
         end
       end
     end

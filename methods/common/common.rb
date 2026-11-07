@@ -121,7 +121,9 @@ def set_hostonly_info(values)
   values['hostonlyip'] = "#{hostonly_base}.#{hostonly_subnet}.1"
   values['hostonlyip'] = "#{hostonly_base}.#{hostonly_subnet}.1"
   values['ip']         = "#{hostonly_base}.#{hostonly_subnet}.101"
-  check_vm_network(values)
+  # Only configure the VM network when a VM is being created or started; read-only actions must not change it
+  check_vm_network(values) if values['action'].to_s.match(/create|boot|build/) && values['vm'].to_s.match(/fusion|vbox|kvm|parallels/)
+  values
 end
 
 # Get my IP - Useful when running in server mode
@@ -584,12 +586,12 @@ def check_local_config(values)
     values = set_fusion_dir(values)
   end
   # Check base dirs exist
-  information_message(values, 'Checking base repository directory')
+  verbose_message(values, 'Checking base repository directory')
   check_dir_exists(values, values['baserepodir'])
   check_dir_owner(values, values['baserepodir'], values['uid'])
   values = set_vbox_bin(values) if values['vm'].to_s.match(/vbox/)
   check_ssh_keys(values) if values['copykeys'] == true
-  information_message(values, "Home directory #{values['home']}")
+  verbose_message(values, "Home directory #{values['home']}")
   unless values['workdir'].to_s.match(/[a-z,A-Z,0-9]/)
     dir_name = File.basename(values['script'], '.*')
     values['workdir'] = if values['uid'] == false
@@ -598,11 +600,11 @@ def check_local_config(values)
                           "#{values['home']}/.#{dir_name}"
                         end
   end
-  information_message(values, "Setting work directory to #{values['workdir']}")
+  verbose_message(values, "Setting work directory to #{values['workdir']}")
   values['tmpdir'] = "#{values['workdir']}/tmp" unless values['tmpdir'].match(/[a-z,A-Z,0-9]/)
-  information_message(values, "Setting temporary directory to #{values['workdir']}")
+  verbose_message(values, "Setting temporary directory to #{values['workdir']}")
   # Get OS name and set system settings appropriately
-  information_message(values, 'Checking work directory')
+  verbose_message(values, 'Checking work directory')
   check_dir_exists(values, values['workdir'])
   check_dir_owner(values, values['workdir'], values['uid'])
   check_dir_exists(values, values['tmpdir'])
@@ -635,7 +637,7 @@ def check_local_config(values)
       check_dir_exists(values, '/etc/netboot')
     end
     check_dir_exists(values, '/tftpboot') if values['host-os-uname'].to_s.match(/SunOS/) && !values['host-os-unamer'].match(/11/)
-    information_message(values, "Setting apache allow range to #{values['apacheallow']}")
+    verbose_message(values, "Setting apache allow range to #{values['apacheallow']}")
     if values['host-os-uname'].to_s.match(/SunOS/)
       check_dpool(values) if values['host-os-uname'].to_s.match(/SunOS/) && values['host-os-unamer'].match(/11/)
       check_sol_bind(values)
@@ -693,7 +695,7 @@ def check_local_config(values)
     command = 'ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)"'
     execute_command(values, message, command)
   end
-  information_message(values, 'Checking work bin directory')
+  verbose_message(values, 'Checking work bin directory')
   work_bin_dir = "#{values['workdir']}/bin"
   #  [ "rpm2cpio", "rpm" ].each do |pkg_name|
   ['rpm2cpio'].each do |pkg_name|
@@ -719,7 +721,7 @@ def check_local_config(values)
     end
   end
   [values['workdir'], values['bindir'], values['rpmdir'], values['backupdir']].each do |test_dir|
-    information_message(values, "Checking #{test_dir} directory")
+    verbose_message(values, "Checking #{test_dir} directory")
     check_dir_exists(values, test_dir)
     check_dir_owner(values, test_dir, values['uid'])
   end
@@ -1306,8 +1308,8 @@ def get_install_service_from_file(values)
                         end
     values['service'] = values['service'].gsub(/\./, '_')
   end
-  information_message(values, "Setting service name to #{values['service']}")
-  information_message(values, "Setting OS name to #{values['os-type']}")
+  verbose_message(values, "Setting service name to #{values['service']}")
+  verbose_message(values, "Setting OS name to #{values['os-type']}")
   values
 end
 
@@ -1415,7 +1417,7 @@ end
 # List all services
 
 def list_all_services(values)
-  verbose_message(values, '')
+  handle_output(values, '')
   list_ai_services(values)
   list_ay_services(values)
   list_image_services(values)
@@ -1648,7 +1650,7 @@ end
 def list_items(values)
   if !values['output'].to_s.match(/html/) && !values['vm'].to_s.match(/mp|multipass/)
     string = "Information:\tDirectory #{values['isodir']}"
-    verbose_message(values, string)
+    handle_output(values, string)
   end
   if values['file'] == values['empty']
     iso_list = get_base_dir_list(values)
@@ -1658,18 +1660,18 @@ def list_items(values)
   end
   if iso_list.length.positive?
     if values['output'].to_s.match(/html/)
-      verbose_message(values, '<h1>Available ISO(s)/Image(s):</h1>')
-      verbose_message(values, '<table border="1">')
-      verbose_message(values, '<tr>')
-      verbose_message(values, '<th>ISO/Image File</th>')
-      verbose_message(values, '<th>Distribution</th>')
-      verbose_message(values, '<th>Version</th>')
-      verbose_message(values, '<th>Architecture</th>')
-      verbose_message(values, '<th>Service Name</th>')
-      verbose_message(values, '</tr>')
+      handle_output(values, '<h1>Available ISO(s)/Image(s):</h1>')
+      handle_output(values, '<table border="1">')
+      handle_output(values, '<tr>')
+      handle_output(values, '<th>ISO/Image File</th>')
+      handle_output(values, '<th>Distribution</th>')
+      handle_output(values, '<th>Version</th>')
+      handle_output(values, '<th>Architecture</th>')
+      handle_output(values, '<th>Service Name</th>')
+      handle_output(values, '</tr>')
     else
-      verbose_message(values, 'Available ISO(s)/Images(s):')
-      verbose_message(values, '')
+      handle_output(values, 'Available ISO(s)/Images(s):')
+      handle_output(values, '')
     end
     iso_list.each do |file_name|
       file_name = file_name.chomp
@@ -1682,16 +1684,16 @@ def list_items(values)
         (linux_distro, iso_version, iso_arch) = get_linux_version_info(file_name)
       end
       if values['output'].to_s.match(/html/)
-        verbose_message(values, '<tr>')
-        verbose_message(values, "<td>#{file_name}</td>")
-        verbose_message(values, "<td>#{linux_distro}</td>")
-        verbose_message(values, "<td>#{iso_version}</td>")
-        verbose_message(values, "<td>#{iso_arch}</td>")
+        handle_output(values, '<tr>')
+        handle_output(values, "<td>#{file_name}</td>")
+        handle_output(values, "<td>#{linux_distro}</td>")
+        handle_output(values, "<td>#{iso_version}</td>")
+        handle_output(values, "<td>#{iso_arch}</td>")
       else
-        verbose_message(values, "ISO/Image file:\t#{file_name}")
-        verbose_message(values, "Distribution:\t#{linux_distro}")
-        verbose_message(values, "Version:\t#{iso_version}")
-        verbose_message(values, "Architecture:\t#{iso_arch}")
+        handle_output(values, "ISO/Image file:\t#{file_name}")
+        handle_output(values, "Distribution:\t#{linux_distro}")
+        handle_output(values, "Version:\t#{iso_version}")
+        handle_output(values, "Architecture:\t#{iso_arch}")
       end
       iso_version = iso_version.gsub(/\./, '_')
       values['service'] =
@@ -1699,22 +1701,22 @@ def list_items(values)
       values['repodir'] = "#{values['baserepodir']}/#{values['service']}"
       if File.directory?(values['repodir'])
         if values['output'].to_s.match(/html/)
-          verbose_message(values, "<td>#{values['service']} (exists)</td>")
+          handle_output(values, "<td>#{values['service']} (exists)</td>")
         else
-          verbose_message(values, "Service Name:\t#{values['service']} (exists)")
+          handle_output(values, "Service Name:\t#{values['service']} (exists)")
         end
       elsif values['output'].to_s.match(/html/)
-        verbose_message(values, "<td>#{values['service']}</td>")
+        handle_output(values, "<td>#{values['service']}</td>")
       else
-        verbose_message(values, "Service Name:\t#{values['service']}")
+        handle_output(values, "Service Name:\t#{values['service']}")
       end
       if values['output'].to_s.match(/html/)
-        verbose_message(values, '</tr>')
+        handle_output(values, '</tr>')
       else
-        verbose_message(values, '')
+        handle_output(values, '')
       end
     end
-    verbose_message(values, '</table>') if values['output'].to_s.match(/html/)
+    handle_output(values, '</table>') if values['output'].to_s.match(/html/)
   end
   nil
 end
@@ -1940,25 +1942,25 @@ def list_clients(values)
   if service_list.length.positive?
     if values['output'].to_s.match(/html/)
       if values['service'].to_s.match(/[a-z,A-Z]/)
-        verbose_message(values, "<h1>Available #{values['service']} clients:</h1>")
+        handle_output(values, "<h1>Available #{values['service']} clients:</h1>")
       else
-        verbose_message(values, '<h1>Available clients:</h1>')
+        handle_output(values, '<h1>Available clients:</h1>')
       end
-      verbose_message(values, '<table border="1">')
-      verbose_message(values, '<tr>')
-      verbose_message(values, '<th>Client</th>')
-      verbose_message(values, '<th>Service</th>')
-      verbose_message(values, '<th>IP</th>')
-      verbose_message(values, '<th>MAC</th>')
-      verbose_message(values, '</tr>')
+      handle_output(values, '<table border="1">')
+      handle_output(values, '<tr>')
+      handle_output(values, '<th>Client</th>')
+      handle_output(values, '<th>Service</th>')
+      handle_output(values, '<th>IP</th>')
+      handle_output(values, '<th>MAC</th>')
+      handle_output(values, '</tr>')
     else
-      verbose_message(values, '')
+      handle_output(values, '')
       if values['service'].to_s.match(/[a-z,A-Z]/)
-        verbose_message(values, "Available #{values['service']} clients:")
+        handle_output(values, "Available #{values['service']} clients:")
       else
-        verbose_message(values, 'Available clients:')
+        handle_output(values, 'Available clients:')
       end
-      verbose_message(values, '')
+      handle_output(values, '')
     end
     service_list.each do |service_name|
       next unless service_name.match(/#{search_string}|#{service_name}/) && service_name.match(/[a-z,A-Z]/)
@@ -1975,12 +1977,12 @@ def list_clients(values)
         values['mac'] = get_install_mac(values)
         if File.directory?(values['clientdir'])
           if values['output'].to_s.match(/html/)
-            verbose_message(values, '<tr>')
-            verbose_message(values, "<td>#{client_name}</td>")
-            verbose_message(values, "<td>#{service_name}</td>")
-            verbose_message(values, "<td>#{client_ip}</td>")
-            verbose_message(values, "<td>#{client_mac}</td>")
-            verbose_message(values, '</tr>')
+            handle_output(values, '<tr>')
+            handle_output(values, "<td>#{client_name}</td>")
+            handle_output(values, "<td>#{service_name}</td>")
+            handle_output(values, "<td>#{client_ip}</td>")
+            handle_output(values, "<td>#{client_mac}</td>")
+            handle_output(values, '</tr>')
           else
             verbose_message(values,
                             "#{client_name}\t[ service = #{service_name}, ip = #{client_ip}, mac = #{client_mac} ] ")
@@ -1988,9 +1990,9 @@ def list_clients(values)
         end
       end
     end
-    verbose_message(values, '</table>') if values['output'].to_s.match(/html/)
+    handle_output(values, '</table>') if values['output'].to_s.match(/html/)
   end
-  verbose_message(values, '')
+  handle_output(values, '')
   nil
 end
 
@@ -1998,13 +2000,13 @@ end
 
 def list_ovas(values)
   file_list = Dir.entries(values['isodir'])
-  verbose_message(values, '')
-  verbose_message(values, 'Virtual Appliances:')
-  verbose_message(values, '')
+  handle_output(values, '')
+  handle_output(values, 'Virtual Appliances:')
+  handle_output(values, '')
   file_list.each do |file_name|
     verbose_message(file_name) if file_name.match(/ova$/)
   end
-  verbose_message(values, '')
+  handle_output(values, '')
 end
 
 # Check directory user ownership
@@ -3453,7 +3455,7 @@ def get_date_string(values)
   date_string = date.to_s.gsub(/\s+/, '_')
   date_string = date_string.gsub(/:/, '_')
   date_string = date_string.gsub(/-/, '_')
-  information_message(values, "Setting date string to #{date_string}")
+  verbose_message(values, "Setting date string to #{date_string}")
   date_string
 end
 
@@ -3634,7 +3636,7 @@ end
 def check_client_arch(values, opt)
   unless values['arch'].to_s.match(/i386|sparc|x86_64/)
     if (opt['F'] || opt['O']) && opt['A']
-      information_message(values, 'Setting architecture to x86_64')
+      verbose_message(values, 'Setting architecture to x86_64')
       values['arch'] = 'x86_64'
     end
     if opt['n']
@@ -4097,28 +4099,28 @@ def list_doms(values, dom_type, dom_command)
   output  = output.split("\n")
   if output.length.positive?
     if values['output'].to_s.match(/html/)
-      verbose_message(values, "<h1>Available #{dom_type}(s)</h1>")
-      verbose_message(values, '<table border="1">')
-      verbose_message(values, '<tr>')
-      verbose_message(values, '<th>Service</th>')
-      verbose_message(values, '</tr>')
+      handle_output(values, "<h1>Available #{dom_type}(s)</h1>")
+      handle_output(values, '<table border="1">')
+      handle_output(values, '<tr>')
+      handle_output(values, '<th>Service</th>')
+      handle_output(values, '</tr>')
     else
-      verbose_message(values, '')
-      verbose_message(values, "Available #{dom_type}(s):")
-      verbose_message(values, '')
+      handle_output(values, '')
+      handle_output(values, "Available #{dom_type}(s):")
+      handle_output(values, '')
     end
     output.each do |line|
       line = line.chomp
       line = line.gsub(/\s+$/, '')
       if values['output'].to_s.match(/html/)
-        verbose_message(values, '<tr>')
-        verbose_message(values, "<td>#{line}</td>")
-        verbose_message(values, '</tr>')
+        handle_output(values, '<tr>')
+        handle_output(values, "<td>#{line}</td>")
+        handle_output(values, '</tr>')
       else
-        verbose_message(values, line)
+        handle_output(values, line)
       end
     end
-    verbose_message(values, '</table>') if values['output'].to_s.match(/html/)
+    handle_output(values, '</table>') if values['output'].to_s.match(/html/)
   end
   nil
 end

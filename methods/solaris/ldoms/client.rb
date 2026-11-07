@@ -48,19 +48,19 @@ def list_gdoms(values)
         ldom_command = "ldm list |grep -v NAME |grep -v primary |awk '{print $1}'"
         list_doms(ldom_type, ldom_command)
       elsif values['verbose'] == true
-        verbose_message(values, '')
+        handle_output(values, '')
         warning_message(values, 'This service is only available on the Sun4v platform')
-        verbose_message(values, '')
+        handle_output(values, '')
       end
     elsif values['verbose'] == true
-      verbose_message(values, '')
+      handle_output(values, '')
       warning_message(values, 'This service is only available on Solaris 10 or later')
-      verbose_message(values, '')
+      handle_output(values, '')
     end
   elsif values['verbose'] == true
-    verbose_message(values, '')
+    handle_output(values, '')
     warning_message(values, 'This service is only available on Solaris')
-    verbose_message(values, '')
+    handle_output(values, '')
   end
   nil
 end

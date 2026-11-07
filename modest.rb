@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      9.3.2
+# Version:      9.4.7
 # Release:      1
 # License:      CC BY-NC-SA (Creative Commons Attribution-NonCommercial-ShareAlike)
 #               http://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
@@ -74,7 +74,8 @@ end
 
 def execute_message(values, text)
   text = "Executing:\t#{text}"
-  handle_output(values, text)
+  # Commands are shown with --verbose, and under --dryrun so the steps are visible without running them
+  handle_output(values, text) if (values['verbose'] == true) || (values['dryrun'] == true) || (values['notice'] == true)
   nil
 end
 
@@ -415,6 +416,7 @@ begin
     ['--options', REQUIRED],            # Options
     ['--os-info', REQUIRED],            # OS Info
     ['--os-type', REQUIRED],            # OS Type
+    ['--os', REQUIRED],                 # OS Type (same as --os-type)
     ['--os-variant', REQUIRED],         # OS Variant
     ['--output', REQUIRED],             # Output format (e.g. text/html)
     ['--outputdirectory', REQUIRED],    # Packer output directory
@@ -659,6 +661,15 @@ if values.key?('check')
   values['action'] = 'check' if values['action'].nil?
 end
 
+# --os is accepted as a short form of --os-type
+
+if values.key?('os') && !values.key?('os-type')
+  values['os-type'] = values.delete('os')
+end
+
+# Remember an architecture given on the command line, as the default architecture is set later
+values['requested-arch'] = values['arch'] if values['arch'].to_s.match?(/\S/)
+
 # Reject unsafe shell-bound values before defaults or normalisers run any command with them
 
 validate_shell_values(values)
@@ -694,7 +705,7 @@ if values['options']
       if option.match(/^no|^disable|^dont|^un/)
         temp_option = option.gsub(/^no|^dont|^un/, '')
         temp_option = temp_option.gsub(/disable/, 'enable')
-        information_message(values, "Setting value #{temp_option} to false")
+        verbose_message(values, "Setting value #{temp_option} to false")
         values[temp_option] = false
       else
         values[option] = true
@@ -840,7 +851,7 @@ values = handle_aws_vm_values(values)
 
 if values['name'] != values['empty']
   check_hostname(values)
-  information_message(values, "Setting client name to #{values['name']}") if values['verbose'] == true
+  verbose_message(values, "Setting client name to #{values['name']}") if values['verbose'] == true
 end
 
 # If specified admin set admin user
@@ -943,7 +954,7 @@ values = handle_packer_type(values)
 
 # Handle install service switch
 
-information_message(values, "Setting install service to #{values['service']}") if (values['service'] != values['empty']) && (values['verbose'] == true)
+verbose_message(values, "Setting install service to #{values['service']}") if (values['service'] != values['empty']) && (values['verbose'] == true)
 
 # Make sure a service (e.g. packer) or an install file (e.g. OVA) is specified for an import
 
@@ -988,7 +999,7 @@ values = handle_install_method(values)
 if values['type'].to_s.match(/packer/) && values['os-type'].to_s.match(/win/)
   unless values['vmnetwork'].to_s.match(/nat/)
     warning_message(values, 'Packer only supports installing Windows with a NAT network')
-    information_message(values, 'Setting network to NAT mode')
+    verbose_message(values, 'Setting network to NAT mode')
     values['vmnetwork'] = 'nat'
   end
   values['shell'] = 'winrm'

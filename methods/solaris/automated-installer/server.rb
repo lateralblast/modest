@@ -218,7 +218,7 @@ def get_ai_solaris_release(values)
     else
       warning_message(values, "Could not find #{release_file}")
       warning_message(values, 'Could not verify solaris release from repository')
-      information_message(values, 'Setting Solaris release to 11')
+      verbose_message(values, 'Setting Solaris release to 11')
       iso_repo_version = '11'
     end
   end
@@ -334,8 +334,8 @@ def list_ai_services(values)
     message = 'AI Services:'
     command = "installadm list |grep auto_install |grep -v default |awk \"{print \\\$1}\""
     output  = execute_command(values, message, command)
-    verbose_message(values, message)
-    verbose_message(values, output)
+    handle_output(values, message)
+    handle_output(values, output)
   end
   nil
 end

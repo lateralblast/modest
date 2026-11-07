@@ -363,7 +363,7 @@ def handle_vm_values(values)
       end
     end
     print_valid_list(values, "Warning:\tInvalid VM type", values['valid-vm']) if !values['valid-vm'].to_s.downcase.match(/#{values['vm']}/) && !values['action'].to_s.match(/list/)
-    information_message(values, "Setting VM type to #{values['vm']}")
+    verbose_message(values, "Setting VM type to #{values['vm']}")
   else
     values['vm'] = 'none'
   end
@@ -375,7 +375,7 @@ def handle_vm_values(values)
                       else
                         ''
                       end
-    information_message(values, "Setting model to #{values['model']}") if values['verbose'] == true && values['model']
+    verbose_message(values, "Setting model to #{values['model']}") if values['verbose'] == true && values['model']
   end
   # Handle gateway if not empty
   if values['vmgateway'] != values['empty']
@@ -391,7 +391,7 @@ def handle_vm_values(values)
   if values['mac'] != values['empty']
     values['vm'] = 'none' unless values['vm']
     values['mac'] = check_install_mac(values)
-    information_message(values, "Setting client MAC address to #{values['mac']}")
+    verbose_message(values, "Setting client MAC address to #{values['mac']}")
   else
     values['mac'] = ''
   end
@@ -456,7 +456,7 @@ def handle_release_values(values)
   else
     values['release'] = values['empty']
   end
-  information_message(values, "Setting Operating System version to #{values['release']}") if values['verbose'] == true && values['release']
+  verbose_message(values, "Setting Operating System version to #{values['release']}") if values['verbose'] == true && values['release']
   values
 end
 
@@ -487,7 +487,7 @@ end
 def handle_import_build_action(values)
   if values['action'].to_s.match(/build|import/)
     if values['type'] == values['empty']
-      information_message(values, 'Setting Install Service to Packer')
+      verbose_message(values, 'Setting Install Service to Packer')
       values['type'] = 'packer'
     end
     if values['vm'] == values['empty']
@@ -528,7 +528,7 @@ def handle_file_values(values)
       end
       if values['type'] == values['empty']
         values['type'] = get_install_type_from_file(values)
-        information_message(values, "Setting install type to #{values['type']}")
+        verbose_message(values, "Setting install type to #{values['type']}")
       end
     end
   end
@@ -579,6 +579,7 @@ end
 def handle_arch_values(values)
   if values['arch'] != values['empty']
     values['arch'] = values['arch'].downcase
+    values['arch'] = 'x86_64' if values['arch'] == 'amd64'
     values['arch'] = 'sparc' if values['arch'].to_s.match(/sun4u|sun4v/)
     values['arch'] = 'x86_64' if values['os-type'].to_s.match(/vmware/)
     values['arch'] = 'i386' if values['os-type'].to_s.match(/bsd/)
@@ -609,7 +610,7 @@ def handle_share_values(values)
     end
     values['mount'] = File.basename(values['share']) if values['mount'] == values['empty']
     information_message(values, "Sharing #{values['share']}")
-    information_message(values, "Setting mount point to #{values['mount']}")
+    verbose_message(values, "Setting mount point to #{values['mount']}")
   end
   values
 end
@@ -635,7 +636,7 @@ def handle_clone_values(values)
       clone_date = host_date.downcase.gsub(/ |:/, '_')
       values['clone'] = "#{values['name']}-#{clone_date}"
     end
-    information_message(values, "Setting clone name to #{values['clone']}") if values['verbose'] == true && values['clone']
+    verbose_message(values, "Setting clone name to #{values['clone']}") if values['verbose'] == true && values['clone']
   end
   values
 end

@@ -5,9 +5,10 @@
 # Install docker
 
 def install_docker(values)
-  if values['host-os-uname'].to_s.match(/Darwin/) && !Dir.exist?('/Applications/Docker.app')
-    information_message(values, 'Docker no installed')
-    verbose_message(values, "Download:\thttps://docs.docker.com/docker-for-mac/")
+  # The docker CLI and a running daemon are what is needed (Docker Desktop, Colima or Homebrew docker)
+  unless system('docker info >/dev/null 2>&1')
+    information_message(values, 'Docker is not installed or the Docker daemon is not running')
+    verbose_message(values, "Download:\thttps://docs.docker.com/get-docker/")
     quit(values)
   end
   nil
@@ -90,7 +91,7 @@ end
 def list_docker_instances(values)
   instances = get_docker_instance_list(values)
   instances.each do |instance|
-    verbose_message(values, instance) if (instance.match(/#{values['name']}/) || values['name'].to_s.match(/^#{values['empty']}$|^all$/)) && (instance.match(/#{values['id']}/) || values['id'].to_s.match(/^#{values['empty']}$|^all$/))
+    handle_output(values, instance) if (instance.match(/#{values['name']}/) || values['name'].to_s.match(/^#{values['empty']}$|^all$/)) && (instance.match(/#{values['id']}/) || values['id'].to_s.match(/^#{values['empty']}$|^all$/))
   end
   nil
 end
@@ -100,7 +101,7 @@ end
 def list_docker_images(values)
   images = get_docker_image_list(values)
   images.each do |image|
-    verbose_message(values, image) if (image.match(/#{values['name']}/) || values['name'].to_s.match(/^#{values['empty']}$|^all$/)) && (image.match(/#{values['id']}/) || values['id'].to_s.match(/^#{values['empty']}$|^all$/))
+    handle_output(values, image) if (image.match(/#{values['name']}/) || values['name'].to_s.match(/^#{values['empty']}$|^all$/)) && (image.match(/#{values['id']}/) || values['id'].to_s.match(/^#{values['empty']}$|^all$/))
   end
   nil
 end
@@ -116,21 +117,9 @@ end
 # Check docker instance exists
 
 def check_docker_vm_exists(values)
-  exists  = false
-  message = "Information:\tChecking docker instances for #{values['name']}"
-  command = 'docker-machine ls'
-  output  = execute_command(values, message, command)
-  output  = output.split(/\n/)
-  output.each do |line|
-    line  = line.chomp
-    items = line.split(/\s+/)
-    host  = items[0]
-    if host.match(/^#{values['name']}$/)
-      exists = true
-      return exists
-    end
-  end
-  exists
+  # Read-only, so it runs directly and also under --dryrun
+  output = `docker inspect --format '{{.Name}}' #{shell_arg(values['name'])} 2>/dev/null`
+  output.to_s.match?(/\S/)
 end
 
 # Check docker image exists

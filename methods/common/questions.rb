@@ -79,6 +79,6 @@ def evaluate_answer(key, answer, values)
     correct = true
   end
   answer = answer.to_s
-  information_message(values, "Setting parameter #{key} to #{answer}")
+  verbose_message(values, "Setting parameter #{key} to #{answer}")
   correct
 end

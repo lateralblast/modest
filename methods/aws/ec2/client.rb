@@ -358,7 +358,7 @@ def list_aws_instances(values)
       else
         string = "id=#{instance_id} image=#{image_id} status=#{status}"
       end
-      verbose_message(values, string)
+      handle_output(values, string)
     end
   end
   nil

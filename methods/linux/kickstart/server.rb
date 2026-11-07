@@ -304,10 +304,10 @@ def list_ks_services(values)
   values['method'] = 'ks'
   dir_list = get_dir_item_list(values)
   message  = 'Kickstart Services'
-  verbose_message(values, message)
+  handle_output(values, message)
   dir_list.each do |service|
-    verbose_message(values, service)
+    handle_output(values, service)
   end
-  verbose_message(values, '')
+  handle_output(values, '')
   nil
 end

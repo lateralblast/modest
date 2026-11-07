@@ -136,10 +136,10 @@ def list_multipass_vms(values)
   message = "Informtion:\tGetting list of local Multipass instances"
   output  = execute_command(values, message, command)
   output.split("\n")
-  verbose_message(values, "Image:\t\t\tState:\t\t  IPv4:\t\t   Image")
+  handle_output(values, "Image:\t\t\tState:\t\t  IPv4:\t\t   Image")
   vm_list = output.split("\n")
   vm_list.each do |line|
-    verbose_message(values, line)
+    handle_output(values, line)
   end
   nil
 end

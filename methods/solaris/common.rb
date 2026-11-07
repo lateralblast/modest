@@ -5,7 +5,7 @@
 # List all solaris ISOs
 
 def list_sol_isos(_search_string)
-  verbose_message(values, '')
+  handle_output(values, '')
   list_js_isos(values)
   list_ai_isos(values)
   nil

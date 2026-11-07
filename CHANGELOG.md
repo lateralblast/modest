@@ -6,6 +6,51 @@ newest first.
 
 ## modest.rb
 
+### [9.4.7] - 2026-11-08
+- For Docker instances, an architecture given with `--arch` is used for the image platform. Without `--arch`, the host architecture is used
+
+### [9.4.6] - 2026-11-08
+- `amd64` is accepted as an architecture, as the same as `x86_64`. Previously `--arch amd64` printed an unrecognised value warning
+
+### [9.4.5] - 2026-11-08
+- Checking whether a Docker instance exists runs under `--dryrun`, so a dry-run delete reports the instance it would remove, and a dry-run delete prints the `docker rm -f` it would run
+
+### [9.4.4] - 2026-11-08
+- `--action delete --vm docker --name <instance>` removes the Docker instance (`docker rm -f`). Previously it removed an image named after the instance. `--type image` still removes an image
+
+### [9.4.3] - 2026-11-08
+- The Docker exec code prints command output without `--verbose`. The `execute` action is not yet a valid `--action` value, so it cannot be run from the command line
+
+### [9.4.2] - 2026-11-08
+- Checking whether a Docker instance exists no longer prints the Docker error for a missing instance
+
+### [9.4.1] - 2026-11-08
+- Under `--dryrun`, `--action create --vm docker` prints the `docker run` command it would use
+
+### [9.4.0] - 2026-11-08
+- `--action create --vm docker` is routed to the Docker code when `--vm docker` is given, as well as when `--type docker` is given
+
+### [9.3.9] - 2026-11-08
+- Docker clients are managed with the `docker` CLI instead of `docker-machine`, which is deprecated and not installed by MODEST. `--action create --vm docker --os ubuntu --release <release>` runs `docker run` with an Ubuntu image, kept running with `sleep infinity`, for the host architecture. If the exact release is not published as an image, the release line is used (for example 26.04 for 26.04.1), with a warning. Delete uses `docker rm`, and exec uses `docker exec`
+
+### [9.3.8] - 2026-11-08
+- Docker is checked by `docker info` (the CLI and a running daemon), instead of requiring Docker Desktop at `/Applications/Docker.app`
+
+### [9.3.7] - 2026-11-08
+- `--os` is accepted as a short form of `--os-type`
+
+### [9.3.6] - 2026-11-08
+- `list` actions print their results without `--verbose`. Previously the results were only shown with `--verbose`
+
+### [9.3.5] - 2026-11-08
+- Command lines (`Executing:`) are shown only with `--verbose` or `--dryrun`, so a normal run does not echo every command
+
+### [9.3.4] - 2026-11-08
+- Startup messages (base repository, home, work and temporary directories, and the `Setting ...` echo of defaults) are shown only with `--verbose`
+
+### [9.3.3] - 2026-11-08
+- Fixed read-only actions (for example `--action list --vm docker`) configuring the host-only network with `sudo ifconfig ... up`. The network is now configured only when a VM is created or booted, for the VM types that use it
+
 ### [9.3.2] - 2026-11-08
 - Fixed the VirtualBox HDD creation being called with the wrong arguments (`methods/virtualbox/common.rb`)
 

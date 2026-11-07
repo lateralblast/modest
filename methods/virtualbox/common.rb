@@ -160,7 +160,7 @@ def list_vbox_vm_snapshots(values)
     list_all_vbox_vm_snapshots(values)
   else
     snapshot_list = get_vbox_vm_snapshots(values)
-    verbose_message(values, "Snapshots for #{values['name']}:")
+    handle_output(values, "Snapshots for #{values['name']}:")
     verbose_message(snapshot_list)
   end
   nil
@@ -231,16 +231,16 @@ def list_running_vbox_vms(values)
   set_vboxm_bin(values)
   if values['vboxmanage'].to_s.match(/[a-z]/)
     vm_list = get_running_vbox_vms(values)
-    verbose_message(values, '')
-    verbose_message(values, 'Running VirtualBox VMs:')
+    handle_output(values, '')
+    handle_output(values, 'Running VirtualBox VMs:')
     verbose_message('')
     vm_list.each do |vm_name|
       vm_name = vm_name.split(/"/)[1]
       os_info = `#{shell_arg(values['vboxmanage'])} showvminfo "#{shell_dq(vm_name)}" |grep '^Guest OS' |cut -f2 -d:`.chomp.gsub(/^\s+/,
                                                                                                             '')
-      verbose_message(values, "#{vm_name}\t#{os_info}")
+      handle_output(values, "#{vm_name}\t#{os_info}")
     end
-    verbose_message(values, '')
+    handle_output(values, '')
   end
   nil
 end
@@ -556,17 +556,17 @@ def list_vbox_vms(values)
                     "#{search_string} VirtualBox"
                   end
     if values['output'].to_s.match(/html/)
-      verbose_message(values, "<h1>Available #{type_string} VMs</h1>")
-      verbose_message(values, '<table border="1">')
-      verbose_message(values, '<tr>')
-      verbose_message(values, '<th>VM</th>')
-      verbose_message(values, '<th>OS</th>')
-      verbose_message(values, '<th>MAC</th>')
-      verbose_message(values, '</tr>')
+      handle_output(values, "<h1>Available #{type_string} VMs</h1>")
+      handle_output(values, '<table border="1">')
+      handle_output(values, '<tr>')
+      handle_output(values, '<th>VM</th>')
+      handle_output(values, '<th>OS</th>')
+      handle_output(values, '<th>MAC</th>')
+      handle_output(values, '</tr>')
     else
-      verbose_message(values, '')
-      verbose_message(values, "Available #{type_string} VMs:")
-      verbose_message(values, '')
+      handle_output(values, '')
+      handle_output(values, "Available #{type_string} VMs:")
+      handle_output(values, '')
     end
     vm_list.each do |line|
       line = line.chomp
@@ -576,21 +576,21 @@ def list_vbox_vms(values)
       vm_os  = get_vbox_vm_os(values)
       if (search_string == 'all') || line.match(/#{search_string}/)
         if values['output'].to_s.match(/html/)
-          verbose_message(values, '<tr>')
-          verbose_message(values, "<td>#{vm_name}</td>")
-          verbose_message(values, "<td>#{vm_mac}</td>")
-          verbose_message(values, "<td>#{vm_os}</td>")
-          verbose_message(values, '</tr>')
+          handle_output(values, '<tr>')
+          handle_output(values, "<td>#{vm_name}</td>")
+          handle_output(values, "<td>#{vm_mac}</td>")
+          handle_output(values, "<td>#{vm_os}</td>")
+          handle_output(values, '</tr>')
         else
           output = "#{vm_name} os=#{vm_os} mac=#{vm_mac}"
-          verbose_message(values, output)
+          handle_output(values, output)
         end
       end
     end
     if values['output'].to_s.match(/html/)
-      verbose_message(values, '</table>')
+      handle_output(values, '</table>')
     else
-      verbose_message(values, '')
+      handle_output(values, '')
     end
   end
   nil

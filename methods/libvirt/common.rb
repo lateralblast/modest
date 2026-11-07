@@ -280,7 +280,7 @@ def convert_kvm_image(values)
       file_name = "#{values['imagedir']}/#{values['name']}.qcow2"
       values['outputfile'] = file_name
       output_file = values['outputfile']
-      information_message(values, "Setting output file to #{output_file}")
+      verbose_message(values, "Setting output file to #{output_file}")
     end
   end
   path_name = Pathname.new(values['outputfile'].to_s).dirname
@@ -707,18 +707,18 @@ def list_kvm_vms(values)
                 end
   if file_list.length.positive?
     if values['output'].to_s.match(/html/)
-      verbose_message(values, "<h1>Available #{type_string} VMs</h1>")
-      verbose_message(values, '<table border="1">')
-      verbose_message(values, '<tr>')
-      verbose_message(values, '<th>VM</th>')
-      verbose_message(values, '<th>IP</th>')
-      verbose_message(values, '<th>MAC</th>')
-      verbose_message(values, '<th>Status</th>')
-      verbose_message(values, '</tr>')
+      handle_output(values, "<h1>Available #{type_string} VMs</h1>")
+      handle_output(values, '<table border="1">')
+      handle_output(values, '<tr>')
+      handle_output(values, '<th>VM</th>')
+      handle_output(values, '<th>IP</th>')
+      handle_output(values, '<th>MAC</th>')
+      handle_output(values, '<th>Status</th>')
+      handle_output(values, '</tr>')
     else
-      verbose_message(values, '')
-      verbose_message(values, "Available #{type_string} clients:")
-      verbose_message(values, '')
+      handle_output(values, '')
+      handle_output(values, "Available #{type_string} clients:")
+      handle_output(values, '')
     end
     file_list.each do |entry|
       next if entry.match(/^---|^ Id/)
@@ -731,22 +731,22 @@ def list_kvm_vms(values)
       values['ip'] = '' if values['ip'].nil?
       if (values['search'] == 'all') || (values['search'] == 'none') || entry.match(/#{values['search']}/)
         if values['output'].to_s.match(/html/)
-          verbose_message(values, '<tr>')
-          verbose_message(values, "<td>#{values['name']}</td>")
-          verbose_message(values, "<td>#{values['ip']}</td>")
-          verbose_message(values, "<td>#{values['mac']}</td>")
-          verbose_message(values, "<td>#{values['status']}</td>")
-          verbose_message(values, '</tr>')
+          handle_output(values, '<tr>')
+          handle_output(values, "<td>#{values['name']}</td>")
+          handle_output(values, "<td>#{values['ip']}</td>")
+          handle_output(values, "<td>#{values['mac']}</td>")
+          handle_output(values, "<td>#{values['status']}</td>")
+          handle_output(values, '</tr>')
         else
           output = "#{values['name']} ip=#{values['ip']} mac=#{values['mac']} status=#{values['status']}"
-          verbose_message(values, output)
+          handle_output(values, output)
         end
       end
     end
     if values['output'].to_s.match(/html/)
-      verbose_message(values, '</table>')
+      handle_output(values, '</table>')
     else
-      verbose_message(values, '')
+      handle_output(values, '')
     end
   end
   nil

@@ -78,7 +78,7 @@ def upload_file_to_aws_bucket(values)
   unless values['bucket'].to_s.match(/[A-Z]|[a-z]|[0-9]/)
     warning_message(values, 'No Bucket name given')
     values['bucket'] = values['bucket']
-    information_message(values, "Setting Bucket to default bucket '#{values['bucket']}'")
+    verbose_message(values, "Setting Bucket to default bucket '#{values['bucket']}'")
   end
   exists = check_if_aws_bucket_exists(values['access'], values['secret'], values['region'], values['bucket'])
   create_aws_s3_bucket(values['access'], values['secret'], values['region'], values['bucket']) if exists == false
@@ -96,7 +96,7 @@ def download_file_from_aws_bucket(values)
   unless values['bucket'].to_s.match(/[A-Z]|[a-z]|[0-9]/)
     warning_message(values, 'No Bucket name given')
     values['bucket'] = values['bucket']
-    information_message(values, "Setting Bucket to default bucket '#{values['bucket']}'")
+    verbose_message(values, "Setting Bucket to default bucket '#{values['bucket']}'")
   end
   values['key'] = "#{values['object']}/#{File.basename(values['file'])}" unless values['key'].to_s.match(/[A-Z]|[a-z]|[0-9]/)
   if values['file'].to_s.match(%r{/})

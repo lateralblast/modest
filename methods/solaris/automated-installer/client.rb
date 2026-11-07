@@ -11,16 +11,16 @@ def list_ai_clients(values)
   client_info = output.split(/\n/)
   if client_info.length.positive?
     if values['output'].to_s.match(/html/)
-      verbose_message(values, '<h1>Available AI clients:</h1>')
-      verbose_message(values, '<table border="1">')
-      verbose_message(values, '<tr>')
-      verbose_message(values, '<th>Client</th>')
-      verbose_message(values, '<th>Service</th>')
-      verbose_message(values, '</tr>')
+      handle_output(values, '<h1>Available AI clients:</h1>')
+      handle_output(values, '<table border="1">')
+      handle_output(values, '<tr>')
+      handle_output(values, '<th>Client</th>')
+      handle_output(values, '<th>Service</th>')
+      handle_output(values, '</tr>')
     else
-      verbose_message(values, '')
-      verbose_message(values, 'Available AI clients:')
-      verbose_message(values, '')
+      handle_output(values, '')
+      handle_output(values, 'Available AI clients:')
+      handle_output(values, '')
     end
     service = ''
     client  = ''
@@ -32,18 +32,18 @@ def list_ai_clients(values)
         client = client.gsub(/^\s+/, '')
         client = client.gsub(/\s+/, ' ')
         if values['output'].to_s.match(/html/)
-          verbose_message(values, '<tr>')
-          verbose_message(values, "<td>#{client}</td>")
-          verbose_message(values, "<td>#{service}</td>")
-          verbose_message(values, '</tr>')
+          handle_output(values, '<tr>')
+          handle_output(values, "<td>#{client}</td>")
+          handle_output(values, "<td>#{service}</td>")
+          handle_output(values, '</tr>')
         else
-          verbose_message(values, "#{client} [ service = #{service} ]")
+          handle_output(values, "#{client} [ service = #{service} ]")
         end
       end
     end
-    verbose_message(values, '</table>') if values['output'].to_s.match(/html/)
+    handle_output(values, '</table>') if values['output'].to_s.match(/html/)
   end
-  verbose_message(values, '')
+  handle_output(values, '')
   nil
 end
 

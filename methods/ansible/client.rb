@@ -21,7 +21,7 @@ def list_ansible_clients(values)
     vm_dir = "#{ansible_dir}/#{vm_type}"
     next unless File.directory?(vm_dir)
 
-    verbose_message(values, '')
+    handle_output(values, '')
     vm_title = case vm_type
                when /vbox/
                  'VirtualBox'
@@ -34,15 +34,15 @@ def list_ansible_clients(values)
     next unless vm_list.length.positive?
 
     if values['output'].to_s.match(/html/)
-      verbose_message(values, "<h1>Available Packer #{vm_title} clients</h1>")
-      verbose_message(values, '<table border="1">')
-      verbose_message(values, '<tr>')
-      verbose_message(values, '<th>VM</th>')
-      verbose_message(values, '<th>OS</th>')
-      verbose_message(values, '</tr>')
+      handle_output(values, "<h1>Available Packer #{vm_title} clients</h1>")
+      handle_output(values, '<table border="1">')
+      handle_output(values, '<tr>')
+      handle_output(values, '<th>VM</th>')
+      handle_output(values, '<th>OS</th>')
+      handle_output(values, '</tr>')
     else
-      verbose_message(values, "Ansible #{vm_title} clients:")
-      verbose_message(values, '')
+      handle_output(values, "Ansible #{vm_title} clients:")
+      handle_output(values, '')
     end
     vm_list.each do |vm_name|
       next unless vm_name.match(/[a-z,A-Z]/)
@@ -57,18 +57,18 @@ def list_ansible_clients(values)
                 yaml.grep(/guest_os_type/)[0].split(/:/)[1].split(/"/)[1]
               end
       if values['output'].to_s.match(/html/)
-        verbose_message(values, '<tr>')
-        verbose_message(values, "<td>#{vm_name}</td>")
-        verbose_message(values, "<td>#{vm_os}</td>")
-        verbose_message(values, '</tr>')
+        handle_output(values, '<tr>')
+        handle_output(values, "<td>#{vm_name}</td>")
+        handle_output(values, "<td>#{vm_os}</td>")
+        handle_output(values, '</tr>')
       else
-        verbose_message(values, "#{vm_name} os=#{vm_os}")
+        handle_output(values, "#{vm_name} os=#{vm_os}")
       end
     end
     if values['output'].to_s.match(/html/)
-      verbose_message(values, '</table>')
+      handle_output(values, '</table>')
     else
-      verbose_message(values, '')
+      handle_output(values, '')
     end
   end
   nil
@@ -149,7 +149,7 @@ def create_ansible_aws_install_files(values)
     if values['ami'].to_s.match(/^none$/)
       warning_message(values, "No AWS AMI ID found for #{old_values['ami']}")
       old_values['ami'] = values['ami']
-      information_message(values, "Setting AWS AMI ID to #{values['ami']}")
+      verbose_message(values, "Setting AWS AMI ID to #{values['ami']}")
     else
       information_message(values, "Found AWS AMI ID #{values['ami']} for #{old_values['ami']}")
     end

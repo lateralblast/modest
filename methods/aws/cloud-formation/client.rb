@@ -18,7 +18,7 @@ def list_aws_cf_stacks(values)
     name_length.times do
       name_spacer += ' '
     end
-    verbose_message(values, "#{stack_name} id=#{stack_id} stack_status=#{stack_status}")
+    handle_output(values, "#{stack_name} id=#{stack_id} stack_status=#{stack_status}")
     instance_id = ''
     public_ip   = ''
     region_id   = ''
@@ -28,7 +28,7 @@ def list_aws_cf_stacks(values)
       region_id = output.output_value if output.output_key.match(/AZ/)
       if output.output_key.match(/DNS/)
         public_dns = output.output_value
-        verbose_message(values, "#{name_spacer} id=#{instance_id} ip=#{public_ip} dns=#{public_dns} az=#{region_id}")
+        handle_output(values, "#{name_spacer} id=#{instance_id} ip=#{public_ip} dns=#{public_dns} az=#{region_id}")
       end
     end
   end
@@ -153,7 +153,7 @@ def configure_aws_cf_stack(values)
       values['key'] = File.basename(values['keyfile'])
       values['key'] = values['key'].split(/\./)[0..-2].join
     end
-    information_message(values, "Setting Key Name to #{values['key']}")
+    verbose_message(values, "Setting Key Name to #{values['key']}")
   end
   values['group'] = values['name'] unless values['key'].to_s.match(/[A-Z]|[a-z]|[0-9]/)
   if values['nosuffix'] == false
@@ -163,7 +163,7 @@ def configure_aws_cf_stack(values)
   end
   unless values['keyfile'].to_s.match(/[A-Z]|[a-z]|[0-9]/)
     values['keyfile'] = "#{values['keydir']}/#{values['key']}.pem"
-    information_message(values, "Setting Key file to #{values['keyfile']}")
+    verbose_message(values, "Setting Key file to #{values['keyfile']}")
   end
   create_aws_cf_stack_config(values)
   create_aws_cf_stack(values)

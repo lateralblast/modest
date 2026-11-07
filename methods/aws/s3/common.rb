@@ -86,7 +86,7 @@ def list_aws_buckets(values)
     bucket_name = bucket.name
     if values['bucket'].to_s.match(/^all$|#{bucket_name}|^none$/)
       bucket_date = bucket.creation_date
-      verbose_message(values, "#{bucket_name}\tcreated=#{bucket_date}")
+      handle_output(values, "#{bucket_name}\tcreated=#{bucket_date}")
     end
   end
   nil
@@ -100,8 +100,8 @@ def list_aws_bucket_objects(values)
     bucket_name = bucket.name
     next unless values['bucket'].to_s.match(/^all$|#{bucket_name}/)
 
-    verbose_message(values, '')
-    verbose_message(values, "#{bucket_name}:")
+    handle_output(values, '')
+    handle_output(values, "#{bucket_name}:")
     s3 = initiate_aws_s3_client(values['access'], values['secret'], values['region'])
     objects = s3.list_objects_v2({ bucket: bucket_name })
     objects.contents.each do |object|

@@ -27,32 +27,32 @@ def list_vs_clients(values)
   client_list = get_vs_clients(values)
   if client_list.length.positive?
     if values['output'].to_s.match(/html/)
-      verbose_message(values, '<h1>Available vSphere clients:</h1>')
-      verbose_message(values, '<table border="1">')
-      verbose_message(values, '<tr>')
-      verbose_message(values, '<th>Client</th>')
-      verbose_message(values, '<th>Service</th>')
-      verbose_message(values, '</tr>')
+      handle_output(values, '<h1>Available vSphere clients:</h1>')
+      handle_output(values, '<table border="1">')
+      handle_output(values, '<tr>')
+      handle_output(values, '<th>Client</th>')
+      handle_output(values, '<th>Service</th>')
+      handle_output(values, '</tr>')
     else
-      verbose_message(values, '')
-      verbose_message(values, 'Available vSphere clients:')
-      verbose_message(values, '')
+      handle_output(values, '')
+      handle_output(values, 'Available vSphere clients:')
+      handle_output(values, '')
     end
     client_list.each do |client_info|
       if values['output'].to_s.match(/html/)
         (values['name'], values['service']) = client_info.split(/ service = /)
-        verbose_message(values, '<tr>')
-        verbose_message(values, "<td>#{values['name']}</td>")
-        verbose_message(values, "<td>#{values['service']}</td>")
-        verbose_message(values, '</tr>')
+        handle_output(values, '<tr>')
+        handle_output(values, "<td>#{values['name']}</td>")
+        handle_output(values, "<td>#{values['service']}</td>")
+        handle_output(values, '</tr>')
       else
         verbose_message(client_info)
       end
     end
     if values['output'].to_s.match(/html/)
-      verbose_message(values, '</table>')
+      handle_output(values, '</table>')
     else
-      verbose_message(values, '')
+      handle_output(values, '')
     end
   end
   nil

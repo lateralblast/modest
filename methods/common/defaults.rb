@@ -76,7 +76,7 @@ def set_valid_defaults(values, defaults)
                                  export get halt info import list
                                  migrate shutdown start stop upload
                                  usage]
-  defaults['valid-arch']    = %w[x86_64 i386 sparc arm64]
+  defaults['valid-arch']    = %w[x86_64 amd64 i386 sparc arm64]
   defaults['valid-console'] = %w[text console x11 headless pty vnc]
   defaults['valid-format']  = %w[VMDK RAW VHD]
   defaults['valid-method']  = %w[ks xb vs ai js ps lxc mp

@@ -115,10 +115,10 @@ end
 def list_xb_services(values)
   dir_list = get_dir_item_list(values)
   message  = 'BSD Services:'
-  verbose_message(values, message)
+  handle_output(values, message)
   dir_list.each do |service|
-    verbose_message(values, service)
+    handle_output(values, service)
   end
-  verbose_message(values, '')
+  handle_output(values, '')
   nil
 end

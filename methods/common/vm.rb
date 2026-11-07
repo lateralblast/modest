@@ -435,7 +435,7 @@ def create_vm(values)
   values['mac'] = check_fusion_vm_mac(values) if values['vm'].to_s.match(/fusion/) && values['mac'].to_s.match(/[0-9]/)
   if !values['method'].to_s.match(/[a-z]/) && !values['os-type'].to_s.match(/[a-z]/)
     warning_message(values, 'Install method or OS not specified')
-    information_message(values, 'Setting OS to other')
+    verbose_message(values, 'Setting OS to other')
     values['method'] = 'other'
   end
   if values['file'].to_s.match(/ova$/)
@@ -480,7 +480,7 @@ def list_vms(values)
   when /libvirt|qemu/
     list_kvm_vms(values)
   else
-    verbose_message(values, "Warning:\tInvalid VM type")
+    handle_output(values, "Warning:\tInvalid VM type")
     quit(values)
   end
   nil

@@ -55,18 +55,18 @@ end
 
 def list_all_parallels_vms(values)
   vm_list = get_all_parallels_vms(values)
-  verbose_message(values, '')
-  verbose_message(values, 'Parallels VMS:')
-  verbose_message(values, '')
+  handle_output(values, '')
+  handle_output(values, 'Parallels VMS:')
+  handle_output(values, '')
   vm_list.each do |vm_name|
     os_info = `prlctl list --info "#{shell_dq(vm_name)}" |grep '^OS' |cut -f2 -d:`.chomp.gsub(/^\s+/, '')
     case os_info
     when /rhel/
       os_info = 'RedHat Enterprise Linux'
     end
-    verbose_message(values, "#{vm_name}\t#{os_info}")
+    handle_output(values, "#{vm_name}\t#{os_info}")
   end
-  verbose_message(values, '')
+  handle_output(values, '')
   nil
 end
 
@@ -77,14 +77,14 @@ def list_running_parallels_vms(values)
   command = "prlctl list --all |grep running |awk '{print $4}'"
   vm_list = execute_command(values, message, command)
   vm_list = vm_list.split("\n")
-  verbose_message(values, '')
-  verbose_message(values, 'Running Parallels VMS:')
-  verbose_message(values, '')
+  handle_output(values, '')
+  handle_output(values, 'Running Parallels VMS:')
+  handle_output(values, '')
   vm_list.each do |vm_name|
     os_info = get_parallels_os(values, vm_name)
-    verbose_message(values, "#{vm_name}\t#{os_info}")
+    handle_output(values, "#{vm_name}\t#{os_info}")
   end
-  verbose_message(values, '')
+  handle_output(values, '')
   nil
 end
 
@@ -96,14 +96,14 @@ def list_stopped_parallels_vms(values)
   vm_list = execute_command(values, message, command)
   vm_list.split("\n")
   vm_list = `prlctl list --all |grep stopped |awk '{print $4}'`.split("\n")
-  verbose_message(values, '')
-  verbose_message(values, 'Stopped Parallels VMS:')
-  verbose_message(values, '')
+  handle_output(values, '')
+  handle_output(values, 'Stopped Parallels VMS:')
+  handle_output(values, '')
   vm_list.each do |vm_name|
     os_info = get_parallels_os(values, vm_name)
-    verbose_message(values, "#{vm_name}\t#{os_info}")
+    handle_output(values, "#{vm_name}\t#{os_info}")
   end
-  verbose_message(values, '')
+  handle_output(values, '')
   nil
 end
 

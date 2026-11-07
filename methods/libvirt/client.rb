@@ -23,14 +23,14 @@ end
 
 def list_running_kvm_vms(values)
   vm_list = get_running_kvm_vms(values)
-  verbose_message(values, '')
-  verbose_message(values, 'Running VMs:')
-  verbose_message(values, '')
+  handle_output(values, '')
+  handle_output(values, 'Running VMs:')
+  handle_output(values, '')
   vm_list.each do |entry|
     (_, values['id'], values['name'], values['status']) = entry.split(/\s+/)
-    verbose_message(values, '')
+    handle_output(values, '')
   end
-  verbose_message(values, '')
+  handle_output(values, '')
   nil
 end
 
@@ -239,9 +239,9 @@ end
 def list_kvm_images(values)
   img_dir = values['imagedir'].to_s
   message = "Information:\tKVM images:"
-  verbose_message(values, message)
+  handle_output(values, message)
   command = "find #{shell_arg(img_dir)} -name \"*.img\""
   output  = execute_command(values, message, command)
-  verbose_message(values, output)
+  handle_output(values, output)
   nil
 end

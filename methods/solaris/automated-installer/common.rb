@@ -148,19 +148,19 @@ def list_ai_isos(values)
   iso_list = get_base_dir_list(values)
   if iso_list.length.positive?
     if values['output'].to_s.match(/html/)
-      verbose_message(values, '<h1>Available AI ISOs:</h1>')
-      verbose_message(values, '<table border="1">')
-      verbose_message(values, '<tr>')
-      verbose_message(values, '<th>ISO file</th>')
-      verbose_message(values, '<th>Distribution</th>')
-      verbose_message(values, '<th>Version</th>')
-      verbose_message(values, '<th>Architecture</th>')
-      verbose_message(values, '<th>Service Name</th>')
-      verbose_message(values, '</tr>')
+      handle_output(values, '<h1>Available AI ISOs:</h1>')
+      handle_output(values, '<table border="1">')
+      handle_output(values, '<tr>')
+      handle_output(values, '<th>ISO file</th>')
+      handle_output(values, '<th>Distribution</th>')
+      handle_output(values, '<th>Version</th>')
+      handle_output(values, '<th>Architecture</th>')
+      handle_output(values, '<th>Service Name</th>')
+      handle_output(values, '</tr>')
     else
-      verbose_message(values, 'Available AI ISOs:')
+      handle_output(values, 'Available AI ISOs:')
     end
-    verbose_message(values, '')
+    handle_output(values, '')
     iso_list.each do |file_name|
       file_name = file_namechomp
       iso_info = File.basename(file_name, '.iso')
@@ -174,39 +174,39 @@ def list_ai_isos(values)
       service = "sol_#{iso_version}"
       repodir = "#{values['baserepodir']}/#{service}"
       if values['output'].to_s.match(/html/)
-        verbose_message(values, '<tr>')
-        verbose_message(values, "<td>#{file_name}</td>")
-        verbose_message(values, '<td>Solaris 11</td>')
-        verbose_message(values, "<td>#{iso_version.gsub(/_/, '.')}</td>")
+        handle_output(values, '<tr>')
+        handle_output(values, "<td>#{file_name}</td>")
+        handle_output(values, '<td>Solaris 11</td>')
+        handle_output(values, "<td>#{iso_version.gsub(/_/, '.')}</td>")
         if values['file'].to_s.match(/repo/)
-          verbose_message(values, '<td>sparc and x86</td>')
+          handle_output(values, '<td>sparc and x86</td>')
         else
-          verbose_message(values, "<td>#{iso_arch}</td>")
+          handle_output(values, "<td>#{iso_arch}</td>")
         end
         if File.directory?(repodir)
-          verbose_message(values, "<td>#{service} (exists)</td>")
+          handle_output(values, "<td>#{service} (exists)</td>")
         else
-          verbose_message(values, "<td>#{service}</td>")
+          handle_output(values, "<td>#{service}</td>")
         end
-        verbose_message(values, '</tr>')
+        handle_output(values, '</tr>')
       else
-        verbose_message(values, "ISO file:\t#{values['file']}")
-        verbose_message(values, "Distribution:\tSolaris 11")
-        verbose_message(values, "Version:\t#{iso_version.gsub(/_/, '.')}")
+        handle_output(values, "ISO file:\t#{values['file']}")
+        handle_output(values, "Distribution:\tSolaris 11")
+        handle_output(values, "Version:\t#{iso_version.gsub(/_/, '.')}")
         if values['file'].to_s.match(/repo/)
-          verbose_message(values, "Architecture:\tsparc and x86")
+          handle_output(values, "Architecture:\tsparc and x86")
         else
-          verbose_message(values, "Architecture:\t#{iso_arch}")
+          handle_output(values, "Architecture:\t#{iso_arch}")
         end
         if File.directory?(values['repodir'])
-          verbose_message(values, "Service Name:\t#{service} (exists)")
+          handle_output(values, "Service Name:\t#{service} (exists)")
         else
-          verbose_message(values, "Service Name:\t#{service}")
+          handle_output(values, "Service Name:\t#{service}")
         end
-        verbose_message(values, '')
+        handle_output(values, '')
       end
     end
-    verbose_message(values, '</table>') if values['output'].to_s.match(/html/)
+    handle_output(values, '</table>') if values['output'].to_s.match(/html/)
   end
   nil
 end

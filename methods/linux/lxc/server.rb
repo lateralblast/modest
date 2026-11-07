@@ -9,19 +9,19 @@ def list_lxc_services(values)
     image_list = Dir.entries(values['lxcimagedir'])
     if image_list.length.positive?
       if values['output'].to_s.match(/html/)
-        verbose_message(values, '<h1>Available LXC service(s)</h1>')
-        verbose_message(values, '<table border="1">')
-        verbose_message(values, '<tr>')
-        verbose_message(values, '<th>Distribution</th>')
-        verbose_message(values, '<th>Version</th>')
-        verbose_message(values, '<th>Architecture</th>')
-        verbose_message(values, '<th>Image File</th>')
-        verbose_message(values, '<th>Service</th>')
-        verbose_message(values, '</tr>')
+        handle_output(values, '<h1>Available LXC service(s)</h1>')
+        handle_output(values, '<table border="1">')
+        handle_output(values, '<tr>')
+        handle_output(values, '<th>Distribution</th>')
+        handle_output(values, '<th>Version</th>')
+        handle_output(values, '<th>Architecture</th>')
+        handle_output(values, '<th>Image File</th>')
+        handle_output(values, '<th>Service</th>')
+        handle_output(values, '</tr>')
       else
-        verbose_message(values, '')
-        verbose_message(values, 'Available LXC Images:')
-        verbose_message(values, '')
+        handle_output(values, '')
+        handle_output(values, 'Available LXC Images:')
+        handle_output(values, '')
       end
       image_list.each do |image_name|
         next unless image_name.match(/tar/)
@@ -33,16 +33,16 @@ def list_lxc_services(values)
         image_ver  = image_info[1]
         image_arch = image_info[2]
         if values['output'].to_s.match(/html/)
-          verbose_message(values, '<tr>')
-          verbose_message(values, "<td>#{image_os.capitalize}</td>")
-          verbose_message(values, "<td>#{image_ver}</td>")
-          verbose_message(values, "<td><#{image_arch}/td>")
-          verbose_message(values, "<td>#{values['image']}</td>")
+          handle_output(values, '<tr>')
+          handle_output(values, "<td>#{image_os.capitalize}</td>")
+          handle_output(values, "<td>#{image_ver}</td>")
+          handle_output(values, "<td><#{image_arch}/td>")
+          handle_output(values, "<td>#{values['image']}</td>")
         else
-          verbose_message(values, "Distribution:\t#{image_os.capitalize}")
-          verbose_message(values, "Version:\t#{image_ver}")
-          verbose_message(values, "Architecture:\t#{image_arch}")
-          verbose_message(values, "Image File:\t#{values['image']}")
+          handle_output(values, "Distribution:\t#{image_os.capitalize}")
+          handle_output(values, "Version:\t#{image_ver}")
+          handle_output(values, "Architecture:\t#{image_arch}")
+          handle_output(values, "Image File:\t#{values['image']}")
         end
         values['service'] = if image_info[3]
                               "#{image_os.gsub(/ /, '')}_#{image_ver.gsub(/\./, '_')}_#{image_arch}_#{image_info[3]}"
@@ -50,15 +50,15 @@ def list_lxc_services(values)
                               "#{image_os.gsub(/ /, '')}_#{image_ver.gsub(/\./, '_')}_#{image_arch}"
                             end
         if values['output'].to_s.match(/html/)
-          verbose_message(values, "<td><#{values['service']}</td>")
-          verbose_message(values, '</tr>')
+          handle_output(values, "<td><#{values['service']}</td>")
+          handle_output(values, '</tr>')
         else
-          verbose_message(values, "Service Name:\t#{values['service']}")
-          verbose_message(values, '')
+          handle_output(values, "Service Name:\t#{values['service']}")
+          handle_output(values, '')
         end
       end
     end
-    verbose_message(values, '</table>') if values['output'].to_s.match(/html/)
+    handle_output(values, '</table>') if values['output'].to_s.match(/html/)
   end
   nil
 end
