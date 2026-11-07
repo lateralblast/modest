@@ -89,7 +89,7 @@ def post_process_values(values)
   values['g_struct'] = {}
   values['g_order']  = []
   # Handle method switch
-  if values['method'] != values['empty']
+  if !values['method'].nil? && values['method'] != values['empty']
     values['method'] = values['method'].downcase
     values['method'] = values['method'].gsub(/vsphere/, 'vs')
     values['method'] = values['method'].gsub(/jumpstart/, 'js')
@@ -340,11 +340,14 @@ def handle_vm_values(values)
       values['sudo'] = false
       values['vm']   = 'fusion'
     when /zone|container|lxc/
-      values['vm'] = if values['host-os-uname'].to_s.match(/SunOS/)
-                       'zone'
-                     else
-                       'lxc'
-                     end
+      if values['host-os-uname'].to_s.match(/SunOS/)
+        values['vm'] = 'zone'
+      elsif values['vm'].to_s.match(/zone/)
+        warning_message(values, 'Solaris zones can only be created on SunOS')
+        values['vm'] = 'none'
+      else
+        values['vm'] = 'lxc'
+      end
     when /ldom|cdom|gdom/
       if $os_arch.downcase.match(/sparc/) && values['host-os-uname'].to_s.match(/SunOS/)
         values['release'] = values['host-os-unamer'] if values['release'] == values['empty']
@@ -365,7 +368,7 @@ def handle_vm_values(values)
     values['vm'] = 'none'
   end
   if values['vm'] != values['empty'] || values['method'] != values['empty']
-    values['model'] = if values['model'] != values['empty']
+    values['model'] = if values['model'].to_s.match?(/\S/) && (values['model'] != values['empty'])
                         values['model'].downcase
                       elsif values['arch'].to_s.match(/i386|x86|x86_64|x64|amd64/)
                         'vmware'
@@ -508,7 +511,7 @@ end
 # Handle file values
 
 def handle_file_values(values)
-  if values['file'] != values['empty']
+  if values['file'].to_s.match?(/\S/) && (values['file'] != values['empty'])
     values['file'] = values['vboxadditions'] if values['vm'] == 'vbox' && values['file'] == 'tools'
     if !values['action'].to_s.match(/download/) && !File.exist?(values['file']) && !values['file'].to_s.match(/^http/)
       warning_message(values, "File #{values['file']} does not exist")
@@ -599,7 +602,7 @@ end
 # Handle share values
 
 def handle_share_values(values)
-  if values['share'] != values['empty']
+  if values['share'].to_s.match?(/\S/) && (values['share'] != values['empty'])
     unless File.directory?(values['share'])
       warning_message(values, "Share point #{values['share']} does not exist")
       quit(values)

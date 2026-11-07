@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      9.1.4
+# Version:      9.3.2
 # Release:      1
 # License:      CC BY-NC-SA (Creative Commons Attribution-NonCommercial-ShareAlike)
 #               http://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
@@ -775,7 +775,7 @@ end
 
 # Handle setup
 
-if (values['setup'] != values['empty']) && !File.exist?(values['setup'])
+if values['setup'].to_s.match?(/\S/) && (values['setup'] != values['empty']) && !File.exist?(values['setup'])
   warning_message(values, "Setup script '#{values['setup']}' not found")
   quit(values)
 end

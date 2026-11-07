@@ -318,7 +318,7 @@ def set_dir_defaults(values, defaults)
   defaults['imagedir']      = "#{defaults['basedir']}/export/images"
   defaults['apachedir']     = '/etc/apache2'
   defaults['wikidir']       = "#{defaults['scriptdir']}/#{File.basename(defaults['script'], '.rb')}.wiki"
-  defaults['wikiurl']       = 'https://github.com/lateralblast/mode.wiki.git'
+  defaults['wikiurl']       = 'https://github.com/lateralblast/modest.wiki.git'
   defaults['tmpdir']        = '/tmp'
   defaults['tftpdir']       = '/etc/netboot'
   defaults['fusiondir']     = "#{defaults['home']}/Virtual Machines"

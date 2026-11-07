@@ -25,7 +25,7 @@ end
 # Get docker instance list
 
 def get_docker_instance_list(values)
-  message   = "Information:\tListing docker images"
+  message   = "Information:\tListing docker instances"
   command   = 'docker ps'
   output    = execute_command(values, message, command)
   output.split(/\n/)
@@ -90,7 +90,7 @@ end
 def list_docker_instances(values)
   instances = get_docker_instance_list(values)
   instances.each do |instance|
-    verbose_message(instance) if (instance.match(/#{values['name']}/) || values['name'].to_s.match(/^#{values['empty']}$|^all$/)) && (instance.match(/#{values['id']}/) || values['id'].to_s.match(/^#{values['empty']}$|^all$/))
+    verbose_message(values, instance) if (instance.match(/#{values['name']}/) || values['name'].to_s.match(/^#{values['empty']}$|^all$/)) && (instance.match(/#{values['id']}/) || values['id'].to_s.match(/^#{values['empty']}$|^all$/))
   end
   nil
 end
@@ -100,7 +100,7 @@ end
 def list_docker_images(values)
   images = get_docker_image_list(values)
   images.each do |image|
-    verbose_message(image) if (image.match(/#{values['name']}/) || values['name'].to_s.match(/^#{values['empty']}$|^all$/)) && (image.match(/#{values['id']}/) || values['id'].to_s.match(/^#{values['empty']}$|^all$/))
+    verbose_message(values, image) if (image.match(/#{values['name']}/) || values['name'].to_s.match(/^#{values['empty']}$|^all$/)) && (image.match(/#{values['id']}/) || values['id'].to_s.match(/^#{values['empty']}$|^all$/))
   end
   nil
 end

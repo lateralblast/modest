@@ -4,12 +4,15 @@ Status: `[ ]` open, `[~]` in progress, `[x]` done.
 
 ## Open
 
-- [ ] `--action create --vm zone` runs the LXC questions: `methods/linux/lxc/questions.rb:130` uses an undefined `qs`, and the zone path is routed through LXC. Solaris zones need their own page once this works.
-- [ ] Linux containers (LXC) fail at `methods/linux/lxc/questions.rb:130` (undefined `qs`). The wiki has no LXC page yet.
-- [ ] Wiki pages still missing for Docker (create runs cleanly in dry-run), Ansible, cloud-init, BSD, WinPE, QEMU and Solaris zones. Parallels now has a page, verified for create and checks only.
-- [ ] `--action list --vm vbox`, `--vm fusion`, `--vm parallels` and `--action boot` without `--method` fail: `values['method']` is nil when `--method` is not given, so `methods/common/values.rb` (around line 93) calls `downcase` on nil. Guarding it exposes more nil values in `methods/common/common.rb` (around line 1439), `methods/common/host.rb` and the setup check in `modest.rb`. Fix them together, with a test for each action.
+- [ ] Systemic arity mismatches: a whole-tree check finds about 150 call sites whose argument count does not match the definition. Many are false positives (the same name is defined per platform), but the Solaris zone code, LDom and Jumpstart code, and most of the VirtualBox create path (`add_nonbridged_network_to_vbox_vm`, `modify_vbox_vm`, `setextradata_vbox_vm`, `add_hosts_entry`, `change_vbox_vm_mac`) are affected. VirtualBox create in dry-run still fails. Fix as a dedicated pass, with a test per function.
+- [ ] Docker server side is not finished: `methods/docker/server.rb` calls `create_docker_file` with one argument (it takes two), uses undefined `$docker_host_*` globals, writes a Dockerfile with no newlines and an invalid `FROM:` line, and `build_docker_file` does nothing.
+- [ ] Docker client create and delete use `docker-machine`, which is deprecated and not installed here. Switch to the `docker` CLI, then test for real.
+- [x] `--action create --vm zone` ran the LXC questions. Zones are now refused on non-SunOS hosts with a message, and the LXC questions use the right struct (9.2.2, 9.2.3).
+- [x] Linux containers (LXC) questions and standard container creation fixed (9.2.2, 9.2.4). Standard containers only run on Ubuntu hosts; the wiki LXC page is still missing.
+- [ ] Wiki pages still missing for Ansible, cloud-init, BSD, WinPE, QEMU, Solaris zones and Linux containers. Parallels and Docker now have pages.
+- [x] `list` and `boot` without `--method` ran past the nil-value failures (9.1.5 to 9.2.1). They now complete in dry-run for VirtualBox, Fusion and Parallels. Not yet run for real.
 - [ ] Parallels `--action boot`, `stop`, `delete` and `connect` have not been run for a real VM. Create, list and check are verified in dry-run only.
-- [ ] Dry-run runs `sudo sh -c` on read-only probes, for example `ifconfig prlsnet0` in the Parallels create path, which can prompt for a password under `--dryrun`.
+- [x] Dry-run ran `sudo` on read-only probes. Fixed in 9.2.7 (no sudo wrapping under `--dryrun`) and 9.2.8 (literal `sudo` prefixes dropped for read-only commands under `--dryrun`).
 - [ ] Test `--check parallels --install` for real on a Mac without Parallels, and check that the Homebrew cask install completes. The installed path has been run (Parallels 27.1.0).
 - [x] `--check fusion` confirmed on macOS with VMware Fusion 25.0.1 installed (version and location reported). Still untested: `--check workstation` on a Linux host with VMware Workstation installed.
 - [ ] Decide what `--install` should do for VMware. Fusion and Workstation are not in Homebrew or apt, so `--install` only prints the download page for now.

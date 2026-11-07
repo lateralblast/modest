@@ -127,11 +127,9 @@ def populate_lxc_client_questions(values)
   values['order'].push(name)
 
   name   = 'sudoers'
-  config = qs.new(
-    '',
+  config = lx.new(
     'Admin sudoers',
     'yes',
-    '',
     values['sudoers'],
     '',
     'no'

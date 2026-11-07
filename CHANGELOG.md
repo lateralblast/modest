@@ -6,6 +6,60 @@ newest first.
 
 ## modest.rb
 
+### [9.3.2] - 2026-11-08
+- Fixed the VirtualBox HDD creation being called with the wrong arguments (`methods/virtualbox/common.rb`)
+
+### [9.3.1] - 2026-11-08
+- Fixed the VirtualBox storage controller functions using `defaults`, which is not in scope there. The controller is named `SATA` with type `sata`, and the chipset is still taken from `--controller` (`methods/virtualbox/common.rb`)
+
+### [9.3.0] - 2026-11-08
+- Fixed the VirtualBox VM existence check matching the whole values hash instead of the VM name (`methods/virtualbox/common.rb`)
+
+### [9.2.9] - 2026-11-08
+- Fixed the VirtualBox VM directory lookup calling a function that does not exist (`get_box_vm_dir`) instead of `get_vbox_vm_dir` (`methods/virtualbox/common.rb`)
+
+### [9.2.8] - 2026-11-08
+- Under `--dryrun`, a literal `sudo` prefix on a read-only command is removed, so probes such as `netstat -rn` no longer ask for a password (`methods/common/common.rb`)
+
+### [9.2.7] - 2026-11-08
+- Under `--dryrun`, commands are not wrapped in `sudo`. Only read-only commands run in dry-run, and they do not need elevated rights (`methods/common/common.rb`)
+
+### [9.2.6] - 2026-11-08
+- Fixed the wiki URL used by the tool pointing at the old `mode.wiki.git` repository. It now points at `modest.wiki.git` (`methods/common/defaults.rb`)
+
+### [9.2.5] - 2026-11-08
+- Fixed `--action list --vm docker` failing when containers or images exist: the list calls passed the text without `values` to `verbose_message`. The instance list also reported itself as listing images (`methods/docker/common.rb`)
+
+### [9.2.4] - 2026-11-08
+- Fixed standard LXC container creation passing a nil command on hosts that are not Ubuntu. It now warns that standard containers need an Ubuntu host (`methods/linux/lxc/client.rb`)
+
+### [9.2.3] - 2026-11-08
+- Fixed `--vm zone` being turned into an LXC container on hosts other than SunOS. Zones are now only accepted on SunOS, and elsewhere the tool says so (`methods/common/values.rb`)
+
+### [9.2.2] - 2026-11-08
+- Fixed the LXC questions using an undefined `qs` struct for the admin sudoers question. It now uses the `lx` struct the rest of the questions use (`methods/linux/lxc/questions.rb`)
+
+### [9.2.1] - 2026-11-08
+- Fixed `--action list` and `boot` for VirtualBox, VMware Fusion and Parallels failing on a nil `model` value (`methods/common/values.rb`)
+
+### [9.2.0] - 2026-11-08
+- Fixed `--action list` and `boot` failing when no IP address is given: the install subnet is read as an empty string (`methods/common/common.rb`)
+
+### [9.1.9] - 2026-11-08
+- Fixed actions that take no `--file` (list, boot, delete, stop) failing on a nil file value (`methods/common/values.rb`)
+
+### [9.1.8] - 2026-11-08
+- Fixed actions that take no `--share` failing on a nil share value (`methods/common/values.rb`)
+
+### [9.1.7] - 2026-11-08
+- Fixed the hostname check failing for actions that take no `--name`, and its invalid-name warning calling `join` on a string (`methods/common/common.rb`)
+
+### [9.1.6] - 2026-11-08
+- Fixed actions that take no `--setup` failing on a nil setup value (`modest.rb`)
+
+### [9.1.5] - 2026-11-08
+- Fixed `--action list` and other actions run without `--method` failing on a nil method value (`methods/common/values.rb`)
+
 ### [9.1.4] - 2026-11-08
 - Fixed `--action create --vm parallels` failing when counting existing Parallels host-only networks: the output of `prlsrvctl net list` is a string and was treated as a list
 

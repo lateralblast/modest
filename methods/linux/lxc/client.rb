@@ -213,8 +213,12 @@ end
 # Create standard LXC
 
 def create_standard_lxc(values)
+  unless values['host-os-unamea'].to_s.match(/Ubuntu/)
+    warning_message(values, 'Standard LXC containers are only created on Ubuntu hosts')
+    return nil
+  end
   message = "Information:\tCreating standard container #{values['name']}"
-  command = "lxc-create -t ubuntu -n #{shell_arg(values['name'])}" if values['host-os-unamea'].match(/Ubuntu/)
+  command = "lxc-create -t ubuntu -n #{shell_arg(values['name'])}"
   execute_command(values, message, command)
   nil
 end

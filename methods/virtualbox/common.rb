@@ -645,7 +645,7 @@ def check_vbox_vm_doesnt_exist(values)
   message   = "Checking:\tVM #{values['name']} does not exist"
   command   = "#{shell_arg(values['vboxmanage'])} list vms"
   host_list = execute_command(values, message, command)
-  if host_list.match(values)
+  if host_list.match(/"#{values['name']}"/)
     information_message(values, "VirtualBox VM #{values['name']} already exists")
     quit(values)
   end
@@ -675,7 +675,7 @@ end
 
 def add_controller_to_vbox_vm(values)
   message = "Information:\tAdding controller to VirtualBox VM"
-  command = "#{shell_arg(values['vboxmanage'])} storagectl \"#{shell_dq(values['name'])}\" --name \"#{shell_dq(defaults['controller'])}\" --add \"#{shell_dq(defaults['controller'])}\" --controller \"#{shell_dq(values['controller'])}\""
+  command = "#{shell_arg(values['vboxmanage'])} storagectl \"#{shell_dq(values['name'])}\" --name \"SATA\" --add \"sata\" --controller \"#{shell_dq(values['controller'])}\""
   execute_command(values, message, command)
   nil
 end
@@ -701,8 +701,8 @@ end
 # Add hard disk to VirtualBox VM
 
 def add_hdd_to_vbox_vm(values)
-  message = "Information:\tAttaching storage \"#{values['disk']}\" of type \"#{defaults['controller']}\" to VM " + values['name']
-  command = "#{shell_arg(values['vboxmanage'])} storageattach \"#{shell_dq(values['name'])}\" --storagectl \"#{shell_dq(defaults['controller'])}\" --port 0 --device 0 --type hdd --medium \"#{shell_dq(values['disk'])}\""
+  message = "Information:\tAttaching storage \"#{values['disk']}\" of type \"sata\" to VM " + values['name']
+  command = "#{shell_arg(values['vboxmanage'])} storageattach \"#{shell_dq(values['name'])}\" --storagectl \"SATA\" --port 0 --device 0 --type hdd --medium \"#{shell_dq(values['disk'])}\""
   execute_command(values, message, command)
   nil
 end
@@ -1182,7 +1182,7 @@ def configure_vbox_vm(values)
     get_bridged_vbox_nic(values)
     values['vmnet'] = check_vbox_hostonly_network(values)
   end
-  values['vmdir']  = get_box_vm_dir(values)
+  values['vmdir']  = get_vbox_vm_dir(values)
   values['disk']   = "#{values['vmdir']}/#{values['name']}.vdi"
   values['socket'] = "/tmp/#{values['name']}"
   values['controller'] = get_vbox_controller(values)
@@ -1190,8 +1190,8 @@ def configure_vbox_vm(values)
   register_vbox_vm(values)
   add_controller_to_vbox_vm(values)
   unless values['file'].to_s.match(/ova$/)
-    create_vbox_hdd(values['name'], values['disk'], values['size'])
-    add_hdd_to_vbox_vm(values['name'], values['disk'])
+    create_vbox_hdd(values)
+    add_hdd_to_vbox_vm(values)
   end
   add_memory_to_vbox_vm(values)
   values['socket'] = add_socket_to_vbox_vm(values)

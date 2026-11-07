@@ -68,7 +68,7 @@ end
 def set_hostonly_info(values)
   host_ip        = get_my_ip(values)
   host_subnet    = host_ip.split('.')[2]
-  install_subnet = values['ip'].split('.')[2]
+  install_subnet = values['ip'].to_s.split('.')[2]
   hostonly_base  = '192.168'
   case values['vm']
   when /vmware|vmx|fusion/
@@ -1436,10 +1436,10 @@ end
 # Check hostname validity
 
 def check_hostname(values)
-  host_chars = values['name'].split
+  host_chars = values['name'].to_s.split
   host_chars.each do |char|
     unless char.match(/[a-z,A-Z,0-9]|-/)
-      verbose_message(values, "Invalid hostname: #{values['name'].join}")
+      verbose_message(values, "Invalid hostname: #{values['name']}")
       quit(values)
     end
   end
@@ -3372,7 +3372,9 @@ def execute_command(values, message, command)
     execute = true
   end
   if execute == true
-    if values['uid'] != 0
+    # Under --dryrun only read-only commands get here, and they run without sudo, including literal sudo prefixes
+    command = command.sub(/\Asudo /, '') if values['dryrun'] == true
+    if values['uid'] != 0 && values['dryrun'] != true
       if !command.match(/brew |sw_vers|id |groups|hg|pip|VBoxManage|vboxmanage|netstat|df|vmrun|noVNC|docker|packer|ansible-playbook|^ls|multipass/) && !values['host-os-uname'].to_s.match(/NT/)
         if values['sudo'] == true
           if command.match(/virsh/)
