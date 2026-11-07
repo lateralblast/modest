@@ -6,6 +6,22 @@ newest first.
 
 ## modest.rb
 
+### [8.9.1] - 2026-11-07
+- Changed `cd DIR ; ...` sequences to Ruby code when the commands that follow are supported file operations: relative paths are resolved against DIR, as the shell does, without changing the process directory (see `methods/common/files.rb`)
+- Added `chown` and `chgrp` with numeric owners and groups, including `-R`. These run in Ruby only when the tool runs as root; otherwise the shell path, including its `sudo` wrapper, is used
+- A `cd` to a directory that does not exist, or that is created earlier in the same command, sends the whole command to the shell
+
+### [8.9.0] - 2026-11-07
+- Changed `cat FILE | ... > DEST` and `>> DEST` pipelines to Ruby code, including when they are chained with `;` to `cp`, `cat`, `rm`, `echo` and the other supported file operations (see `methods/common/files.rb`)
+- A whole command still runs in the shell if any part is unsupported or the current user cannot write its targets
+- Glob characters (`* ? [ ] { } ~`) in file operations are now left to the shell, so `rm DIR/*` is never handled in Ruby
+
+### [8.8.0] - 2026-11-07
+- Changed `cat FILE` pipelines to Ruby code: `cat FILE |grep [-v] [-i] PATTERN`, `head -N`, `tail -N`, `awk '{print $N}'` and `cut -fN -dX` now read the file and filter in Ruby (see `methods/common/files.rb`)
+- Grep patterns are limited to characters that behave the same in Ruby as in basic regular expressions (letters, digits, space, `_ / : = , # - .`, with `^` and `$` at the ends); other patterns still run in the shell
+- Pipelines with an unescaped `$`, `|` inside quotes, globs, `wc`, `sed`, or anything else not listed still run in the shell
+- Six backtick reads in `defaults.rb`, `libvirt/common.rb` and `common.rb` now use the same router
+
 ### [8.7.0] - 2026-11-06
 - Changed compound file operations to Ruby code: `cp`, `rm`, `mkdir`, `touch`, `rmdir`, `chmod` (numeric or `+x`), `ln -s`, `cat` and `echo` joined by `;` and written with `>` or `>>` now run in Ruby (see `methods/common/files.rb`)
 - A compound command is only run in Ruby if every part is supported and the current user can write its targets; otherwise the whole command runs in the shell, including `sudo`

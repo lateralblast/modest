@@ -127,7 +127,7 @@ def check_kvm_permissions(values)
     value = 'iptables'
     message = "Information:\tChecking #{param} is set to #{value} in #{file_name}"
     verbose_message(values, message)
-    check = `cat #{shell_arg(file_name)} |grep ^FirewallBackend`.chomp
+    check = file_command_output("cat #{shell_arg(file_name)} |grep ^FirewallBackend").chomp
     unless check.match(/#{value}/)
       message = "Warning:\tParameter #{param} is no set to #{value} in #{file_name}"
       verbose_message(values, message)

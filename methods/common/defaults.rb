@@ -30,7 +30,7 @@ def set_os_defaults(values, defaults)
     defaults['host-os-cpu'] = '1'
   end
   if File.exist?('/proc/1/cgroup')
-    output = `cat /proc/1/cgroup |grep docker`
+    output = file_command_output("cat /proc/1/cgroup |grep docker")
     defaults['host-os'] = if output.match(/docker/)
                             'Docker'
                           else
@@ -41,7 +41,7 @@ def set_os_defaults(values, defaults)
   end
   if defaults['host-os-uname'].to_s.match(/SunOS|Darwin|NT/)
     if defaults['host-os-uname'].to_s.match(/SunOS/)
-      defaults['host-os-revision'] = `cat /etc/release |grep Solaris |head -1`.chomp.gsub(/^\s+/, '') if File.exist?('/etc/release')
+      defaults['host-os-revision'] = file_command_output("cat /etc/release |grep Solaris |head -1").chomp.gsub(/^\s+/, '') if File.exist?('/etc/release')
       if defaults['host-os-unamer'].to_s.match(/\./)
         defaults['host-os-version'] = defaults['host-os-unamer'].to_s.split(/\./)[1] if defaults['host-os-unamer'].to_s.match(/^5/)
         if defaults['host-os-version'].to_s.match(/^11/)
@@ -157,11 +157,11 @@ def set_vm_defaults(values, defaults)
                               else
                                 '/usr/sbin/dmidecode'
                               end
-      hv_check = `cat /proc/cpuinfo |grep -i hypervisor`.downcase
+      hv_check = file_command_output("cat /proc/cpuinfo |grep -i hypervisor").downcase
       defaults['host-os-platform'] = if hv_check.match(/hyper/)
                                        `sudo #{shell_arg(defaults['dmidecode'])} |grep 'Product Name'`.chomp
                                      else
-                                       `cat /proc/cpuinfo |grep -i "model name" |head -1`.chomp
+                                       file_command_output('cat /proc/cpuinfo |grep -i "model name" |head -1').chomp
                                      end
       defaults['lsb'] = if File.exist?('/bin/lsb_release')
                           '/bin/lsb_release'

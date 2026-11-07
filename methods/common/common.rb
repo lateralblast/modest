@@ -3739,7 +3739,7 @@ def add_apache_proxy(values, service_base_name)
     apache_config_file = "#{values['apachedir']}/conf/httpd.conf"
     values = install_package(values, 'apache2') unless File.exist?(apache_config_file)
   end
-  a_check = `cat #{shell_arg(apache_config_file)} |grep #{shell_arg(service_base_name)}`
+  a_check = file_command_output("cat #{shell_arg(apache_config_file)} |grep #{shell_arg(service_base_name)}")
   unless a_check.match(/#{service_base_name}/)
     message = "Information:\tArchiving #{apache_config_file} to #{apache_config_file}.no_#{service_base_name}"
     command = "cp #{shell_arg(apache_config_file)} #{shell_arg(apache_config_file)}.no_#{shell_arg(service_base_name)}"
