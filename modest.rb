@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      10.0.3
+# Version:      10.1.0
 # Release:      1
 # License:      CC BY-NC-SA (Creative Commons Attribution-NonCommercial-ShareAlike)
 #               http://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
@@ -417,6 +417,7 @@ begin
     ['--os-info', REQUIRED],            # OS Info
     ['--os-type', REQUIRED],            # OS Type
     ['--os', REQUIRED],                 # OS Type (same as --os-type)
+    ['--distro', REQUIRED],             # Linux distribution to list ISOs for (e.g. ubuntu)
     ['--os-variant', REQUIRED],         # OS Variant
     ['--output', REQUIRED],             # Output format (e.g. text/html)
     ['--outputdirectory', REQUIRED],    # Packer output directory
@@ -687,6 +688,8 @@ values['stdout'] = []
 # Get defaults
 
 defaults = {}
+# Record whether --nic was given, before defaults fill it in
+values['nic-given'] = values['nic'].to_s.match?(/\w/)
 (values, defaults) = set_defaults(values, defaults)
 defaults['stdout'] = []
 

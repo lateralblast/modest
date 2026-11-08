@@ -6,6 +6,27 @@ newest first.
 
 ## modest.rb
 
+### [10.1.0] - 2026-11-09
+- The VMware Fusion network table shows the UP column before DHCP_RANGE
+
+### [10.0.9] - 2026-11-09
+- `--action list --type network` shows a DHCP_RANGE column for each VMware Fusion network: the range from VMware's own DHCP configuration when DHCP is on, or the netboot DHCP range on the same subnet (marked `(netboot)`). `none` means no range is configured
+
+### [10.0.8] - 2026-11-08
+- `--action add --mode server` on macOS needs `--nic <interface>`, for example `--nic bridge104`. Without it the add stops with a warning and configures nothing. The netboot services (DHCP and TFTP, and the HTTP server) use that interface and its IPv4 address. An interface with no address also stops the add
+
+### [10.0.7] - 2026-11-08
+- `--action list --type iso` lists ISOs again when `--distro` is not given. The distribution filter added in 10.0.4 treated its default value as a name, so it dropped every ISO. `--action list --type iso --method ci` lists the subiquity (cloud-init) live server ISOs, such as Ubuntu 26.04.1
+
+### [10.0.6] - 2026-11-08
+- The VMware Fusion networks in `--action list --type network` are shown as an aligned table with a header row
+
+### [10.0.5] - 2026-11-08
+- `--action list --type network` lists the host networks that VMs can use: the VMware Fusion networks (type, subnet, host address, DHCP, and whether the host address is up) and the VirtualBox host-only and NAT networks. `--vm fusion` or `--vm vbox` limits the list to one hypervisor. With `--name`, the existing per-VM NIC listing for Fusion is unchanged
+
+### [10.0.4] - 2026-11-08
+- `--distro <name>` limits an ISO list to one Linux distribution, for example `--action list --type iso --os linux --distro ubuntu` lists the Ubuntu ISOs and `--distro redhat` lists none of them
+
 ### [10.0.3] - 2026-11-08
 - The seed for a Fusion cloud-init VM on Apple Silicon enables a login prompt on the serial port (`serial-getty@ttyS0`), so the serial console accepts logins whether the VM is started headless or with its window
 

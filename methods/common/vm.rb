@@ -106,10 +106,101 @@ end
 # Get VM network
 
 def show_vm_network(values)
+  if values['name'] == values['empty']
+    list_vm_networks(values)
+    return nil
+  end
   case values['vm']
   when /fusion/
     show_fusion_vm_network(values)
   end
+  nil
+end
+
+# List the host networks that VMs can use (--action list --type network), optionally for one hypervisor (--vm)
+
+def list_vm_networks(values)
+  list_fusion_networks(values) if values['vm'] == values['empty'] || values['vm'].to_s.match(/fusion/)
+  list_vbox_networks(values) if values['vm'] == values['empty'] || values['vm'].to_s.match(/vbox/)
+  nil
+end
+
+# VMware Fusion networks, from the Fusion networking file (VNET_<n>_* entries)
+
+def list_fusion_networks(values)
+  networking = '/Library/Preferences/VMware Fusion/networking'
+  return nil unless File.exist?(networking)
+
+  nets = {}
+  IO.readlines(networking).each do |line|
+    next unless line.match?(/^answer VNET_\d+_\w+ /)
+
+    (_, number, key, value) = line.chomp.match(/^answer VNET_(\d+)_(\w+) (.*)$/).to_a
+    nets[number] ||= {}
+    nets[number][key] = value
+  end
+  rows = [%w[NETWORK TYPE SUBNET HOST_ADDRESS DHCP UP DHCP_RANGE]]
+  nets.keys.sort_by(&:to_i).each do |number|
+    net    = nets[number]
+    name   = "vmnet#{number}"
+    subnet = net['HOSTONLY_SUBNET']
+    types  = []
+    types.push('nat') if net['NAT'] == 'yes'
+    types.push('host-only') if subnet
+    host_ip = subnet ? "#{subnet.split('.')[0..2].join('.')}.1" : 'none'
+    up      = host_ip == 'none' ? 'no' : (execute_command(values, "Information:\tChecking #{name} address", "ifconfig -a | grep -c 'inet #{host_ip} '").to_s.strip.to_i.positive? ? 'yes' : 'no')
+    dhcp_range = fusion_dhcp_range(values, number, net, subnet)
+    rows.push([name, types.join(', '), subnet || 'none', host_ip, net['DHCP'] || 'no', up, dhcp_range])
+  end
+  handle_output(values, 'VMware Fusion networks:')
+  print_table(values, rows)
+  nil
+end
+
+# DHCP range of a Fusion network: VMware's own dhcpd.conf when its DHCP is on, else a netboot DHCP range on the same subnet
+
+def fusion_dhcp_range(values, number, net, subnet)
+  if net['DHCP'] == 'yes'
+    dhcpd_conf = "/Library/Preferences/VMware Fusion/vmnet#{number}/dhcpd.conf"
+    if File.exist?(dhcpd_conf)
+      range = IO.readlines(dhcpd_conf).map { |line| line[/range\s+(\S+)\s+(\S+?);/, 0] }.compact.first
+      return range.gsub(/range\s+|;/, '').sub(/\s+/, ' - ') if range
+    end
+  end
+  return 'none' if subnet.nil?
+
+  prefix = subnet.split('.')[0..2].join('.')
+  state_dir = "#{File.dirname(values['baserepodir'])}/state/netboot"
+  Dir.glob("#{state_dir}/dnsmasq-*.conf").each do |conf|
+    match = IO.readlines(conf).map { |line| line[/^dhcp-range=#{Regexp.escape(prefix)}\.(\d+),#{Regexp.escape(prefix)}\.(\d+)/, 0] && $~ }.compact.first
+    return "#{prefix}.#{match[1]} - #{prefix}.#{match[2]} (netboot)" if match
+  end
+  'none'
+end
+
+# Print rows as an aligned table: the first row is the header, and columns are as wide as their longest value
+
+def print_table(values, rows)
+  widths = rows.transpose.map { |column| column.map(&:length).max }
+  rows.each do |row|
+    line = row.each_with_index.map { |cell, index| cell.to_s.ljust(widths[index]) }.join('  ')
+    handle_output(values, "  #{line.rstrip}")
+  end
+  nil
+end
+
+# VirtualBox host-only and NAT networks
+
+def list_vbox_networks(values)
+  vboxmanage = find_vboxmanage
+  return nil if vboxmanage.to_s.empty?
+
+  hostonly = execute_command(values, 'Information:\tListing VirtualBox host-only networks', "#{shell_arg(vboxmanage)} list hostonlyifs").to_s
+  natnets  = execute_command(values, 'Information:\tListing VirtualBox NAT networks', "#{shell_arg(vboxmanage)} list natnets").to_s
+  handle_output(values, 'VirtualBox host-only networks:')
+  handle_output(values, hostonly.strip.empty? ? '  none' : hostonly.lines.map { |line| "  #{line.chomp}" }.join("\n"))
+  handle_output(values, 'VirtualBox NAT networks:')
+  handle_output(values, natnets.strip.empty? ? '  none' : natnets.lines.map { |line| "  #{line.chomp}" }.join("\n"))
   nil
 end
 

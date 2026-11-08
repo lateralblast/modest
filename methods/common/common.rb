@@ -1658,6 +1658,14 @@ def list_items(values)
     iso_list    = []
     iso_list[0] = values['file']
   end
+  # Only list ISOs for the requested Linux distribution (e.g. --distro ubuntu)
+  if values['distro'] != values['empty'] && values['vm'].to_s.match(/mp|multipass/) == nil
+    distro   = values['distro'].to_s.downcase
+    iso_list = iso_list.select do |file_name|
+      (linux_distro, _iso_version, _iso_arch) = get_linux_version_info(file_name.chomp)
+      linux_distro.to_s.downcase.include?(distro)
+    end
+  end
   if iso_list.length.positive?
     if values['output'].to_s.match(/html/)
       handle_output(values, '<h1>Available ISO(s)/Image(s):</h1>')

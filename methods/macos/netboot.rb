@@ -132,18 +132,21 @@ end
 def configure_osx_netboot_services(values, boot_file = 'grubaa64.efi', port = '8081')
   # The generic default TFTP directory is /etc/netboot, which is not used on macOS
   values['tftpdir'] = '/private/tftpboot'
-  host_ip = get_osx_vmnet_host_ip(values)
-  if host_ip.nil?
-    warning_message(values, "Cannot find the host address for #{values['vmnet']}, so the netboot services are not configured")
+  unless values['nic-given'] == true
+    warning_message(values, 'No --nic given: a server add on macOS needs the network interface for DHCP and TFTP, for example --nic bridge104. Nothing was configured')
+    quit(values)
     return nil
   end
-  if_name = get_osx_interface_for_ip(values, host_ip)
-  if if_name.to_s.empty? && values['dryrun'] != true
-    warning_message(values, "No interface has #{host_ip} (start the #{values['vmnet']} network with a VM first), so the netboot services are not configured")
+  if_name = values['nic']
+  message = "Information:\tGetting the address of #{if_name}"
+  host_ip = execute_command(values, message, "ifconfig #{shell_arg(if_name)} | awk '/inet /{print $2; exit}'").to_s.strip
+  if host_ip.empty? && values['dryrun'] != true
+    warning_message(values, "Interface #{if_name} has no IPv4 address (start the VM on its network first), so the netboot services are not configured")
+    quit(values)
     return nil
   end
-  if_name = "<#{values['vmnet']} bridge>" if if_name.to_s.empty?
-  information_message(values, "Netboot network #{values['vmnet']} on #{if_name} with host address #{host_ip}")
+  host_ip = "#{if_name}-address" if host_ip.empty?
+  information_message(values, "Netboot interface #{if_name} with host address #{host_ip}")
   dnsmasq_conf = write_osx_dnsmasq_config(values, if_name, host_ip, boot_file)
   start_osx_dnsmasq(values, dnsmasq_conf)
   httpd_conf = write_osx_httpd_config(values, host_ip, port)

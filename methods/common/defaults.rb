@@ -712,6 +712,7 @@ def set_defaults(values, defaults)
   defaults['empty']  = 'none'
   defaults['action'] = 'help'
   defaults['search'] = ''
+  defaults['distro'] = defaults['empty']
   defaults['object'] = 'uploads'
   defaults['cidr']   = '24'
   defaults['acl']    = 'private'
