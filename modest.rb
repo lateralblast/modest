@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      10.1.0
+# Version:      10.2.2
 # Release:      1
 # License:      CC BY-NC-SA (Creative Commons Attribution-NonCommercial-ShareAlike)
 #               http://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
@@ -657,6 +657,7 @@ if values.key?('check')
     puts '  fusion      check VMware Fusion is installed (macOS)'
     puts '  workstation check VMware Workstation is installed (Linux)'
     puts '  parallels   check Parallels Desktop is installed (macOS)'
+    puts '  packer      check Packer is installed (--install installs it with Homebrew on macOS)'
     exit 1
   end
   values['action'] = 'check' if values['action'].nil?

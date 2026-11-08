@@ -14,6 +14,7 @@ def handle_action(values)
       check_virtualbox(values) if values['check'].to_s.match(/virtualbox|vbox/)
       check_vmware(values) if values['check'].to_s.match(/fusion|workstation/)
       check_parallels(values) if values['check'].to_s.match(/parallels/)
+      check_packer(values) if values['check'].to_s.match(/packer/)
       check_kvm_permissions(values) if values['vm'].to_s.match(/kvm/)
       check_kvm_network_bridge(values) if values['type'].to_s.match(/bridge/) && values['vm'].to_s.match(/kvm/)
       values = check_local_config(values) if values['mode'].to_s.match(/server/)
@@ -205,6 +206,8 @@ def handle_action(values)
           return values
         end
         if values['service'] == values['empty'] && values['vm'] == values['empty']
+          # A client add (with --mode client) has boot files and a seed to remove, even when no VM exists
+          unconfigure_client(values) if values['mode'].to_s.match(/client/) && values['method'].to_s.match(/ci/)
           if values['vm'] == values['empty']
             values['vm'] = get_client_vm_type(values)
             if values['vm'].to_s.match(/vbox|fusion|parallels|mp|multipass/)
@@ -444,8 +447,10 @@ def handle_action(values)
                   add_hosts_entry(values)
                 end
                 if values['mac'].to_s.match(/[0-9]|[a-f]|[A-F]/)
-                  values['service'] = ''
-                  add_dhcp_client(values)
+                  # On macOS the netboot DHCP server serves clients, and the service is kept for a PXE client
+
+                  values['service'] = '' unless values['host-os-uname'].to_s.match(/Darwin/)
+                  add_dhcp_client(values) unless values['host-os-uname'].to_s.match(/Darwin/)
                 end
               else
                 if values['model'] == values['empty']
@@ -473,8 +478,10 @@ def handle_action(values)
                 add_hosts_entry(values)
               end
               if values['mac'].to_s.match(/[0-9]|[a-f]|[A-F]/)
-                values['service'] = ''
-                add_dhcp_client(values)
+                # On macOS the netboot DHCP server serves clients, and the service is kept for a PXE client
+
+                values['service'] = '' unless values['host-os-uname'].to_s.match(/Darwin/)
+                add_dhcp_client(values) unless values['host-os-uname'].to_s.match(/Darwin/)
               end
             end
           end

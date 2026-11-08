@@ -68,6 +68,9 @@ end
 def get_client_vm_type(values)
   values['vm'] = ''
   values['valid-vm'].each do |test_vm|
+    # Skip a VM type that has no installed check (for example vmware, which is covered by fusion)
+    next unless respond_to?("check_#{test_vm}_is_installed", true)
+
     information_message(values, "Checking if '#{values['name']}' is a '#{test_vm}' VM")
     exists = eval "[check_#{test_vm}_is_installed(values)]"
     next unless exists.to_s.match(/yes/)
@@ -122,6 +125,100 @@ end
 def list_vm_networks(values)
   list_fusion_networks(values) if values['vm'] == values['empty'] || values['vm'].to_s.match(/fusion/)
   list_vbox_networks(values) if values['vm'] == values['empty'] || values['vm'].to_s.match(/vbox/)
+  list_qemu_networks(values) if values['vm'] == values['empty'] || values['vm'].to_s.match(/kvm|qemu|libvirt/)
+  list_kvm_networks(values) if values['vm'] == values['empty'] || values['vm'].to_s.match(/kvm|qemu|libvirt/)
+  list_parallels_networks(values) if values['vm'] == values['empty'] || values['vm'].to_s.match(/parallels/)
+  list_multipass_networks(values) if values['vm'] == values['empty'] || values['vm'].to_s.match(/multipass/)
+  nil
+end
+
+# Multipass networks: the host interfaces Multipass can bridge to (multipass networks), with the driver and bridged network setting.
+# Multipass does not report a subnet or DHCP range for its NAT, so those come from the host interface and are shown as upstream
+
+def list_multipass_networks(values)
+  multipass = execute_command(values, 'Information:\tChecking for Multipass', 'command -v multipass 2>/dev/null').to_s.strip
+  return nil if multipass.empty?
+
+  networks = execute_command(values, 'Information:\tListing Multipass networks', 'multipass networks --format csv 2>/dev/null').to_s
+  driver   = execute_command(values, 'Information:\tGetting the Multipass driver', 'multipass get local.driver 2>/dev/null').to_s.strip
+  bridged  = execute_command(values, 'Information:\tGetting the Multipass bridged network', 'multipass get local.bridged-network 2>/dev/null').to_s.strip
+  rows = [%w[NETWORK TYPE SUBNET HOST_ADDRESS DHCP UP DHCP_RANGE]]
+  networks.lines.drop(1).each do |line|
+    (_, name, type) = line.chomp.match(/\A([^,]*),([^,]*),/).to_a
+    next if name.to_s.empty?
+
+    ifconfig = execute_command(values, "Information:\tGetting Multipass network #{name}", "ifconfig #{shell_arg(name)} 2>/dev/null").to_s
+    host_ip  = ifconfig[/inet (\S+) netmask/, 1]
+    mask     = ifconfig[/netmask (0x[0-9a-fA-F]+)/, 1]
+    subnet   = if host_ip && mask
+                 cidr = mask.to_i(16).to_s(2).count('1')
+                 "#{IPAddr.new(host_ip).mask(cidr)}/#{cidr}"
+               else
+                 'none'
+               end
+    up = ifconfig.match?(/status: active/) ? 'yes' : 'no'
+    rows.push([name, type, subnet, host_ip || 'none', 'upstream', up, 'upstream'])
+  end
+  handle_output(values, "Multipass networks (driver: #{driver.empty? ? 'unknown' : driver}, bridged network: #{bridged.empty? || bridged.match?(/empty/) ? 'none' : bridged}):")
+  print_table(values, rows)
+  nil
+end
+
+# Parallels networks, from prlsrvctl: the network list, then each network's adapter address and DHCP scope
+
+def list_parallels_networks(values)
+  listing = execute_command(values, 'Information:\tListing Parallels networks', 'prlsrvctl net list 2>/dev/null').to_s
+  return nil if listing.strip.empty?
+
+  header  = listing.lines.first.to_s
+  type_at = header.index('Type')
+  bound_at = header.index('Bound To')
+  rows = [%w[NETWORK TYPE SUBNET HOST_ADDRESS DHCP UP DHCP_RANGE]]
+  listing.lines.drop(1).each do |line|
+    next if line.strip.empty? || type_at.nil?
+
+    name = line[0...type_at].to_s.strip
+    type = line[type_at...(bound_at || line.length)].to_s.strip
+    next if name.empty? || type.empty?
+
+    info    = execute_command(values, "Information:\tGetting Parallels network #{name}", "prlsrvctl net info #{shell_arg(name)} 2>/dev/null").to_s
+    host_ip = info[/IPv4 address: (\S+)/, 1]
+    mask    = info[/IPv4 subnet mask: (\S+)/, 1]
+    dhcp4   = info[/DHCPv4 server:(.*?)(?=DHCPv6 server:|\z)/m, 1].to_s
+    dhcp    = dhcp4[/Server address: (\S+)/, 1]
+    scope   = dhcp4.scan(/IP scope (start|end) address: (\S+)/).to_h
+    subnet  = host_ip && mask ? "#{IPAddr.new(host_ip).mask(netmask_to_cidr(mask))}/#{netmask_to_cidr(mask)}" : 'none'
+    up      = host_ip ? (execute_command(values, "Information:\tChecking #{name} address", "ifconfig -a | grep -c 'inet #{host_ip} '").to_s.strip.to_i.positive? ? 'yes' : 'no') : 'no'
+    range   = dhcp && scope['start'] && scope['end'] ? "#{scope['start']} - #{scope['end']}" : 'none'
+    rows.push([name, type, subnet, host_ip || 'none', dhcp ? 'yes' : 'no', up, range])
+  end
+  handle_output(values, 'Parallels networks:')
+  print_table(values, rows)
+  nil
+end
+
+# QEMU user-mode networking (the default for qemu-system-*): NAT built into QEMU, one guest per VM, no host setup
+
+def list_qemu_networks(values)
+  qemu = execute_command(values, 'Information:\tChecking for QEMU', 'command -v qemu-system-aarch64 qemu-system-x86_64 2>/dev/null').to_s.strip
+  return nil if qemu.empty?
+
+  rows = [%w[NETWORK TYPE SUBNET HOST_ADDRESS DHCP UP DHCP_RANGE]]
+  rows.push(['qemu-user', 'nat (user-mode)', '10.0.2.0/24', '10.0.2.2', 'built-in', 'yes', '10.0.2.15 (first guest)'])
+  handle_output(values, 'QEMU networks (user-mode, DNS 10.0.2.3, set per VM with -netdev user):')
+  print_table(values, rows)
+  nil
+end
+
+# libvirt (KVM) networks, from virsh
+
+def list_kvm_networks(values)
+  virsh = execute_command(values, 'Information:\tChecking for virsh', 'command -v virsh 2>/dev/null').to_s.strip
+  return nil if virsh.empty?
+
+  networks = execute_command(values, 'Information:\tListing libvirt networks', 'virsh net-list --all').to_s
+  handle_output(values, 'libvirt (KVM) networks:')
+  handle_output(values, networks.strip.empty? ? '  none' : networks.lines.map { |line| "  #{line.chomp}" }.join("\n"))
   nil
 end
 

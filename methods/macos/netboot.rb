@@ -154,6 +154,42 @@ def configure_osx_netboot_services(values, boot_file = 'grubaa64.efi', port = '8
   nil
 end
 
+# Autoinstall user-data for a Fusion or PXE cloud-init install: the ubuntu user (hashed password), the SSH key, and openssh-server
+
+def osx_seed_user_lines(values, crypt, ssh_key)
+  name = values['name']
+  key_lines = ssh_key.nil? ? [] : ['      - "' + ssh_key + '"']
+  [
+    '#cloud-config',
+    'autoinstall:',
+    '  version: 1',
+    '  locale: en_US.UTF-8',
+    '  keyboard:',
+    '    layout: us',
+    '  identity:',
+    "    hostname: #{name}",
+    '    username: ubuntu',
+    "    password: \"#{crypt}\"",
+    '  ssh:',
+    '    install-server: true',
+    '    allow-pw: true',
+    *(ssh_key.nil? ? [] : ['    authorized-keys:', *key_lines]),
+    '  packages:',
+    '    - openssh-server',
+    '  storage:',
+    '    layout:',
+    '      name: direct',
+    '  apt:',
+    '    fallback: offline-install',
+    '  late-commands:',
+    "    - echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/90-modest-ubuntu",
+    '    - chmod 440 /target/etc/sudoers.d/90-modest-ubuntu',
+    '    - mkdir -p /target/etc/systemd/system/getty.target.wants',
+    '    - ln -sf /usr/lib/systemd/system/serial-getty@.service /target/etc/systemd/system/getty.target.wants/serial-getty@ttyS0.service',
+    '  shutdown: poweroff'
+  ]
+end
+
 # Create the cloud-init seed for a macOS Fusion install: a cidata CD with autoinstall user-data (SSH key and install-server) and meta-data.
 # The seed is kept under <export>/state/seeds/<name>, so it can be removed to undo it.
 
@@ -183,35 +219,7 @@ def create_osx_cloud_seed(values)
     io.read.chomp
   end
   key_lines = ssh_key.nil? ? [] : ['      - "' + ssh_key + '"']
-  user_lines = [
-    '#cloud-config',
-    'autoinstall:',
-    '  version: 1',
-    '  locale: en_US.UTF-8',
-    '  keyboard:',
-    '    layout: us',
-    '  identity:',
-    "    hostname: #{name}",
-    '    username: ubuntu',
-    "    password: \"#{crypt}\"",
-    '  ssh:',
-    '    install-server: true',
-    '    allow-pw: true',
-    *(ssh_key.nil? ? [] : ['    authorized-keys:', *key_lines]),
-    '  packages:',
-    '    - openssh-server',
-    '  storage:',
-    '    layout:',
-    '      name: direct',
-    '  apt:',
-    '    fallback: offline-install',
-    '  late-commands:',
-    "    - echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/90-modest-ubuntu",
-    '    - chmod 440 /target/etc/sudoers.d/90-modest-ubuntu',
-    '    - mkdir -p /target/etc/systemd/system/getty.target.wants',
-    '    - ln -sf /usr/lib/systemd/system/serial-getty@.service /target/etc/systemd/system/getty.target.wants/serial-getty@ttyS0.service',
-    '  shutdown: poweroff'
-  ]
+  user_lines = osx_seed_user_lines(values, crypt, ssh_key)
   File.write(user_data, "#{user_lines.join("\n")}\n")
   File.chmod(0o600, user_data)
   File.write(meta_data, "instance-id: #{name}-#{Time.now.to_i}\nlocal-hostname: #{name}\n")

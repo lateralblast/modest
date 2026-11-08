@@ -5,7 +5,7 @@
 
 # Configure Preseed server
 
-def configure_cc_server(values)
+def configure_ci_server(values)
   search_string = 'live'
   configure_linux_server(values, search_string)
   nil
@@ -13,7 +13,7 @@ end
 
 # List Ubuntu Subiquity / Cloud Config services
 
-def list_cc_services(values)
+def list_ci_services(values)
   values['method'] = 'ci'
   dir_list = get_dir_item_list(values)
   message  = 'Ubuntu Subiquity or Cloud Config/Init Services:'
@@ -27,6 +27,6 @@ end
 
 # Unconfigure Cloud Config server
 
-def unconfigure_cc_server(values)
+def unconfigure_ci_server(values)
   unconfigure_ks_repo(values['service'])
 end

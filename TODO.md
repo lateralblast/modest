@@ -4,6 +4,9 @@ Status: `[ ]` open, `[~]` in progress, `[x]` done.
 
 ## Open
 
+- [ ] `--vm kvm` fails argument validation with "Invalid value for disk: contains characters not allowed in shell arguments", even for `--action list --vm kvm`. `--vm qemu` and `--vm libvirt` work. Find which kvm default for `disk` trips the shell-argument check in `methods/common/values.rb`
+- [ ] Do not set `dtb.nofixup` in a Fusion VMX: it is not a supported key, and setting it made Fusion shut the VM down with an error. The arm64 PXE stall (see the PXE install item) is still open
+- [ ] PXE install of arm64 Ubuntu on Fusion: the client add (`--action add --mode client --method ci`) configures the kernel, initrd, seed and per-MAC GRUB menu, and the netboot GRUB requests its config and loads the kernel and initrd over TFTP. The kernel then stalls in its EFI stub ("HWID matching failed, no DT blob") with no further output, so the installer never fetches the ISO. Next: try a different netboot kernel or the firmware's DT settings, or get kernel output from the stub stage.
 - [ ] macOS server setup for an arm64 Ubuntu ISO (`add --mode server`): generate the dnsmasq config for the host-only bridge (DHCP and TFTP, bridge name looked up at run time) instead of isc-dhcp, configure Homebrew httpd instead of `/etc/apache2`, and copy the boot files into `/private/tftpboot` with sudo
 - [ ] Generate the cloud-init seed for a Fusion arm64 VM with `ssh: install-server: true`, `openssh-server` installed, and the key from `sshkeyfile` written as `authorized-keys`, so SSH works without a password after install
 - [ ] `create --vm fusion --method ci` on Apple Silicon: test end to end on a new VM and SSH in with the key (test VM `modest-vnet9-test` was built by hand)
@@ -39,10 +42,67 @@ Status: `[ ]` open, `[~]` in progress, `[x]` done.
 - [x] Extension Pack install on macOS confirmed end to end on VirtualBox 7.2.22 (9.0.7): `--check virtualbox --install` installs it, with the licence answered in the terminal. Still untested: a real VirtualBox install on Linux.
 - [ ] Homebrew reports that the third-party tap `dkorunic/tap` is ignored until it is trusted. The VirtualBox cask install was not affected. Decide whether to trust, untap or leave it. The tool should not change that setting for you.
 - [ ] Decide whether Debian and Ubuntu should still pre-accept the Extension Pack licence through debconf (current behaviour), or ask the user first as macOS now does.
-- [ ] Extend `--install` to other packages checked by `--check` (for example dnsmasq and packer). Only VirtualBox is wired up.
+- [ ] Extend `--install` to other packages checked by `--check`. VirtualBox, Parallels and Packer are wired up (Packer in 10.2.2). dnsmasq is still open.
 - [ ] Decide whether `--install` should keep the name it has now. It is an optional-value switch: bare `--install` means install with `--check`, and `--install VALUE` keeps the install-type meaning used by KVM and Solaris.
 - [x] The `Executing: ipconfig getifaddr en0` line is removed from normal output (9.1.0). The probe in `get_my_ip` (`methods/common/common.rb`) is still run from the defaults, which pass no `verbose` flag, so it does not show even with `--verbose`.
 - [ ] Review the `sudo sh -c cat ...` read in the macOS service checks. It runs under `--dryrun` and can prompt for a password, even though it only reads a plist.
+
+- [ ] `methods/libvirt/common.rb` line 371 assigns `values['method'] = 'ci'` in the `if`, so `configure_kvm_client` always takes the cloud-init branch and never the kickstart/preseed questions. Compare with `==` (or `match?`) instead
+- [ ] `methods/packer/json.rb` line 783 matches the RHEL-family template with `/fedora|[el,centos,rocky,alma]_[8,9]/`. The brackets are a character class, so any letter from those names before `_8` or `_9` matches. `debian_9` takes the RHEL-family branch (checked in Ruby). Use `(fedora|el|centos|rocky|alma)_[89]`, and check the template for `debian_9` after the change
+
+## Install methods by VM system
+
+Where each install method stands on each VM system. Status is what has been run, not what the code could do:
+
+- **Verified:** run for real, with the result recorded.
+- **Partial:** part of the path is verified, with the open part noted in the cell.
+- **Code only:** a create path exists in the code but has not been run here.
+- **Not verified:** the guest OS mapping exists, but no install has been run.
+- **Not wired:** the VM system has no install wiring for that method.
+- **n/a:** the method does not apply to that VM system.
+
+Method codes: `ci` Ubuntu 26.04 live server (subiquity, cloud-init), `ks` Kickstart, `ps` Preseed, `ay` AutoYaST, `js` Jumpstart, `ai` Solaris AI, `pe` WinPE, `vs` vSphere.
+
+| Method | Fusion (macOS) | VirtualBox (macOS) | Parallels (macOS) | KVM / libvirt | QEMU (`qemu-system-*`, macOS) | Multipass | Packer (any builder) | Docker |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `ci` | Partial: arm64 create, boot and SSH with key verified, no PXE. The PXE client stalls at the EFI stub | Partial: arm64 ISO create verified after fixes. No host-only networking on this Mac, and keystrokes do not reach the guest on arm64 | Not wired | Code only: a branch exists, but see the open `configure_kvm_client` item | Partial: PXE install reached subiquity partitioning and finished the kernel install at 8 GB. The `casper url=` route did not fetch the squashfs at 4 GB. The installed disk is not yet checked for SSH | Code only: a `ci` branch exists in `configure_multipass_vm` | Not wired: no cloud-init template | n/a |
+| `ks` | Not verified | Not verified | Not wired | Code only | n/a | n/a | Code only: RHEL-family template (see open regex item) | n/a |
+| `ps` | Not verified | Not verified | Not wired | Code only | n/a | n/a | Code only: Debian and Ubuntu template | n/a |
+| `ay` | Not verified | Not verified | Not wired | Code only | n/a | n/a | Code only: SLES template | n/a |
+| `js` | Not verified | Not verified | Not wired | n/a | n/a | n/a | Code only: Solaris 10 template | n/a |
+| `ai` | Not verified | Not verified | Not wired | n/a | n/a | n/a | Code only: Solaris 11 template | n/a |
+| `pe` | Not verified | Not verified | Not wired | n/a | n/a | n/a | Code only: Windows template | n/a |
+| `vs` | Not verified | Not verified | Not wired | n/a | n/a | n/a | Code only: vSphere and ESXi template | n/a |
+| Container image | n/a | n/a | n/a | n/a | n/a | n/a | n/a | Verified: `--action create --vm docker --os ubuntu` built `ubuntu26041` (9.4.3). The server side is unfinished (open item) |
+
+Notes:
+
+- **Parallels:** `configure_<method>_parallels_vm` only registers the VM with an OS type. No install configuration is attached for any method. Create is verified in dry-run only, and boot, stop and delete have not been run for real.
+- **VirtualBox:** the create path has arity mismatches that break dry-run (open item). Only `ci` has a verified path, and it is the arm64 ISO route, not PXE.
+- **macOS deployment server:** `configure_osx_netboot_services` (dnsmasq for DHCP and TFTP, Homebrew httpd for the ISO and seed) applies to any Linux method on macOS. Only `ci` has been tested end to end, with the QEMU test.
+- **Fusion, non-`ci` methods:** `get_fusion_guest_os` maps `ai`, `js`, `ay`, `nb`, `ob`, `ps`, `pe`, `ks` and `vs` to a guest OS. No install of those has been run.
+- **Packer:** the column is the template code, which Packer uses with its VirtualBox, Fusion, Parallels and KVM/QEMU builders. Packer is not installed on this Mac, so nothing has been built with it here.
+- **Other VM systems** (AWS, Ansible, zones, LDoms, LXC and the vSphere/VCSA deployment) are not in this table. Their status is recorded in the Open and Done items above.
+
+## Deployment server capabilities
+
+What the deployment server provides for a PXE or network install, and how far each part has been checked. The status words are the same as the install-method table above.
+
+| Capability | macOS (netboot services) | Linux (ISC dhcpd, tftpd, Apache) | Solaris 11 (AI, `installadm`) | Solaris 10 (Jumpstart) |
+|---|---|---|---|---|
+| DHCP | Verified: dnsmasq handed a Fusion vmnet9 client an address (192.168.209.134) from the netboot range. Dry-run only for the other networks | Code only: `check_yum_dhcpd` and `check_apt_dhcpd` install the server. `dhcpdfile` is `/etc/dhcp/dhcpd.conf` | Code only: not re-run here. CLAUDE.md calls Solaris 11 the most-tested server OS | Code only: `dhcpdfile` is `/etc/inet/dhcpd4.conf` |
+| TFTP (GRUB or PXE loader) | Verified: Fusion clients loaded the per-MAC GRUB menu over TFTP and reached the kernel. dnsmasq serves `/private/tftpboot` | Code only: `tftpdir` is `/var/lib/tftpboot`, with inetd or xinetd set up | Code only: not re-run here | Code only: `tftpdir` is `/etc/netboot` |
+| HTTP (ISO, repo, seed) | Partial: Homebrew httpd on port 8081 is configured. The QEMU tests served the ISO and seed with `python3 -m http.server`, and the Fusion client never reached HTTP | Code only: `add_apache_alias`, which returns early on Darwin | Code only: not re-run here | Not checked |
+| Cloud-init seed over HTTP (NoCloud) | Partial: the seed was built and fetched by the QEMU client (`user-data` at 02:50:30). The tool's own HTTP path is unconfirmed | n/a | n/a | n/a |
+| Netboot config generation (dnsmasq, httpd, GRUB menus) | Verified: `configure_osx_netboot_services` writes the config and starts dnsmasq and httpd | Code only | Code only | Code only |
+| Host network for the VMs | Verified on Fusion: `--nic bridge104` on the vmnet9 host-only network. Parallels host-only is dry-run only. VirtualBox host-only does not load on this Mac | Not checked | Not checked | Not checked |
+| Serial console to the VM | Verified on Fusion through the socket. VirtualBox does not pass keystrokes on arm64. QEMU is a manual test, not the tool's create path | Not checked | Not checked | Not checked |
+
+Notes:
+
+- The macOS column is where the testing happened. The Linux and Solaris columns are code paths that have not been run in this work.
+- On macOS the netboot path uses dnsmasq for DHCP and TFTP instead of ISC dhcpd, and `check_dhcpd_config` returns early on Darwin.
+- A macOS HTTP check against the tool's own httpd (not the python server) is needed before HTTP can be marked verified.
 
 ## Done
 

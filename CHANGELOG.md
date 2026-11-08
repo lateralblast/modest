@@ -6,6 +6,42 @@ newest first.
 
 ## modest.rb
 
+### [10.2.2] - 2026-11-09
+- `--action check --check packer` reports whether Packer is installed, with its version and path. `--check packer --install` installs it with Homebrew from the HashiCorp tap on macOS (`brew install hashicorp/tap/packer`). On other systems it prints the download page instead
+
+### [10.2.1] - 2026-11-09
+- `--action list --type network` now lists Multipass networks: the host interfaces Multipass can bridge to (from `multipass networks`), with the Multipass driver and bridged network setting in the heading. Subnet and host address come from each interface, and DHCP is shown as `upstream` because Multipass does not report its NAT range. `--vm multipass` lists only these
+
+### [10.2.0] - 2026-11-09
+- `--action list --type network` now lists Parallels networks from `prlsrvctl net list`, with each network's subnet, host address, DHCP range and whether its address is up. `--vm parallels` lists only these
+
+### [10.1.9] - 2026-11-09
+- `--action list --type network` now lists QEMU and KVM networks as well: the QEMU user-mode network (10.0.2.0/24, shown when a `qemu-system-*` binary is installed) and the libvirt networks from `virsh net-list --all` (shown when `virsh` is installed). `--vm qemu` and `--vm libvirt` list only these
+
+### [10.1.8] - 2026-11-09
+- The VM-type lookup skips a VM type with no installed check (such as `vmware`, which Fusion covers), instead of failing with an undefined method. This stopped the client delete before it removed anything
+
+### [10.1.7] - 2026-11-09
+- `--action delete --mode client --method ci --name <client>` removes the client's boot menu and seed, even when no VM exists for it
+
+### [10.1.6] - 2026-11-09
+- The cloud-init functions for the ci method are named with `ci` instead of `cc`: `configure_ci_client`, `unconfigure_ci_client`, `configure_ci_server`, `unconfigure_ci_server` and `list_ci_services`. The cloud-config data functions keep their `cc` names
+
+### [10.1.5] - 2026-11-09
+- `--action delete --mode client --method ci --name <client> --mac <mac>` on macOS removes the client's boot menu and its seed
+
+### [10.1.4] - 2026-11-09
+- `--action add --mode client` keeps the `--service` it is given. Before, the packer handler cleared it for every non-packer type, so the client add could not find its repository service
+
+### [10.1.3] - 2026-11-09
+- `--action add` with a `--mac` on macOS does not clear the service or add a legacy DHCP entry. On macOS the netboot DHCP server serves clients
+
+### [10.1.2] - 2026-11-09
+- On macOS the legacy ISC DHCP configuration is not written (`/usr/local/etc/dhcpd.conf` is not created). DHCP is served by the netboot dnsmasq
+
+### [10.1.1] - 2026-11-09
+- `--action add --mode client --method ci --name <client> --mac <mac> --service <repository service> --nic <interface>` adds a cloud-init (Ubuntu live server) PXE client on macOS. It writes the client's kernel and initrd to the TFTP directory, its autoinstall seed (with the SSH key, under `<export>/clients/<client>/`), and a boot menu for its MAC address, loaded through a shared GRUB dispatcher. The seed user-data is built by one helper that the Fusion seed also uses
+
 ### [10.1.0] - 2026-11-09
 - The VMware Fusion network table shows the UP column before DHCP_RANGE
 

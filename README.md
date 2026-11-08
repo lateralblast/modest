@@ -4,7 +4,7 @@
 MODEST
 ======
 
-Version: 10.1.0
+Version: 10.2.2
 
 License
 -------
@@ -170,6 +170,21 @@ To reconnect to a running VM's console later, without typing socat:
     ./modest.rb --action connect --vm fusion --name <vm>
 
 The console shows the boot and install output, and typed input goes to the VM. Ctrl-] disconnects and leaves the VM running. Creating a VM does not boot it. The console socket is `<export>/state/consoles/<vm>.sock`, so it can also be reached with `socat - UNIX-CONNECT:<socket>`. See the wiki page Headless Console for examples.
+
+Checking and installing tools
+-----------------------------
+
+    ./modest.rb --action check --check packer
+    ./modest.rb --action check --check packer --install
+
+`--check` takes one of `perms`, `dnsmasq`, `dhcp`, `tftp`, `virtualbox`, `fusion`, `workstation`, `parallels` or `packer`. `--check packer` reports the Packer version and path, or that Packer is missing. With `--install`, a missing Packer is installed with Homebrew from the HashiCorp tap (`brew install hashicorp/tap/packer`) on macOS. On other systems it prints the download page instead.
+
+Listing networks
+----------------
+
+    ./modest.rb --action list --type network [--vm fusion|vbox|qemu|libvirt|parallels|multipass]
+
+Lists the host networks VMs can use: VMware Fusion (vmnet), VirtualBox (host-only and NAT), QEMU user-mode networking, libvirt (KVM) networks, Parallels networks (from `prlsrvctl`) and Multipass (the host interfaces it can bridge to, from `multipass networks`, with the driver and bridged network setting). Each hypervisor is listed only when it is installed, and `--vm` limits the listing to one of them.
 
 Features
 --------

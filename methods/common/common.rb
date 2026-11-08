@@ -1428,7 +1428,7 @@ def list_all_services(values)
   list_gdom_services(values)
   list_lxc_services(values)
   list_ps_services(values)
-  list_cc_services(values)
+  list_ci_services(values)
   list_zone_services(values)
   list_vs_services(values)
   list_xb_services(values)
@@ -1849,7 +1849,7 @@ def unconfigure_client(values)
     when /ps/
       unconfigure_ps_client(values)
     when /ci/
-      unconfigure_cc_client(values)
+      unconfigure_ci_client(values)
     when /vs/
       unconfigure_vs_client(values)
     when /xb/
@@ -1881,7 +1881,7 @@ def configure_client(values)
     when /ps/
       configure_ps_client(values)
     when /ci/
-      configure_cc_client(values)
+      configure_ci_client(values)
     when /vs/
       configure_vs_client(values)
     when /xb/
@@ -1914,7 +1914,7 @@ def configure_server(values)
   when /ps/
     configure_ps_server(values)
   when /ci/
-    configure_cc_server(values)
+    configure_ci_server(values)
   when /vs/
     configure_vs_server(values)
   when /xb/
@@ -2523,6 +2523,9 @@ end
 # Check DHCPd config
 
 def check_dhcpd_config(values)
+  # On macOS DHCP is served by the netboot dnsmasq (see configure_osx_netboot_services), not by ISC dhcpd
+  return nil if values['host-os-uname'].to_s.match(/Darwin/)
+
   network_address   = "#{values['hostip'].to_s.split(/\./)[0..2].join('.')}.0"
   broadcast_address = "#{values['hostip'].to_s.split(/\./)[0..2].join('.')}.255"
   gateway_address   = "#{values['hostip'].to_s.split(/\./)[0..2].join('.')}.1"
@@ -4193,7 +4196,7 @@ def list_services(values)
   when /ps|ubuntu|debian/
     list_ps_services(values)
   when /ci/
-    list_cc_services(values)
+    list_ci_services(values)
   when /zone/
     list_zone_services(values)
   when /vs|vmware|vsphere/

@@ -77,7 +77,8 @@ def handle_packer_type(values)
       end
     end
   else
-    values['service'] = ''
+    # A client keeps the --service it was given (a PXE client names its repository service)
+    values['service'] = '' unless values['mode'].to_s.match(/client/)
   end
   values
 end

@@ -45,6 +45,46 @@ def check_packer_is_installed(values)
   values
 end
 
+# Check Packer is installed (--action check --check packer). With --install, install it when it is missing
+
+def check_packer(values)
+  information_message(values, 'Checking Packer is installed')
+  packer_bin = which_program('packer')
+  if packer_bin.empty?
+    warning_message(values, 'Packer is not installed (packer not found on PATH)')
+    install_packer(values) if values['install-check'] == true
+    packer_bin = which_program('packer')
+    return nil if packer_bin.empty?
+  end
+  # Read-only, so it runs under --dryrun too (execute_command would skip it as a packer call)
+  version = `#{shell_arg(packer_bin)} version`.lines.first.to_s.strip
+  information_message(values, "#{version} is installed at #{packer_bin}")
+  nil
+end
+
+# Install Packer with Homebrew from the HashiCorp tap on macOS. Other systems get the download page
+
+def install_packer(values)
+  return nil unless values['install-check'] == true
+
+  unless values['host-os-uname'].to_s.match(/Darwin/)
+    warning_message(values, 'Packer install is automated for macOS only. Download it from https://developer.hashicorp.com/packer/install and put it on PATH')
+    return nil
+  end
+  if which_program('brew').empty?
+    warning_message(values, 'Cannot install Packer: Homebrew (brew) is not installed')
+    return nil
+  end
+  if values['dryrun'] == true
+    information_message(values, 'Dry run: would install Packer with Homebrew (brew install hashicorp/tap/packer)')
+    return nil
+  end
+  message = "Information:\tInstalling Packer with Homebrew"
+  command = 'brew install hashicorp/tap/packer'
+  execute_command(values, message, command)
+  nil
+end
+
 # Import Packer VM
 
 def import_packer_vm(values)
