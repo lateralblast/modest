@@ -6,6 +6,27 @@ newest first.
 
 ## modest.rb
 
+### [9.8.6] - 2026-11-08
+- The seed for a Fusion cloud-init VM on Apple Silicon gives the `ubuntu` user passwordless sudo (`/etc/sudoers.d/90-modest-ubuntu`), through autoinstall late-commands
+
+### [9.8.5] - 2026-11-08
+- `boot --headless` connects to the console without an error when the terminal is raw
+
+### [9.8.4] - 2026-11-08
+- The console connected by `boot --headless` no longer shows typed characters twice. The terminal is raw while connected, so only the VM echoes input, and Ctrl-] disconnects (Ctrl-C is sent to the VM)
+
+### [9.8.3] - 2026-11-08
+- Two-way serial console confirmed on a Fusion arm64 VM: input typed in the terminal reaches the VM, and a login prompt appears on the serial console
+
+### [9.8.2] - 2026-11-08
+- `--action boot --vm fusion --name <vm> --headless` on Apple Silicon starts the VM headless and connects the terminal to its serial console: the boot and install output is shown, and typed lines are sent to the VM. Ctrl-C disconnects and leaves the VM running. Creating a VM does not boot it
+
+### [9.8.1] - 2026-11-08
+- A Fusion cloud-init VM created on Apple Silicon has a serial port served on a Unix socket under `<export>/state/consoles/<name>.sock`, and the create prints the `socat - UNIX-CONNECT:<socket>` command for connecting to it. The console shows the boot and install output from the start
+
+### [9.8.0] - 2026-11-08
+- The autoinstall copy of an Ubuntu ISO sends the kernel console to the serial port (`console=ttyS0,115200`) as well as the screen, so the install output can be followed over a serial console
+
 ### [9.7.9] - 2026-11-08
 - `--action delete --vm fusion` never removes the folder of a VM that is still running. A running VM is forced off first, and the delete is refused with a warning if it does not stop. Before, a VM that did not stop had its folder removed under it, and Fusion then reported a missing configuration file
 

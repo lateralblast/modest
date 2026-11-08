@@ -46,6 +46,7 @@ Status: `[ ]` open, `[~]` in progress, `[x]` done.
 
 ## Done
 
+- [x] Two-way serial console on the Fusion arm64 install: typed input reaches the VM, and a login prompt appears on the serial console (9.8.3)
 - [x] Read-only and no-OS creates no longer run `ifconfig` or `grep` with empty names; the no-OS create stops with status 1 (9.4.8, 9.4.9, 9.5.0)
 - [x] Add: `--action create --vm docker --os ubuntu --release <release>` creates an Ubuntu Docker instance with the `docker` CLI for the host architecture, falling back to the release line when the exact tag is not published. Created `ubuntu26041` from `ubuntu:26.04` (9.3.7 to 9.4.3)
 - [x] Normal runs are quiet: startup and `Setting ...` messages and `Executing:` lines show only with `--verbose` (or `Executing:` under `--dryrun`), and list results print without `--verbose` (9.3.4 to 9.3.6)

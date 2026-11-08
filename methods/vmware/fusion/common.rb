@@ -1046,6 +1046,9 @@ def boot_fusion_vm(values)
                 "\"#{values['vmrun']}\" -T fusion start \"#{fusion_vmx_file}\" &"
               end
     execute_command(values, message, command)
+    if values['headless'] == true && values['host-os-unamep'].to_s.match(/arm/)
+      connect_osx_console(values, "#{File.dirname(values['baserepodir'])}/state/consoles/#{values['name']}.sock")
+    end
     if values['serial'] == true
       information_message(values, "Connecting to serial port of #{values['name']}") if values['verbose'] == true
       begin
@@ -1519,6 +1522,7 @@ def create_fusion_vm_vmx_file(values, fusion_vmx_file)
   if values['method'].to_s.match(/ci/) && values['host-os-unamep'].to_s.match(/arm/) && values['file'].to_s.match(/[a-z]/)
     values = create_osx_cloud_seed(values)
     values = create_osx_autoinstall_iso(values)
+    values = create_osx_console(values)
   end
   values, vmx_info = populate_fusion_vm_vmx_info(values)
   if !fusion_vmx_file.match(%r{/packer/})
@@ -1719,6 +1723,16 @@ def populate_fusion_vm_vmx_info(values)
     vmx_info.push('sata0:2.startConnected,TRUE')
   end
   vmx_info.push('bios.bootOrder,hdd,cdrom,ethernet0') if values['host-os-unamep'].to_s.match(/arm/) && values['file'].to_s.match(/[a-z]/)
+  # Serial console for cloud-init installs on Apple Silicon: Fusion serves the port on a Unix socket (see create_osx_console)
+  if values['consolesock'].to_s.match(/[a-z]/) && values['host-os-unamep'].to_s.match(/arm/)
+    vmx_info.push('serial0.present,TRUE')
+    vmx_info.push('serial0.fileType,pipe')
+    vmx_info.push("serial0.fileName,#{values['consolesock']}")
+    vmx_info.push('serial0.pipe.endPoint,server')
+    vmx_info.push('serial0.hardwareType,serial')
+    vmx_info.push('serial0.yieldOnPoll,TRUE')
+    vmx_info.push('serial0.startConnected,TRUE')
+  end
   vmx_info.push('ide0:0.startConnected,TRUE')
   vmx_info.push('ide0:0.autodetect,TRUE')
   #  vmx_info.push("sata0:1.present,FALSE")
