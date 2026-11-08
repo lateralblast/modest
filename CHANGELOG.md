@@ -6,6 +6,85 @@ newest first.
 
 ## modest.rb
 
+### [9.7.9] - 2026-11-08
+- `--action delete --vm fusion` never removes the folder of a VM that is still running. A running VM is forced off first, and the delete is refused with a warning if it does not stop. Before, a VM that did not stop had its folder removed under it, and Fusion then reported a missing configuration file
+
+### [9.7.8] - 2026-11-08
+- `--action delete --vm fusion` also removes the VM from the VMware Fusion library (`vmInventory`), so it no longer shows as "Not Found" in the GUI. Fusion is quit while the file is edited and opened again afterwards, and the previous inventory is kept as a backup
+
+### [9.7.7] - 2026-11-08
+- A Fusion VM created by MODEST no longer gets a UUID built from its MAC address, so Fusion no longer asks "Did you move or copy this virtual machine?" when it is first started. Fusion assigns the UUID
+
+### [9.7.6] - 2026-11-08
+- The seed for a Fusion cloud-init VM on Apple Silicon lists `openssh-server` under `packages`, so the installer installs SSH from the ISO and the installed system accepts the SSH key without a password
+
+### [9.7.5] - 2026-11-08
+- A Fusion cloud-init VM created on Apple Silicon boots an autoinstall copy of the Ubuntu ISO, kept under `<export>/state/isos`. Its GRUB entry has `autoinstall` on the kernel line, so the installer runs unattended from the `cidata` seed instead of asking "Continue with autoinstall?"
+
+### [9.7.4] - 2026-11-08
+- A Fusion VM created on Apple Silicon has no sound device. Fusion does not support the default `es1371` device for arm64 guests, and it showed an error on start
+
+### [9.7.3] - 2026-11-08
+- `--dryrun` does not build a cloud-init seed: `xorriso` is treated as a mutating command and is only shown
+
+### [9.7.2] - 2026-11-08
+- A value with a comma in a Fusion VMX line is written whole (for example `bios.bootOrder = "hdd,cdrom,ethernet0"`), instead of being cut at the first comma
+
+### [9.7.1] - 2026-11-08
+- A Fusion VM created on Apple Silicon for a cloud-init (Ubuntu live server) install has its seed on a second CD-ROM labelled `cidata`, and boots the installer CD only while the disk is empty, so the installed system does not reinstall
+
+### [9.7.0] - 2026-11-08
+- A Fusion cloud-init VM created on Apple Silicon gets a seed with autoinstall settings: `install-server: true`, a generated password for the `ubuntu` user (kept in `<export>/state/seeds/<name>/password.txt`), and the SSH public key from `--sshkeyfile` (default `~/.ssh/id_ed25519.pub`) as `authorized-keys`. The seed is built with `xorriso`
+
+### [9.6.9] - 2026-11-08
+- A server add for a cloud-init (Ubuntu live server) ISO no longer copies the root filesystem into the TFTP directory when no boot files are known. Before, the empty source made the copy `cp -r /* .`, which filled the TFTP directory. The copy now runs only from inside the repository, and otherwise a warning is shown
+
+### [9.6.8] - 2026-11-08
+- The netboot step on macOS uses `/private/tftpboot` as the TFTP root, not the generic `/etc/netboot` default
+
+### [9.6.7] - 2026-11-08
+- `--dryrun` does not start dnsmasq or httpd: both are treated as mutating commands and are only shown
+
+### [9.6.6] - 2026-11-08
+- On macOS, `add --mode server` does not add an Apache alias, because that step installed an `apache2` package that Homebrew does not provide. The repository is served by the netboot httpd instead
+
+### [9.6.5] - 2026-11-08
+- On macOS, `add --mode server` with `--vmnet <name>` (for example `--vmnet vmnet9`) starts dnsmasq for DHCP and TFTP on the bridge that holds that VMware host-only network's address, and Homebrew httpd on port 8081 serving the export directory. Config and logs are written to `<export>/state/netboot`, and a previous instance started by MODEST is stopped first. The netboot step needs a VM running on the network so the bridge exists
+
+### [9.6.4] - 2026-11-08
+- A Fusion VM created without `--size` gets a 20GB disk. Before, `vmware-vdiskmanager` was given `none` as the size and failed
+
+### [9.6.3] - 2026-11-08
+- A Fusion VM with DHCP and a MAC address no longer gets two `ethernet0.GeneratedAddress` lines, which VMware rejects when it reads the file
+
+### [9.6.2] - 2026-11-08
+- `--vmnet <name>` is kept for a Fusion VM. The host-only lookup no longer replaces it with an empty name when the vmnet is not active
+
+### [9.6.1] - 2026-11-08
+- A Fusion VM created on Apple Silicon is written for an arm64 guest: hardware version 22, EFI firmware, an NVMe disk, the `arm-ubuntu-64` guest type, and the vmnet from `--vmnet` as a custom network. The SCSI controller is left out
+
+### [9.6.0] - 2026-11-08
+- Repository ISO checks read the README from whichever of the two expected locations exists, so a repository ISO without the first one no longer fails with a "No such file" error
+
+### [9.5.9] - 2026-11-08
+- An Ubuntu live server or cloud image ISO is recognised as a repository by its `casper` directory, so `--action add --mode server --file <iso>` on macOS can find it
+
+### [9.5.8] - 2026-11-08
+- `--dryrun` no longer extracts an ISO: `bsdtar` is a mutating command, so it is skipped and only shown
+
+### [9.5.7] - 2026-11-08
+- On macOS an ISO is mounted by extracting it with `bsdtar` into the mount directory, as the current user and without `sudo`. Unmounting removes that directory after making its files writable, and only directories under the modest base directory are removed
+
+### [9.5.6] - 2026-11-08
+- Directories are created as the current user. `sudo` is used only if that fails (for example under a root-owned parent), and then the new directory is given to the current user
+- Directories under the modest base directory that are owned by root are given to the current user when they are checked
+
+### [9.5.5] - 2026-11-08
+- `--action list --type method` lists the install methods. This replaces the `--list method` form added in 9.5.2, and `--list` is a boolean switch again, as it was before
+
+### [9.5.4] - 2026-11-08
+- A create with `--file <iso>` takes its OS, release, architecture and install method from the file name (for example an Ubuntu live server ISO gives Ubuntu with the cloud-init method), so `--os-type` and `--method` are not needed. The early no-OS check still applies when no file is given
+
 ### [9.5.3] - 2026-11-08
 - `--action info --file <iso>` (and the file description used by `list`) prints the install file details without `--verbose`
 

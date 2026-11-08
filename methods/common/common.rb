@@ -3267,14 +3267,34 @@ def check_dir_exists(values, dir_name)
   output = ''
   if !File.directory?(dir_name) && !File.symlink?(dir_name) && dir_name.match(/[a-z]|[A-Z]/)
     message = "Information:\tCreating: #{dir_name}"
-    command = if dir_name.match(%r{^/etc})
-                "sudo mkdir -p \"#{dir_name}\""
-              else
-                "mkdir -p \"#{dir_name}\""
-              end
-    output = execute_command(values, message, command)
+    if dir_name.match(%r{^/etc})
+      command = "sudo mkdir -p \"#{dir_name}\""
+      output = execute_command(values, message, command)
+    else
+      # Create as the current user. Only if that fails (for example a root-owned parent) use sudo, and hand the directory to the user
+      command = "mkdir -p \"#{dir_name}\""
+      output = execute_command(values, message, command)
+      unless File.directory?(dir_name)
+        command = "sudo mkdir -p #{shell_arg(dir_name)} && sudo chown -R #{shell_arg(values['uid'])} #{shell_arg(dir_name)}"
+        output = execute_command(values, message, command)
+      end
+    end
   end
+  check_export_owner(values, dir_name)
   output
+end
+
+# Give a directory under the modest base directory to the current user if root owns it
+
+def check_export_owner(values, dir_name)
+  base = values['basedir'].to_s
+  return nil unless base.match?(/\S/) && dir_name.to_s.start_with?("#{base}/") && File.directory?(dir_name)
+  return nil if File.stat(dir_name).uid == values['uid'].to_i
+
+  message = "Information:\tChanging owner of #{dir_name} to #{values['uid']}"
+  command = "sudo chown -R #{shell_arg(values['uid'])} #{shell_arg(dir_name)}"
+  execute_command(values, message, command)
+  nil
 end
 
 # Check a filesystem / directory exists
@@ -3369,7 +3389,7 @@ def execute_command(values, message, command)
   execute = false
   verbose_message(values, message) if (values['verbose'] == true) && message.match(/[a-z,A-Z,0-9]/)
   if values['dryrun'] == true
-    execute = true unless command.match(/\b(create|id|groups|update|import|delete|svccfg|rsync|cp|touch|svcadm|VBoxManage|vboxmanage|vmrun|docker|rm|rmdir|convert|cloud-localds|chown|chgrp|chmod|restart|stop|start|resize|mkdir|mv|ln|umount|mount|apt-get|yum|tar|tee|kill|pkill|dd|install|reboot|shutdown|halt|poweroff|mkisofs|genisoimage|launchctl|hdiutil|pfctl|ipfw|natd|setsebool|chcon|dscl|vim-cmd|zfs|zpool|ldm|virsh|virt-install|prlctl|prlsrvctl|multipass|installadm|pkgadd|pkgrepo|zoneadm|zonecfg|zlogin|useradd|usermod|groupadd|passwd|lftp|wget|git|cygstart|netsh|mkfile)\b|sed -i|sysctl -w|ifconfig.* up$|(?<![0-9&])>/)
+    execute = true unless command.match(/\b(create|id|groups|update|import|delete|svccfg|rsync|cp|touch|svcadm|VBoxManage|vboxmanage|vmrun|docker|rm|rmdir|convert|bsdtar|dnsmasq|httpd|xorriso|cloud-localds|chown|chgrp|chmod|restart|stop|start|resize|mkdir|mv|ln|umount|mount|apt-get|yum|tar|tee|kill|pkill|dd|install|reboot|shutdown|halt|poweroff|mkisofs|genisoimage|launchctl|hdiutil|pfctl|ipfw|natd|setsebool|chcon|dscl|vim-cmd|zfs|zpool|ldm|virsh|virt-install|prlctl|prlsrvctl|multipass|installadm|pkgadd|pkgrepo|zoneadm|zonecfg|zlogin|useradd|usermod|groupadd|passwd|lftp|wget|git|cygstart|netsh|mkfile)\b|sed -i|sysctl -w|ifconfig.* up$|(?<![0-9&])>/)
   else
     execute = true
   end
@@ -3792,6 +3812,9 @@ end
 # Add apache alias
 
 def add_apache_alias(values, service_base_name)
+  # On macOS the repository is served by the netboot httpd (see configure_osx_netboot_services), not an Apache alias
+  return values if values['host-os-uname'].to_s.match(/Darwin/)
+
   values = install_package(values, 'apache2')
   if service_base_name.match(%r{^/})
     apache_alias_dir  = service_base_name
@@ -3902,23 +3925,20 @@ def mount_iso(values)
   output  = execute_command(values, message, command)
   if output.match(/[a-z,A-Z]/)
     message = "Information:\tUnmounting: #{values['mountdir']}"
-    command = "umount #{shell_arg(values['mountdir'])}"
+    command = if values['host-os-uname'].to_s.match(/Darwin/)
+                "hdiutil detach #{shell_arg(values['mountdir'])}"
+              else
+                "umount #{shell_arg(values['mountdir'])}"
+              end
     execute_command(values, message, command)
   end
   message = "Information:\tMounting ISO #{values['file']} on #{values['mountdir']}"
   command = "mount -F hsfs #{shell_arg(values['file'])} #{shell_arg(values['mountdir'])}" if values['host-os-uname'].to_s.match(/SunOS/)
   if values['host-os-uname'].to_s.match(/Darwin/)
-    command = "hdiutil attach -nomount \"#{shell_dq(values['file'])}\" |head -1 |awk \"{print \\\$1}\""
-    execute_message(values, command)
-    disk_id = `#{command}`
-    disk_id = disk_id.chomp
-    file_du = `du "#{shell_dq(values['file'])}" |awk '{print $1}'`
-    file_du = file_du.chomp.to_i
-    command = if file_du < 700_000
-                "mount -t cd9660 -o ro #{disk_id} #{values['mountdir']}"
-              else
-                "sudo mount -t udf -o ro #{disk_id} #{values['mountdir']}"
-              end
+    # hdiutil attaches the ISO read-only at the mount point, as the current user (no sudo, no mount(8))
+    # macOS cannot always mount ISO 9660 images (for example recent Ubuntu server ISOs), so the contents are
+    # extracted read-only-in-spirit into the mount directory with bsdtar, as the current user (no root needed)
+    command = "bsdtar --no-same-permissions --no-same-owner -xf #{shell_arg(values['file'])} -C #{shell_arg(values['mountdir'])}"
   end
   if values['host-os-uname'].to_s.match(/Linux/)
     file_du = `du "#{shell_dq(values['file'])}" |awk '{print $1}'`
@@ -3933,7 +3953,7 @@ def mount_iso(values)
   readme1 = "#{values['mountdir']}/README.TXT"
   readme2 = "#{values['mountdir']}/readme.txt"
   if File.exist?(readme1) || File.exist?(readme2)
-    text = IO.readlines(readme)
+    text = IO.readlines(File.exist?(readme1) ? readme1 : readme2)
     if text.grep(/UDF/)
       umount_iso(values)
       if values['host-os-uname'].to_s.match(/Darwin/)
@@ -3976,6 +3996,8 @@ def mount_iso(values)
                      end
                    when /VCSA/
                      "#{values['mountdir']}/vcsa"
+                   when /live-server|cloudimg/
+                     "#{values['mountdir']}/casper"
                    when /install|FreeBSD/
                      "#{values['mountdir']}/etc"
                    when /coreos/
@@ -4047,6 +4069,8 @@ def copy_iso(values)
                  "#{values['repodir']}/vcsa"
                when /VM/
                  "#{values['repodir']}/upgrade"
+               when /live-server|cloudimg/
+                 "#{values['repodir']}/casper"
                when /install|FreeBSD/
                  "#{values['repodir']}/etc"
                when /coreos/
@@ -4176,14 +4200,12 @@ end
 
 def umount_iso(values)
   if values['host-os-uname'].to_s.match(/Darwin/)
-    command = "df |grep \"#{shell_dq(values['mountdir'])}$\" |head -1 |awk \"{print \\\$1}\""
-    execute_message(values, command)
-    disk_id = `#{command}`
-    disk_id = disk_id.chomp
-  end
-  if values['host-os-uname'].to_s.match(/Darwin/)
-    message = "Detaching:\tISO device #{disk_id}"
-    command = "sudo hdiutil detach #{shell_arg(disk_id)}"
+    message = "Removing:\tISO contents extracted to #{values['mountdir']}"
+    command = if values['mountdir'].to_s.start_with?("#{values['basedir']}/")
+                "chmod -R u+w #{shell_arg(values['mountdir'])} ; rm -rf #{shell_arg(values['mountdir'])}"
+              else
+                "echo 'Not removing #{values['mountdir']}: it is outside #{values['basedir']}'"
+              end
   else
     message = "Unmounting:\tISO mounted on #{values['mountdir']}"
     command = "umount #{shell_arg(values['mountdir'])}"

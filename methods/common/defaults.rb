@@ -87,7 +87,7 @@ def set_valid_defaults(values, defaults)
                                  Ubuntu Debian Fedora RHEL SL
                                  Purity Windows JeOS AMZNL]
   defaults['valid-output']  = %w[text html]
-  defaults['valid-type']    = %w[iso flar ova snapshot service
+  defaults['valid-type']    = %w[iso flar ova snapshot service method
                                  boot cdrom net disk client dvd
                                  server ansible vcsa packer docker
                                  amazon-ebs image ami instance bucket

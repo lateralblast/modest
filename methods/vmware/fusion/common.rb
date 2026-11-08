@@ -869,7 +869,8 @@ def get_fusion_hostonly_network(values)
     message = "Information:\tFinding network interface name with IP #{hostonly_ip}"
     command = "ifconfig -a |grep -B3 '#{shell_sq(hostonly_ip)}' |head -1 |cut -f1 -d:"
     output  = execute_command(values, message, command).chomp
-    values['vmnet'] = output
+    # Keep a vmnet given with --vmnet; only fill it in from the host lookup when none was given
+    values['vmnet'] = output unless values['vmnet'].to_s.match(/[a-z]/)
   end
   values
 end
@@ -1175,8 +1176,10 @@ def create_fusion_vm_disk(values, fusion_vm_dir, fusion_disk_file)
               else
                 '/usr/bin/vmware-vdiskmanager'
               end
+  # A size of none (no --size given) would make vmware-vdiskmanager fail, so fall back to 20GB
+  disk_size = values['size'].to_s.match?(/[0-9]/) ? values['size'].to_s : '20GB'
   message = "Creating 	#{values['vmapp']} disk '#{fusion_disk_file}' for #{values['name']}"
-  command = "cd \"#{shell_dq(fusion_vm_dir)}\" ; \"#{shell_dq(vdisk_bin)}\" -c -s \"#{shell_dq(values['size'])}\" -a LsiLogic -t 0 \"#{shell_dq(fusion_disk_file)}\""
+  command = "cd \"#{shell_dq(fusion_vm_dir)}\" ; \"#{shell_dq(vdisk_bin)}\" -c -s \"#{shell_dq(disk_size)}\" -a LsiLogic -t 0 \"#{shell_dq(fusion_disk_file)}\""
   execute_command(values, message, command)
   nil
 end
@@ -1452,6 +1455,16 @@ def unconfigure_fusion_vm(values)
                       "#{values['fusiondir']}/#{values['name']}.vmwarevm"
                     end
     fusion_vmx_file = "#{fusion_vm_dir}/#{values['name']}.vmx"
+    # A VM that is still running must not have its folder removed under it: force it off first, and keep the VM if it will not stop
+    if values['dryrun'] != true && get_running_fusion_vms(values).to_s.match?(/#{Regexp.escape(values['name'])}\.vmx/)
+      message = "Stopping:\t#{values['vmapp']} VM #{values['name']} (hard)"
+      command = "'#{shell_sq(values['vmrun'])}' -T fusion stop '#{shell_sq(fusion_vmx_file)}' hard"
+      execute_command(values, message, command)
+      if get_running_fusion_vms(values).to_s.match?(/#{Regexp.escape(values['name'])}\.vmx/)
+        warning_message(values, "#{values['vmapp']} VM #{values['name']} is still running, so it has not been deleted")
+        return nil
+      end
+    end
     message = "Deleting:\t#{values['vmapp']} VM " + values['name']
     command = "'#{shell_sq(values['vmrun'])}' -T fusion deleteVM '#{shell_sq(fusion_vmx_file)}'"
     execute_command(values, message, command)
@@ -1459,8 +1472,41 @@ def unconfigure_fusion_vm(values)
     message = "Removing:	#{values['vmapp']} VM #{values['name']} directory"
     command = "cd \"#{shell_dq(values['fusiondir'])}\" ; rm -rf \"#{shell_dq(vm_dir)}\""
     execute_command(values, message, command)
+    remove_fusion_inventory_entry(values, fusion_vmx_file)
   elsif values['verbose'] == true
     warning_message(values, "#{values['vmapp']} VM #{values['name']} does not exist")
+  end
+  nil
+end
+
+# Remove a deleted VM from the VMware Fusion library (vmInventory). Fusion caches the inventory while it runs,
+# so Fusion is quit before the file is edited and opened again afterwards. The original file is kept as a backup.
+
+def remove_fusion_inventory_entry(values, vmx_file)
+  inventory = File.join(Dir.home, 'Library/Application Support/VMware Fusion/vmInventory')
+  return nil unless File.exist?(inventory)
+
+  lines    = IO.readlines(inventory)
+  prefixes = lines.map { |line| line[/^(vmlist\d+|index\d+)\.(?:config|id) = "#{Regexp.escape(vmx_file)}"$/, 1] }.compact
+  return nil if prefixes.empty?
+
+  if values['dryrun'] == true
+    verbose_message(values, "Dry run: would remove #{vmx_file} from the VMware Fusion library")
+    return nil
+  end
+  message = "Information:\tChecking whether VMware Fusion is running"
+  running = execute_command(values, message, 'pgrep -f "VMware Fusion.app/Contents/MacOS/VMware Fusion" || true').to_s.match?(/\d/)
+  if running
+    execute_command(values, "Information:\tQuitting VMware Fusion to update its library", "osascript -e 'tell application \"VMware Fusion\" to quit' ; sleep 5")
+  end
+  File.write("#{inventory}.bak-#{Time.now.strftime('%Y%m%d%H%M%S')}", lines.join)
+  kept = lines.reject { |line| prefixes.any? { |prefix| line.start_with?("#{prefix}.") } }
+  remaining = kept.map { |line| line[/^(index\d+)\.id = /, 1] }.compact.uniq.length
+  kept = kept.map { |line| line.start_with?('index.count = ') ? "index.count = \"#{remaining}\"\n" : line }
+  File.write(inventory, kept.join)
+  information_message(values, "Removed #{vmx_file} from the VMware Fusion library")
+  if running
+    execute_command(values, "Information:\tStarting VMware Fusion again", 'open -a "VMware Fusion"')
   end
   nil
 end
@@ -1469,6 +1515,11 @@ end
 
 def create_fusion_vm_vmx_file(values, fusion_vmx_file)
   values['os-type'] = get_fusion_guest_os(values) if values['os-type'] == values['empty']
+  # Cloud-init installs on Apple Silicon get their autoinstall seed (with the SSH key) on a cidata CD
+  if values['method'].to_s.match(/ci/) && values['host-os-unamep'].to_s.match(/arm/) && values['file'].to_s.match(/[a-z]/)
+    values = create_osx_cloud_seed(values)
+    values = create_osx_autoinstall_iso(values)
+  end
   values, vmx_info = populate_fusion_vm_vmx_info(values)
   if !fusion_vmx_file.match(%r{/packer/})
     fusion_vm_dir, fusion_vmx_file, = check_fusion_vm_doesnt_exist(values)
@@ -1481,7 +1532,7 @@ def create_fusion_vm_vmx_file(values, fusion_vmx_file)
   uid = values['uid']
   check_dir_owner(values, fusion_vm_dir, uid)
   vmx_info.each do |vmx_line|
-    (vmx_param, vmx_value) = vmx_line.split(/,/)
+    (vmx_param, vmx_value) = vmx_line.split(/,/, 2)
     vmx_value ||= ''
     output = "#{vmx_param} = \"#{vmx_value}\"\n"
     file.write(output)
@@ -1612,17 +1663,29 @@ def populate_fusion_vm_vmx_info(values)
     values['hwversion'] = '10'
   end
   #  vmx_info.push("vcpu.hotadd,FALSE")
-  vmx_info.push('scsi0.present,TRUE')
-  if values['service'].to_s.match(/el_8|vsphere|esx|vmware/) || values['os-type'].to_s.match(/vsphere|esx|vmware|el_6/)
-    vmx_info.push('scsi0.virtualDev,pvscsi')
-  elsif values['os-type'].to_s.match(/windows7srv-64/)
-    vmx_info.push('scsi0.virtualDev,lsisas1068')
+  # Fusion on Apple Silicon only runs arm64 guests, which need the arm64 hardware version, EFI firmware and an NVMe disk
+  arm_host = values['host-os-unamep'].to_s.match?(/arm/)
+  if arm_host
+    values['hwversion'] = '22'
+    vmx_info.delete_if { |line| line.match?(/^virtualHW\.version,/) }
+    vmx_info.push('virtualHW.version,22')
+    vmx_info.push('nvme0.present,TRUE')
+    vmx_info.push('nvme0.pciSlotNumber,16')
+    vmx_info.push('nvme0:0.present,TRUE')
+    vmx_info.push("nvme0:0.fileName,#{values['name']}.vmdk")
   else
-    vmx_info.push('scsi0.virtualDev,lsilogic')
+    vmx_info.push('scsi0.present,TRUE')
+    if values['service'].to_s.match(/el_8|vsphere|esx|vmware/) || values['os-type'].to_s.match(/vsphere|esx|vmware|el_6/)
+      vmx_info.push('scsi0.virtualDev,pvscsi')
+    elsif values['os-type'].to_s.match(/windows7srv-64/)
+      vmx_info.push('scsi0.virtualDev,lsisas1068')
+    else
+      vmx_info.push('scsi0.virtualDev,lsilogic')
+    end
+    vmx_info.push('scsi0:0.present,TRUE')
+    vmx_info.push("scsi0:0.fileName,#{values['name']}.vmdk")
   end
-  vmx_info.push('firmware,efi') if values['biostype'].to_s.match(/efi/)
-  vmx_info.push('scsi0:0.present,TRUE')
-  vmx_info.push("scsi0:0.fileName,#{values['name']}.vmdk")
+  vmx_info.push('firmware,efi') if values['biostype'].to_s.match(/efi/) || arm_host
   vmx_info.push("memsize,#{values['memory']}")
   #  vmx_info.push("mem.hotadd,FALSE")
   if values['file'] != values['empty']
@@ -1648,6 +1711,14 @@ def populate_fusion_vm_vmx_info(values)
     # vmx_info.push("ide0:0.deviceType,none")
     # vmx_info.push("ide0:0.filename,")
   end
+  # Cloud-init seed (cidata CD) for a Fusion install, and the boot order: the installer CD boots only while the disk is empty
+  if values['cidataiso'].to_s.match(/[a-z]/) && values['hwversion'].to_i >= 20
+    vmx_info.push('sata0:2.present,TRUE')
+    vmx_info.push('sata0:2.deviceType,cdrom-image')
+    vmx_info.push("sata0:2.fileName,#{values['cidataiso']}")
+    vmx_info.push('sata0:2.startConnected,TRUE')
+  end
+  vmx_info.push('bios.bootOrder,hdd,cdrom,ethernet0') if values['host-os-unamep'].to_s.match(/arm/) && values['file'].to_s.match(/[a-z]/)
   vmx_info.push('ide0:0.startConnected,TRUE')
   vmx_info.push('ide0:0.autodetect,TRUE')
   #  vmx_info.push("sata0:1.present,FALSE")
@@ -1656,7 +1727,12 @@ def populate_fusion_vm_vmx_info(values)
   #  vmx_info.push("floppy0.clientDevice,FALSE")
   vmx_info.push('ethernet0.present,TRUE')
   #  vmx_info.push("ethernet0.noPromisc,FALSE")
-  vmx_info.push("ethernet0.connectionType,#{values['vmnetwork']}")
+  if arm_host && values['vmnet'].to_s.match(/[a-z]/)
+    vmx_info.push('ethernet0.connectionType,custom')
+    vmx_info.push("ethernet0.vnet,#{values['vmnet']}")
+  else
+    vmx_info.push("ethernet0.connectionType,#{values['vmnetwork']}")
+  end
   if values['os-type'].to_s.match(/vmware|esx|vsphere/)
     vmx_info.push('ethernet0.virtualDev,vmxnet3')
   elsif values['host-os-unamep'].to_s.match(/arm/)
@@ -1689,10 +1765,13 @@ def populate_fusion_vm_vmx_info(values)
     vmx_info.push('ehci:0.port,0')
     vmx_info.push('ehci:0.present,TRUE')
   end
-  vmx_info.push('sound.present,TRUE')
-  vmx_info.push('sound.virtualDev,hdaudio') if values['os-type'].to_s.match(/windows7srv-64/)
-  vmx_info.push('sound.fileName,-1')
-  vmx_info.push('sound.autodetect,TRUE')
+  # Fusion on Apple Silicon does not support the default sound device (es1371) for arm64 guests, so no sound device is added
+  unless arm_host
+    vmx_info.push('sound.present,TRUE')
+    vmx_info.push('sound.virtualDev,hdaudio') if values['os-type'].to_s.match(/windows7srv-64/)
+    vmx_info.push('sound.fileName,-1')
+    vmx_info.push('sound.autodetect,TRUE')
+  end
   #  vmx_info.push("mks.enable3d,TRUE")
   vmx_info.push('pciBridge0.present,TRUE')
   vmx_info.push('pciBridge4.present,TRUE')
@@ -1711,6 +1790,7 @@ def populate_fusion_vm_vmx_info(values)
   vmx_info.push('hpet0.present,TRUE')
   #  vmx_info.push("usb.vbluetooth.startConnected,FALSE")
   vmx_info.push('tools.syncTime,TRUE')
+  guest_os = (guest_os.to_s.match?(/ubuntu/) ? 'arm-ubuntu-64' : 'arm-other-64') if arm_host
   vmx_info.push("guestOS,#{guest_os}")
   vmx_info.push("nvram,#{values['name']}.nvram")
   vmx_info.push('virtualHW.productCompatibility,hosted')
@@ -1721,8 +1801,7 @@ def populate_fusion_vm_vmx_info(values)
   vmx_info.push('powerType.reset,soft')
   vmx_info.push("displayName,#{values['name']}")
   vmx_info.push("extendedConfigFile,#{values['name']}.vmxf")
-  vmx_info.push("uuid.bios,#{values['uuid']}")
-  vmx_info.push("uuid.location,#{values['uuid']}")
+  # uuid.bios and uuid.location are left to Fusion: a UUID built from the MAC makes Fusion ask "did you move or copy this VM?"
   #  vmx_info.push("uuid.action,keep")
   #  vmx_info.push("replay.supported,FALSE")
   #  vmx_info.push("replay.filename,")
@@ -1731,10 +1810,10 @@ def populate_fusion_vm_vmx_info(values)
   vmx_info.push('pciBridge5.pciSlotNumber,22')
   vmx_info.push('pciBridge6.pciSlotNumber,23')
   vmx_info.push('pciBridge7.pciSlotNumber,24')
-  vmx_info.push('scsi0.pciSlotNumber,16')
+  vmx_info.push('scsi0.pciSlotNumber,16') unless arm_host
   #  vmx_info.push("usb.pciSlotNumber,32")
   vmx_info.push('ethernet0.pciSlotNumber,33')
-  vmx_info.push('sound.pciSlotNumber,34')
+  vmx_info.push('sound.pciSlotNumber,34') unless arm_host
   #  vmx_info.push("vmci0.pciSlotNumber,36")
   if values['host-os-unamep'].to_s.match(/arm/)
     vmx_info.push('monitor.phys_bits_used,36')
@@ -1787,7 +1866,7 @@ def populate_fusion_vm_vmx_info(values)
   #  vmx_info.push("usb:0.port,0")
   #  vmx_info.push("usb:0.parent,-1")
   if values['dhcp'] == true
-    vmx_info.push("ethernet0.GeneratedAddress,#{values['mac']}")
+    vmx_info.push("ethernet0.GeneratedAddress,#{values['mac']}") unless vmx_info.any? { |line| line.start_with?('ethernet0.GeneratedAddress,') }
   else
     vmx_info.push("ethernet0.address,#{values['mac']}")
   end

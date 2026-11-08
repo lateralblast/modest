@@ -76,16 +76,10 @@ INSTALL_METHODS = {
   'gdom' => 'Solaris guest domain'
 }.freeze
 
-# List items for --action list --list <item>
+# List install methods for --action list --type method
 
-def list_items(values)
-  case values['list'].to_s.downcase
-  when /method/
-    handle_output(values, 'Install methods (use with --method):')
-    INSTALL_METHODS.each { |code, description| handle_output(values, format("  %-7s %s", code, description)) }
-  else
-    warning_message(values, "Option --list has an unrecognised value: #{values['list']}")
-    information_message(values, 'Valid values for --list are: method')
-  end
+def list_install_methods(values)
+  handle_output(values, 'Install methods (use with --method):')
+  INSTALL_METHODS.each { |code, description| handle_output(values, format('  %-7s %s', code, description)) }
   nil
 end

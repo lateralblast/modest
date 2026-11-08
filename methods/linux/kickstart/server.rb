@@ -178,9 +178,14 @@ def configure_ks_pxe_boot(values)
                       end
     end
     unless File.exist?(test_file)
-      message = "Information:\tCopying PXE boot files from #{iso_image_dir} to #{pxe_image_dir}"
-      command = "cd #{shell_arg(pxe_image_dir)} ; cp -r #{shell_arg(iso_image_dir)}/* . "
-      execute_command(values, message, command)
+      # Only copy from a directory inside the repository. An empty source would make the copy "cp -r /* ." (the root filesystem)
+      if iso_image_dir.to_s.start_with?("#{values['baserepodir']}/")
+        message = "Information:\tCopying PXE boot files from #{iso_image_dir} to #{pxe_image_dir}"
+        command = "cd #{shell_arg(pxe_image_dir)} ; cp -r #{shell_arg(iso_image_dir)}/* . "
+        execute_command(values, message, command)
+      else
+        warning_message(values, "No PXE boot files are copied for #{values['service']} yet (cloud-init services need the ISO casper files)")
+      end
     end
   end
   pxe_cfg_dir = "#{values['tftpdir']}/pxelinux.cfg"
@@ -242,7 +247,11 @@ end
 def configure_linux_server(values, _search_string)
   iso_list = []
   check_fs_exists(values, values['clientdir'])
-  check_dhcpd_config(values)
+  if values['host-os-uname'].to_s.match(/Darwin/)
+    configure_osx_netboot_services(values)
+  else
+    check_dhcpd_config(values)
+  end
   if values['file'].to_s.match(/[a-z,A-Z]/)
     if File.exist?(values['file'])
       if !values['file'].to_s.match(/CentOS|rhel|Fedora|SL|OracleLinux|ubuntu/)

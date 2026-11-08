@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      9.5.3
+# Version:      9.7.9
 # Release:      1
 # License:      CC BY-NC-SA (Creative Commons Attribution-NonCommercial-ShareAlike)
 #               http://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
@@ -368,7 +368,7 @@ begin
     ['--kvmgroup', REQUIRED],           # Set KVM group
     ['--launchSecurity', REQUIRED],     # Launch Security (KVM)
     ['--license', REQUIRED],            # License key (e.g. ESX)
-    ['--list', REQUIRED],               # List items (with --action list), e.g. --list method
+    ['--list', BOOLEAN],                # List items
     ['--livecd', BOOLEAN],              # Specify Live CD (Changes install method)
     ['--locale', REQUIRED],             # Select language/language (e.g. en_US)
     ['--localfs', REQUIRED],            # Set local fs
@@ -671,7 +671,7 @@ end
 values['requested-arch'] = values['arch'] if values['arch'].to_s.match?(/\S/)
 
 # A create needs an OS or an install method. Check the options as given, before any network setup
-if values['action'].to_s.match?(/add|create/) && !values['vm'].to_s.empty? && !values.key?('os-type') && !values.key?('method') && !values['vm'].to_s.match?(/ldom|cdom|gdom|aws|mp|multipass/) && !values['type'].to_s.match?(/network/)
+if values['action'].to_s.match?(/add|create/) && !values['vm'].to_s.empty? && !values.key?('os-type') && !values.key?('method') && !values.key?('file') && !values['vm'].to_s.match?(/ldom|cdom|gdom|aws|mp|multipass/) && !values['type'].to_s.match?(/network/)
   puts "Warning:\tNo OS or install method specified when creating VM"
   exit 1
 end

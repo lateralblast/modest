@@ -4,6 +4,11 @@ Status: `[ ]` open, `[~]` in progress, `[x]` done.
 
 ## Open
 
+- [ ] macOS server setup for an arm64 Ubuntu ISO (`add --mode server`): generate the dnsmasq config for the host-only bridge (DHCP and TFTP, bridge name looked up at run time) instead of isc-dhcp, configure Homebrew httpd instead of `/etc/apache2`, and copy the boot files into `/private/tftpboot` with sudo
+- [ ] Generate the cloud-init seed for a Fusion arm64 VM with `ssh: install-server: true`, `openssh-server` installed, and the key from `sshkeyfile` written as `authorized-keys`, so SSH works without a password after install
+- [ ] `create --vm fusion --method ci` on Apple Silicon: test end to end on a new VM and SSH in with the key (test VM `modest-vnet9-test` was built by hand)
+- [ ] Fusion `--size none` (no `--size`) still needs a proper fix beyond the 20GB fallback in 9.6.4
+
 - [ ] `--action create --vm fusion --os-type ubuntu --release 2204` fails under `--dryrun` writing the VMX file, because the VM directory is created by a `mkdir` that dry-run skips (`methods/vmware/fusion/common.rb` around line 1478). The VM network is also not configured here, because Fusion host-only networking is not set up on this Mac. A real Fusion create has not been run.
 - [ ] Systemic arity mismatches: a whole-tree check finds about 150 call sites whose argument count does not match the definition. Many are false positives (the same name is defined per platform), but the Solaris zone code, LDom and Jumpstart code, and most of the VirtualBox create path (`add_nonbridged_network_to_vbox_vm`, `modify_vbox_vm`, `setextradata_vbox_vm`, `add_hosts_entry`, `change_vbox_vm_mac`) are affected. VirtualBox create in dry-run still fails. Fix as a dedicated pass, with a test per function.
 - [ ] Docker server side is not finished: `methods/docker/server.rb` calls `create_docker_file` with one argument (it takes two), uses undefined `$docker_host_*` globals, writes a Dockerfile with no newlines and an invalid `FROM:` line, and `build_docker_file` does nothing.
