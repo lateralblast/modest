@@ -1932,3 +1932,44 @@ def populate_fusion_vm_vmx_info(values)
   vmx_info.push("vmxstats.filename,#{values['name']}.scoreboard")
   [values, vmx_info]
 end
+
+# Connect the terminal to the console of a running Fusion VM with socat (Ctrl-] disconnects).
+# The VM must exist, be running, and have a console socket (it is created when a VM is booted headless).
+
+def connect_to_fusion_console(values)
+  if values['name'].to_s.match(/^#{values['empty']}$/)
+    warning_message(values, 'Client name not specified')
+    quit(values)
+    return nil
+  end
+  if check_fusion_vm_exists(values) != true
+    warning_message(values, "VMware Fusion VM #{values['name']} does not exist")
+    quit(values)
+    return nil
+  end
+  running = get_running_fusion_vms(values).to_s.match?(/#{Regexp.escape(values['name'])}\.vmx/)
+  unless running
+    warning_message(values, "VMware Fusion VM #{values['name']} is not booted, so there is no console to connect to. Boot it with: --action boot --vm fusion --name #{values['name']} --headless")
+    quit(values)
+    return nil
+  end
+  sock_file = "#{File.dirname(values['baserepodir'])}/state/consoles/#{values['name']}.sock"
+  unless File.exist?(sock_file)
+    warning_message(values, "No console socket for #{values['name']} (#{sock_file}). It was not booted with --headless")
+    quit(values)
+    return nil
+  end
+  unless system('command -v socat >/dev/null 2>&1')
+    warning_message(values, 'socat is not installed (brew install socat)')
+    quit(values)
+    return nil
+  end
+  command = "socat UNIX-CONNECT:#{sock_file} STDIO,raw,echo=0,escape=0x1d"
+  if values['dryrun'] == true
+    verbose_message(values, "Dry run: would run: #{command}")
+    return nil
+  end
+  information_message(values, "Console:\tconnected to #{values['name']} (Ctrl-] disconnects)")
+  system(command)
+  nil
+end

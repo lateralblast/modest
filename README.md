@@ -4,7 +4,7 @@
 MODEST
 ======
 
-Version: 9.8.6
+Version: 9.8.7
 
 License
 -------
@@ -157,6 +157,19 @@ Mode is designed to be used in a number of scenarios:
 - A environment for quickly deploying VMs for testing purposes
   - In a similar fashion to veewee or vagrant
 - An environment for quickly deploying servers in a Datacenter or testlab via cross-over cable
+
+Headless VMs and the serial console
+-----------------------------------
+
+On Apple Silicon, a VMware Fusion VM created for a cloud-init (Ubuntu live server) install can be booted headless, with the terminal connected to its serial console:
+
+    ./modest.rb --action boot --vm fusion --name <vm> --headless
+
+To reconnect to a running VM's console later, without typing socat:
+
+    ./modest.rb --action connect --vm fusion --name <vm>
+
+The console shows the boot and install output, and typed input goes to the VM. Ctrl-] disconnects and leaves the VM running. Creating a VM does not boot it. The console socket is `<export>/state/consoles/<vm>.sock`, so it can also be reached with `socat - UNIX-CONNECT:<socket>`. See the wiki page Headless Console for examples.
 
 Features
 --------

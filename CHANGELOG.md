@@ -6,6 +6,9 @@ newest first.
 
 ## modest.rb
 
+### [9.8.7] - 2026-11-08
+- `--action connect --vm fusion --name <vm>` connects the terminal to the console of a running Fusion VM with socat, so the socat command is not needed. If the VM does not exist, is not booted, or has no console socket, the command says why and exits. Ctrl-] disconnects
+
 ### [9.8.6] - 2026-11-08
 - The seed for a Fusion cloud-init VM on Apple Silicon gives the `ubuntu` user passwordless sudo (`/etc/sudoers.d/90-modest-ubuntu`), through autoinstall late-commands
 

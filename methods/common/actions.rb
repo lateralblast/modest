@@ -625,6 +625,10 @@ def handle_action(values)
         return values
       end
       connect_to_docker_client(values) if values['type'].to_s.match(/docker/)
+      if values['vm'].to_s.match(/fusion/)
+        connect_to_fusion_console(values)
+        return values
+      end
       if values['vm'] != values['empty'] && values['vm'] != values['empty']
         if values['name'] != values['empty']
           connect_to_virtual_serial(values)
