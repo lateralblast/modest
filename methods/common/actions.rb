@@ -629,6 +629,10 @@ def handle_action(values)
         connect_to_fusion_console(values)
         return values
       end
+      if values['vm'].to_s.match(/vbox/)
+        connect_to_vbox_console(values)
+        return values
+      end
       if values['vm'] != values['empty'] && values['vm'] != values['empty']
         if values['name'] != values['empty']
           connect_to_virtual_serial(values)

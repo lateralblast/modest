@@ -205,6 +205,8 @@ def create_osx_cloud_seed(values)
     '  late-commands:',
     "    - echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/90-modest-ubuntu",
     '    - chmod 440 /target/etc/sudoers.d/90-modest-ubuntu',
+    '    - mkdir -p /target/etc/systemd/system/getty.target.wants',
+    '    - ln -sf /usr/lib/systemd/system/serial-getty@.service /target/etc/systemd/system/getty.target.wants/serial-getty@ttyS0.service',
     '  shutdown: poweroff'
   ]
   File.write(user_data, "#{user_lines.join("\n")}\n")
@@ -305,5 +307,53 @@ def connect_osx_console(values, sock_file)
     reader.kill
     socket.close unless socket.closed?
   end
+  nil
+end
+
+# Console bridge for VirtualBox: one background socat keeps a single connection open to the VM's serial socket
+# and serves a pseudo-terminal, so clients can connect and disconnect without blocking the VM's serial port.
+
+def osx_console_bridge_files(values)
+  console_dir = "#{File.dirname(values['baserepodir'])}/state/consoles"
+  {
+    pty:  "#{console_dir}/#{values['name']}.pty",
+    pid:  "#{console_dir}/#{values['name']}.bridge.pid",
+    sock: "#{console_dir}/#{values['name']}.sock"
+  }
+end
+
+# Start the bridge (stops a previous bridge for the same VM first)
+
+def start_osx_console_bridge(values)
+  files = osx_console_bridge_files(values)
+  if values['dryrun'] == true
+    verbose_message(values, "Dry run: would start the console bridge on #{files[:pty]}")
+    return nil
+  end
+  if File.exist?(files[:pid])
+    old_pid = File.read(files[:pid]).to_i
+    Process.kill('TERM', old_pid) rescue nil
+    File.delete(files[:pid])
+  end
+  File.delete(files[:pty]) if File.symlink?(files[:pty]) || File.exist?(files[:pty])
+  command = "socat UNIX-CONNECT:#{shell_arg(files[:sock])} PTY,link=#{shell_arg(files[:pty])},raw,echo=0 >/dev/null 2>&1 & echo $! > #{shell_arg(files[:pid])}"
+  system(command)
+  20.times do
+    break if File.symlink?(files[:pty]) || File.exist?(files[:pty])
+
+    sleep 1
+  end
+  nil
+end
+
+# Stop the bridge for a VM
+
+def stop_osx_console_bridge(values)
+  files = osx_console_bridge_files(values)
+  return nil unless File.exist?(files[:pid])
+
+  Process.kill('TERM', File.read(files[:pid]).to_i) rescue nil
+  File.delete(files[:pid])
+  File.delete(files[:pty]) if File.symlink?(files[:pty]) || File.exist?(files[:pty])
   nil
 end

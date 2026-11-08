@@ -364,7 +364,9 @@ def import_vbox_ova(values)
   add_hosts_entry(values['name'], values['ip']) if values['ip'].to_s.match(/[0-9]/)
   values['socket'] = add_socket_to_vbox_vm(values)
   add_serial_to_vbox_vm(values)
-  if values['vmnet'].to_s.match(/bridged/)
+  if values['vmnetwork'].to_s.match(/nat/)
+    add_nat_network_to_vbox_vm(values)
+  elsif values['vmnet'].to_s.match(/bridged/)
     vbox_nic = get_bridged_vbox_nic(values)
     add_bridged_network_to_vbox_vm(values, vbox_nic)
   else
@@ -516,11 +518,31 @@ def add_nonbridged_network_to_vbox_vm(values, nic_name)
   nil
 end
 
+# Arm64 VirtualBox VMs need an arm64 guest type, EFI firmware and the ramfb graphics controller
+
+def configure_vbox_arm_firmware(values)
+  return nil unless values['host-os-unamep'].to_s.match(/arm/)
+
+  message = "Information:\tSetting arm64 guest type, EFI firmware and graphics for #{values['name']}"
+  command = "#{shell_arg(values['vboxmanage'])} modifyvm #{shell_arg(values['name'])} --ostype Ubuntu_arm64 --firmware efi --graphicscontroller qemuramfb"
+  execute_command(values, message, command)
+  nil
+end
+
+# Attach the first VirtualBox NIC to NAT
+
+def add_nat_network_to_vbox_vm(values)
+  message = "Information:\tAdding NAT network to #{values['name']}"
+  command = "#{shell_arg(values['vboxmanage'])} modifyvm #{shell_arg(values['name'])} --nic1 nat"
+  execute_command(values, message, command)
+  nil
+end
+
 # Set boot priority to network
 
 def set_vbox_vm_boot_priority(values)
-  message = "Information:\tSetting boot priority for #{values['name']} to disk then network"
-  command = "#{shell_arg(values['vboxmanage'])} modifyvm #{shell_arg(values['name'])} --boot1 disk --boot2 net"
+  message = "Information:\tSetting boot priority for #{values['name']} to disk, then CD-ROM, then network"
+  command = "#{shell_arg(values['vboxmanage'])} modifyvm #{shell_arg(values['name'])} --boot1 disk --boot2 dvd --boot3 net"
   execute_command(values, message, command)
   nil
 end
@@ -655,8 +677,10 @@ end
 # Routine to register VM
 
 def register_vbox_vm(values)
+  # The guest type sets the VM's platform, so arm64 hosts register an arm64 guest (VirtualBox cannot run an x86 VM on Apple silicon)
+  ostype  = values['host-os-unamep'].to_s.match(/arm/) ? 'Ubuntu_arm64' : values['os-type']
   message = "Information:\tRegistering VM #{values['name']}"
-  command = "#{shell_arg(values['vboxmanage'])} createvm --name \"#{shell_dq(values['name'])}\" --ostype \"#{shell_dq(values['os-type'])}\" --register"
+  command = "#{shell_arg(values['vboxmanage'])} createvm --name \"#{shell_dq(values['name'])}\" --ostype \"#{shell_dq(ostype)}\" --register"
   execute_command(values, message, command)
   nil
 end
@@ -664,6 +688,8 @@ end
 # Get VirtualBox disk
 
 def get_vbox_controller(values)
+  # arm64 VirtualBox does not accept the SAS controller, so the disk goes on the SATA (AHCI) controller
+  values['controller'] = 'IntelAHCI' if values['host-os-unamep'].to_s.match(/arm/)
   values['controller'] = 'PIIX4' if values['controller'] =~ /ide/
   values['controller'] = 'IntelAHCI' if values['controller'] =~ /sata/
   values['controller'] = 'LSILogic' if values['controller'] =~ /scsi/
@@ -684,7 +710,9 @@ end
 
 def create_vbox_hdd(values)
   message = "Information:\tCreating VM hard disk for #{values['name']}"
-  command = "#{shell_arg(values['vboxmanage'])} createhd --filename \"#{shell_dq(values['disk'])}\" --size \"#{shell_dq(values['size'])}\""
+  # A size of none (no --size given) would fail, so fall back to 20GB (20480 MB)
+  size    = values['size'].to_s.match?(/^\d+$/) ? values['size'].to_s : '20480'
+  command = "#{shell_arg(values['vboxmanage'])} createhd --filename \"#{shell_dq(values['disk'])}\" --size \"#{shell_dq(size)}\""
   execute_command(values, message, command)
   nil
 end
@@ -724,12 +752,13 @@ end
 # Add hard disk to VirtualBox VM
 
 def add_cdrom_to_vbox_vm(values)
+  # The disk is on port 0 of the SATA controller, so the install CD and the seed go on ports 1 and 2 of the same controller
   message = "Information:\tAttaching CDROM \"#{values['file']}\" to VM #{values['name']}"
-  command = "#{shell_arg(values['vboxmanage'])} storagectl \"#{shell_dq(values['name'])}\" --name \"cdrom\" --add \"sata\" --controller \"IntelAHCI\""
+  command = "#{shell_arg(values['vboxmanage'])} storageattach \"#{shell_dq(values['name'])}\" --storagectl \"SATA\" --port 1 --device 0 --type dvddrive --medium \"#{shell_dq(values['file'])}\""
   execute_command(values, message, command)
-  if File.exist?(values['vboxadditions'])
-    message = "Information:\tAttaching ISO #{values['vboxadditions']} to VM #{values['name']}"
-    command = "#{shell_arg(values['vboxmanage'])} storageattach \"#{shell_dq(values['name'])}\" --storagectl \"cdrom\" --port 0 --device 0 --type dvddrive --medium \"#{shell_dq(values['file'])}\""
+  if values['cidataiso'].to_s.match(/[a-z]/)
+    message = "Information:\tAttaching cloud-init seed #{values['cidataiso']} to VM #{values['name']}"
+    command = "#{shell_arg(values['vboxmanage'])} storageattach \"#{shell_dq(values['name'])}\" --storagectl \"SATA\" --port 2 --device 0 --type dvddrive --medium \"#{shell_dq(values['cidataiso'])}\""
     execute_command(values, message, command)
   end
   nil
@@ -747,11 +776,60 @@ end
 # Routine to add a socket to a VM
 
 def add_socket_to_vbox_vm(values)
-  socket_name = "/tmp/#{values['name']}"
+  # The console socket lives under <export>/state/consoles, next to the VMware Fusion console sockets
+  console_dir = "#{File.dirname(values['baserepodir'])}/state/consoles"
+  socket_name = "#{console_dir}/#{values['name']}.sock"
+  FileUtils.mkdir_p(console_dir) unless values['dryrun'] == true
   message     = "Information:\tAdding serial controller to #{values['name']}"
   command     = "#{shell_arg(values['vboxmanage'])} modifyvm \"#{shell_dq(values['name'])}\" --uartmode1 server #{shell_arg(socket_name)}"
   execute_command(values, message, command)
   socket_name
+end
+
+# Connect the terminal to the console of a running VirtualBox VM with socat (Ctrl-] disconnects).
+# The VM must exist, be running, and have a console socket (it is created by the serial controller).
+
+def connect_to_vbox_console(values)
+  if values['name'].to_s.match(/^#{values['empty']}$/)
+    warning_message(values, 'Client name not specified')
+    quit(values)
+    return nil
+  end
+  return nil unless check_vbox_vm_exists(values)
+
+  message = "Information:\tChecking VM #{values['name']} is running"
+  command = "#{shell_arg(values['vboxmanage'])} list runningvms"
+  running = execute_command(values, message, command).to_s.match?(/"#{Regexp.escape(values['name'])}"/)
+  unless running
+    warning_message(values, "VirtualBox VM #{values['name']} is not booted, so there is no console to connect to. Boot it with: --action boot --vm vbox --name #{values['name']} --headless")
+    quit(values)
+    return nil
+  end
+  files = osx_console_bridge_files(values)
+  bridged = File.symlink?(files[:pty]) || File.exist?(files[:pty])
+  unless bridged || File.exist?(files[:sock])
+    warning_message(values, "No console for #{values['name']} (#{files[:sock]}). It was not booted with --headless")
+    quit(values)
+    return nil
+  end
+  unless system('command -v socat >/dev/null 2>&1')
+    warning_message(values, 'socat is not installed (brew install socat)')
+    quit(values)
+    return nil
+  end
+  # The bridge holds the VM's single serial connection, so clients attach to its terminal
+  command = if bridged
+              "socat STDIO,raw,echo=0,escape=0x1d FILE:#{files[:pty]},rdwr"
+            else
+              "socat STDIO,raw,echo=0,escape=0x1d UNIX-CONNECT:#{files[:sock]}"
+            end
+  if values['dryrun'] == true
+    verbose_message(values, "Dry run: would run: #{command}")
+    return nil
+  end
+  information_message(values, "Console:\tconnected to #{values['name']} (Ctrl-] disconnects)")
+  system(command)
+  nil
 end
 
 # Routine to add serial to a VM
@@ -1008,7 +1086,7 @@ def boot_vbox_vm(values)
   end
   if values['boot'].to_s.match(/cdrom|net|dvd|disk/)
     values['boot'] = values['boot'].gsub(/cdrom/, 'dvd')
-    set_vbox_boot_device(values['name'], values['boot'])
+    set_vbox_boot_device(values)
   end
   message = "Starting:\tVM #{values['name']}"
   if (values['text'] == true) || (values['serial'] == true) || (values['headless'] == true)
@@ -1031,6 +1109,8 @@ def boot_vbox_vm(values)
     command = "#{shell_arg(values['vboxmanage'])} startvm #{shell_arg(values['name'])}"
     execute_command(values, message, command)
   end
+  start_osx_console_bridge(values) if values['headless'] == true && values['serial'] != true
+  connect_to_vbox_console(values) if values['headless'] == true && values['serial'] != true
   if values['serial'] == true
     system("socat UNIX-CONNECT:/tmp/#{values['name']} STDIO,raw,echo=0,escape=0x11,icanon=0")
   else
@@ -1090,6 +1170,12 @@ end
 # Check VirtualBox hostonly network
 
 def check_vbox_hostonly_network(values)
+  # VirtualBox's host-only network driver does not load on this Mac, so host-only networks cannot be used
+  if values['host-os-uname'].to_s.match(/Darwin/)
+    warning_message(values, 'Host-only networks are not supported for VirtualBox on this Mac, because VirtualBox cannot load its host-only network driver. Use --vmnetwork nat instead')
+    quit(values)
+    return values
+  end
   if_name  = values['vmnet']
   if_check = get_vbox_hostonly_interface(values)
   string = if values['host-os-uname'].to_s.match(/NT/)
@@ -1186,6 +1272,11 @@ def configure_vbox_vm(values)
   values['disk']   = "#{values['vmdir']}/#{values['name']}.vdi"
   values['socket'] = "/tmp/#{values['name']}"
   values['controller'] = get_vbox_controller(values)
+  # Cloud-init installs on Apple Silicon get the autoinstall ISO copy and the cidata seed
+  if values['method'].to_s.match(/ci/) && values['host-os-unamep'].to_s.match(/arm/) && values['file'].to_s.match(/iso$/)
+    values = create_osx_cloud_seed(values)
+    values = create_osx_autoinstall_iso(values)
+  end
   check_vbox_vm_doesnt_exist(values)
   register_vbox_vm(values)
   add_controller_to_vbox_vm(values)
@@ -1194,17 +1285,23 @@ def configure_vbox_vm(values)
     add_hdd_to_vbox_vm(values)
   end
   add_memory_to_vbox_vm(values)
+  configure_vbox_arm_firmware(values)
   values['socket'] = add_socket_to_vbox_vm(values)
   add_serial_to_vbox_vm(values)
-  if values['vmnet'].to_s.match(/bridged/)
+  if values['vmnetwork'].to_s.match(/nat/)
+    add_nat_network_to_vbox_vm(values)
+  elsif values['vmnet'].to_s.match(/bridged/)
     values['vmnic'] = get_bridged_vbox_nic(values)
     add_bridged_network_to_vbox_vm(values)
   else
-    add_nonbridged_network_to_vbox_vm(values)
+    add_nonbridged_network_to_vbox_vm(values, values['vmnet'])
   end
   set_vbox_vm_boot_priority(values)
-  add_cdrom_to_vbox_vm(values) if values['file'].to_s.match(/iso$/)
-  add_tools_to_vbox_vm(values)
+  if values['file'].to_s.match(/iso$/)
+    add_cdrom_to_vbox_vm(values)
+  else
+    add_tools_to_vbox_vm(values)
+  end
   if values['mac'].to_s.match(/[0-9]/)
     change_vbox_vm_mac(values)
   else
@@ -1360,3 +1457,4 @@ def install_virtualbox(values)
   end
   nil
 end
+

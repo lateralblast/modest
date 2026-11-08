@@ -6,6 +6,54 @@ newest first.
 
 ## modest.rb
 
+### [10.0.3] - 2026-11-08
+- The seed for a Fusion cloud-init VM on Apple Silicon enables a login prompt on the serial port (`serial-getty@ttyS0`), so the serial console accepts logins whether the VM is started headless or with its window
+
+### [10.0.2] - 2026-11-08
+- `--action connect --vm vbox` attaches to the console bridge when it is running, so you can disconnect and reconnect without blocking the VM's serial port. Ctrl-] disconnects
+
+### [10.0.1] - 2026-11-08
+- `--action boot --vm vbox --headless` starts a console bridge: a background socat that keeps one connection open to the VM's serial socket and serves a terminal at `<export>/state/consoles/<vm>.pty`. VirtualBox only accepts one serial client, so the bridge lets consoles reconnect
+
+### [10.0.0] - 2026-11-08
+- A VirtualBox cloud-init VM created on Apple Silicon from an ISO gets the autoinstall copy of the ISO and a cloud-init seed on a `cidata` CD-ROM, as the Fusion VMs do, so the install runs unattended
+
+### [9.9.9] - 2026-11-08
+- A VirtualBox VM created from an ISO attaches the install CD-ROM and the cloud-init seed to the SATA controller (ports 1 and 2), and boots disk, then CD-ROM, then network. Before, the CD-ROM needed a second controller, which VirtualBox refuses
+
+### [9.9.8] - 2026-11-08
+- A VirtualBox VM created on Apple Silicon uses the SATA controller for its disk, and a disk created without a size gets 20GB
+
+### [9.9.7] - 2026-11-08
+- A VirtualBox VM created on Apple Silicon is registered as an arm64 guest (Ubuntu ARM 64-bit), with EFI firmware and the ramfb graphics controller. An x86 guest cannot run on Apple silicon
+
+### [9.9.6] - 2026-11-08
+- `--vmnetwork nat` on VirtualBox VM create attaches the NAT network, and the other network choices pass the network name they need. Before, the create passed the wrong arguments for a non-bridged network
+
+### [9.9.5] - 2026-11-08
+- `--vmnetwork nat` on a VirtualBox VM sets its first NIC to NAT, and the host-only network check is skipped for it
+
+### [9.9.4] - 2026-11-08
+- A VirtualBox VM on macOS that is given a host-only network (the default `--vmnetwork hostonly`) stops with a warning: host-only networks are not supported for VirtualBox on this Mac, because VirtualBox cannot load its host-only network driver. The warning says to use `--vmnetwork nat`
+
+### [9.9.3] - 2026-11-08
+- `--install` on macOS installs VirtualBox with Homebrew (`brew install --cask virtualbox`) again. The DMG install added in 9.9.2 is removed
+
+### [9.9.2] - 2026-11-08
+- `--install` on macOS installs VirtualBox from the latest DMG on virtualbox.org instead of Homebrew. The DMG is downloaded to `<workdir>/downloads`, its SHA-256 is checked against the published value, and its package is installed with `sudo installer`. The message after the install says to approve the Oracle extension and restart before using host-only networks
+
+### [9.9.1] - 2026-11-08
+- `--action boot --vm vbox` no longer fails with an argument error before the VM starts, because the boot device was set with the wrong arguments
+
+### [9.9.0] - 2026-11-08
+- `--action boot --vm vbox --name <vm> --headless` starts the VM headless and connects the terminal to its serial console, as it does for VMware Fusion
+
+### [9.8.9] - 2026-11-08
+- `--action connect --vm vbox --name <vm>` connects the terminal to the console of a running VirtualBox VM with socat. If the VM does not exist, is not booted, or has no console socket, the command says why and exits. Ctrl-] disconnects
+
+### [9.8.8] - 2026-11-08
+- The VirtualBox serial console socket is `<export>/state/consoles/<vm>.sock` (it was `/tmp/<vm>`), next to the VMware Fusion console sockets
+
 ### [9.8.7] - 2026-11-08
 - `--action connect --vm fusion --name <vm>` connects the terminal to the console of a running Fusion VM with socat, so the socat command is not needed. If the VM does not exist, is not booted, or has no console socket, the command says why and exits. Ctrl-] disconnects
 
