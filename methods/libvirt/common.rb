@@ -151,6 +151,55 @@ def check_kvm_permissions(values)
   nil
 end
 
+# Check KVM is installed and the user is in the KVM groups (--action check --check kvm).
+# Missing groups are added with usermod. Group changes only apply at the next login, so the
+# user is told to log out and back in when anything was added.
+
+def check_kvm(values)
+  kvm_groups = %w[kvm libvirt libvirt-qemu libvirt-dnsmasq]
+  user_name  = values['user'].to_s
+  information_message(values, 'Checking KVM is installed')
+  installed = !which_program('virt-install').empty?
+  if installed
+    information_message(values, 'KVM is installed')
+  else
+    warning_message(values, 'KVM is not installed (virt-install not found on PATH)')
+    check_kvm_is_installed(values) if values['install-check'] == true
+  end
+  if values['host-os-uname'].to_s.match(/Darwin/)
+    information_message(values, 'KVM is installed and the user check does not apply on macOS') if installed
+    return nil
+  end
+
+  added   = []
+  skipped = []
+  kvm_groups.each do |group_name|
+    output = `getent group #{shell_arg(group_name)}`.chomp
+    if output.empty?
+      warning_message(values, "Group #{group_name} does not exist, skipping")
+      skipped.push(group_name)
+      next
+    end
+    # Membership is read from the group database, so it reflects the user's login state
+    members = output.split(':')[3].to_s.split(',')
+    next if members.include?(user_name)
+
+    message = "Information:\tAdding user #{user_name} to group #{group_name}"
+    command = "usermod -a -G #{shell_arg(group_name)} #{shell_arg(user_name)}"
+    execute_command(values, message, command)
+    added.push(group_name)
+  end
+  if added.empty?
+    if installed && skipped.empty?
+      information_message(values, "KVM is installed and user #{user_name} is a member of the required groups (#{kvm_groups.join(', ')})")
+    end
+  else
+    warning_message(values, "User #{user_name} was added to #{added.join(', ')}")
+    warning_message(values, 'Log out and log back in for the new group permissions to take effect')
+  end
+  nil
+end
+
 # Check KVM is installed
 
 def check_kvm_is_installed(values)

@@ -263,7 +263,7 @@ def set_gateway_defaults(values, defaults)
     if defaults['host-os-uname'].to_s.match(/Linux/)
       defaults['nic'] = 'eth0'
       network_test = `ifconfig -a |grep eth0`.chomp
-      defaults['nic'] = `ip r |grep default |awk '{print $5}'` unless network_test.match(/eth0/)
+      defaults['nic'] = `ip r |grep default |awk '{print $5}'`.chomp unless network_test.match(/eth0/)
     end
   end
   if values['vm'].to_s.match(/kvm/)

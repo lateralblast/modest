@@ -345,3 +345,21 @@ def print_examples(values)
   end
   quit(values)
 end
+
+# List the values accepted by --check
+
+def print_check_list
+  puts 'Available --check parameters:'
+  puts '  perms       check client directory permissions (also accepted: dir)'
+  puts '  dnsmasq     check dnsmasq configuration'
+  puts '  dhcp        check DHCP server configuration'
+  puts '  tftp        check TFTP server configuration'
+  puts '  virtualbox  check VirtualBox is installed (also accepted: vbox)'
+  puts '  fusion      check VMware Fusion is installed (macOS)'
+  puts '  workstation check VMware Workstation is installed (Linux)'
+  puts '  parallels   check Parallels Desktop is installed (macOS)'
+  puts '  packer      check Packer is installed (--install installs it with Homebrew on macOS)'
+  puts '  kvm         check KVM is installed and the user is in the kvm, libvirt, libvirt-qemu and libvirt-dnsmasq groups (adds missing groups)'
+  puts '  docker      check docker and docker compose are installed, the daemon is reachable, and the user is in the docker group (adds it)'
+  nil
+end

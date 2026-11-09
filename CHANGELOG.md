@@ -6,6 +6,25 @@ newest first.
 
 ## modest.rb
 
+### [10.3.7] - 2026-11-09
+- `--action check --check kvm` reports on one summary line when KVM is installed and the user is already in the `kvm`, `libvirt`, `libvirt-qemu` and `libvirt-dnsmasq` groups. The summary is not printed when a group was added or skipped
+
+### [10.3.6] - 2026-11-09
+- `--action check --check docker` reports when the docker packages are installed, the daemon is reachable and the user is in the `docker` group, and says so on one summary line. The daemon result is now reported when it succeeds too
+
+### [10.3.5] - 2026-11-09
+- `--action check --check docker` checks that `docker` and `docker compose` (or `docker-compose`) are installed and that the Docker daemon is reachable. On Linux it checks the user is in the `docker` group and adds them if not, with a note to log out and back in. With `--install`, missing tools are installed
+
+### [10.3.4] - 2026-11-09
+- `--action check --check kvm` checks that KVM is installed and that the user is a member of `kvm`, `libvirt`, `libvirt-qemu` and `libvirt-dnsmasq`. Missing groups are added with `usermod`, and the output says to log out and back in. Groups that do not exist on the host are skipped with a warning. With `--install`, a missing KVM is installed
+
+### [10.3.3] - 2026-11-09
+- `--action check` with no `--check` now prints the list of available checks and exits 0, instead of running the permissions check. Use `--check perms` for the old behaviour
+- `--check` with no value and `--action check` share one list (`print_check_list` in `methods/common/usage.rb`), which now includes `kvm`
+
+### [10.3.2] - 2026-11-09
+- The default `--nic` on Linux hosts is no longer rejected with "Invalid value for nic: contains characters not allowed in shell arguments". The default route interface lookup kept its trailing newline, so `--action check --check kvm` and other commands failed before running
+
 ### [10.3.1] - 2026-11-09
 - The cloud-init seed uses `ip route replace` for the default route of a static-address install, so it succeeds when the kernel `ip=` argument has already added the route. `ip route add` failed with "File exists" and stopped the install
 

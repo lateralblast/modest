@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      10.3.1
+# Version:      10.3.7
 # Release:      1
 # License:      CC BY-NC-SA (Creative Commons Attribution-NonCommercial-ShareAlike)
 #               http://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
@@ -646,18 +646,16 @@ if values['install-check'] == true && !values.key?('check')
   exit 1
 end
 
+# --action check with no --check lists the available checks (the 'check' default is set later, so test the command line)
+if values['action'].to_s == 'check' && !values.key?('check')
+  print_check_list
+  exit 0
+end
+
 if values.key?('check')
   if values['check'].to_s.empty?
-    puts 'No parameter given to --check. Available parameters:'
-    puts '  perms       check client directory permissions (also accepted: dir)'
-    puts '  dnsmasq     check dnsmasq configuration'
-    puts '  dhcp        check DHCP server configuration'
-    puts '  tftp        check TFTP server configuration'
-    puts '  virtualbox  check VirtualBox is installed (also accepted: vbox)'
-    puts '  fusion      check VMware Fusion is installed (macOS)'
-    puts '  workstation check VMware Workstation is installed (Linux)'
-    puts '  parallels   check Parallels Desktop is installed (macOS)'
-    puts '  packer      check Packer is installed (--install installs it with Homebrew on macOS)'
+    puts 'No parameter given to --check.'
+    print_check_list
     exit 1
   end
   values['action'] = 'check' if values['action'].nil?

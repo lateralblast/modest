@@ -4,7 +4,7 @@
 MODEST
 ======
 
-Version: 10.3.1
+Version: 10.3.7
 
 License
 -------
@@ -177,7 +177,7 @@ Checking and installing tools
     ./modest.rb --action check --check packer
     ./modest.rb --action check --check packer --install
 
-`--check` takes one of `perms`, `dnsmasq`, `dhcp`, `tftp`, `virtualbox`, `fusion`, `workstation`, `parallels` or `packer`. `--check packer` reports the Packer version and path, or that Packer is missing. With `--install`, a missing Packer is installed with Homebrew from the HashiCorp tap (`brew install hashicorp/tap/packer`) on macOS. On other systems it prints the download page instead.
+`--action check` with no `--check` prints the available checks and exits. `--check` takes one of `perms`, `dnsmasq`, `dhcp`, `tftp`, `virtualbox`, `fusion`, `workstation`, `parallels`, `packer` or `kvm` (`kvm` checks that KVM is installed and that the user is in the `kvm`, `libvirt`, `libvirt-qemu` and `libvirt-dnsmasq` groups. Missing groups are added with `usermod`, and the user must log out and back in for them to apply. With `--install`, a missing KVM is installed). `docker` checks that the `docker` and `docker compose` (or `docker-compose`) commands are installed, that the daemon is reachable, and that the user is in the `docker` group (Linux; missing membership is added and needs a re-login). With `--install`, missing tools are installed. `--check perms` checks client directory permissions. `--check packer` reports the Packer version and path, or that Packer is missing. With `--install`, a missing Packer is installed with Homebrew from the HashiCorp tap (`brew install hashicorp/tap/packer`) on macOS. On other systems it prints the download page instead.
 
 Listing networks
 ----------------
