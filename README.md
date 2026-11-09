@@ -4,7 +4,7 @@
 MODEST
 ======
 
-Version: 10.4.1
+Version: 10.4.3
 
 License
 -------
@@ -204,6 +204,26 @@ the host key accepted (for example `StrictHostKeyChecking=accept-new`).
 
 Delete stops and undefines the VM, removes only its own overlay and seed, and removes its `/etc/hosts`
 line. The base image, the NFS exports and the DHCP pool are shared and are kept.
+
+### Physical network
+
+To serve PXE and install services to machines on the host's physical LAN, put the VM on a host bridge:
+
+    ./modest.rb --action create --vm deployment-server --nic enp4s0 --ip 192.168.9.200 --sshkeyfile ~/.ssh/id_ed25519.pub
+
+- `--nic` names a NIC that is a member of a bridge, or a bridge. `--bridge` names the bridge directly.
+  Either one switches the VM from the NAT network to that bridge. The VM is attached to the bridge with `virt-install`.
+- `--ip` is required, and is the fixed address of the VM on the physical network. It must be on the bridge's network.
+- `--cidr`, `--gateway` and `--nameserver` are optional. By default the prefix comes from the bridge's own address,
+  the gateway from the host's default route, and the name server is the gateway.
+- The DHCP pool of the physical network is not changed. Keep `--ip` out of that network's DHCP pool.
+- `--nfsexport <range>/<cidr>` sets the NFS export range, for example `--nfsexport 192.168.8.0/22`. Without it, the
+  range is the subnet of the VM's network: the libvirt default network, or the bridge's subnet. The export block
+  uses that one range, so a bridged VM with no `--nfsexport` no longer exports to the NAT network. Pass both ranges
+  Only one range is accepted, so exporting to two networks needs a change to the option.
+  The clients and images directories are read-write, so every host in the export range can write them.
+- Without `--nic` or `--bridge`, `--ip` sets the fixed address on the libvirt default network, which must be inside
+  `192.168.122.0/24`. The default is `192.168.122.10`.
 
 Listing networks
 ----------------

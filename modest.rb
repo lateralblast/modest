@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      10.4.1
+# Version:      10.4.3
 # Release:      1
 # License:      CC BY-NC-SA (Creative Commons Attribution-NonCommercial-ShareAlike)
 #               http://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
@@ -405,6 +405,7 @@ begin
     ['--network', REQUIRED],            # Network (KVM)
     ['--networkfile', REQUIRED],        # Network config file (KVM)
     ['--nic', REQUIRED],                # Default NIC
+    ['--nfsexport', REQUIRED],          # NFS export range with CIDR (deployment server)
     ['--noboot', BOOLEAN],              # Create VM/configs but do not boot
     ['--nokeys', BOOLEAN],              # Do not copy SSH Keys
     ['--nosuffix', BOOLEAN],            # Do not add suffix to AWS AMI names
@@ -669,6 +670,11 @@ end
 
 # Remember an architecture given on the command line, as the default architecture is set later
 values['requested-arch'] = values['arch'] if values['arch'].to_s.match?(/\S/)
+
+# Remember the deployment server network options given on the command line, as defaults are set later
+%w[ip nic bridge cidr gateway nameserver nfsexport].each do |option|
+  values["requested-#{option}"] = values[option] if values.key?(option) && values[option].to_s.match?(/\S/) && values[option] != values['empty']
+end
 
 # A create needs an OS or an install method. Check the options as given, before any network setup
 if values['action'].to_s.match?(/add|create/) && !values['vm'].to_s.empty? && !values.key?('os-type') && !values.key?('method') && !values.key?('file') && !values['vm'].to_s.match?(/ldom|cdom|gdom|aws|mp|multipass/) && !values['type'].to_s.match?(/network/) && values['vm'].to_s != 'deployment-server'

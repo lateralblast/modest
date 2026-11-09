@@ -6,6 +6,12 @@ newest first.
 
 ## modest.rb
 
+### [10.4.3] - 2026-11-09
+- `--nfsexport <range>/<cidr>` sets the NFS export range for `--vm deployment-server`. Without it the range is the subnet of the VM's network: the libvirt default network, or the bridge's subnet for `--nic` or `--bridge`. The export block uses that one range. A bridged create no longer adds the NAT network to the exports
+
+### [10.4.2] - 2026-11-09
+- `--vm deployment-server` takes `--nic` or `--bridge` to put the VM on a host bridge on the physical network, with `--ip` as its fixed address (required). The prefix defaults to the bridge's own, the gateway to the host's default route, and `--cidr`, `--gateway` and `--nameserver` override them. The NFS export block covers the libvirt default network and the VM's subnet. Bad options stop the command, even under `--dryrun`
+
 ### [10.4.1] - 2026-11-09
 - `--action check --check deployment-server` reports whether this machine is the deployment server. It is when `/etc/modest/role` contains `deployment-server` and the machine is a KVM guest. `--vm deployment-server` create writes that marker through cloud-init
 
