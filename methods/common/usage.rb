@@ -361,5 +361,6 @@ def print_check_list
   puts '  packer      check Packer is installed (--install installs it with Homebrew on macOS)'
   puts '  kvm         check KVM is installed and the user is in the kvm, libvirt, libvirt-qemu and libvirt-dnsmasq groups (adds missing groups)'
   puts '  docker      check docker and docker compose are installed, the daemon is reachable, and the user is in the docker group (adds it)'
+  puts '  deployment-server  report whether this machine is the deployment server (/etc/modest/role and a KVM guest)'
   nil
 end

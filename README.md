@@ -4,7 +4,7 @@
 MODEST
 ======
 
-Version: 10.3.9
+Version: 10.4.1
 
 License
 -------
@@ -177,7 +177,7 @@ Checking and installing tools
     ./modest.rb --action check --check packer
     ./modest.rb --action check --check packer --install
 
-`--action check` with no `--check` prints the available checks and exits. `--check` takes one of `perms`, `dnsmasq`, `dhcp`, `tftp`, `virtualbox`, `fusion`, `workstation`, `parallels`, `packer` or `kvm` (`kvm` checks that KVM is installed and that the user is in the `kvm`, `libvirt`, `libvirt-qemu` and `libvirt-dnsmasq` groups. Missing groups are added with `usermod`, and the user must log out and back in for them to apply. With `--install`, a missing KVM is installed). `docker` checks that the `docker` and `docker compose` (or `docker-compose`) commands are installed, that the daemon is reachable, and that the user is in the `docker` group (Linux; missing membership is added and needs a re-login). With `--install`, missing tools are installed. `--check perms` checks client directory permissions. `--check packer` reports the Packer version and path, or that Packer is missing. With `--install`, a missing Packer is installed with Homebrew from the HashiCorp tap (`brew install hashicorp/tap/packer`) on macOS. On other systems it prints the download page instead.
+`--action check` with no `--check` prints the available checks and exits. `--check` takes one of `perms`, `dnsmasq`, `dhcp`, `tftp`, `virtualbox`, `fusion`, `workstation`, `parallels`, `packer` or `kvm` (`kvm` checks that KVM is installed and that the user is in the `kvm`, `libvirt`, `libvirt-qemu` and `libvirt-dnsmasq` groups. Missing groups are added with `usermod`, and the user must log out and back in for them to apply. With `--install`, a missing KVM is installed). `docker` checks that the `docker` and `docker compose` (or `docker-compose`) commands are installed, that the daemon is reachable, and that the user is in the `docker` group (Linux; missing membership is added and needs a re-login). With `--install`, missing tools are installed. `--check deployment-server` reports whether this machine is the deployment server: it is a KVM guest (`systemd-detect-virt --vm`) and `/etc/modest/role` contains `deployment-server`. `--action create --vm deployment-server` writes that file through cloud-init. `--check perms` checks client directory permissions. `--check packer` reports the Packer version and path, or that Packer is missing. With `--install`, a missing Packer is installed with Homebrew from the HashiCorp tap (`brew install hashicorp/tap/packer`) on macOS. On other systems it prints the download page instead.
 
 Deployment server VM
 --------------------
@@ -197,7 +197,7 @@ libvirt default network `192.168.122.0/24`. The original file is saved as `/etc/
 the first time. A VM that already exists is not changed.
 
 The VM has the fixed address `192.168.122.10` on the libvirt default network. Create moves that
-network's DHCP pool to `192.168.122.100`-`192.168.122.254`, so the fixed address is outside it, and
+network's DHCP pool to `192.168.122.50`-`192.168.122.250`, so the fixed address is outside it, and
 adds a marked `deployment-server` line to `/etc/hosts` (the original is saved as
 `/etc/hosts.before-modest`). Connect with `ssh <user>@deployment-server`. The first connection needs
 the host key accepted (for example `StrictHostKeyChecking=accept-new`).

@@ -6,6 +6,12 @@ newest first.
 
 ## modest.rb
 
+### [10.4.1] - 2026-11-09
+- `--action check --check deployment-server` reports whether this machine is the deployment server. It is when `/etc/modest/role` contains `deployment-server` and the machine is a KVM guest. `--vm deployment-server` create writes that marker through cloud-init
+
+### [10.4.0] - 2026-11-09
+- The DHCP pool of the libvirt default network is `192.168.122.50`-`192.168.122.250`, instead of `.100`-`.254`. `--vm deployment-server` uses this pool, and the fixed address `192.168.122.10` is still outside it
+
 ### [10.3.9] - 2026-11-09
 - `--vm deployment-server` gives the VM the fixed address 192.168.122.10 on the libvirt default network, set by cloud-init network config. The default network's DHCP pool is moved to 192.168.122.100-192.168.122.254 so the fixed address is outside it. Create also adds a marked `deployment-server` line to `/etc/hosts` (the original is saved as `/etc/hosts.before-modest`), so the VM can be reached by name. Delete removes that hosts line, and keeps the DHCP pool and NFS exports
 

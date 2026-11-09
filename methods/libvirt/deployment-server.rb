@@ -20,8 +20,8 @@ DEPLOYMENT_SERVER_BASE_SHA      = '5645d0318ad21f643ebb1ac4567514620e9893380b07b
 DEPLOYMENT_SERVER_NETWORK       = '192.168.122.0/24'
 DEPLOYMENT_SERVER_GATEWAY       = '192.168.122.1'
 DEPLOYMENT_SERVER_IP            = '192.168.122.10'
-DEPLOYMENT_SERVER_POOL_START    = '192.168.122.100'
-DEPLOYMENT_SERVER_POOL_END      = '192.168.122.254'
+DEPLOYMENT_SERVER_POOL_START    = '192.168.122.50'
+DEPLOYMENT_SERVER_POOL_END      = '192.168.122.250'
 DEPLOYMENT_SERVER_VCPUS         = '2'
 DEPLOYMENT_SERVER_MEMORY        = '4096'
 DEPLOYMENT_SERVER_DISK_SIZE     = '40G'
@@ -34,6 +34,8 @@ DEPLOYMENT_SERVER_EXPORTS       = {
 }.freeze
 DEPLOYMENT_SERVER_EXPORTS_BEGIN = '# BEGIN modest deployment-server'
 DEPLOYMENT_SERVER_EXPORTS_END   = '# END modest deployment-server'
+DEPLOYMENT_SERVER_ROLE_FILE     = '/etc/modest/role'
+DEPLOYMENT_SERVER_ROLE          = 'deployment-server'
 DEPLOYMENT_SERVER_HOSTS_BEGIN   = '# BEGIN modest deployment-server'
 DEPLOYMENT_SERVER_HOSTS_END     = '# END modest deployment-server'
 
@@ -84,7 +86,32 @@ def deployment_server_user_data(values)
     packages:
       - etckeeper
       - nfs-common
+    write_files:
+      - path: #{DEPLOYMENT_SERVER_ROLE_FILE}
+        permissions: '0644'
+        content: #{DEPLOYMENT_SERVER_ROLE}
   CLOUD_CONFIG
+end
+
+# Role marker: cloud-init writes it on the deployment server VM. See on_deployment_server?
+
+def on_deployment_server?
+  role_file = DEPLOYMENT_SERVER_ROLE_FILE
+  return false unless File.exist?(role_file) && File.read(role_file).strip == DEPLOYMENT_SERVER_ROLE
+
+  %w[kvm qemu].include?(`systemd-detect-virt --vm 2>/dev/null`.strip)
+end
+
+# Report whether this machine is the deployment server (--action check --check deployment-server)
+
+def check_deployment_server_role(values)
+  information_message(values, 'Checking whether this machine is the deployment server')
+  if on_deployment_server?
+    information_message(values, "This machine is the deployment server (#{DEPLOYMENT_SERVER_ROLE_FILE} is set and it is a KVM guest)")
+  else
+    information_message(values, 'This machine is not the deployment server')
+  end
+  nil
 end
 
 # Cloud-init network config: a fixed address on the libvirt default network
