@@ -1018,7 +1018,8 @@ def reset_type_defaults(values, defaults)
     defaults['sshportmin'] = defaults['sshport']
   end
   defaults['size'] = '40G' if values['os-type'].to_s.match(/vmware/)
-  values['packersshport'] = '22' if values['vmnetwork'].to_s.match(/hostonly/)
+  network = values['vmnetwork'].to_s.match?(/\w/) ? values['vmnetwork'] : defaults['vmnetwork']
+  defaults['packersshport'] = '22' if network.to_s.match(/hostonly/)
   [values, defaults]
 end
 

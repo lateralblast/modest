@@ -314,6 +314,9 @@ def build_packer_config(values)
     gw_if_name = get_gw_if_name(values)
     check_nat(values, gw_if_name, if_name)
   end
+  # Packer refuses to build into an output directory that exists, and a build that failed earlier leaves it behind
+  image_dir = "#{values['clientdir']}/images"
+  FileUtils.rm_rf(image_dir) if Dir.exist?(image_dir) && values['dryrun'] != true
   message = "Information:\tBuilding Packer Image #{json_file}"
   command = if values['verbose'] == true
               if values['host-os-uname'].to_s.match(/NT/)
@@ -329,6 +332,10 @@ def build_packer_config(values)
   if values['verbose'] == true
     verbose_message(values, message)
     execute_message(values, command)
+  end
+  if values['dryrun'] == true
+    information_message(values, "Dry run: would run #{command}")
+    return nil
   end
   exec(command)
   nil

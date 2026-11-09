@@ -140,7 +140,7 @@ def post_process_values(values)
     values['action'] = switch if values[switch] == true
   end
   values['bridge'] = values['netbridge'] if values['netbridge']
-  values['size'] = values['disksize'] if values['disksize']
+  values['size'] = values['disksize'] if values['disksize'].to_s.match?(/\d/)
   # Handle import
   if values['import'] == true
     if values['vm']

@@ -4,7 +4,7 @@
 MODEST
 ======
 
-Version: 10.2.2
+Version: 10.3.1
 
 License
 -------

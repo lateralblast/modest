@@ -6,6 +6,33 @@ newest first.
 
 ## modest.rb
 
+### [10.3.1] - 2026-11-09
+- The cloud-init seed uses `ip route replace` for the default route of a static-address install, so it succeeds when the kernel `ip=` argument has already added the route. `ip route add` failed with "File exists" and stopped the install
+
+### [10.3.0] - 2026-11-09
+- `--action build` clears the Packer output directory (`<client>/images`) before it starts, when it is not in dry-run. A build that failed earlier left that directory behind, and Packer refused to start with "output directory already exists"
+
+### [10.2.9] - 2026-11-09
+- The cloud-init seed for an install with a static address uses `ip addr replace` for its early command, so it succeeds when the kernel `ip=` argument has already set the address. `ip addr add` failed with "Address already assigned" and stopped the install
+
+### [10.2.8] - 2026-11-09
+- The cloud-init seed no longer writes `package_update` and `package_upgrade` at the autoinstall root. Subiquity does not accept them there and warned about them on every install
+
+### [10.2.7] - 2026-11-09
+- `--action create --type packer` puts the static address of a host-only client on the kernel line (`ip=<address>::<gateway>:<netmask>::eth0:none`). Without it the installer had no network when it fetched its seed, so the install stopped at the language screen
+
+### [10.2.6] - 2026-11-09
+- `--action build --dryrun` no longer starts `packer build`. The dry run prints the command and stops
+
+### [10.2.5] - 2026-11-09
+- The Packer VMware builder sets `network_adapter_type` (from `--ethernetdevice`, default `e1000e`), which Packer requires
+
+### [10.2.4] - 2026-11-09
+- Packer clients on a host-only network connect over SSH on port 22. The port was 2222 (the NAT forward) because the host-only setting was not yet known when the port was chosen
+
+### [10.2.3] - 2026-11-09
+- `--size none` no longer overrides the disk size: `--disksize` is used only when it is a size, so Packer gets the 100G default. Packer rejected `disk_size: none`
+
 ### [10.2.2] - 2026-11-09
 - `--action check --check packer` reports whether Packer is installed, with its version and path. `--check packer --install` installs it with Homebrew from the HashiCorp tap on macOS (`brew install hashicorp/tap/packer`). On other systems it prints the download page instead
 

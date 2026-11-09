@@ -714,6 +714,10 @@ def create_packer_json(values)
         boot_footer  = ''
       end
       boot_header += 'net.ifnames=0 biosdevname=0 ' if values['biosdevnames'] == true
+      # A host-only network without DHCP needs its static address on the kernel line: the seed is fetched before the early-commands run
+      if ssh_host.match?(/\A\d+\.\d+\.\d+\.\d+\z/) && values['vmnetwork'].to_s.match(/hostonly/)
+        boot_header += "ip=#{ssh_host}::#{values['vmgateway']}:#{values['netmask']}::eth0:none "
+      end
       boot_command = if values['release'].to_i >= 20
                        "#{boot_header}autoinstall ds='nocloud-net;s=http://#{ks_ip}:#{values['httpport']}/' #{boot_footer}"
                      else
@@ -983,6 +987,7 @@ def create_packer_json(values)
                         usb: usb,
                         tools_upload_flavor: tools_upload_flavor,
                         tools_upload_path: tools_upload_path,
+                        network_adapter_type: ethernet_dev,
                         vmx_data: {
                           "virtualHW.version": hw_version,
                           "usb_xhci.present": usb_xhci_present,
@@ -1030,6 +1035,7 @@ def create_packer_json(values)
                         usb: usb,
                         tools_upload_flavor: tools_upload_flavor,
                         tools_upload_path: tools_upload_path,
+                        network_adapter_type: ethernet_dev,
                         vmx_data: {
                           "virtualHW.version": hw_version,
                           "usb_xhci.present": usb_xhci_present,
@@ -1307,6 +1313,7 @@ def create_packer_json(values)
           usb: usb,
           tools_upload_flavor: tools_upload_flavor,
           tools_upload_path: tools_upload_path,
+          network_adapter_type: ethernet_dev,
           vmx_data: {
             "virtualHW.version": hw_version,
             "usb_xhci.present": usb_xhci_present,
@@ -1703,6 +1710,7 @@ def create_packer_json(values)
                           profile,
                           finish
                         ],
+                        network_adapter_type: ethernet_dev,
                         vmx_data: {
                           "virtualHW.version": hw_version,
                           "usb_xhci.present": usb_xhci_present,
@@ -1756,6 +1764,7 @@ def create_packer_json(values)
                           profile,
                           finish
                         ],
+                        network_adapter_type: ethernet_dev,
                         vmx_data: {
                           "virtualHW.version": hw_version,
                           "usb_xhci.present": usb_xhci_present,
@@ -1912,6 +1921,7 @@ def create_packer_json(values)
                           unattended_xml,
                           post_install_psh
                         ],
+                        network_adapter_type: ethernet_dev,
                         vmx_data: {
                           "virtualHW.version": hw_version,
                           "usb_xhci.present": usb_xhci_present,
@@ -1966,6 +1976,7 @@ def create_packer_json(values)
                           unattended_xml,
                           post_install_psh
                         ],
+                        network_adapter_type: ethernet_dev,
                         vmx_data: {
                           "virtualHW.version": hw_version,
                           "usb_xhci.present": usb_xhci_present,
@@ -2308,6 +2319,7 @@ def create_packer_json(values)
                         boot_command: boot_command,
                         tools_upload_flavor: tools_upload_flavor,
                         tools_upload_path: tools_upload_path,
+                        network_adapter_type: ethernet_dev,
                         vmx_data: {
                           "virtualHW.version": hw_version,
                           "usb_xhci.present": usb_xhci_present,
@@ -2355,6 +2367,7 @@ def create_packer_json(values)
                         usb: usb,
                         tools_upload_flavor: tools_upload_flavor,
                         tools_upload_path: tools_upload_path,
+                        network_adapter_type: ethernet_dev,
                         vmx_data: {
                           "virtualHW.version": hw_version,
                           "usb_xhci.present": usb_xhci_present,

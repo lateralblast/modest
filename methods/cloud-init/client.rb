@@ -46,8 +46,6 @@ def populate_cc_user_data(values)
   linux_kernel = values['kernel'].to_s
   netplan_file = "#{install_target}/etc/netplan/50-cloud-init.yaml"
   locale_file  = "#{install_target}/etc/default/locales"
-  package_update   = values['installupdates'].to_s
-  package_upgrade  = values['installupgrades'].to_s
   values['installdrivers'].to_s
   install_security = values['installsecurity'].to_s
   values['timezone'].to_s
@@ -114,8 +112,6 @@ def populate_cc_user_data(values)
     user_data.push('      uri: http://archive.ubuntu.com/ubuntu')
     user_data.push('    - arches: [default]')
     user_data.push('      uri: http://ports.ubuntu.com/ubuntu-ports')
-    user_data.push("  package_update: #{package_update}")
-    user_data.push("  package_upgrade: #{package_upgrade}")
     #    user_data.push("  drivers:")
     #    user_data.push("    install: #{install_drivers}:")
     #    user_data.push("  user-data:")
@@ -159,9 +155,9 @@ def populate_cc_user_data(values)
     user_data.push('  updates: security') if install_security.to_s.match(/true/)
     user_data.push('  user-data:')
     user_data.push('    disable-root: false')
-    early_exec_data.push("ip addr add #{install_ip}/#{install_cidr} dev #{install_nic}") if disable_dhcp.match(/true/)
+    early_exec_data.push("ip addr replace #{install_ip}/#{install_cidr} dev #{install_nic}") if disable_dhcp.match(/true/)
     early_exec_data.push("ip link set #{install_nic} up")
-    early_exec_data.push("ip route add default via #{install_gateway}")
+    early_exec_data.push("ip route replace default via #{install_gateway}")
     early_exec_data.push("echo 'DNS=#{install_nameserver}' >> #{resolved_conf}")
     early_exec_data.push('systemctl restart systemd-resolved')
   else
