@@ -151,7 +151,7 @@ def set_vm_defaults(values, defaults)
       defaults['nic']      = `dladm show-link |grep phys |grep up |awk '{print $1}'`.chomp
       defaults['host-os-platform'] = `prtdiag |grep 'System Configuration'`.chomp
     when /Linux/
-      defaults['valid-vm'] = %w[vbox lxc docker aws qemu kvm xen fusion vmware multipass]
+      defaults['valid-vm'] = %w[vbox lxc docker aws qemu kvm xen fusion vmware multipass deployment-server]
       defaults['dmidecode'] = if File.exist?('/sbin/dmidecode')
                                 '/sbin/dmidecode'
                               else

@@ -6,6 +6,14 @@ newest first.
 
 ## modest.rb
 
+### [10.3.9] - 2026-11-09
+- `--vm deployment-server` gives the VM the fixed address 192.168.122.10 on the libvirt default network, set by cloud-init network config. The default network's DHCP pool is moved to 192.168.122.100-192.168.122.254 so the fixed address is outside it. Create also adds a marked `deployment-server` line to `/etc/hosts` (the original is saved as `/etc/hosts.before-modest`), so the VM can be reached by name. Delete removes that hosts line, and keeps the DHCP pool and NFS exports
+
+### [10.3.8] - 2026-11-09
+- `--action create --vm deployment-server` builds a deployment server VM from the Ubuntu 26.04.1 LTS cloud image: a qcow2 overlay on a shared, checksum-verified base image in `/var/lib/libvirt/images`, a cloud-init seed with the key from `--sshkeyfile`, and an NFS export block for `/export` on the libvirt default network. It refuses to replace a VM that already exists
+- `--action delete --vm deployment-server` stops and undefines the VM and removes only its own overlay and seed. The base image and `/export` are kept
+- `--vm deployment-server` no longer needs `--os-type` or `--method`, and `--name` is optional (default `deployment-server`)
+
 ### [10.3.7] - 2026-11-09
 - `--action check --check kvm` reports on one summary line when KVM is installed and the user is already in the `kvm`, `libvirt`, `libvirt-qemu` and `libvirt-dnsmasq` groups. The summary is not printed when a group was added or skipped
 

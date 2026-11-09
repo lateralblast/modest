@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 # Name:         modest (Multi OS Deployment Engine Server Tool)
-# Version:      10.3.7
+# Version:      10.3.9
 # Release:      1
 # License:      CC BY-NC-SA (Creative Commons Attribution-NonCommercial-ShareAlike)
 #               http://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
@@ -671,7 +671,7 @@ end
 values['requested-arch'] = values['arch'] if values['arch'].to_s.match?(/\S/)
 
 # A create needs an OS or an install method. Check the options as given, before any network setup
-if values['action'].to_s.match?(/add|create/) && !values['vm'].to_s.empty? && !values.key?('os-type') && !values.key?('method') && !values.key?('file') && !values['vm'].to_s.match?(/ldom|cdom|gdom|aws|mp|multipass/) && !values['type'].to_s.match?(/network/)
+if values['action'].to_s.match?(/add|create/) && !values['vm'].to_s.empty? && !values.key?('os-type') && !values.key?('method') && !values.key?('file') && !values['vm'].to_s.match?(/ldom|cdom|gdom|aws|mp|multipass/) && !values['type'].to_s.match?(/network/) && values['vm'].to_s != 'deployment-server'
   puts "Warning:\tNo OS or install method specified when creating VM"
   exit 1
 end
@@ -805,7 +805,7 @@ values['ip'] = values['ips'] if values['ips']&.to_s&.match(/[0-9]/)
 
 # If delete action chosen, check a client or service name is specified
 
-if values['action'].to_s.match(/delete/) && values['name'] == values['empty'] && values['service'] == values['empty']
+if values['action'].to_s.match(/delete/) && values['name'] == values['empty'] && values['service'] == values['empty'] && values['vm'].to_s != 'deployment-server'
   warning_message(values, 'No service of client name specified')
   quit(values)
 end
@@ -1015,7 +1015,7 @@ end
 
 # Handle VM named none
 
-if values['action'].to_s.match(/create/) && values['name'] == 'none' && values['mode'] != 'server' && (values['type'] != 'service')
+if values['action'].to_s.match(/create/) && values['name'] == 'none' && values['mode'] != 'server' && (values['type'] != 'service') && values['vm'].to_s != 'deployment-server'
   warning_message(values, 'Invalid client name')
   quit(values)
 end

@@ -4,7 +4,7 @@
 MODEST
 ======
 
-Version: 10.3.7
+Version: 10.3.9
 
 License
 -------
@@ -178,6 +178,32 @@ Checking and installing tools
     ./modest.rb --action check --check packer --install
 
 `--action check` with no `--check` prints the available checks and exits. `--check` takes one of `perms`, `dnsmasq`, `dhcp`, `tftp`, `virtualbox`, `fusion`, `workstation`, `parallels`, `packer` or `kvm` (`kvm` checks that KVM is installed and that the user is in the `kvm`, `libvirt`, `libvirt-qemu` and `libvirt-dnsmasq` groups. Missing groups are added with `usermod`, and the user must log out and back in for them to apply. With `--install`, a missing KVM is installed). `docker` checks that the `docker` and `docker compose` (or `docker-compose`) commands are installed, that the daemon is reachable, and that the user is in the `docker` group (Linux; missing membership is added and needs a re-login). With `--install`, missing tools are installed. `--check perms` checks client directory permissions. `--check packer` reports the Packer version and path, or that Packer is missing. With `--install`, a missing Packer is installed with Homebrew from the HashiCorp tap (`brew install hashicorp/tap/packer`) on macOS. On other systems it prints the download page instead.
+
+Deployment server VM
+--------------------
+
+    ./modest.rb --action create --vm deployment-server --sshkeyfile ~/.ssh/id_ed25519.pub
+    ./modest.rb --action delete --vm deployment-server
+
+`--vm deployment-server` builds a KVM VM from the Ubuntu 26.04.1 LTS cloud image. The image is
+downloaded into `/var/lib/libvirt/images` on first use and checked against its SHA256. Each VM gets
+a qcow2 overlay on that shared base image, with 2 vCPUs, 4096 MB of memory and a 40G disk. The
+cloud-init seed renames the default cloud user to the current user (keeping UID 1000), adds the
+public key from `--sshkeyfile`, turns off password SSH, and installs `etckeeper` and `nfs-common`.
+
+Create also writes a marked NFS export block to `/etc/exports` for `/export/isos`, `/export/pkgs`
+and `/export/repo` (read-only) and `/export/clients` and `/export/images` (read-write), to the
+libvirt default network `192.168.122.0/24`. The original file is saved as `/etc/exports.before-modest`
+the first time. A VM that already exists is not changed.
+
+The VM has the fixed address `192.168.122.10` on the libvirt default network. Create moves that
+network's DHCP pool to `192.168.122.100`-`192.168.122.254`, so the fixed address is outside it, and
+adds a marked `deployment-server` line to `/etc/hosts` (the original is saved as
+`/etc/hosts.before-modest`). Connect with `ssh <user>@deployment-server`. The first connection needs
+the host key accepted (for example `StrictHostKeyChecking=accept-new`).
+
+Delete stops and undefines the VM, removes only its own overlay and seed, and removes its `/etc/hosts`
+line. The base image, the NFS exports and the DHCP pool are shared and are kept.
 
 Listing networks
 ----------------

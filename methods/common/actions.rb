@@ -5,6 +5,7 @@
 # Handle action switch
 
 def handle_action(values)
+  return deployment_server_action(values) if values['vm'].to_s == DEPLOYMENT_SERVER_NAME && values['action'].to_s.match(/create|delete/)
   if values['action'] != values['empty']
     case values['action']
     when /convert/
